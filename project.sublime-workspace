@@ -1,0 +1,1259 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"l",
+				"length"
+			],
+			[
+				"cons",
+				"console"
+			],
+			[
+				"back",
+				"background-size"
+			],
+			[
+				"get",
+				"getRequest"
+			],
+			[
+				"em",
+				"empty"
+			],
+			[
+				"for",
+				"forEach"
+			],
+			[
+				"getIte",
+				"getItems"
+			],
+			[
+				"me",
+				"method"
+			],
+			[
+				"min-",
+				"min-height"
+			],
+			[
+				"da",
+				"data"
+			],
+			[
+				"Pla",
+				"PlayAndEdit"
+			],
+			[
+				"mu",
+				"setMuted"
+			],
+			[
+				"pus",
+				"pushAnim"
+			],
+			[
+				"use",
+				"user"
+			],
+			[
+				"getUse",
+				"getUserId"
+			],
+			[
+				"f",
+				"false"
+			],
+			[
+				"eve",
+				"eventBus"
+			],
+			[
+				"mo",
+				"modal"
+			],
+			[
+				"ha",
+				"handlePurchase"
+			],
+			[
+				"state",
+				"stateManager"
+			],
+			[
+				"lo",
+				"loop"
+			],
+			[
+				"ma",
+				"margin-bottom"
+			],
+			[
+				"text",
+				"text-align"
+			],
+			[
+				"initPa",
+				"initPaymentDialog"
+			],
+			[
+				"gameS",
+				"gameState"
+			],
+			[
+				"pi",
+				"pickup"
+			],
+			[
+				"tas",
+				"task"
+			],
+			[
+				"af",
+				"afterFrame"
+			],
+			[
+				"on",
+				"once"
+			],
+			[
+				"sho",
+				"showTip"
+			],
+			[
+				"cle",
+				"clearTimeout"
+			],
+			[
+				"sa",
+				"saveStateLocale"
+			],
+			[
+				"be",
+				"before"
+			],
+			[
+				"fo",
+				"forEach"
+			],
+			[
+				"AM",
+				"AMOUNT_TIME"
+			],
+			[
+				"no",
+				"none"
+			],
+			[
+				"pa",
+				"paramsIndex"
+			],
+			[
+				"p",
+				"padding-2"
+			],
+			[
+				"moda",
+				"modal-dialog"
+			],
+			[
+				"Tra",
+				"track"
+			],
+			[
+				"tra",
+				"track"
+			],
+			[
+				"origi",
+				"originLevel"
+			],
+			[
+				"in",
+				"index"
+			],
+			[
+				"ite",
+				"items"
+			],
+			[
+				"V",
+				"Vector2"
+			],
+			[
+				"background-po",
+				"background-position-x"
+			],
+			[
+				"--",
+				"--frame-bg-color"
+			],
+			[
+				"fin",
+				"find"
+			],
+			[
+				"data",
+				"data-type"
+			],
+			[
+				"car",
+				"cart_name"
+			],
+			[
+				"lef",
+				"leftMoveAnim"
+			],
+			[
+				"pars",
+				"parseUserAction"
+			],
+			[
+				"ca",
+				"cart_name"
+			],
+			[
+				"modal",
+				"modal-subtitle"
+			],
+			[
+				"ea",
+				"ease"
+			],
+			[
+				"le",
+				"length"
+			],
+			[
+				"max-",
+				"max-width"
+			],
+			[
+				"find",
+				"findAsTask"
+			],
+			[
+				"toast",
+				"tipToast"
+			],
+			[
+				"cure",
+				"currentModal"
+			],
+			[
+				"toa",
+				"toast"
+			],
+			[
+				"show",
+				"showTip"
+			],
+			[
+				"curre",
+				"currentScore"
+			],
+			[
+				"Score",
+				"addScore"
+			],
+			[
+				"bac",
+				"background-image"
+			],
+			[
+				"font",
+				"font-family"
+			],
+			[
+				"fon",
+				"font"
+			],
+			[
+				"cart",
+				"cart_name"
+			],
+			[
+				"ti",
+				"time"
+			],
+			[
+				"objec",
+				"objects"
+			],
+			[
+				"leve",
+				"levels"
+			],
+			[
+				"GA",
+				"GAME_PARAMS"
+			],
+			[
+				"di",
+				"display"
+			],
+			[
+				"over",
+				"overflow-y"
+			],
+			[
+				"wi",
+				"width"
+			],
+			[
+				"dele",
+				"deleteMode"
+			],
+			[
+				"score",
+				"scoreIndicatorElement"
+			],
+			[
+				"games",
+				"gameObjects"
+			],
+			[
+				"update",
+				"updateScoreIndicator"
+			],
+			[
+				"drop",
+				"dropItem"
+			],
+			[
+				"coun",
+				"counter"
+			],
+			[
+				"cli",
+				"click"
+			],
+			[
+				"GAME",
+				"GAME_MODE"
+			],
+			[
+				"toggle",
+				"toggleClass"
+			],
+			[
+				"lan",
+				"data-lang"
+			],
+			[
+				"remo",
+				"remove"
+			],
+			[
+				"gameO",
+				"gameOverModalElement"
+			],
+			[
+				"is",
+				"isBusy"
+			],
+			[
+				"getC",
+				"getCellPosition"
+			],
+			[
+				"name",
+				"cart_name"
+			],
+			[
+				"o",
+				"off"
+			],
+			[
+				"ven",
+				"eventBus"
+			],
+			[
+				"per",
+				"periods"
+			],
+			[
+				"getW",
+				"getWorldPosition"
+			],
+			[
+				"m",
+				"moveTo"
+			],
+			[
+				"dis",
+				"distance"
+			],
+			[
+				"def",
+				"defaultOptions"
+			],
+			[
+				"Par",
+				"ParticleSystem"
+			],
+			[
+				"na",
+				"cart_name"
+			],
+			[
+				"path",
+				"pathIndex"
+			],
+			[
+				"s",
+				"gameState"
+			],
+			[
+				"lev",
+				"levelsModalElement"
+			],
+			[
+				"isP",
+				"isPaused"
+			],
+			[
+				"RES",
+				"RESUME"
+			],
+			[
+				"P",
+				"PAUSED"
+			],
+			[
+				"app",
+				"applyNewPos"
+			],
+			[
+				"cal",
+				"calcLocation"
+			],
+			[
+				"getPa",
+				"getPathCount"
+			],
+			[
+				"For",
+				"ForkTrack"
+			],
+			[
+				"re",
+				"resume"
+			],
+			[
+				"toas",
+				"ToastMessage"
+			],
+			[
+				"getCar",
+				"getTaskCart"
+			],
+			[
+				"ro",
+				"row"
+			],
+			[
+				"fle",
+				"flex-direction"
+			],
+			[
+				"cu",
+				"currentScoreElem"
+			],
+			[
+				"wo",
+				"worldDirection"
+			],
+			[
+				"wor",
+				"getWorldDirection"
+			],
+			[
+				"forw",
+				"forwardTrain"
+			],
+			[
+				"fork",
+				"end-fork"
+			],
+			[
+				"load",
+				"loadAllSounds"
+			],
+			[
+				"t",
+				"transition"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"enu",
+				"eventBus"
+			],
+			[
+				"Vec",
+				"Vector2"
+			],
+			[
+				"set",
+				"setLookCell"
+			],
+			[
+				"getCe",
+				"getCellPosition"
+			],
+			[
+				"ba",
+				"background-image"
+			],
+			[
+				"mar",
+				"margin-left"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"js",
+				"Pretty JSON: Minify JSON"
+			],
+			[
+				"jso",
+				"Pretty JSON: Minify JSON"
+			],
+			[
+				"Pask",
+				"Preferences: Browse Packages"
+			],
+			[
+				"Comm",
+				"Toggle Block Comment"
+			],
+			[
+				"Package",
+				"Preferences: Browse Packages"
+			],
+			[
+				"pr",
+				"Pretty JSON: Format JSON"
+			],
+			[
+				"P",
+				"Pretty JSON: Validate"
+			],
+			[
+				"pret",
+				"Pretty JSON: Format JSON"
+			],
+			[
+				"p",
+				"Pretty JSON: Validate"
+			],
+			[
+				"Pretty JSON",
+				"Pretty JSON: Format JSON"
+			],
+			[
+				"Install Package",
+				"Package Control: Install Package"
+			],
+			[
+				"json",
+				"Set Syntax: JSON (PHP)"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/OpenServer/domains/bs.com"
+	],
+	"file_history":
+	[
+		"/C/OpenServer/domains/wings-ural.com/views/layouts/main-fullscreen.php",
+		"/C/OpenServer/domains/wings-ural.com/config/web.php",
+		"/C/OpenServer/domains/wings-ural.com/views/site/index.php",
+		"/C/OpenServer/domains/wings-ural.com/views/layouts/main.php",
+		"/C/OpenServer/domains/wings-ural.com/views/layouts/_fullscreen_header.php",
+		"/C/OpenServer/domains/wings-ural.com/public_html/css/site.css",
+		"/C/OpenServer/domains/wings-ural.com/views/article/what_is_paragrider.php",
+		"/C/OpenServer/domains/wings-ural.com/views/layouts/_footer.php",
+		"/C/OpenServer/domains/wings-ural.com/controllers/ArticleController.php",
+		"/C/OpenServer/domains/wings-ural.com/combined.txt",
+		"/C/OpenServer/domains/wings-ural.com/config/db.php",
+		"/C/OpenServer/domains/wings-ural.com/public_html/check-yii.php",
+		"/C/OpenServer/domains/wings-ural.com/composer.json",
+		"/C/OpenServer/domains/wings-ural.com/public_html/index.php",
+		"/C/OpenServer/domains/wings-ural.com/.gitignore",
+		"/C/OpenServer/domains/wings-ural.com/git-push-requlay.cmd",
+		"/C/OpenServer/domains/wings-ural.com/views/layouts/_header.php",
+		"/C/OpenServer/domains/wings-ural.com/views/layouts/_head.php",
+		"/C/OpenServer/domains/wings-ural.com/web/css/site.css",
+		"/C/OpenServer/domains/wings-ural.com/combine_run.py",
+		"/C/OpenServer/domains/wings-ural.com/config/test.php",
+		"/C/OpenServer/domains/wings-ural.com/assets/AppAsset.php",
+		"/C/OpenServer/domains/wings-ural.com/controllers/FlightController.php",
+		"/C/OpenServer/domains/wings-ural.com/vendor/yiisoft/yii2/base/Application.php",
+		"/C/OpenServer/domains/YiiTest/README.md",
+		"/C/Documents/Paragliding/КУРС ПЕРВОНАЧАЛЬНОГО ОБУЧЕНИЯ.txt",
+		"/C/OpenServer/domains/YiiTest/.gitignore",
+		"/C/OpenServer/domains/YiiTest/controllers/ReportController.php",
+		"/C/OpenServer/domains/YiiTest/controllers/SubscriptionController.php",
+		"/C/OpenServer/domains/YiiTest/controllers/BookController.php",
+		"/C/OpenServer/domains/YiiTest/components/SmsPilot.php",
+		"/C/OpenServer/domains/YiiTest/models/User.php",
+		"/C/OpenServer/domains/YiiTest/migrations/m000000_000003_create_book_author_table.php",
+		"/C/OpenServer/domains/YiiTest/migrations/m000000_000004_create_subscriptions_table.php",
+		"/C/OpenServer/domains/YiiTest/controllers/AuthorController.php",
+		"/C/OpenServer/domains/YiiTest/views/layouts/main.php",
+		"/C/OpenServer/domains/YiiTest/combine_run.py",
+		"/C/OpenServer/domains/YiiTest/views/report/index.php",
+		"/C/OpenServer/domains/YiiTest/migrations/m000000_000005_create_user_table.php",
+		"/C/OpenServer/domains/YiiTest/runtime/logs/sms.log",
+		"/C/OpenServer/domains/YiiTest/runtime/logs/app.log",
+		"/C/OpenServer/domains/YiiTest/views/author/view.php",
+		"/C/OpenServer/domains/YiiTest/models/ReportForm.php",
+		"/C/OpenServer/domains/YiiTest/views/subscription/subscribe.php",
+		"/C/OpenServer/domains/YiiTest/models/Book.php",
+		"/C/OpenServer/domains/YiiTest/views/book/index.php",
+		"/C/OpenServer/domains/YiiTest/config/params.php",
+		"/C/OpenServer/domains/YiiTest/views/site/login.php",
+		"/C/OpenServer/domains/YiiTest/views/author/index.php",
+		"/C/OpenServer/domains/YiiTest/migrations/m000000_000001_create_books_table.php",
+		"/C/OpenServer/domains/YiiTest/migrations/m000000_000006_seed_test_data.php",
+		"/C/OpenServer/domains/YiiTest/views/book/view.php",
+		"/C/OpenServer/domains/YiiTest/views/book/create.php",
+		"/C/OpenServer/domains/YiiTest/views/book/update.php",
+		"/C/OpenServer/domains/YiiTest/views/book/_form.php",
+		"/C/OpenServer/domains/YiiTest/views/site/error.php",
+		"/C/OpenServer/domains/YiiTest/config/web.php",
+		"/C/OpenServer/domains/YiiTest/views/author/create.php",
+		"/C/OpenServer/domains/YiiTest/views/author/update.php",
+		"/C/OpenServer/domains/YiiTest/views/author/_form.php",
+		"/C/OpenServer/domains/YiiTest/web/index.php",
+		"/C/OpenServer/domains/YiiTest/Nginx_1.23_vhost.conf",
+		"/C/OpenServer/userdata/logs/Nginx_1.23_error.log",
+		"/C/OpenServer/domains/YiiTest/models/Subscription.php",
+		"/C/OpenServer/domains/YiiTest/models/LoginForm.php",
+		"/C/OpenServer/domains/YiiTest/controllers/SiteController.php",
+		"/C/OpenServer/domains/YiiTest/models/BookAuthor.php",
+		"/C/OpenServer/domains/YiiTest/models/Author.php",
+		"/C/OpenServer/domains/YiiTest/migrations/m000000_000002_create_authors_table.php",
+		"/C/OpenServer/domains/YiiTest/config/db.php",
+		"/C/OpenServer/domains/YiiTest/basic/config/db.php",
+		"/D/UnityProjects/TestMirror/README.md",
+		"/D/UnityProjects/TestMirror/.gitignore",
+		"/C/Users/fwadi/Downloads/Первоначальное обучение  (3).txt",
+		"/C/Users/fwadi/Downloads/Первоначальное обучение .txt",
+		"/C/Users/fwadi/Downloads/Первоначальное обучение  (1).txt",
+		"/C/Users/fwadi/Downloads/Первоначальное обучение  (2).txt",
+		"/C/Users/fwadi/AppData/LocalLow/Vmaya/TestMirror/Player.log",
+		"/C/OpenServer/domains/game-dev/public/data/ya-prices.json",
+		"/C/OpenServer/domains/game-dev/public/scripts/core/YaUser.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/utils/Utils.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/UI/Shop.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/main.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/core/BaseGame.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/levels.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/UI/Library.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/languages/en.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/languages/ru.js",
+		"/C/OpenServer/domains/game-dev/public/index.html",
+		"/C/OpenServer/domains/game-dev/config_ccgo/config.php",
+		"/C/OpenServer/domains/game-dev/prepare/yandex/index.html",
+		"/D/UnityProjects/TestMirror/Packages/manifest.json",
+		"/C/OpenServer/domains/game-dev/public/index-vk.html",
+		"/C/OpenServer/domains/game-dev/obfuscate.bat",
+		"/C/OpenServer/domains/game-dev/public/scripts/core/VKUser.js",
+		"/C/Documents/Анкета на вакансию _AI-тренер со знанием кода_ — Яндекс Формы.html",
+		"/C/OpenServer/domains/game-dev/public/scripts/models/BaseStateMashine.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/controls/RaycasterManager.js",
+		"/C/OpenServer/domains/game-dev/src/Vmaya/models/UserStateModel.php",
+		"/C/OpenServer/domains/game-dev/update-version.ps1",
+		"/C/OpenServer/domains/game-dev/public/styles/main.css",
+		"/C/OpenServer/domains/game-dev/public/scripts/languages/Lang.js",
+		"/C/Users/fwadi/Downloads/13779804_1_.txt",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/errors.log",
+		"/C/OpenServer/domains/game-dev/public/index-std.html",
+		"/C/OpenServer/domains/game-dev/public/scripts/constants.js",
+		"/C/OpenServer/domains/game-dev/src/Vmaya/classes/Ajax.php",
+		"/C/OpenServer/domains/game-dev/src/Vmaya/engine.php",
+		"/C/OpenServer/domains/game-dev/public/scripts/modes/DropGame.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/UI/RailwaySpawner.js",
+		"/C/OpenServer/domains/game-dev/logs/errors.log",
+		"/C/OpenServer/domains/game-dev/public/scripts/models/Train.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/models/BaseCart.js",
+		"/C/OpenServer/domains/game-dev/src/Vmaya/templates/game-block.php",
+		"/C/OpenServer/domains/game-dev/src/Vmaya/models/BaseModel.php",
+		"/C/OpenServer/domains/game-dev/public/scripts/test-unit.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/error-tracker.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/core/VKStateManager.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/controls/HandTouch.js",
+		"/C/OpenServer/domains/game-dev/src/Vmaya/classes/Page.php",
+		"/C/OpenServer/domains/game-dev/logs/fdbg.log",
+		"/C/OpenServer/domains/game-dev/src/Vmaya/classes/BaseAjax.php",
+		"/C/OpenServer/domains/game-dev/public/scripts/vkapp.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/core/state-manager.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/models/StraightTrack.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/models/BaseTrack.js",
+		"/C/OpenServer/domains/game-dev/public/scripts/models/ForkTrack.js",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/vmaya.ru.conf"
+	],
+	"find":
+	{
+		"height": 40.0
+	},
+	"find_in_files":
+	{
+		"height": 143.0,
+		"where_history":
+		[
+			"C:\\OpenServer\\domains\\wings-ural.com\\views,<project filters>",
+			"C:\\OpenServer\\domains\\wings-ural.com\\public_html,<project filters>",
+			"C:\\OpenServer\\domains\\wings-ural.com\\views,<project filters>",
+			"C:\\OpenServer\\domains\\wings-ural.com\\web,<project filters>",
+			"C:\\OpenServer\\domains\\wings-ural.com\\views,<project filters>",
+			"C:\\OpenServer\\domains\\wings-ural.com,<project filters>",
+			"C:\\OpenServer\\domains\\wings-ural.com\\views,<project filters>",
+			"C:\\OpenServer\\domains\\wings-ural.com\\config,<project filters>",
+			"C:\\OpenServer\\domains\\YiiTest\\views,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\src\\Vmaya,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\src\\Vmaya\\templates,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\src\\Vmaya,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\audio,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\modes,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\utils,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\src\\Vmaya\\templates,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\controls,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\src\\Vmaya,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\modes,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\styles,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts\\models,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public,<project filters>",
+			"C:\\OpenServer\\domains\\game-dev\\public\\scripts,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts\\models,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts\\models,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts\\models,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts\\models,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts\\models,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts\\models,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts\\models,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts\\models,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts\\models,<project filters>",
+			"D:\\Projects\\tree-jump\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
+			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"hero-text",
+			"content",
+			"hero-text",
+			".hero-text",
+			"hero-text",
+			"addEventListener",
+			"updateHeight",
+			"section4",
+			"site.css",
+			"text-decoration",
+			"urlManager",
+			"ArticleController",
+			"(max-width: 900px)",
+			"hero-text",
+			"site.css",
+			"click",
+			".main-menu",
+			"(max-width: 900px)",
+			"<script",
+			"ali",
+			".logo",
+			".logo a img",
+			"logo",
+			".content-block a",
+			"bg-video-2",
+			"arrowDown",
+			"ПАРА",
+			"ПАРАП",
+			"main-menu",
+			".main-menu",
+			"hero-banner",
+			"My Application",
+			"\t",
+			"Каталог книг",
+			"smsPilotApiKey",
+			"cover_image",
+			"cover_url",
+			"catalog",
+			"handlePurchase",
+			"init(",
+			"init",
+			"showStartModal",
+			"startModal",
+			"Start",
+			"yan",
+			"START",
+			"this.paramsIndex",
+			"getLevel",
+			"levels",
+			"Title",
+			"bonuse-enum",
+			"Монет",
+			"Кол",
+			"Inve",
+			"Ян",
+			"beforeExternal",
+			"gameState",
+			"pause",
+			"VKWebAppShowNativeAds",
+			"_afterResize",
+			"<script",
+			"<body",
+			"script",
+			"isOk",
+			"onNewTitle",
+			"addAppEvent",
+			"new_level",
+			"onNewLevel",
+			"onTouchStart",
+			"isOk",
+			"showAd",
+			"inviteFrends",
+			"send",
+			"invite",
+			".name",
+			"#leader-button",
+			"Promise",
+			"getLeaders",
+			"spawner",
+			"png",
+			".show()",
+			"show()",
+			"leaders",
+			"lider",
+			"initVi",
+			"State",
+			"bottom",
+			"tools-panel",
+			"red-green-level-description",
+			"onGaDown",
+			"_onGaDown",
+			"onPreVictory",
+			"initListeners",
+			"Train",
+			"initUse",
+			"JSON.stringify",
+			"Ajax",
+			"Response status",
+			"rays",
+			"victory",
+			"START",
+			"setMuted",
+			"afterExternal",
+			"beforeExternal",
+			"this.game",
+			"created",
+			"pushAnim",
+			"START",
+			"Train",
+			"originLevelsCopy",
+			"structuredClone",
+			"#shop",
+			".shop",
+			"data-lang",
+			"app_name",
+			".status",
+			"processPurchases",
+			"handlePurchase",
+			"requireScore",
+			"processPurchases",
+			"HandTouch",
+			"railMaterial",
+			"trace",
+			"getUserId",
+			"setUserState",
+			"getUserId",
+			"saveStateServer",
+			"try_saveStateToServer"
+		],
+		"highlight": false,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"  ",
+			"v=28",
+			"v=27",
+			"v=26",
+			"v=25",
+			"Play",
+			"\"",
+			"v=24",
+			"isDev",
+			"v=23",
+			"v=22",
+			"v=21",
+			"var(--tool-text-color)",
+			"v=20",
+			"v=19",
+			"isAwailableDelete",
+			"v=18",
+			"v=17",
+			"v=16",
+			"_setVisible",
+			"setVisible",
+			"tipToast",
+			"toast",
+			"toastTimer",
+			"v=15",
+			"v=14",
+			"v=12",
+			"v=11",
+			"updateHoverPlane",
+			"v=10",
+			"v=9",
+			"v=8",
+			"v=7",
+			"v=6",
+			"v=5",
+			"v=4",
+			"v=3",
+			"v=2",
+			"v=1",
+			"_lastDrop",
+			"_closeHoverTraking",
+			"_setupHoverTracking",
+			"game-mode-change",
+			"gameMode",
+			"gameModes",
+			"this.game.items",
+			"opacity",
+			"fade",
+			"size.captureLenght",
+			"size.wallY",
+			"size.baseY",
+			"this.glassMaterial",
+			"this.windowFrameMaterial",
+			"this.roofMaterial",
+			"this.wallMaterial",
+			"this.baseY",
+			"this.wallWidth",
+			"this.wallHeight",
+			"PI_HALF",
+			"this.captureLenght",
+			"trackIndex",
+			"this.options.pinchSpeed",
+			"this.options.zoomSpeed",
+			"this.options.maxScale",
+			"this.options.minScale",
+			"this.options.dragSensitivity",
+			"this.options.followSpeed",
+			"this.game.items",
+			"this.base",
+			"//event.preventDefault();",
+			"_updateHoverPlane",
+			"updateHoverPlane",
+			"this.track",
+			"this.lookPoint.y",
+			"this.lookPoint.x",
+			"this.cellPosition",
+			"sellPosition",
+			"pupil",
+			"this.game.scene",
+			"?v=9",
+			"?v=8",
+			"?v=7",
+			"?v=6",
+			"?v=5",
+			"v=4",
+			"this.platform_count",
+			"?v=3",
+			"?v=2",
+			"dialog/",
+			"this.half_height",
+			"this.Width",
+			"this.Height",
+			"this.Radius",
+			"Count",
+			"TRUNK_SEGMENTS",
+			"TRUNK_CURVE_STRENGTH",
+			"mesh",
+			"_victoryCallbacks",
+			"_gameOverCallbacks",
+			"targetRotation",
+			"checkTentionDelay",
+			"stopQuestionQuiz",
+			"stateQuestionQuiz",
+			"desk-block",
+			"deskBlock",
+			" #",
+			"#",
+			"AppConst.directions",
+			"indexInMode",
+			"Lang",
+			"target",
+			"app.route('/phrases",
+			"app.route('phrases",
+			"var(--color2_dark)",
+			"var(--color1_light)",
+			"var(--color1_light_down)",
+			"var(--color1_midle)",
+			"var(--color1_dark)",
+			"var(--color1_dark_down)",
+			"bg-form",
+			"text-target",
+			"playBackgrounAudio",
+			"bg-theme-gradient",
+			"bg-gradient",
+			"saveState",
+			"config.use_server",
+			"sendPhrase",
+			"tg"
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": false,
+		"use_buffer2": true,
+		"use_gitignore": false,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.2
+	},
+	"input":
+	{
+		"height": 73.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.diff_views":
+	{
+		"height": 36.0,
+		"history":
+		[
+		]
+	},
+	"output.find_results":
+	{
+		"height": 224.0,
+		"history":
+		[
+		]
+	},
+	"output.unsaved_changes":
+	{
+		"height": 107.0,
+		"history":
+		[
+		]
+	},
+	"pinned_build_system": "",
+	"project": "project.sublime-project",
+	"replace":
+	{
+		"height": 51.2
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 392.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 592.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 378.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

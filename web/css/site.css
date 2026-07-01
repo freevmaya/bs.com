@@ -111,3 +111,20 @@ main > .container {
     overflow-y: scroll;
     overflow-x: none;
 }
+
+.media .preview {
+    color: gray;
+}
+
+.image-preview-grid {
+    display: grid;
+    gap: 5px;
+}
+
+.image-preview-grid .image-thumb {
+    width: 100px; 
+    height: 100px; 
+    overflow: hidden; 
+    border-radius: 4px; 
+    background: #f0f0f0;
+}

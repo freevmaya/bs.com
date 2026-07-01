@@ -38,7 +38,6 @@ class AdvertisementGlider extends ActiveRecord
                 self::CONDITION_GOOD, self::CONDITION_FAIR, self::CONDITION_BAD
             ]],
             ['weight_min', 'compare', 'compareAttribute' => 'weight_max', 'operator' => '<', 'type' => 'number', 'message' => 'Минимальный вес должен быть меньше максимального', 'skipOnEmpty' => true],
-            // certification_id может быть NULL, если не выбрана
             [['certification_id'], 'default', 'value' => null],
         ];
     }
@@ -51,8 +50,8 @@ class AdvertisementGlider extends ActiveRecord
             'model' => 'Модель',
             'producer_id' => 'Производитель',
             'certification_id' => 'Сертификация',
-            'weight_min' => 'Вес пилота (мин), кг',
-            'weight_max' => 'Вес пилота (макс), кг',
+            'weight_min' => 'Весовая вилка (мин), кг',
+            'weight_max' => 'Весовая вилка (макс), кг',
             'date_release' => 'Год выпуска',
             'flight_time' => 'Налёт, часов',
             'condition' => 'Состояние',
@@ -90,12 +89,10 @@ class AdvertisementGlider extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            // Если condition не установлен или пустая строка, устанавливаем значение по умолчанию
             if (empty($this->condition)) {
                 $this->condition = self::CONDITION_GOOD;
             }
             
-            // Если certification_id - пустая строка, превращаем в NULL
             if ($this->certification_id === '') {
                 $this->certification_id = null;
             }

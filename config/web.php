@@ -49,12 +49,20 @@ $config = [
                 'advertisements/buy' => 'advertisements/buy',
                 'advertisements/my' => 'advertisements/my',
                 'advertisement/<id:\d+>' => 'advertisements/view',
+                
+                // Правила для уведомлений
+                'notification' => 'notification/index',
+                'notification/subscribe' => 'notification/subscribe',
+                'notification/unsubscribe' => 'notification/unsubscribe',
             ],
         ],
         'tempAdStorage' => [
             'class' => 'app\components\TempAdStorage',
-        ]
-    ],
+        ],
+        'notificationManager' => [
+                'class' => 'app\components\notifications\NotificationManager',
+            ]
+        ],
     'params' => $params,
 ];
 

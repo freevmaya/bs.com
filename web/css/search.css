@@ -205,3 +205,89 @@
         margin-bottom: 4px;
     }
 }
+
+/* Дополнительные поля для разных типов */
+.extra-fields {
+    padding-top: 10px;
+    border-top: 1px solid #555;
+}
+
+.extra-fields h5 {
+    color: #e0e0e0;
+    margin-bottom: 12px;
+}
+
+/* Стили для multiple select в темной теме */
+.search-params-panel select[multiple] {
+    min-height: 80px;
+}
+
+.search-params-panel select[multiple] option {
+    padding: 4px 8px;
+    background: #4a4a4a;
+    color: #e0e0e0;
+}
+
+.search-params-panel select[multiple] option:checked {
+    background: #007bff;
+    color: #fff;
+}
+
+.search-params-panel select[multiple] option:hover {
+    background: #555;
+}
+
+/* Стили для полей ввода */
+.search-params-panel .form-control {
+    background: #4a4a4a;
+    border: 1px solid #555;
+    color: #fff;
+}
+
+.search-params-panel .form-control:focus {
+    background: #555;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    color: #fff;
+}
+
+.search-params-panel .form-control::placeholder {
+    color: #888;
+}
+
+/* Стили для multiple select */
+.search-params-panel select[multiple] {
+    min-height: 100px;
+    background: #4a4a4a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+}
+
+.search-params-panel select[multiple] option {
+    padding: 6px 10px;
+    background: #4a4a4a;
+    color: #e0e0e0;
+    border-bottom: 1px solid #3a3a3a;
+    transition: all 0.2s ease;
+}
+
+.search-params-panel select[multiple] option:hover {
+    background: #555;
+}
+
+.search-params-panel select[multiple] option:checked {
+    background: #007bff;
+    color: #fff;
+}
+
+.search-params-panel select[multiple] option:checked:hover {
+    background: #0056b3;
+}
+
+/* Стили для подсказки */
+.search-params-panel .text-muted {
+    color: #999 !important;
+    font-size: 0.75rem;
+    display: block;
+    margin-top: 4px;
+}

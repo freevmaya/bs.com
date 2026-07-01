@@ -43,8 +43,11 @@ AppAsset::register($this);
         $menuItems[] = ['label' => 'Регистрация', 'url' => ['/site/register']];
         $menuItems[] = ['label' => 'Вход', 'url' => ['/site/login']];
     } else {
+
         $menuItems[] = ['label' => 'Мои объявления', 'url' => ['/advertisements/my']];
-        $menuItems[] = ['label' => 'Добавить', 'url' => ['/advertisements/create']];
+        //$menuItems[] = ['label' => 'Добавить', 'url' => ['/advertisements/create']];
+        $menuItems[] = ['label' => 'Уведомления', 'url' => ['/notification/index']];
+
         $menuItems[] = '<li class="nav-item">'
             . Html::beginForm(['/site/logout'])
             . Html::submitButton(

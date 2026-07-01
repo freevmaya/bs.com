@@ -980,6 +980,92 @@
     }
 }
 
+/* Дополнительные поля для разных типов */
+.extra-fields {
+    padding-top: 10px;
+    border-top: 1px solid #555;
+}
+
+.extra-fields h5 {
+    color: #e0e0e0;
+    margin-bottom: 12px;
+}
+
+/* Стили для multiple select в темной теме */
+.search-params-panel select[multiple] {
+    min-height: 80px;
+}
+
+.search-params-panel select[multiple] option {
+    padding: 4px 8px;
+    background: #4a4a4a;
+    color: #e0e0e0;
+}
+
+.search-params-panel select[multiple] option:checked {
+    background: #007bff;
+    color: #fff;
+}
+
+.search-params-panel select[multiple] option:hover {
+    background: #555;
+}
+
+/* Стили для полей ввода */
+.search-params-panel .form-control {
+    background: #4a4a4a;
+    border: 1px solid #555;
+    color: #fff;
+}
+
+.search-params-panel .form-control:focus {
+    background: #555;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    color: #fff;
+}
+
+.search-params-panel .form-control::placeholder {
+    color: #888;
+}
+
+/* Стили для multiple select */
+.search-params-panel select[multiple] {
+    min-height: 100px;
+    background: #4a4a4a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+}
+
+.search-params-panel select[multiple] option {
+    padding: 6px 10px;
+    background: #4a4a4a;
+    color: #e0e0e0;
+    border-bottom: 1px solid #3a3a3a;
+    transition: all 0.2s ease;
+}
+
+.search-params-panel select[multiple] option:hover {
+    background: #555;
+}
+
+.search-params-panel select[multiple] option:checked {
+    background: #007bff;
+    color: #fff;
+}
+
+.search-params-panel select[multiple] option:checked:hover {
+    background: #0056b3;
+}
+
+/* Стили для подсказки */
+.search-params-panel .text-muted {
+    color: #999 !important;
+    font-size: 0.75rem;
+    display: block;
+    margin-top: 4px;
+}
+
 
 # ============================================================
 # FILE: .\web\css\site.css
@@ -1950,6 +2036,626 @@ class TempAdStorage extends Component
 
 
 # ============================================================
+# FILE: .\components\notifications\NotificationManager.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+namespace app\components\notifications;
+
+use Yii;
+use app\models\NotificationSubscription;
+use app\models\NotificationLog;
+use app\models\User;
+use app\components\notifications\channels\NotificationChannelInterface;
+use yii\base\Component;
+
+class NotificationManager extends Component
+{
+    private $channels = [];
+    private $events = [];
+    private $logEnabled = true;
+    
+    /**
+     * Инициализация компонента
+     */
+    public function init()
+    {
+        parent::init();
+        
+        // Регистрируем каналы уведомлений
+        $this->registerChannel(new \app\components\notifications\channels\EmailChannel(Yii::$app->mailer));
+        $this->registerChannel(new \app\components\notifications\channels\SmsChannel());
+        $this->registerChannel(new \app\components\notifications\channels\VkChannel());
+        
+        // Регистрируем события
+        $this->registerEvent('new_advertisement', 'Новое объявление');
+    }
+    
+    /**
+     * Регистрация канала
+     */
+    public function registerChannel(NotificationChannelInterface $channel)
+    {
+        $this->channels[$channel->getName()] = $channel;
+        return $this;
+    }
+    
+    /**
+     * Получить канал по имени
+     */
+    public function getChannel($name)
+    {
+        return $this->channels[$name] ?? null;
+    }
+    
+    /**
+     * Получить все доступные каналы
+     */
+    public function getChannels()
+    {
+        return $this->channels;
+    }
+    
+    /**
+     * Регистрация события
+     */
+    public function registerEvent($eventKey, $eventLabel)
+    {
+        $this->events[$eventKey] = $eventLabel;
+        return $this;
+    }
+    
+    /**
+     * Получить все события
+     */
+    public function getEvents()
+    {
+        return $this->events;
+    }
+    
+    /**
+     * Отправить уведомление пользователю
+     */
+    public function sendToUser($userId, $event, $subject, $message, $options = [])
+    {
+        $user = User::findOne($userId);
+        if (!$user) {
+            Yii::warning("User {$userId} not found", 'notification');
+            return false;
+        }
+        
+        // Получаем активные подписки пользователя на это событие
+        $subscriptions = NotificationSubscription::getActiveSubscriptions($userId, $event);
+        
+        if (empty($subscriptions)) {
+            Yii::info("User {$userId} has no active subscriptions for event '{$event}'", 'notification');
+            return false;
+        }
+        
+        $results = [];
+        foreach ($subscriptions as $subscription) {
+            $channelName = $subscription->channel;
+            $channel = $this->getChannel($channelName);
+            
+            if (!$channel) {
+                Yii::warning("Channel '{$channelName}' not found", 'notification');
+                continue;
+            }
+            
+            if (!$channel->isAvailable()) {
+                Yii::warning("Channel '{$channelName}' is not available", 'notification');
+                continue;
+            }
+            
+            // Определяем получателя для канала
+            $to = $this->getRecipient($user, $channelName);
+            if (!$to) {
+                Yii::warning("No recipient found for channel '{$channelName}'", 'notification');
+                continue;
+            }
+            
+            // Создаем лог
+            $log = NotificationLog::createLog(
+                $userId,
+                $channelName,
+                $event,
+                $subject,
+                $message
+            );
+            
+            // Отправляем
+            try {
+                $success = $channel->send($to, $subject, $message, $options);
+                
+                if ($success) {
+                    $log->markAsSent();
+                    $results[$channelName] = true;
+                    Yii::info("Notification sent via '{$channelName}' to user {$userId}", 'notification');
+                } else {
+                    $log->markAsFailed('Send failed');
+                    $results[$channelName] = false;
+                    Yii::error("Notification failed via '{$channelName}' to user {$userId}", 'notification');
+                }
+            } catch (\Exception $e) {
+                $log->markAsFailed($e->getMessage());
+                $results[$channelName] = false;
+                Yii::error("Notification exception via '{$channelName}': " . $e->getMessage(), 'notification');
+            }
+        }
+        
+        return $results;
+    }
+    
+    /**
+     * Отправить уведомление всем подписчикам события
+     */
+    public function sendToSubscribers($event, $subject, $message, $options = [])
+    {
+        $subscriptions = NotificationSubscription::getSubscribersForEvent($event);
+        
+        if (empty($subscriptions)) {
+            Yii::info("No subscribers for event '{$event}'", 'notification');
+            return ['total' => 0, 'sent' => 0];
+        }
+        
+        $total = count($subscriptions);
+        $sent = 0;
+        
+        foreach ($subscriptions as $subscription) {
+            $result = $this->sendToUser(
+                $subscription->user_id,
+                $event,
+                $subject,
+                $message,
+                $options
+            );
+            
+            if ($result && in_array(true, $result)) {
+                $sent++;
+            }
+        }
+        
+        return [
+            'total' => $total,
+            'sent' => $sent,
+        ];
+    }
+    
+    /**
+     * Получить получателя для канала
+     */
+    protected function getRecipient($user, $channelName)
+    {
+        switch ($channelName) {
+            case 'email':
+                return $user->email;
+            case 'sms':
+                return $user->phone;
+            case 'vk':
+                return $user->vk_id ?? null;
+            default:
+                return null;
+        }
+    }
+    
+    /**
+     * Включить/выключить логирование
+     */
+    public function setLogEnabled($enabled)
+    {
+        $this->logEnabled = $enabled;
+        return $this;
+    }
+}
+
+
+# ============================================================
+# FILE: .\components\notifications\channels\EmailChannel.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+namespace app\components\notifications\channels;
+
+use Yii;
+use yii\mail\MailerInterface;
+
+class EmailChannel implements NotificationChannelInterface
+{
+    private $mailer;
+    
+    public function __construct(MailerInterface $mailer)
+    {
+        $this->mailer = $mailer;
+    }
+    
+    public function send($to, $subject, $message, $options = [])
+    {
+        try {
+            $compose = $this->mailer->compose()
+                ->setTo($to)
+                ->setSubject($subject)
+                ->setTextBody($message);
+            
+            if (isset($options['html_body'])) {
+                $compose->setHtmlBody($options['html_body']);
+            }
+            
+            return $compose->send();
+        } catch (\Exception $e) {
+            Yii::error('Email send failed: ' . $e->getMessage(), 'notification');
+            return false;
+        }
+    }
+    
+    public function getName()
+    {
+        return 'email';
+    }
+    
+    public function getDescription()
+    {
+        return 'Email уведомления';
+    }
+    
+    public function isAvailable()
+    {
+        // Проверяем, настроен ли mailer
+        return Yii::$app->has('mailer');
+    }
+}
+
+
+# ============================================================
+# FILE: .\components\notifications\channels\NotificationChannelInterface.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+namespace app\components\notifications\channels;
+
+use app\models\NotificationLog;
+
+interface NotificationChannelInterface
+{
+    /**
+     * Отправить уведомление
+     * @param string $to - получатель (email, телефон, и т.д.)
+     * @param string $subject - тема
+     * @param string $message - сообщение
+     * @param array $options - дополнительные параметры
+     * @return bool
+     */
+    public function send($to, $subject, $message, $options = []);
+    
+    /**
+     * Получить имя канала
+     * @return string
+     */
+    public function getName();
+    
+    /**
+     * Получить описание канала
+     * @return string
+     */
+    public function getDescription();
+    
+    /**
+     * Проверить, доступен ли канал
+     * @return bool
+     */
+    public function isAvailable();
+}
+
+
+# ============================================================
+# FILE: .\components\notifications\channels\SmsChannel.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+namespace app\components\notifications\channels;
+
+use Yii;
+
+class SmsChannel implements NotificationChannelInterface
+{
+    private $apiKey;
+    private $apiUrl;
+    
+    public function __construct($apiKey = null, $apiUrl = null)
+    {
+        $this->apiKey = $apiKey ?: Yii::$app->params['sms_api_key'] ?? null;
+        $this->apiUrl = $apiUrl ?: Yii::$app->params['sms_api_url'] ?? null;
+    }
+    
+    public function send($to, $subject, $message, $options = [])
+    {
+        try {
+            // Здесь нужно реализовать интеграцию с конкретным SMS провайдером
+            // Например, через SMS.ru или другие сервисы
+            
+            Yii::info("SMS to {$to}: {$message}", 'notification');
+            
+            // Пример отправки через HTTP API
+            $client = new \yii\httpclient\Client();
+            $response = $client->post($this->apiUrl, [
+                'api_key' => $this->apiKey,
+                'phone' => $to,
+                'message' => $message,
+            ])->send();
+            
+            if ($response->isOk) {
+                $data = $response->data;
+                if (isset($data['status']) && $data['status'] === 'ok') {
+                    return true;
+                }
+            }
+            
+            Yii::error('SMS send failed: ' . $response->content, 'notification');
+            return false;
+            
+        } catch (\Exception $e) {
+            Yii::error('SMS send failed: ' . $e->getMessage(), 'notification');
+            return false;
+        }
+    }
+    
+    public function getName()
+    {
+        return 'sms';
+    }
+    
+    public function getDescription()
+    {
+        return 'SMS уведомления';
+    }
+    
+    public function isAvailable()
+    {
+        return !empty($this->apiKey) && !empty($this->apiUrl);
+    }
+}
+
+
+# ============================================================
+# FILE: .\components\notifications\channels\VkChannel.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+namespace app\components\notifications\channels;
+
+use Yii;
+
+class VkChannel implements NotificationChannelInterface
+{
+    private $accessToken;
+    private $apiVersion = '5.131';
+    
+    public function __construct($accessToken = null)
+    {
+        $this->accessToken = $accessToken ?: Yii::$app->params['vk_access_token'] ?? null;
+    }
+    
+    public function send($to, $subject, $message, $options = [])
+    {
+        try {
+            // В VK сообщения отправляются через сообщения сообщества или личные сообщения
+            // to - это user_id в VK
+            // subject - не используется в VK
+            
+            $client = new \yii\httpclient\Client();
+            $response = $client->post('https://api.vk.com/method/messages.send', [
+                'user_id' => $to,
+                'message' => $message,
+                'random_id' => rand(1, 1000000),
+                'v' => $this->apiVersion,
+                'access_token' => $this->accessToken,
+            ])->send();
+            
+            if ($response->isOk) {
+                $data = $response->data;
+                if (isset($data['response'])) {
+                    return true;
+                }
+                if (isset($data['error'])) {
+                    Yii::error('VK API error: ' . json_encode($data['error']), 'notification');
+                }
+            }
+            
+            return false;
+            
+        } catch (\Exception $e) {
+            Yii::error('VK send failed: ' . $e->getMessage(), 'notification');
+            return false;
+        }
+    }
+    
+    public function getName()
+    {
+        return 'vk';
+    }
+    
+    public function getDescription()
+    {
+        return 'VK уведомления';
+    }
+    
+    public function isAvailable()
+    {
+        return !empty($this->accessToken);
+    }
+}
+
+
+# ============================================================
+# FILE: .\components\notifications\events\NewAdvertisementEvent.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+namespace app\components\notifications\events;
+
+use app\models\Advertisement;
+use yii\base\Event;
+
+class NewAdvertisementEvent extends Event
+{
+    const EVENT_NEW_ADVERTISEMENT = 'new_advertisement';
+    
+    public $advertisement;
+    public $userId;
+    
+    public function __construct(Advertisement $advertisement, $config = [])
+    {
+        $this->advertisement = $advertisement;
+        parent::__construct($config);
+    }
+}
+
+
+# ============================================================
+# FILE: .\components\notifications\subscribers\NewAdvertisementSubscriber.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+namespace app\components\notifications\subscribers;
+
+use Yii;
+use yii\base\Event;
+use app\components\notifications\events\NewAdvertisementEvent;
+use app\components\notifications\NotificationManager;
+use app\models\Advertisement;
+
+class NewAdvertisementSubscriber
+{
+    private $notificationManager;
+    
+    public function __construct(NotificationManager $notificationManager)
+    {
+        $this->notificationManager = $notificationManager;
+    }
+    
+    /**
+     * Подписаться на события
+     */
+    public static function subscribe()
+    {
+        $manager = Yii::$app->notificationManager;
+        
+        Event::on(
+            Advertisement::class,
+            Advertisement::EVENT_AFTER_INSERT,
+            function($event) use ($manager) {
+                $instance = new self($manager);
+                $instance->onNewAdvertisement($event);
+            }
+        );
+    }
+    
+    /**
+     * Обработчик нового объявления
+     */
+    public function onNewAdvertisement($event)
+    {
+        /** @var Advertisement $advertisement */
+        $advertisement = $event->sender;
+        
+        // Создаем событие
+        $newEvent = new NewAdvertisementEvent($advertisement);
+        
+        // Формируем сообщение
+        $subject = "Новое объявление: {$advertisement->title}";
+        $message = $this->buildMessage($advertisement);
+        
+        // Отправляем уведомления всем подписчикам
+        $result = $this->notificationManager->sendToSubscribers(
+            NewAdvertisementEvent::EVENT_NEW_ADVERTISEMENT,
+            $subject,
+            $message,
+            [
+                'html_body' => $this->buildHtmlMessage($advertisement),
+            ]
+        );
+        
+        Yii::info("New advertisement notification sent to {$result['sent']} of {$result['total']} subscribers", 'notification');
+    }
+    
+    /**
+     * Собрать текстовое сообщение
+     */
+    protected function buildMessage($advertisement)
+    {
+        $parts = [
+            "Новое объявление на сайте " . Yii::$app->name,
+            "",
+            "Заголовок: {$advertisement->title}",
+            "Раздел: " . $advertisement->getSectionLabel(),
+            "Цена: " . ($advertisement->price ? number_format($advertisement->price, 0, '.', ' ') . ' ₽' : 'не указана'),
+            "Город: " . ($advertisement->city ?: 'не указан'),
+            "",
+            "Описание:",
+            $advertisement->description ?: 'не указано',
+            "",
+            "Ссылка: " . Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]),
+        ];
+        
+        return implode("\n", $parts);
+    }
+    
+    /**
+     * Собрать HTML сообщение
+     */
+    protected function buildHtmlMessage($advertisement)
+    {
+        $price = $advertisement->price ? number_format($advertisement->price, 0, '.', ' ') . ' ₽' : 'не указана';
+        $link = Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]);
+        
+        return "
+            <html>
+            <head><style>
+                body { font-family: Arial, sans-serif; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: #007bff; color: white; padding: 15px; text-align: center; }
+                .content { padding: 20px; background: #f8f9fa; }
+                .price { font-size: 24px; color: #d9534f; font-weight: bold; }
+                .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+            </style></head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h2>Новое объявление</h2>
+                    </div>
+                    <div class='content'>
+                        <h3>{$advertisement->title}</h3>
+                        <p><strong>Раздел:</strong> {$advertisement->getSectionLabel()}</p>
+                        <p class='price'>{$price}</p>
+                        <p><strong>Город:</strong> {$advertisement->city}</p>
+                        <p><strong>Описание:</strong></p>
+                        <p>" . nl2br($advertisement->description) . "</p>
+                        <p style='margin-top: 20px;'>
+                            <a href='{$link}' class='btn'>Посмотреть объявление</a>
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+}
+
+
+# ============================================================
 # FILE: .\config\__autocomplete.php
 # TYPE: .PHP
 # ============================================================
@@ -1990,6 +2696,19 @@ class __WebUser
 {
 }
 
+
+
+# ============================================================
+# FILE: .\config\bootstrap.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+use app\components\notifications\subscribers\NewAdvertisementSubscriber;
+
+// Инициализация подписчиков событий
+NewAdvertisementSubscriber::subscribe();
 
 
 # ============================================================
@@ -2089,6 +2808,13 @@ return [
     'adminEmail' => 'admin@example.com',
     'senderEmail' => 'noreply@example.com',
     'senderName' => 'Example.com mailer',
+    
+    // Настройки для SMS
+    'sms_api_key' => 'your_sms_api_key',
+    'sms_api_url' => 'https://sms.ru/send',
+    
+    // Настройки для VK
+    'vk_access_token' => 'your_vk_access_token'
 ];
 
 
@@ -2221,12 +2947,20 @@ $config = [
                 'advertisements/buy' => 'advertisements/buy',
                 'advertisements/my' => 'advertisements/my',
                 'advertisement/<id:\d+>' => 'advertisements/view',
+                
+                // Правила для уведомлений
+                'notification' => 'notification/index',
+                'notification/subscribe' => 'notification/subscribe',
+                'notification/unsubscribe' => 'notification/unsubscribe',
             ],
         ],
         'tempAdStorage' => [
             'class' => 'app\components\TempAdStorage',
-        ]
-    ],
+        ],
+        'notificationManager' => [
+                'class' => 'app\components\notifications\NotificationManager',
+            ]
+        ],
     'params' => $params,
 ];
 
@@ -2846,6 +3580,118 @@ class AdvertisementsController extends Controller
 
 
 # ============================================================
+# FILE: .\controllers\NotificationController.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+namespace app\controllers;
+
+use Yii;
+use yii\web\Controller;
+use yii\filters\AccessControl;
+use yii\web\Response;
+use app\models\NotificationSubscription;
+use app\models\User;
+use app\components\notifications\events\NewAdvertisementEvent;
+
+class NotificationController extends Controller
+{
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+        ];
+    }
+    
+    /**
+     * Управление подписками
+     */
+    public function actionIndex()
+    {
+        $userId = Yii::$app->user->id;
+        $user = User::findOne($userId);
+        
+        // Получаем все подписки пользователя
+        $subscriptions = NotificationSubscription::find()
+            ->where(['user_id' => $userId])
+            ->indexBy(function($model) {
+                return $model->event . '_' . $model->channel;
+            })
+            ->all();
+        
+        // Получаем доступные события и каналы
+        $events = Yii::$app->notificationManager->getEvents();
+        $channels = Yii::$app->notificationManager->getChannels();
+        
+        return $this->render('index', [
+            'user' => $user,
+            'subscriptions' => $subscriptions,
+            'events' => $events,
+            'channels' => $channels,
+        ]);
+    }
+    
+    /**
+     * Подписаться на событие
+     */
+    public function actionSubscribe()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        $event = Yii::$app->request->post('event');
+        $channel = Yii::$app->request->post('channel');
+        $userId = Yii::$app->user->id;
+        
+        if (!$event || !$channel) {
+            return ['success' => false, 'error' => 'Не указаны событие или канал'];
+        }
+        
+        try {
+            $success = NotificationSubscription::subscribe($userId, $event, $channel);
+            return ['success' => $success];
+        } catch (\Exception $e) {
+            Yii::error('Subscribe error: ' . $e->getMessage(), 'notification');
+            return ['success' => false, 'error' => 'Ошибка при подписке: ' . $e->getMessage()];
+        }
+    }
+    
+    /**
+     * Отписаться от события
+     */
+    public function actionUnsubscribe()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        $event = Yii::$app->request->post('event');
+        $channel = Yii::$app->request->post('channel');
+        $userId = Yii::$app->user->id;
+        
+        if (!$event || !$channel) {
+            return ['success' => false, 'error' => 'Не указаны событие или канал'];
+        }
+        
+        try {
+            $success = NotificationSubscription::unsubscribe($userId, $event, $channel);
+            return ['success' => $success];
+        } catch (\Exception $e) {
+            Yii::error('Unsubscribe error: ' . $e->getMessage(), 'notification');
+            return ['success' => false, 'error' => 'Ошибка при отписке: ' . $e->getMessage()];
+        }
+    }
+}
+
+
+# ============================================================
 # FILE: .\controllers\SiteController.php
 # TYPE: .PHP
 # ============================================================
@@ -3022,6 +3868,124 @@ echo $content;
 $this->endBody();
 $this->endPage();
 
+
+
+# ============================================================
+# FILE: .\migrations\m240000_000001_create_notification_subscriptions_table.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+use yii\db\Migration;
+
+class m240000_000001_create_notification_subscriptions_table extends Migration
+{
+    const TABLE_NAME = 'notification_subscriptions';
+    
+    public function safeUp()
+    {
+        $tableOptions = null;
+        if ($this->db->driverName === 'mysql') {
+            $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
+        }
+        
+        $this->createTable(self::TABLE_NAME, [
+            'id' => $this->primaryKey(),
+            'user_id' => $this->integer()->notNull(),
+            'event' => $this->string(100)->notNull(),
+            'channel' => $this->string(50)->notNull(),
+            'is_active' => $this->boolean()->defaultValue(true),
+            'settings' => $this->text(), // JSON с настройками для канала
+            'created_at' => $this->integer()->notNull(),
+            'updated_at' => $this->integer()->notNull(),
+        ], $tableOptions);
+        
+        $this->createIndex('idx-subscription-user_id', self::TABLE_NAME, 'user_id');
+        $this->createIndex('idx-subscription-event', self::TABLE_NAME, 'event');
+        $this->createIndex('idx-subscription-channel', self::TABLE_NAME, 'channel');
+        
+        // Создаем уникальный индекс с помощью createIndex с параметром unique
+        $this->createIndex(
+            'idx-subscription-unique', 
+            self::TABLE_NAME, 
+            ['user_id', 'event', 'channel'], 
+            true // unique = true
+        );
+        
+        $this->addForeignKey(
+            'fk-subscription-user',
+            self::TABLE_NAME,
+            'user_id',
+            'users',
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+    }
+    
+    public function safeDown()
+    {
+        $this->dropTable(self::TABLE_NAME);
+    }
+}
+
+
+# ============================================================
+# FILE: .\migrations\m240000_000002_create_notification_logs_table.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+use yii\db\Migration;
+
+class m240000_000002_create_notification_logs_table extends Migration
+{
+    const TABLE_NAME = 'notification_logs';
+    
+    public function safeUp()
+    {
+        $tableOptions = null;
+        if ($this->db->driverName === 'mysql') {
+            $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
+        }
+        
+        $this->createTable(self::TABLE_NAME, [
+            'id' => $this->primaryKey(),
+            'user_id' => $this->integer()->notNull(),
+            'channel' => $this->string(50)->notNull(),
+            'event' => $this->string(100)->notNull(),
+            'subject' => $this->string(255),
+            'message' => $this->text(),
+            'status' => "ENUM('pending', 'sent', 'failed') NOT NULL DEFAULT 'pending'",
+            'error' => $this->text(),
+            'created_at' => $this->integer()->notNull(),
+            'sent_at' => $this->integer(),
+        ], $tableOptions);
+        
+        $this->createIndex('idx-log-user_id', self::TABLE_NAME, 'user_id');
+        $this->createIndex('idx-log-channel', self::TABLE_NAME, 'channel');
+        $this->createIndex('idx-log-event', self::TABLE_NAME, 'event');
+        $this->createIndex('idx-log-status', self::TABLE_NAME, 'status');
+        $this->createIndex('idx-log-created_at', self::TABLE_NAME, 'created_at');
+        
+        $this->addForeignKey(
+            'fk-log-user',
+            self::TABLE_NAME,
+            'user_id',
+            'users',
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+    }
+    
+    public function safeDown()
+    {
+        $this->dropTable(self::TABLE_NAME);
+    }
+}
 
 
 # ============================================================
@@ -3811,7 +4775,6 @@ class AdvertisementGlider extends ActiveRecord
                 self::CONDITION_GOOD, self::CONDITION_FAIR, self::CONDITION_BAD
             ]],
             ['weight_min', 'compare', 'compareAttribute' => 'weight_max', 'operator' => '<', 'type' => 'number', 'message' => 'Минимальный вес должен быть меньше максимального', 'skipOnEmpty' => true],
-            // certification_id может быть NULL, если не выбрана
             [['certification_id'], 'default', 'value' => null],
         ];
     }
@@ -3824,8 +4787,8 @@ class AdvertisementGlider extends ActiveRecord
             'model' => 'Модель',
             'producer_id' => 'Производитель',
             'certification_id' => 'Сертификация',
-            'weight_min' => 'Вес пилота (мин), кг',
-            'weight_max' => 'Вес пилота (макс), кг',
+            'weight_min' => 'Весовая вилка (мин), кг',
+            'weight_max' => 'Весовая вилка (макс), кг',
             'date_release' => 'Год выпуска',
             'flight_time' => 'Налёт, часов',
             'condition' => 'Состояние',
@@ -3863,12 +4826,10 @@ class AdvertisementGlider extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            // Если condition не установлен или пустая строка, устанавливаем значение по умолчанию
             if (empty($this->condition)) {
                 $this->condition = self::CONDITION_GOOD;
             }
             
-            // Если certification_id - пустая строка, превращаем в NULL
             if ($this->certification_id === '') {
                 $this->certification_id = null;
             }
@@ -4240,6 +5201,7 @@ class AdvertisementImage extends ActiveRecord
 
 namespace app\models;
 
+use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
@@ -4249,12 +5211,47 @@ class AdvertisementSearch extends Advertisement
     public $price_min;
     public $price_max;
     
+    // Поля для фильтрации glider
+    public $glider_model;
+    public $glider_producer_ids = [];
+    public $glider_certification_ids = [];
+    public $glider_weight;
+    public $glider_date_release_min;
+    public $glider_flight_time_max;
+    public $glider_condition;
+    
+    // Поля для фильтрации harness
+    public $harness_model;
+    public $harness_producer_ids = [];
+    public $harness_sizes = [];
+    public $harness_date_release_min;
+    public $harness_condition;
+    
+    // Поля для фильтрации device
+    public $device_model;
+    public $device_producer_ids = [];
+    public $device_condition;
+    
     public function rules()
     {
         return [
             [['id', 'user_id', 'views_count', 'price_min', 'price_max'], 'integer'],
             [['section', 'title', 'description', 'city', 'status', 'search_text', 'type'], 'safe'],
             [['price'], 'number'],
+            
+            // Glider fields
+            [['glider_model', 'glider_condition'], 'string'],
+            [['glider_producer_ids', 'glider_certification_ids'], 'safe'],
+            [['glider_weight', 'glider_date_release_min', 'glider_flight_time_max'], 'integer'],
+            
+            // Harness fields
+            [['harness_model', 'harness_condition'], 'string'],
+            [['harness_producer_ids', 'harness_sizes'], 'safe'],
+            [['harness_date_release_min'], 'integer'],
+            
+            // Device fields
+            [['device_model', 'device_condition'], 'string'],
+            [['device_producer_ids'], 'safe'],
         ];
     }
     
@@ -4263,8 +5260,48 @@ class AdvertisementSearch extends Advertisement
         return Model::scenarios();
     }
     
+    /**
+     * Переопределяем метки атрибутов для отображения на русском языке
+     */
+    public function attributeLabels()
+    {
+        return [
+            // Основные поля
+            'search_text' => 'Поиск',
+            'price_min' => 'Цена от',
+            'price_max' => 'Цена до',
+            'city' => 'Город',
+            'type' => 'Тип оборудования',
+            
+            // Поля для GLIDER
+            'glider_model' => 'Модель',
+            'glider_producer_ids' => 'Производитель',
+            'glider_certification_ids' => 'Сертификация',
+            'glider_weight' => 'Взлетный вес',
+            'glider_date_release_min' => 'Год выпуска от',
+            'glider_flight_time_max' => 'Налёт до',
+            'glider_condition' => 'Состояние',
+            
+            // Поля для HARNESS
+            'harness_model' => 'Модель',
+            'harness_producer_ids' => 'Производитель',
+            'harness_sizes' => 'Размер',
+            'harness_date_release_min' => 'Год выпуска от',
+            'harness_condition' => 'Состояние',
+            
+            // Поля для DEVICE
+            'device_model' => 'Модель',
+            'device_producer_ids' => 'Производитель',
+            'device_condition' => 'Состояние',
+        ];
+    }
+    
     public function search($params, $section = null)
     {
+        // Логируем входящие параметры
+        Yii::info('=== SEARCH INPUT PARAMS ===', 'search');
+        Yii::info('Raw params: ' . json_encode($params), 'search');
+        
         $query = Advertisement::find()->where(['status' => Advertisement::STATUS_ACTIVE]);
         
         if ($section) {
@@ -4285,7 +5322,11 @@ class AdvertisementSearch extends Advertisement
         
         $this->load($params);
         
+        // Логируем загруженные параметры
+        Yii::info('Loaded search params: ' . json_encode($this->getAttributes()), 'search');
+        
         if (!$this->validate()) {
+            Yii::info('Validation errors: ' . json_encode($this->errors), 'search');
             return $dataProvider;
         }
         
@@ -4295,6 +5336,7 @@ class AdvertisementSearch extends Advertisement
                 ['like', 'title', $this->search_text],
                 ['like', 'description', $this->search_text],
             ]);
+            Yii::info('Applied search_text filter: ' . $this->search_text, 'search');
         }
         
         // Фильтр по разделу
@@ -4305,16 +5347,257 @@ class AdvertisementSearch extends Advertisement
         
         // Фильтр по типу
         $query->andFilterWhere(['type' => $this->type]);
+        Yii::info('Applied type filter: ' . $this->type, 'search');
         
         // Фильтр по цене (от и до)
         if ($this->price_min !== null && $this->price_min !== '') {
             $query->andWhere(['>=', 'price', $this->price_min]);
+            Yii::info('Applied price_min filter: ' . $this->price_min, 'search');
         }
         if ($this->price_max !== null && $this->price_max !== '') {
             $query->andWhere(['<=', 'price', $this->price_max]);
+            Yii::info('Applied price_max filter: ' . $this->price_max, 'search');
         }
         
+        // Дополнительные фильтры в зависимости от типа
+        $this->applyExtraFilters($query);
+        
+        // Логируем итоговый SQL
+        Yii::info('Final SQL: ' . $query->createCommand()->getRawSql(), 'search');
+        
         return $dataProvider;
+    }
+    
+    /**
+     * Применяет дополнительные фильтры в зависимости от типа
+     */
+    protected function applyExtraFilters($query)
+    {
+        $type = $this->type;
+        
+        Yii::info('=== START applyExtraFilters ===', 'search');
+        Yii::info('Type: ' . $type, 'search');
+        
+        if ($type === self::TYPE_GLIDER) {
+            Yii::info('Applying GLIDER filters', 'search');
+            $this->applyGliderFilters($query);
+        } elseif ($type === self::TYPE_HARNESS) {
+            Yii::info('Applying HARNESS filters', 'search');
+            $this->applyHarnessFilters($query);
+        } elseif ($type === self::TYPE_DEVICE) {
+            Yii::info('Applying DEVICE filters', 'search');
+            $this->applyDeviceFilters($query);
+        } else {
+            Yii::info('No extra filters for type: ' . $type, 'search');
+        }
+        
+        Yii::info('=== END applyExtraFilters ===', 'search');
+    }
+    
+    /**
+     * Фильтры для парапланов (glider)
+     */
+    protected function applyGliderFilters($query)
+    {
+        Yii::info('=== GLIDER FILTERS START ===', 'search');
+        Yii::info('glider_model: ' . $this->glider_model, 'search');
+        Yii::info('glider_producer_ids: ' . json_encode($this->glider_producer_ids), 'search');
+        Yii::info('glider_certification_ids: ' . json_encode($this->glider_certification_ids), 'search');
+        Yii::info('glider_weight: ' . $this->glider_weight, 'search');
+        Yii::info('glider_date_release_min: ' . $this->glider_date_release_min, 'search');
+        Yii::info('glider_flight_time_max: ' . $this->glider_flight_time_max, 'search');
+        Yii::info('glider_condition: ' . $this->glider_condition, 'search');
+        
+        // JOIN с таблицей advertisement_glider
+        $query->join('INNER JOIN', 'advertisement_glider', 
+            'advertisement_glider.advertisement_id = advertisements.id');
+        Yii::info('Added INNER JOIN to advertisement_glider', 'search');
+        
+        // Модель (похожие названия)
+        if (!empty($this->glider_model)) {
+            $query->andWhere(['like', 'advertisement_glider.model', $this->glider_model]);
+            Yii::info('Added filter: model LIKE "%' . $this->glider_model . '%"', 'search');
+        }
+        
+        // Производители (несколько)
+        if (!empty($this->glider_producer_ids)) {
+            if (!is_array($this->glider_producer_ids)) {
+                $this->glider_producer_ids = [$this->glider_producer_ids];
+            }
+            
+            // Фильтруем пустые значения
+            $producerIds = array_filter($this->glider_producer_ids, function($id) {
+                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
+            });
+            
+            Yii::info('Filtered producer IDs: ' . json_encode($producerIds), 'search');
+            
+            if (!empty($producerIds)) {
+                $query->andWhere(['in', 'advertisement_glider.producer_id', $producerIds]);
+                Yii::info('Added filter: producer_id IN (' . implode(', ', $producerIds) . ')', 'search');
+            }
+        }
+        
+        // Сертификации (несколько)
+        if (!empty($this->glider_certification_ids)) {
+            if (!is_array($this->glider_certification_ids)) {
+                $this->glider_certification_ids = [$this->glider_certification_ids];
+            }
+            
+            $certIds = array_filter($this->glider_certification_ids, function($id) {
+                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
+            });
+            
+            Yii::info('Filtered certification IDs: ' . json_encode($certIds), 'search');
+            
+            if (!empty($certIds)) {
+                $query->andWhere(['in', 'advertisement_glider.certification_id', $certIds]);
+                Yii::info('Added filter: certification_id IN (' . implode(', ', $certIds) . ')', 'search');
+            }
+        }
+        
+        // Взлетный вес (должен быть в пределах weight_min - weight_max)
+        if ($this->glider_weight !== null && $this->glider_weight !== '') {
+            $query->andWhere(['<=', 'advertisement_glider.weight_min', $this->glider_weight]);
+            $query->andWhere(['>=', 'advertisement_glider.weight_max', $this->glider_weight]);
+            Yii::info('Added filter: weight_min <= ' . $this->glider_weight . ' AND weight_max >= ' . $this->glider_weight, 'search');
+        }
+        
+        // Минимальная дата выпуска
+        if (!empty($this->glider_date_release_min)) {
+            $query->andWhere(['>=', 'advertisement_glider.date_release', $this->glider_date_release_min]);
+            Yii::info('Added filter: date_release >= ' . $this->glider_date_release_min, 'search');
+        }
+        
+        // Максимальный налет
+        if ($this->glider_flight_time_max !== null && $this->glider_flight_time_max !== '') {
+            $query->andWhere(['<=', 'advertisement_glider.flight_time', $this->glider_flight_time_max]);
+            Yii::info('Added filter: flight_time <= ' . $this->glider_flight_time_max, 'search');
+        }
+        
+        // Состояние
+        if (!empty($this->glider_condition)) {
+            $query->andWhere(['advertisement_glider.condition' => $this->glider_condition]);
+            Yii::info('Added filter: condition = ' . $this->glider_condition, 'search');
+        }
+    }
+    
+    /**
+     * Фильтры для подвесных систем (harness)
+     */
+    protected function applyHarnessFilters($query)
+    {
+        Yii::info('=== HARNESS FILTERS START ===', 'search');
+        Yii::info('harness_model: ' . $this->harness_model, 'search');
+        Yii::info('harness_producer_ids: ' . json_encode($this->harness_producer_ids), 'search');
+        Yii::info('harness_sizes: ' . json_encode($this->harness_sizes), 'search');
+        Yii::info('harness_date_release_min: ' . $this->harness_date_release_min, 'search');
+        Yii::info('harness_condition: ' . $this->harness_condition, 'search');
+        
+        // JOIN с таблицей advertisement_harness
+        $query->join('INNER JOIN', 'advertisement_harness', 
+            'advertisement_harness.advertisement_id = advertisements.id');
+        Yii::info('Added INNER JOIN to advertisement_harness', 'search');
+        
+        // Модель (похожие названия)
+        if (!empty($this->harness_model)) {
+            $query->andWhere(['like', 'advertisement_harness.model', $this->harness_model]);
+            Yii::info('Added filter: model LIKE "%' . $this->harness_model . '%"', 'search');
+        }
+        
+        // Производители (несколько)
+        if (!empty($this->harness_producer_ids)) {
+            if (!is_array($this->harness_producer_ids)) {
+                $this->harness_producer_ids = [$this->harness_producer_ids];
+            }
+            
+            $producerIds = array_filter($this->harness_producer_ids, function($id) {
+                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
+            });
+            
+            Yii::info('Filtered harness producer IDs: ' . json_encode($producerIds), 'search');
+            
+            if (!empty($producerIds)) {
+                $query->andWhere(['in', 'advertisement_harness.producer_id', $producerIds]);
+                Yii::info('Added filter: producer_id IN (' . implode(', ', $producerIds) . ')', 'search');
+            }
+        }
+        
+        // Размеры (несколько)
+        if (!empty($this->harness_sizes)) {
+            if (!is_array($this->harness_sizes)) {
+                $this->harness_sizes = [$this->harness_sizes];
+            }
+            
+            $sizes = array_filter($this->harness_sizes, function($size) {
+                return $size !== '' && $size !== null && $size !== '0';
+            });
+            
+            Yii::info('Filtered harness sizes: ' . json_encode($sizes), 'search');
+            
+            if (!empty($sizes)) {
+                $query->andWhere(['in', 'advertisement_harness.size', $sizes]);
+                Yii::info('Added filter: size IN (' . implode(', ', $sizes) . ')', 'search');
+            }
+        }
+        
+        // Минимальная дата выпуска
+        if (!empty($this->harness_date_release_min)) {
+            $query->andWhere(['>=', 'advertisement_harness.date_release', $this->harness_date_release_min]);
+            Yii::info('Added filter: date_release >= ' . $this->harness_date_release_min, 'search');
+        }
+        
+        // Состояние
+        if (!empty($this->harness_condition)) {
+            $query->andWhere(['advertisement_harness.condition' => $this->harness_condition]);
+            Yii::info('Added filter: condition = ' . $this->harness_condition, 'search');
+        }
+    }
+    
+    /**
+     * Фильтры для приборов (device)
+     */
+    protected function applyDeviceFilters($query)
+    {
+        Yii::info('=== DEVICE FILTERS START ===', 'search');
+        Yii::info('device_model: ' . $this->device_model, 'search');
+        Yii::info('device_producer_ids: ' . json_encode($this->device_producer_ids), 'search');
+        Yii::info('device_condition: ' . $this->device_condition, 'search');
+        
+        // JOIN с таблицей advertisement_device
+        $query->join('INNER JOIN', 'advertisement_device', 
+            'advertisement_device.advertisement_id = advertisements.id');
+        Yii::info('Added INNER JOIN to advertisement_device', 'search');
+        
+        // Модель (похожие названия)
+        if (!empty($this->device_model)) {
+            $query->andWhere(['like', 'advertisement_device.model', $this->device_model]);
+            Yii::info('Added filter: model LIKE "%' . $this->device_model . '%"', 'search');
+        }
+        
+        // Производители (несколько)
+        if (!empty($this->device_producer_ids)) {
+            if (!is_array($this->device_producer_ids)) {
+                $this->device_producer_ids = [$this->device_producer_ids];
+            }
+            
+            $producerIds = array_filter($this->device_producer_ids, function($id) {
+                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
+            });
+            
+            Yii::info('Filtered device producer IDs: ' . json_encode($producerIds), 'search');
+            
+            if (!empty($producerIds)) {
+                $query->andWhere(['in', 'advertisement_device.producer_id', $producerIds]);
+                Yii::info('Added filter: producer_id IN (' . implode(', ', $producerIds) . ')', 'search');
+            }
+        }
+        
+        // Состояние
+        if (!empty($this->device_condition)) {
+            $query->andWhere(['advertisement_device.condition' => $this->device_condition]);
+            Yii::info('Added filter: condition = ' . $this->device_condition, 'search');
+        }
     }
 }
 
@@ -4528,6 +5811,253 @@ class LoginForm extends Model
             $this->_user = User::findByUsername($this->username);
         }
         return $this->_user;
+    }
+}
+
+
+# ============================================================
+# FILE: .\models\NotificationLog.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+namespace app\models;
+
+use Yii;
+use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
+
+class NotificationLog extends ActiveRecord
+{
+    const STATUS_PENDING = 'pending';
+    const STATUS_SENT = 'sent';
+    const STATUS_FAILED = 'failed';
+    
+    public static function tableName()
+    {
+        return 'notification_logs';
+    }
+    
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => false,
+            ],
+        ];
+    }
+    
+    public function rules()
+    {
+        return [
+            [['user_id', 'channel', 'event'], 'required'],
+            [['user_id'], 'integer'],
+            [['message', 'error'], 'string'],
+            [['subject'], 'string', 'max' => 255],
+            [['channel'], 'string', 'max' => 50],
+            [['event'], 'string', 'max' => 100],
+            [['status'], 'in', 'range' => [self::STATUS_PENDING, self::STATUS_SENT, self::STATUS_FAILED]],
+            [['sent_at'], 'integer'],
+        ];
+    }
+    
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'user_id' => 'Пользователь',
+            'channel' => 'Канал',
+            'event' => 'Событие',
+            'subject' => 'Тема',
+            'message' => 'Сообщение',
+            'status' => 'Статус',
+            'error' => 'Ошибка',
+            'created_at' => 'Создано',
+            'sent_at' => 'Отправлено',
+        ];
+    }
+    
+    public function getUser()
+    {
+        return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
+    
+    /**
+     * Создать запись в логе
+     */
+    public static function createLog($userId, $channel, $event, $subject, $message)
+    {
+        $log = new static();
+        $log->user_id = $userId;
+        $log->channel = $channel;
+        $log->event = $event;
+        $log->subject = $subject;
+        $log->message = $message;
+        $log->status = self::STATUS_PENDING;
+        
+        return $log;
+    }
+    
+    /**
+     * Отметить как отправленное
+     */
+    public function markAsSent()
+    {
+        $this->status = self::STATUS_SENT;
+        $this->sent_at = time();
+        return $this->save(false);
+    }
+    
+    /**
+     * Отметить как неудачное
+     */
+    public function markAsFailed($error = null)
+    {
+        $this->status = self::STATUS_FAILED;
+        if ($error !== null) {
+            $this->error = $error;
+        }
+        return $this->save(false);
+    }
+}
+
+
+# ============================================================
+# FILE: .\models\NotificationSubscription.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+namespace app\models;
+
+use Yii;
+use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
+
+class NotificationSubscription extends ActiveRecord
+{
+    public static function tableName()
+    {
+        return 'notification_subscriptions';
+    }
+    
+    public function behaviors()
+    {
+        return [
+            TimestampBehavior::class,
+        ];
+    }
+    
+    public function rules()
+    {
+        return [
+            [['user_id', 'event', 'channel'], 'required'],
+            [['user_id'], 'integer'],
+            [['is_active'], 'boolean'],
+            [['settings'], 'safe'],
+            [['event'], 'string', 'max' => 100],
+            [['channel'], 'string', 'max' => 50],
+            [['user_id', 'event', 'channel'], 'unique', 'targetAttribute' => ['user_id', 'event', 'channel']],
+        ];
+    }
+    
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'user_id' => 'Пользователь',
+            'event' => 'Событие',
+            'channel' => 'Канал',
+            'is_active' => 'Активна',
+            'settings' => 'Настройки',
+            'created_at' => 'Создано',
+            'updated_at' => 'Обновлено',
+        ];
+    }
+    
+    public function getUser()
+    {
+        return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
+    
+    /**
+     * Получить все активные подписки для пользователя
+     */
+    public static function getActiveSubscriptions($userId, $event = null)
+    {
+        $query = static::find()
+            ->where(['user_id' => $userId, 'is_active' => true]);
+        
+        if ($event) {
+            $query->andWhere(['event' => $event]);
+        }
+        
+        return $query->all();
+    }
+    
+    /**
+     * Получить всех пользователей, подписанных на событие
+     */
+    public static function getSubscribersForEvent($event, $channel = null)
+    {
+        $query = static::find()
+            ->where(['event' => $event, 'is_active' => true])
+            ->joinWith('user');
+        
+        if ($channel) {
+            $query->andWhere(['channel' => $channel]);
+        }
+        
+        return $query->all();
+    }
+    
+    /**
+     * Подписать пользователя на событие
+     */
+    public static function subscribe($userId, $event, $channel, $settings = null)
+    {
+        $subscription = static::findOne([
+            'user_id' => $userId,
+            'event' => $event,
+            'channel' => $channel,
+        ]);
+        
+        if (!$subscription) {
+            $subscription = new static();
+            $subscription->user_id = $userId;
+            $subscription->event = $event;
+            $subscription->channel = $channel;
+        }
+        
+        $subscription->is_active = true;
+        if ($settings !== null) {
+            $subscription->settings = $settings;
+        }
+        
+        return $subscription->save();
+    }
+    
+    /**
+     * Отписать пользователя от события
+     */
+    public static function unsubscribe($userId, $event, $channel)
+    {
+        $subscription = static::findOne([
+            'user_id' => $userId,
+            'event' => $event,
+            'channel' => $channel,
+        ]);
+        
+        if ($subscription) {
+            $subscription->is_active = false;
+            return $subscription->save();
+        }
+        
+        return true;
     }
 }
 
@@ -6141,7 +7671,7 @@ $sizeList = AdvertisementHarness::getSizeList();
     
     <div class="row">
         <div class="col-md-6">
-            <?= $form->field($harnessModel, 'model')->textInput(['maxlength' => true, 'placeholder' => 'X-Alps 3']) ?>
+            <?= $form->field($harnessModel, 'model')->textInput(['maxlength' => true, 'placeholder' => 'Gin Genie Light']) ?>
         </div>
         <div class="col-md-6">
             <?= $form->field($harnessModel, 'producer_id')->dropDownList(
@@ -6648,9 +8178,9 @@ $link = Url::toRoute(['advertisements/view', 'id' => $model->id]);
 
 ?>
 
-<div class="media" style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+<div class="media" style="margin-bottom: 20px;">
     <a class="media-body" href="<?=$link?>">
-        <div class="media-left" style="padding-right: 15px;">
+        <div class="media-left">
             <?php if ($imagesCount > 0): ?>
                 <div class="image-preview-grid" style="display: grid; grid-template-columns: repeat(<?= min($imagesCount, 5) ?>, 60px); gap: 5px; width: <?= min($imagesCount, 5) * 65 ?>px;">
                     <?php 
@@ -7364,7 +8894,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                         <tr><th>Модель</th><td><?= Html::encode($model->glider->model) ?></td></tr>
                                         <tr><th>Производитель</th><td><?= Html::encode($model->glider->producer->fullName ?? '') ?></td></tr>
                                         <tr><th>Сертификация</th><td><?= Html::encode($model->glider->certification->name ?? '') ?></td></tr>
-                                        <tr><th>Вес пилота</th><td><?= $model->glider->weight_min ?> - <?= $model->glider->weight_max ?> кг</td></tr>
+                                        <tr><th>Весовая вилка</th><td><?= $model->glider->weight_min ?> - <?= $model->glider->weight_max ?> кг</td></tr>
                                         <tr><th>Год выпуска</th><td><?= Html::encode($model->glider->date_release) ?></td></tr>
                                         <tr><th>Налёт</th><td><?= $model->glider->flight_time ?> ч.</td></tr>
                                         <tr><th>Состояние</th><td><?= Html::encode(\app\models\AdvertisementGlider::getConditionList()[$model->glider->condition] ?? '') ?></td></tr>
@@ -7794,8 +9324,11 @@ AppAsset::register($this);
         $menuItems[] = ['label' => 'Регистрация', 'url' => ['/site/register']];
         $menuItems[] = ['label' => 'Вход', 'url' => ['/site/login']];
     } else {
+
         $menuItems[] = ['label' => 'Мои объявления', 'url' => ['/advertisements/my']];
-        $menuItems[] = ['label' => 'Добавить', 'url' => ['/advertisements/create']];
+        //$menuItems[] = ['label' => 'Добавить', 'url' => ['/advertisements/create']];
+        $menuItems[] = ['label' => 'Уведомления', 'url' => ['/notification/index']];
+
         $menuItems[] = '<li class="nav-item">'
             . Html::beginForm(['/site/logout'])
             . Html::submitButton(
@@ -7833,6 +9366,195 @@ AppAsset::register($this);
 </body>
 </html>
 <?php $this->endPage() ?>
+
+
+# ============================================================
+# FILE: .\views\notification\index.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+use yii\helpers\Html;
+use yii\helpers\Url;
+
+$this->title = 'Управление уведомлениями';
+$this->params['breadcrumbs'][] = $this->title;
+
+// Получаем CSRF токен
+$csrfToken = Yii::$app->request->csrfToken;
+?>
+
+<div class="notification-index">
+    <h1><?= Html::encode($this->title) ?></h1>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Настройки уведомлений</h3>
+                </div>
+                <div class="panel-body">
+                    <p>Выберите события и каналы, по которым вы хотите получать уведомления.</p>
+                    
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Событие</th>
+                                <?php foreach ($channels as $channel): ?>
+                                    <th><?= $channel->getDescription() ?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($events as $eventKey => $eventLabel): ?>
+                                <tr>
+                                    <td><strong><?= $eventLabel ?></strong></td>
+                                    <?php foreach ($channels as $channelKey => $channel): ?>
+                                        <td class="text-center">
+                                            <?php 
+                                            $subscriptionKey = $eventKey . '_' . $channelKey;
+                                            $isSubscribed = isset($subscriptions[$subscriptionKey]) && $subscriptions[$subscriptionKey]->is_active;
+                                            ?>
+                                            <button class="btn btn-<?= $isSubscribed ? 'success' : 'default' ?> btn-sm toggle-subscription"
+                                                    data-event="<?= $eventKey ?>"
+                                                    data-channel="<?= $channelKey ?>"
+                                                    data-subscribed="<?= $isSubscribed ? 'true' : 'false' ?>">
+                                                <?= $isSubscribed ? '✓ Подписан' : 'Подписаться' ?>
+                                            </button>
+                                        </td>
+                                    <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    
+                    <div class="alert alert-info">
+                        <h4>Доступные каналы уведомлений:</h4>
+                        <ul>
+                            <?php foreach ($channels as $channel): ?>
+                                <li>
+                                    <strong><?= $channel->getDescription() ?></strong>
+                                    <?php if ($channel->isAvailable()): ?>
+                                        <span class="label label-success">Доступен</span>
+                                    <?php else: ?>
+                                        <span class="label label-danger">Недоступен</span>
+                                    <?php endif; ?>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php
+// Правильные URL для AJAX запросов
+$subscribeUrl = Url::to(['notification/subscribe']);
+$unsubscribeUrl = Url::to(['notification/unsubscribe']);
+
+$script = <<<JS
+$(document).on('click', '.toggle-subscription', function() {
+    var button = $(this);
+    var event = button.data('event');
+    var channel = button.data('channel');
+    
+    // Определяем текущее состояние по классу и тексту кнопки
+    var isSubscribed = button.hasClass('btn-success');
+    
+    // Определяем URL в зависимости от действия
+    var url = isSubscribed ? '{$unsubscribeUrl}' : '{$subscribeUrl}';
+    var action = isSubscribed ? 'отписка' : 'подписка';
+    
+    // Блокируем кнопку
+    button.prop('disabled', true);
+    button.text('Обработка...');
+    
+    console.log('Action:', action, 'Event:', event, 'Channel:', channel);
+    
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: {
+            event: event,
+            channel: channel,
+            _csrf: '{$csrfToken}'
+        },
+        dataType: 'json',
+        success: function(response) {
+            console.log('Response:', response);
+            
+            if (response.success) {
+                if (isSubscribed) {
+                    // Отписка
+                    button.removeClass('btn-success').addClass('btn-default');
+                    button.text('Подписаться');
+                    button.data('subscribed', 'false');
+                    showNotification('Вы отписались от уведомлений', 'info');
+                } else {
+                    // Подписка
+                    button.removeClass('btn-default').addClass('btn-success');
+                    button.text('✓ Подписан');
+                    button.data('subscribed', 'true');
+                    showNotification('Вы подписались на уведомления', 'success');
+                }
+            } else {
+                var errorMsg = response.error || 'Неизвестная ошибка';
+                showNotification('Ошибка: ' + errorMsg, 'danger');
+                // Восстанавливаем состояние
+                if (isSubscribed) {
+                    button.text('✓ Подписан');
+                } else {
+                    button.text('Подписаться');
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response:', xhr.responseText);
+            showNotification('Произошла ошибка при отправке запроса', 'danger');
+            // Восстанавливаем состояние
+            if (isSubscribed) {
+                button.text('✓ Подписан');
+            } else {
+                button.text('Подписаться');
+            }
+        },
+        complete: function() {
+            button.prop('disabled', false);
+        }
+    });
+});
+
+// Функция для показа уведомлений
+function showNotification(message, type) {
+    var alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-' + type;
+    alertDiv.innerHTML = message;
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '20px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.style.minWidth = '300px';
+    alertDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(function() {
+        alertDiv.style.opacity = '0';
+        alertDiv.style.transition = 'opacity 0.5s ease';
+        setTimeout(function() {
+            if (alertDiv && alertDiv.remove) {
+                alertDiv.remove();
+            }
+        }, 500);
+    }, 3000);
+}
+JS;
+$this->registerJs($script);
+?>
 
 
 # ============================================================
@@ -8605,10 +10327,16 @@ class SearchBar extends Widget
     
     public function run()
     {
+        // Получаем списки для выпадающих полей
+        $producers = \app\models\Producer::find()->orderBy('name')->all();
+        $certifications = \app\models\Certification::find()->orderBy(['order' => SORT_ASC, 'name' => SORT_ASC])->all();
+        
         return $this->render('search-bar', [
             'searchModel' => $this->searchModel,
             'section' => $this->section,
             'action' => $this->action,
+            'producers' => $producers,
+            'certifications' => $certifications,
         ]);
     }
 }
@@ -8623,13 +10351,19 @@ class SearchBar extends Widget
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\helpers\ArrayHelper;
 use yii\widgets\ActiveForm;
 use app\models\Advertisement;
+use app\models\AdvertisementGlider;
+use app\models\AdvertisementHarness;
+use app\models\AdvertisementDevice;
 
 /**
  * @var \app\models\AdvertisementSearch $searchModel
  * @var string|null $section
  * @var array $action
+ * @var array $producers
+ * @var array $certifications
  */
 
 // Определяем URL для кнопки сброса
@@ -8663,12 +10397,88 @@ if (!empty($searchModel->type) && $searchModel->type !== 'normal') {
     $paramParts[] = 'Тип: ' . ($typeList[$searchModel->type] ?? $searchModel->type);
 }
 
-/*
-// Раздел (если есть)
-if ($section) {
-    $sectionLabel = ($section === Advertisement::SECTION_SELL) ? 'Продам' : 'Куплю';
-    $paramParts[] = 'Раздел: ' . $sectionLabel;
-}*/
+// Добавляем параметры для glider
+if ($searchModel->type === 'glider') {
+    if (!empty($searchModel->glider_model)) {
+        $paramParts[] = 'Модель: ' . Html::encode($searchModel->glider_model);
+    }
+    if (!empty($searchModel->glider_producer_ids)) {
+        $producerIds = array_filter($searchModel->glider_producer_ids, function($id) {
+            return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
+        });
+        if (!empty($producerIds)) {
+            $producerNames = ArrayHelper::getColumn(
+                \app\models\Producer::find()->where(['id' => $producerIds])->all(),
+                'name'
+            );
+            if (!empty($producerNames)) {
+                $paramParts[] = 'Производитель: ' . implode(', ', $producerNames);
+            }
+        }
+    }
+    if (!empty($searchModel->glider_certification_ids)) {
+        $certNames = ArrayHelper::getColumn(
+            \app\models\Certification::find()->where(['id' => $searchModel->glider_certification_ids])->all(),
+            'name'
+        );
+        $paramParts[] = 'Сертификация: ' . implode(', ', $certNames);
+    }
+    if (!empty($searchModel->glider_weight)) {
+        $paramParts[] = 'Вес: ' . $searchModel->glider_weight . ' кг';
+    }
+    if (!empty($searchModel->glider_date_release_min)) {
+        $paramParts[] = 'Год выпуска от: ' . $searchModel->glider_date_release_min;
+    }
+    if (!empty($searchModel->glider_flight_time_max)) {
+        $paramParts[] = 'Налёт до: ' . $searchModel->glider_flight_time_max . ' ч';
+    }
+    if (!empty($searchModel->glider_condition)) {
+        $conditionList = AdvertisementGlider::getConditionList();
+        $paramParts[] = 'Состояние: ' . ($conditionList[$searchModel->glider_condition] ?? $searchModel->glider_condition);
+    }
+}
+
+// Добавляем параметры для harness
+if ($searchModel->type === 'harness') {
+    if (!empty($searchModel->harness_model)) {
+        $paramParts[] = 'Модель: ' . Html::encode($searchModel->harness_model);
+    }
+    if (!empty($searchModel->harness_producer_ids)) {
+        $producerNames = ArrayHelper::getColumn(
+            \app\models\Producer::find()->where(['id' => $searchModel->harness_producer_ids])->all(),
+            'name'
+        );
+        $paramParts[] = 'Производитель: ' . implode(', ', $producerNames);
+    }
+    if (!empty($searchModel->harness_sizes)) {
+        $paramParts[] = 'Размер: ' . implode(', ', $searchModel->harness_sizes);
+    }
+    if (!empty($searchModel->harness_date_release_min)) {
+        $paramParts[] = 'Год выпуска от: ' . $searchModel->harness_date_release_min;
+    }
+    if (!empty($searchModel->harness_condition)) {
+        $conditionList = AdvertisementHarness::getConditionList();
+        $paramParts[] = 'Состояние: ' . ($conditionList[$searchModel->harness_condition] ?? $searchModel->harness_condition);
+    }
+}
+
+// Добавляем параметры для device
+if ($searchModel->type === 'device') {
+    if (!empty($searchModel->device_model)) {
+        $paramParts[] = 'Модель: ' . Html::encode($searchModel->device_model);
+    }
+    if (!empty($searchModel->device_producer_ids)) {
+        $producerNames = ArrayHelper::getColumn(
+            \app\models\Producer::find()->where(['id' => $searchModel->device_producer_ids])->all(),
+            'name'
+        );
+        $paramParts[] = 'Производитель: ' . implode(', ', $producerNames);
+    }
+    if (!empty($searchModel->device_condition)) {
+        $conditionList = AdvertisementDevice::getConditionList();
+        $paramParts[] = 'Состояние: ' . ($conditionList[$searchModel->device_condition] ?? $searchModel->device_condition);
+    }
+}
 
 // Объединяем параметры через запятую
 $paramsString = implode(', ', $paramParts);
@@ -8678,6 +10488,20 @@ $hasParams = !empty($paramParts);
 
 // Преобразуем resetUrl в строку для ссылки
 $resetUrlString = Url::to($resetUrl);
+
+// Списки для выпадающих полей
+$producerList = ArrayHelper::map($producers, 'id', 'fullName');
+$certificationList = ArrayHelper::map($certifications, 'id', 'name');
+$conditionListGlider = AdvertisementGlider::getConditionList();
+$conditionListHarness = AdvertisementHarness::getConditionList();
+$conditionListDevice = AdvertisementDevice::getConditionList();
+$sizeList = AdvertisementHarness::getSizeList();
+
+// Определяем, какой тип выбран для отображения дополнительных полей
+$selectedType = $searchModel->type ?? '';
+$showGliderFields = ($selectedType === 'glider');
+$showHarnessFields = ($selectedType === 'harness');
+$showDeviceFields = ($selectedType === 'device');
 ?>
 
 <div class="search-bar-container">
@@ -8711,7 +10535,6 @@ $resetUrlString = Url::to($resetUrl);
                 <line x1="9" y1="8" x2="15" y2="8"></line>
                 <line x1="17" y1="16" x2="23" y2="16"></line>
             </svg>
-            <span>Параметры</span>
         </button>
     </div>
     
@@ -8747,6 +10570,7 @@ $resetUrlString = Url::to($resetUrl);
                 <?= Html::hiddenInput('AdvertisementSearch[section]', $section) ?>
             <?php endif; ?>
             
+            <!-- Основные параметры -->
             <div class="col-md-3">
                 <?= $form->field($searchModel, 'price_min', [
                     'options' => ['class' => 'mb-0'],
@@ -8773,8 +10597,174 @@ $resetUrlString = Url::to($resetUrl);
                     'labelOptions' => ['class' => 'form-label'],
                 ])->dropDownList(
                     ['' => 'Все типы'] + Advertisement::getTypeList(),
-                    ['class' => 'form-select']
+                    ['class' => 'form-select', 'id' => 'search-type-select']
                 ) ?>
+            </div>
+            
+            <!-- Дополнительные параметры для GLIDER -->
+            <div class="col-12 extra-fields glider-fields" style="display: <?= $showGliderFields ? 'block' : 'none' ?>; margin-top: 15px;">
+                <h5 style="color: #e0e0e0; border-bottom: 1px solid #555; padding-bottom: 8px;">Параплан</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'glider_model', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->textInput(['placeholder' => 'Модель', 'class' => 'form-control']) ?>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'glider_producer_ids', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->dropDownList(
+                            $producerList,
+                            [
+                                'class' => 'form-select',
+                                'multiple' => true,
+                                'size' => 4,
+                                'prompt' => 'Все производители'
+                            ]
+                        ) ?>
+                        <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'glider_certification_ids', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->dropDownList(
+                            $certificationList,
+                            [
+                                'class' => 'form-select',
+                                'multiple' => true,
+                                'size' => 4,
+                                'prompt' => 'Все сертификации'
+                            ]
+                        ) ?>
+                        <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'glider_weight', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->textInput(['placeholder' => 'Взлетный вес (кг)', 'class' => 'form-control']) ?>
+                        <small class="text-muted" style="color: #999 !important;">Вес пилота + вес всего снаряжения</small>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'glider_date_release_min', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->textInput(['placeholder' => 'Год выпуска от', 'class' => 'form-control']) ?>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'glider_flight_time_max', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->textInput(['placeholder' => 'Налёт до (часов)', 'class' => 'form-control']) ?>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'glider_condition', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->dropDownList(
+                            ['' => 'Любое'] + $conditionListGlider,
+                            ['class' => 'form-select']
+                        ) ?>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Дополнительные параметры для HARNESS -->
+            <div class="col-12 extra-fields harness-fields" style="display: <?= $showHarnessFields ? 'block' : 'none' ?>; margin-top: 15px;">
+                <h5 style="color: #e0e0e0; border-bottom: 1px solid #555; padding-bottom: 8px;">Подвесная система</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'harness_model', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->textInput(['placeholder' => 'Модель', 'class' => 'form-control']) ?>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'harness_producer_ids', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->dropDownList(
+                            $producerList,
+                            [
+                                'class' => 'form-select',
+                                'multiple' => true,
+                                'size' => 4,
+                                'prompt' => 'Все производители'
+                            ]
+                        ) ?>
+                        <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'harness_sizes', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->dropDownList(
+                            $sizeList,
+                            [
+                                'class' => 'form-select',
+                                'multiple' => true,
+                                'size' => 4,
+                                'prompt' => 'Все размеры'
+                            ]
+                        ) ?>
+                        <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'harness_date_release_min', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->textInput(['placeholder' => 'Год выпуска от', 'class' => 'form-control']) ?>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'harness_condition', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->dropDownList(
+                            ['' => 'Любое'] + $conditionListHarness,
+                            ['class' => 'form-select']
+                        ) ?>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Дополнительные параметры для DEVICE -->
+            <div class="col-12 extra-fields device-fields" style="display: <?= $showDeviceFields ? 'block' : 'none' ?>; margin-top: 15px;">
+                <h5 style="color: #e0e0e0; border-bottom: 1px solid #555; padding-bottom: 8px;">Прибор</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'device_model', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->textInput(['placeholder' => 'Модель', 'class' => 'form-control']) ?>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'device_producer_ids', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->dropDownList(
+                            $producerList,
+                            [
+                                'class' => 'form-select',
+                                'multiple' => true,
+                                'size' => 4,
+                                'prompt' => 'Все производители'
+                            ]
+                        ) ?>
+                        <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'device_condition', [
+                            'options' => ['class' => 'mb-0'],
+                            'labelOptions' => ['class' => 'form-label'],
+                        ])->dropDownList(
+                            ['' => 'Любое'] + $conditionListDevice,
+                            ['class' => 'form-select']
+                        ) ?>
+                    </div>
+                </div>
             </div>
             
             <div class="col-12 text-end mt-3">
@@ -8788,8 +10778,54 @@ $resetUrlString = Url::to($resetUrl);
 </div>
 
 <?php
-// JavaScript для синхронизации форм
+// JavaScript для показа/скрытия дополнительных полей
 $script = <<< JS
+// Функция для показа/скрытия дополнительных полей
+function toggleExtraFields() {
+    var selectedType = document.getElementById('search-type-select').value;
+    var gliderFields = document.querySelector('.glider-fields');
+    var harnessFields = document.querySelector('.harness-fields');
+    var deviceFields = document.querySelector('.device-fields');
+    
+    // Скрываем все
+    if (gliderFields) gliderFields.style.display = 'none';
+    if (harnessFields) harnessFields.style.display = 'none';
+    if (deviceFields) deviceFields.style.display = 'none';
+    
+    // Показываем нужные
+    if (selectedType === 'glider' && gliderFields) {
+        gliderFields.style.display = 'block';
+    } else if (selectedType === 'harness' && harnessFields) {
+        harnessFields.style.display = 'block';
+    } else if (selectedType === 'device' && deviceFields) {
+        deviceFields.style.display = 'block';
+    }
+}
+
+// При изменении типа
+document.getElementById('search-type-select').addEventListener('change', toggleExtraFields);
+
+// При загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Если блок параметров открыт, сразу показываем нужные поля
+    var paramsCollapse = document.getElementById('searchParamsCollapse');
+    if (paramsCollapse && paramsCollapse.classList.contains('show')) {
+        toggleExtraFields();
+    } else {
+        // Даже если блок скрыт, устанавливаем правильное состояние
+        toggleExtraFields();
+    }
+});
+
+// Также показываем поля, если блок параметров открывается
+document.getElementById('searchParamsCollapse').addEventListener('shown.bs.collapse', function() {
+    toggleExtraFields();
+});
+JS;
+$this->registerJs($script);
+
+// JavaScript для синхронизации форм
+$script2 = <<< JS
 // При отправке основной формы, копируем текст поиска в скрытое поле параметров
 document.getElementById('main-search-form').addEventListener('submit', function(e) {
     var searchText = this.querySelector('input[name="AdvertisementSearch[search_text]"]').value;
@@ -8816,7 +10852,7 @@ document.getElementById('search-params-form').addEventListener('submit', functio
     }
 });
 JS;
-$this->registerJs($script);
+$this->registerJs($script2);
 ?>
 
 

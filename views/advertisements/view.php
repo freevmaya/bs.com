@@ -70,7 +70,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                         <tr><th>Модель</th><td><?= Html::encode($model->glider->model) ?></td></tr>
                                         <tr><th>Производитель</th><td><?= Html::encode($model->glider->producer->fullName ?? '') ?></td></tr>
                                         <tr><th>Сертификация</th><td><?= Html::encode($model->glider->certification->name ?? '') ?></td></tr>
-                                        <tr><th>Вес пилота</th><td><?= $model->glider->weight_min ?> - <?= $model->glider->weight_max ?> кг</td></tr>
+                                        <tr><th>Весовая вилка</th><td><?= $model->glider->weight_min ?> - <?= $model->glider->weight_max ?> кг</td></tr>
                                         <tr><th>Год выпуска</th><td><?= Html::encode($model->glider->date_release) ?></td></tr>
                                         <tr><th>Налёт</th><td><?= $model->glider->flight_time ?> ч.</td></tr>
                                         <tr><th>Состояние</th><td><?= Html::encode(\app\models\AdvertisementGlider::getConditionList()[$model->glider->condition] ?? '') ?></td></tr>

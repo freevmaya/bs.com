@@ -16,7 +16,7 @@ $sizeList = AdvertisementHarness::getSizeList();
     
     <div class="row">
         <div class="col-md-6">
-            <?= $form->field($harnessModel, 'model')->textInput(['maxlength' => true, 'placeholder' => 'X-Alps 3']) ?>
+            <?= $form->field($harnessModel, 'model')->textInput(['maxlength' => true, 'placeholder' => 'Gin Genie Light']) ?>
         </div>
         <div class="col-md-6">
             <?= $form->field($harnessModel, 'producer_id')->dropDownList(
