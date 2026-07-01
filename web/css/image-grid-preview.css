@@ -1,0 +1,124 @@
+/* ============================================
+   Image Grid Preview Widget
+   ============================================ */
+
+.image-grid-preview {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 0.8em;
+    position: relative;
+    cursor: pointer;
+}
+
+.image-grid-preview .grid-row {
+    display: flex;
+    overflow: hidden;
+    gap: 3px;
+}
+
+.image-grid-preview .grid-column {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    gap: 3px;
+}
+
+.image-grid-preview .grid-item {
+    overflow: hidden;
+    background: #f0f0f0;
+    position: relative;
+}
+
+.image-grid-preview .grid-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.image-grid-preview .grid-item:hover img {
+    transform: scale(1.05);
+}
+
+.image-grid-preview .grid-five {
+    display: flex;
+    overflow: hidden;
+    gap: 3px;
+}
+
+.image-grid-preview .grid-five .grid-right {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.image-grid-preview .grid-five .grid-right .grid-row {
+    gap: 3px;
+}
+
+/* Обнуляем отступы для вложенных grid */
+.image-grid-preview .grid-five .grid-right .grid-row,
+.image-grid-preview .grid-five .grid-right {
+    gap: 3px;
+}
+
+/* Стили для просмотра */
+.image-grid-preview .image-count-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.image-grid-preview .image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.image-grid-preview:hover .image-overlay {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Плейсхолдер */
+.image-grid-preview.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .image-grid-preview {
+        border-radius: 3px;
+    }
+    .image-grid-preview .image-count-badge {
+        font-size: 16px;
+        padding: 6px 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .image-grid-preview .image-count-badge {
+        font-size: 14px;
+        padding: 4px 10px;
+    }
+}

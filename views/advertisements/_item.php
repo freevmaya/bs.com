@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\StringHelper;
 use yii\helpers\Url;
+use app\widgets\ImageGridPreview;
 
 $priceText = $model->price ? number_format($model->price, 0, '.', ' ') . ' ₽' : 'Цена не указана';
 if ($model->price_negotiable) {
@@ -59,29 +60,18 @@ if ($model->type === 'glider' && $model->glider) {
 $shortInfoString = implode(' | ', $shortInfo);
 ?>
 
-<div class="media" style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+<div class="media">
+    <?php if ($imagesCount > 0): ?>
     <div class="media-left" style="padding-right: 15px;">
-        <a href="<?= $link ?>">
-            <?php if ($imagesCount > 0): ?>
-                <div class="image-preview-grid" style="grid-template-columns: repeat(<?= min($imagesCount, 5) ?>, 100px); width: <?= min($imagesCount, 5) * 65 ?>px;">
-                    <?php 
-                    $displayCount = 0;
-                    foreach ($images as $index => $image): 
-                        if ($displayCount >= 5) break;
-                        $displayCount++;
-                    ?>
-                        <div class="image-thumb">
-                            <img src="<?= $image->getThumbnailUrl() ?>" alt="Изображение <?= $index + 1 ?>" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <div class="advertisement-placeholder" style="width: 60px; height: 60px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
-                    <span class="glyphicon glyphicon-picture" style="font-size: 24px; color: #ccc;"></span>
-                </div>
-            <?php endif; ?>
-        </a>
+        
+            <?= ImageGridPreview::widget([
+                'images' => $images,
+                'maxImages' => 5,
+                'containerSize' => 300,
+                'containerClass' => 'image-grid-preview',
+            ]) ?>
     </div>
+    <?php endif; ?>
     
     <div class="media-body">
         <a href="<?= $link ?>" style="text-decoration: none; color: inherit;">

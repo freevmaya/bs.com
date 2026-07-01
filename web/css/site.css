@@ -4,6 +4,7 @@
 @import url('notifications.css');
 @import url('forms.css');
 @import url('search.css');
+@import url('image-grid-preview.css');
 
 :root {
     --primary-color: #3498db;
@@ -51,8 +52,24 @@ main > .container {
 
 .media:hover {
     background: #fafafa;
-    padding: 5px;
-    border-radius: 5px;
+    border-radius: 1em;
+}
+
+.list-view .media {
+    padding: 1rem;
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+.list-view .media:hover {
+    background: #283939;
+}
+
+@media (min-width: 992px) {
+    .list-view .media {
+        display: flex;
+        flex-direction: row;
+    }
 }
 
 .price-large {
@@ -92,18 +109,8 @@ main > .container {
     color: rgba(255, 255, 255, 0.75);
 }
 
-.list-view .media {
-    padding: 5px;
-    border-radius: 0.5em;
-    text-decoration: none;
-}
-
 .media-body {
     text-decoration: none;
-}
-
-.list-view .media:hover {
-    background: #283939;
 }
 
 .gallery-grid {
