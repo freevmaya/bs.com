@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\models\AdvertisementImage;
 
 /**
  * @var array $images - массив изображений (для update - реальные, для create - временные)
@@ -135,7 +136,7 @@ var currentType = '<?= $type ?>';
 var addImageUrl = '<?= $addImageUrl ?>';
 var deleteImageUrl = '<?= $deleteImageUrl ?>';
 var reorderUrl = '<?= Url::to(['advertisements/reorder-images']) ?>';
-var maxFileSize = 100 * 1024 * 1024; // 100 MB
+var maxFileSize = '<?= AdvertisementImage::MAX_VIDEO_SIZE ?>';
 
 // DOM элементы
 var dragDropZone = document.getElementById('drag-drop-zone');
@@ -201,7 +202,7 @@ function uploadFile(file) {
     }
 
     if (file.size > maxFileSize) {
-        showError('Размер файла не должен превышать 100 MB');
+        showError('Размер файла не должен превышать <?= AdvertisementImage::MAX_VIDEO_SIZE_MGB ?> MB');
         return;
     }
 

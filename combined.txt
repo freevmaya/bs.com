@@ -5669,7 +5669,8 @@ class AdvertisementImage extends ActiveRecord
     const THUMBNAIL_WIDTH = 200;
     const THUMBNAIL_HEIGHT = 200;
     const QUALITY = 85;
-    const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100 MB
+    const MAX_VIDEO_SIZE_MGB = 100;
+    const MAX_VIDEO_SIZE = self::MAX_VIDEO_SIZE_MGB * 1024 * 1024; // 100 MB
     
     public $imageFile;
     
@@ -5704,7 +5705,7 @@ class AdvertisementImage extends ActiveRecord
                 'skipOnEmpty' => true, 
                 'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'],
                 'maxSize' => self::MAX_VIDEO_SIZE,
-                'tooBig' => 'Размер файла не должен превышать 100 MB',
+                'tooBig' => 'Размер файла не должен превышать '.self::MAX_VIDEO_SIZE_MGB.' MB',
                 'checkExtensionByMimeType' => false,
             ],
         ];
@@ -5806,7 +5807,7 @@ class AdvertisementImage extends ActiveRecord
         
         // Проверка размера
         if ($this->imageFile->size > self::MAX_VIDEO_SIZE) {
-            $this->addError('imageFile', 'Размер файла не должен превышать 100 MB');
+            $this->addError('imageFile', 'Размер файла не должен превышать '.self::MAX_VIDEO_SIZE_MGB.' MB');
             return false;
         }
         
@@ -5881,7 +5882,7 @@ class AdvertisementImage extends ActiveRecord
         
         // Проверка размера
         if ($this->imageFile->size > self::MAX_VIDEO_SIZE) {
-            $this->addError('imageFile', 'Размер файла не должен превышать 100 MB');
+            $this->addError('imageFile', 'Размер файла не должен превышать '.self::MAX_VIDEO_SIZE_MGB.' MB');
             return false;
         }
         
@@ -5961,10 +5962,34 @@ class AdvertisementImage extends ActiveRecord
         }
 
         // Пробуем создать миниатюру через FFmpeg
+        $width = self::THUMBNAIL_WIDTH;  // 200
+        $height = self::THUMBNAIL_HEIGHT; // 200
+        /*
+        
+        // Вариант 1: Сохранить пропорции, добавить черные полосы (letterbox)
         $command = $ffmpegPath . ' -i ' . escapeshellarg($videoPath) .
-                   ' -ss 00:00:01 -vframes 1 -vf scale=' . self::THUMBNAIL_WIDTH . ':' . self::THUMBNAIL_HEIGHT .
-                   ' -f image2 ' . escapeshellarg($thumbnailPath) . ' 2>&1';
-
+                   ' -ss 00:00:01 -vframes 1 ' .
+                   '-vf "scale=' . $width . ':' . $height . ':' .
+                   'force_original_aspect_ratio=decrease,' .
+                   'pad=' . $width . ':' . $height . ':(ow-iw)/2:(oh-ih)/2" ' .
+                   '-f image2 ' . escapeshellarg($thumbnailPath) . ' 2>&1';
+        
+        // Вариант 2: Обрезать до квадрата (cover) - БЕЗ ИСКАЖЕНИЙ
+        $command = $ffmpegPath . ' -i ' . escapeshellarg($videoPath) .
+                   ' -ss 00:00:01 -vframes 1 ' .
+                   '-vf "scale=' . $width . ':' . $height . ':' .
+                   'force_original_aspect_ratio=increase,' .
+                   'crop=' . $width . ':' . $height . '" ' .
+                   '-f image2 ' . escapeshellarg($thumbnailPath) . ' 2>&1';
+        */
+        
+        // Вариант 3: Простое масштабирование с сохранением пропорций
+        $command = $ffmpegPath . ' -i ' . escapeshellarg($videoPath) .
+                   ' -ss 00:00:01 -vframes 1 ' .
+                   '-vf "scale=' . $width . ':-1" ' .
+                   '-f image2 ' . escapeshellarg($thumbnailPath) . ' 2>&1';
+        
+        // Выполняем команду
         $output = shell_exec($command);
 
         // Проверяем, создался ли файл
@@ -8675,6 +8700,7 @@ $sizeList = AdvertisementHarness::getSizeList();
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\models\AdvertisementImage;
 
 /**
  * @var array $images - массив изображений (для update - реальные, для create - временные)
@@ -8808,7 +8834,7 @@ var currentType = '<?= $type ?>';
 var addImageUrl = '<?= $addImageUrl ?>';
 var deleteImageUrl = '<?= $deleteImageUrl ?>';
 var reorderUrl = '<?= Url::to(['advertisements/reorder-images']) ?>';
-var maxFileSize = 100 * 1024 * 1024; // 100 MB
+var maxFileSize = '<?= AdvertisementImage::MAX_VIDEO_SIZE ?>';
 
 // DOM элементы
 var dragDropZone = document.getElementById('drag-drop-zone');
@@ -8874,7 +8900,7 @@ function uploadFile(file) {
     }
 
     if (file.size > maxFileSize) {
-        showError('Размер файла не должен превышать 100 MB');
+        showError('Размер файла не должен превышать <?= AdvertisementImage::MAX_VIDEO_SIZE_MGB ?> MB');
         return;
     }
 
@@ -11262,6 +11288,29 @@ $config = require __DIR__ . '/../config/test.php';
 <?php
 
 declare(strict_types=1);
+
+/*
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Принудительно устанавливаем лимиты
+ini_set('upload_max_filesize', '200M');
+ini_set('post_max_size', '200M');
+ini_set('memory_limit', '512M');
+ini_set('max_execution_time', '600');
+ini_set('max_input_time', '600');
+
+// Логируем загрузку
+error_log("=== UPLOAD ATTEMPT ===");
+error_log("POST size: " . $_SERVER['CONTENT_LENGTH'] ?? 'unknown');
+
+// Проверяем размер POST
+if (isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > 100 * 1024 * 1024) {
+    error_log("Large upload detected: " . $_SERVER['CONTENT_LENGTH'] . " bytes");
+}
+*/
 
 // comment out the following two lines when deployed to production
 defined('YII_DEBUG') or define('YII_DEBUG', true);

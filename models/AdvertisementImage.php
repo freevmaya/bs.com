@@ -16,7 +16,8 @@ class AdvertisementImage extends ActiveRecord
     const THUMBNAIL_WIDTH = 200;
     const THUMBNAIL_HEIGHT = 200;
     const QUALITY = 85;
-    const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100 MB
+    const MAX_VIDEO_SIZE_MGB = 100;
+    const MAX_VIDEO_SIZE = self::MAX_VIDEO_SIZE_MGB * 1024 * 1024; // 100 MB
     
     public $imageFile;
     
@@ -51,7 +52,7 @@ class AdvertisementImage extends ActiveRecord
                 'skipOnEmpty' => true, 
                 'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'],
                 'maxSize' => self::MAX_VIDEO_SIZE,
-                'tooBig' => 'Размер файла не должен превышать 100 MB',
+                'tooBig' => 'Размер файла не должен превышать '.self::MAX_VIDEO_SIZE_MGB.' MB',
                 'checkExtensionByMimeType' => false,
             ],
         ];
@@ -153,7 +154,7 @@ class AdvertisementImage extends ActiveRecord
         
         // Проверка размера
         if ($this->imageFile->size > self::MAX_VIDEO_SIZE) {
-            $this->addError('imageFile', 'Размер файла не должен превышать 100 MB');
+            $this->addError('imageFile', 'Размер файла не должен превышать '.self::MAX_VIDEO_SIZE_MGB.' MB');
             return false;
         }
         
@@ -228,7 +229,7 @@ class AdvertisementImage extends ActiveRecord
         
         // Проверка размера
         if ($this->imageFile->size > self::MAX_VIDEO_SIZE) {
-            $this->addError('imageFile', 'Размер файла не должен превышать 100 MB');
+            $this->addError('imageFile', 'Размер файла не должен превышать '.self::MAX_VIDEO_SIZE_MGB.' MB');
             return false;
         }
         
@@ -308,10 +309,34 @@ class AdvertisementImage extends ActiveRecord
         }
 
         // Пробуем создать миниатюру через FFmpeg
+        $width = self::THUMBNAIL_WIDTH;  // 200
+        $height = self::THUMBNAIL_HEIGHT; // 200
+        /*
+        
+        // Вариант 1: Сохранить пропорции, добавить черные полосы (letterbox)
         $command = $ffmpegPath . ' -i ' . escapeshellarg($videoPath) .
-                   ' -ss 00:00:01 -vframes 1 -vf scale=' . self::THUMBNAIL_WIDTH . ':' . self::THUMBNAIL_HEIGHT .
-                   ' -f image2 ' . escapeshellarg($thumbnailPath) . ' 2>&1';
-
+                   ' -ss 00:00:01 -vframes 1 ' .
+                   '-vf "scale=' . $width . ':' . $height . ':' .
+                   'force_original_aspect_ratio=decrease,' .
+                   'pad=' . $width . ':' . $height . ':(ow-iw)/2:(oh-ih)/2" ' .
+                   '-f image2 ' . escapeshellarg($thumbnailPath) . ' 2>&1';
+        
+        // Вариант 2: Обрезать до квадрата (cover) - БЕЗ ИСКАЖЕНИЙ
+        $command = $ffmpegPath . ' -i ' . escapeshellarg($videoPath) .
+                   ' -ss 00:00:01 -vframes 1 ' .
+                   '-vf "scale=' . $width . ':' . $height . ':' .
+                   'force_original_aspect_ratio=increase,' .
+                   'crop=' . $width . ':' . $height . '" ' .
+                   '-f image2 ' . escapeshellarg($thumbnailPath) . ' 2>&1';
+        */
+        
+        // Вариант 3: Простое масштабирование с сохранением пропорций
+        $command = $ffmpegPath . ' -i ' . escapeshellarg($videoPath) .
+                   ' -ss 00:00:01 -vframes 1 ' .
+                   '-vf "scale=' . $width . ':-1" ' .
+                   '-f image2 ' . escapeshellarg($thumbnailPath) . ' 2>&1';
+        
+        // Выполняем команду
         $output = shell_exec($command);
 
         // Проверяем, создался ли файл
