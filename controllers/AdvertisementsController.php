@@ -375,7 +375,8 @@ class AdvertisementsController extends Controller
                 'thumbnailUrl' => $thumbnailUrl,
                 'imageId' => $image->id,
                 'deleteUrl' => $deleteUrl,
-                'message' => 'Изображение успешно загружено'
+                'isVideo' => $image->isVideo(),
+                'message' => 'Файл успешно загружен'
             ];
         } else {
             $errors = $image->getErrors();

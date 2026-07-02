@@ -11,12 +11,12 @@ use yii\web\View;
 class ImageGridPreview extends Widget
 {
     /**
-     * @var array Список изображений с методом getThumbnailUrl() и getImageUrl()
+     * @var array Список изображений/видео с методом getThumbnailUrl() и getImageUrl()
      */
     public $images = [];
     
     /**
-     * @var int Максимальное количество изображений для отображения
+     * @var int Максимальное количество элементов для отображения
      */
     public $maxImages = 5;
     
@@ -26,7 +26,7 @@ class ImageGridPreview extends Widget
     public $containerSize = 120;
     
     /**
-     * @var int Зазор между изображениями в пикселях
+     * @var int Зазор между элементами в пикселях
      */
     public $gap = 3;
     
@@ -41,19 +41,19 @@ class ImageGridPreview extends Widget
             return $this->renderPlaceholder();
         }
         
-        $images = array_slice($this->images, 0, $this->maxImages);
-        $count = count($images);
+        $items = array_slice($this->images, 0, $this->maxImages);
+        $count = count($items);
         
         // Регистрируем JS
-        $this->registerAssets();
+        $this->registerJs();
         
-        return $this->renderGrid($images, $count);
+        return $this->renderGrid($items, $count);
     }
     
     /**
-     * Регистрирует необходимые assets
+     * Регистрирует JavaScript
      */
-    protected function registerAssets()
+    protected function registerJs()
     {
         $view = $this->getView();
         
@@ -65,9 +65,9 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * Рендерит сетку изображений
+     * Рендерит сетку элементов
      */
-    protected function renderGrid($images, $count)
+    protected function renderGrid($items, $count)
     {
         $html = Html::beginTag('div', [
             'class' => $this->containerClass,
@@ -75,7 +75,7 @@ class ImageGridPreview extends Widget
         ]);
         
         $html .= $this->renderOverlay($count);
-        $html .= $this->renderImages($images, $count);
+        $html .= $this->renderItems($items, $count);
         $html .= $this->renderCountBadge($count);
         
         $html .= Html::endTag('div');
@@ -94,7 +94,7 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * Рендерит бейдж с количеством изображений (если больше 5)
+     * Рендерит бейдж с количеством элементов (если больше 5)
      */
     protected function renderCountBadge($count)
     {
@@ -110,39 +110,39 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * Рендерит изображения в зависимости от количества
+     * Рендерит элементы в зависимости от количества
      */
-    protected function renderImages($images, $count)
+    protected function renderItems($items, $count)
     {
         if ($count === 1) {
-            return $this->renderOneImage($images[0]);
+            return $this->renderOneItem($items[0]);
         } elseif ($count === 2) {
-            return $this->renderTwoImages($images);
+            return $this->renderTwoItems($items);
         } elseif ($count === 3) {
-            return $this->renderThreeImages($images);
+            return $this->renderThreeItems($items);
         } elseif ($count === 4) {
-            return $this->renderFourImages($images);
+            return $this->renderFourItems($items);
         } else {
-            return $this->renderFiveImages($images);
+            return $this->renderFiveItems($items);
         }
     }
     
     /**
-     * 1 изображение - на всю область
+     * 1 элемент - на всю область
      */
-    protected function renderOneImage($image)
+    protected function renderOneItem($item)
     {
         $size = $this->containerSize;
-        return Html::tag('div', $this->getImageTag($image), [
+        return Html::tag('div', $this->getItemTag($item), [
             'class' => 'grid-item grid-item-full',
             'style' => "width: {$size}px; height: {$size}px;",
         ]);
     }
     
     /**
-     * 2 изображения - вертикальный сплит
+     * 2 элемента - вертикальный сплит
      */
-    protected function renderTwoImages($images)
+    protected function renderTwoItems($items)
     {
         $size = ($this->containerSize - $this->gap) / 2;
         $html = Html::beginTag('div', [
@@ -150,8 +150,8 @@ class ImageGridPreview extends Widget
             'style' => "width: {$this->containerSize}px; height: {$this->containerSize}px;",
         ]);
         
-        foreach ($images as $image) {
-            $html .= Html::tag('div', $this->getImageTag($image), [
+        foreach ($items as $item) {
+            $html .= Html::tag('div', $this->getItemTag($item), [
                 'class' => 'grid-item grid-item-half',
                 'style' => "width: {$this->containerSize}px; height: {$size}px;",
             ]);
@@ -162,9 +162,9 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * 3 изображения - 2 сверху, 1 снизу
+     * 3 элемента - 2 сверху, 1 снизу
      */
-    protected function renderThreeImages($images)
+    protected function renderThreeItems($items)
     {
         $halfSize = ($this->containerSize - $this->gap) / 2;
         
@@ -173,13 +173,13 @@ class ImageGridPreview extends Widget
                        "display: flex; flex-direction: column; gap: {$this->gap}px;",
         ]);
         
-        // Верхняя строка - 2 изображения
+        // Верхняя строка - 2 элемента
         $topRow = Html::beginTag('div', [
             'class' => 'grid-row',
             'style' => "height: {$halfSize}px;",
         ]);
-        foreach (array_slice($images, 0, 2) as $image) {
-            $topRow .= Html::tag('div', $this->getImageTag($image), [
+        foreach (array_slice($items, 0, 2) as $item) {
+            $topRow .= Html::tag('div', $this->getItemTag($item), [
                 'class' => 'grid-item grid-item-half',
                 'style' => "width: {$halfSize}px; height: {$halfSize}px;",
             ]);
@@ -187,8 +187,8 @@ class ImageGridPreview extends Widget
         $topRow .= Html::endTag('div');
         $html .= $topRow;
         
-        // Нижняя строка - 1 изображение
-        $html .= Html::tag('div', $this->getImageTag($images[2]), [
+        // Нижняя строка - 1 элемент
+        $html .= Html::tag('div', $this->getItemTag($items[2]), [
             'class' => 'grid-item grid-item-full',
             'style' => "width: {$this->containerSize}px; height: {$halfSize}px;",
         ]);
@@ -198,9 +198,9 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * 4 изображения - квадрат 2x2
+     * 4 элемента - квадрат 2x2
      */
-    protected function renderFourImages($images)
+    protected function renderFourItems($items)
     {
         $size = ($this->containerSize - $this->gap) / 2;
         $html = Html::beginTag('div', [
@@ -215,8 +215,8 @@ class ImageGridPreview extends Widget
             ]);
             for ($col = 0; $col < 2; $col++) {
                 $index = $row * 2 + $col;
-                if (isset($images[$index])) {
-                    $rowHtml .= Html::tag('div', $this->getImageTag($images[$index]), [
+                if (isset($items[$index])) {
+                    $rowHtml .= Html::tag('div', $this->getItemTag($items[$index]), [
                         'class' => 'grid-item grid-item-quarter',
                         'style' => "width: {$size}px; height: {$size}px;",
                     ]);
@@ -231,10 +231,10 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * 5 изображений - как в Telegram/VK
-     * Схема: 1 большое слева, 4 маленьких справа (2x2)
+     * 5 элементов - как в Telegram/VK
+     * Схема: 1 большой слева, 4 маленьких справа (2x2)
      */
-    protected function renderFiveImages($images)
+    protected function renderFiveItems($items)
     {
         $size = $this->containerSize;
         $smallSize = ($size - $this->gap) / 2;
@@ -245,8 +245,8 @@ class ImageGridPreview extends Widget
             'style' => "width: {$size}px; height: {$size}px;",
         ]);
         
-        // Левая часть - большое изображение
-        $html .= Html::tag('div', $this->getImageTag($images[0]), [
+        // Левая часть - большой элемент
+        $html .= Html::tag('div', $this->getItemTag($items[0]), [
             'class' => 'grid-item grid-item-main',
             'style' => "width: {$leftSize}px; height: {$size}px; flex-shrink: 0;",
         ]);
@@ -264,8 +264,8 @@ class ImageGridPreview extends Widget
             ]);
             for ($col = 0; $col < 2; $col++) {
                 $index = 1 + $row * 2 + $col;
-                if (isset($images[$index])) {
-                    $rowHtml .= Html::tag('div', $this->getImageTag($images[$index]), [
+                if (isset($items[$index])) {
+                    $rowHtml .= Html::tag('div', $this->getItemTag($items[$index]), [
                         'class' => 'grid-item grid-item-small',
                         'style' => "width: {$smallSize}px; height: {$smallSize}px;",
                     ]);
@@ -288,27 +288,48 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * Получить HTML тег изображения
+     * Получить HTML тег элемента (изображение или видео)
      */
-    protected function getImageTag($image)
+    protected function getItemTag($item)
     {
-        if (is_object($image)) {
-            if (method_exists($image, 'getThumbnailUrl')) {
-                $url = $image->getThumbnailUrl();
+        if (is_object($item)) {
+            if (method_exists($item, 'isVideo') && $item->isVideo()) {
+                return $this->getVideoTag($item);
+            }
+            if (method_exists($item, 'getThumbnailUrl')) {
+                $url = $item->getThumbnailUrl();
             } else {
                 $url = '';
             }
-            if (method_exists($image, 'getImageUrl')) {
-                $fullUrl = $image->getImageUrl();
+            if (method_exists($item, 'getImageUrl')) {
+                $fullUrl = $item->getImageUrl();
             } else {
                 $fullUrl = $url;
             }
-        } elseif (is_string($image)) {
-            $url = $image;
-            $fullUrl = $image;
+            $isVideo = method_exists($item, 'isVideo') && $item->isVideo();
+        } elseif (is_string($item)) {
+            $url = $item;
+            $fullUrl = $item;
+            $isVideo = false;
         } else {
             $url = '';
             $fullUrl = '';
+            $isVideo = false;
+        }
+        
+        // Для видео используем миниатюру с иконкой проигрывания
+        if ($isVideo) {
+            $videoIcon = '<div class="video-icon-overlay"><div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div></div>';
+            return Html::tag('div', 
+                Html::img($url, [
+                    'alt' => 'Видео',
+                    'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+                    'loading' => 'lazy',
+                    'data-full-image' => $fullUrl,
+                    'data-is-video' => 'true',
+                ]) . $videoIcon,
+                ['class' => 'video-item']
+            );
         }
         
         return Html::img($url, [
@@ -316,11 +337,34 @@ class ImageGridPreview extends Widget
             'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
             'loading' => 'lazy',
             'data-full-image' => $fullUrl,
+            'data-is-video' => 'false',
         ]);
     }
     
     /**
-     * Рендерит плейсхолдер при отсутствии изображений
+     * Получить HTML для видео
+     */
+    protected function getVideoTag($item)
+    {
+        $thumbnailUrl = $item->getThumbnailUrl();
+        $videoUrl = $item->getImageUrl();
+        
+        $videoIcon = '<div class="video-icon-overlay"><div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div></div>';
+        
+        return Html::tag('div', 
+            Html::img($thumbnailUrl, [
+                'alt' => 'Видео',
+                'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+                'loading' => 'lazy',
+                'data-full-image' => $videoUrl,
+                'data-is-video' => 'true',
+            ]) . $videoIcon,
+            ['class' => 'video-item']
+        );
+    }
+    
+    /**
+     * Рендерит плейсхолдер при отсутствии элементов
      */
     protected function renderPlaceholder()
     {

@@ -3,6 +3,8 @@
 Придерживайся объектно ориентированной концепции и событийной модели.
 Придерживаться изначальных именований классов, методов, функций, констант, переменных и не переименовывать при модификации.
 Если требуется создать отдельный класс и код его больше 100 строк, создавай его в отдельном файле
+Стили размещать в файле стилей (CSS)
+Скрипты размещать в файлах скриптов (JS)
 Константы должны быть написаны в ВЕРХНЕМ РЕГИСТРЕ
 Важно: При модификации показывай весь код изменяемого файла!
 
@@ -736,7 +738,83 @@
     border-radius: 4px;
 }
 
-/* Адаптивность */
+/* ============================================
+   Стили для видео
+   ============================================ */
+
+.video-item {
+    position: relative;
+}
+
+.video-item .video-icon-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    z-index: 2;
+    transition: background 0.3s ease;
+}
+
+.video-item:hover .video-icon-overlay {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.video-item .video-icon-overlay .play-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.video-item:hover .video-icon-overlay .play-icon {
+    transform: scale(1.1);
+}
+
+.video-item .video-icon-overlay .play-icon svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 4px;
+    color: #333;
+}
+
+.video-item .video-duration {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    z-index: 3;
+    font-family: monospace;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Стили для полноэкранного видео */
+.fullscreen-video {
+    max-width: 90%;
+    max-height: 90%;
+    background: #000;
+    border-radius: 8px;
+}
+
+/* ============================================
+   Адаптивность
+   ============================================ */
+
 @media (max-width: 768px) {
     .image-grid-preview {
         border-radius: 3px;
@@ -745,12 +823,32 @@
         font-size: 16px;
         padding: 6px 12px;
     }
+    .video-item .video-icon-overlay .play-icon {
+        width: 36px;
+        height: 36px;
+    }
+    .video-item .video-icon-overlay .play-icon svg {
+        width: 16px;
+        height: 16px;
+    }
 }
 
 @media (max-width: 576px) {
     .image-grid-preview .image-count-badge {
         font-size: 14px;
         padding: 4px 10px;
+    }
+    .video-item .video-icon-overlay .play-icon {
+        width: 30px;
+        height: 30px;
+    }
+    .video-item .video-icon-overlay .play-icon svg {
+        width: 14px;
+        height: 14px;
+    }
+    .video-item .video-duration {
+        font-size: 10px;
+        padding: 1px 5px;
     }
 }
 
@@ -1257,15 +1355,17 @@ main > .container {
 
 .media:hover {
     background: #fafafa;
-    padding: 5px;
-    border-radius: 5px;
+    border-radius: 1em;
 }
 
 .list-view .media {
-    padding: 5px;
+    padding: 1rem;
     text-decoration: none;
     margin-bottom: 20px;
-    padding-bottom: 15px;
+}
+
+.list-view .media:hover {
+    background: #283939;
 }
 
 @media (min-width: 992px) {
@@ -1314,10 +1414,6 @@ main > .container {
 
 .media-body {
     text-decoration: none;
-}
-
-.list-view .media:hover {
-    background: #283939;
 }
 
 .gallery-grid {
@@ -1413,171 +1509,389 @@ main > .container {
 # TYPE: .JS
 # ============================================================
 
-/**
- * Image Grid Preview Widget
- * Открытие полноэкранного просмотра изображений
- */
+<?php
 
-(function() {
-    'use strict';
+namespace app\widgets;
 
-    // Функции для работы с галереей
-    window.openFullscreenGallery = function(images, startIndex) {
-        // Проверяем, существует ли уже модальное окно
-        var modal = document.getElementById('fullscreen-modal-gallery');
+use Yii;
+use yii\base\Widget;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\View;
+
+class ImageGridPreview extends Widget
+{
+    /**
+     * @var array Список изображений/видео с методом getThumbnailUrl() и getImageUrl()
+     */
+    public $images = [];
+    
+    /**
+     * @var int Максимальное количество элементов для отображения
+     */
+    public $maxImages = 5;
+    
+    /**
+     * @var int Размер контейнера в пикселях (квадрат)
+     */
+    public $containerSize = 120;
+    
+    /**
+     * @var int Зазор между элементами в пикселях
+     */
+    public $gap = 3;
+    
+    /**
+     * @var string CSS класс для контейнера
+     */
+    public $containerClass = 'image-grid-preview';
+    
+    public function run()
+    {
+        if (empty($this->images)) {
+            return $this->renderPlaceholder();
+        }
         
-        if (!modal) {
-            // Создаем модальное окно
-            modal = document.createElement('div');
-            modal.id = 'fullscreen-modal-gallery';
-            modal.className = 'fullscreen-modal';
-            modal.style.display = 'none';
-            modal.innerHTML = `
-                <span class="fullscreen-close" onclick="window.closeFullscreenGallery()">&times;</span>
-                <img class="fullscreen-image" id="fullscreen-image-gallery" src="" alt="Fullscreen">
-                <div class="fullscreen-nav">
-                    <button class="fullscreen-prev" onclick="window.navigateFullscreenGallery(-1)">&#10094;</button>
-                    <button class="fullscreen-next" onclick="window.navigateFullscreenGallery(1)">&#10095;</button>
-                </div>
-                <div class="fullscreen-counter" id="fullscreen-counter-gallery"></div>
-            `;
-            document.body.appendChild(modal);
-            
-            // Закрытие по клику на фон
-            modal.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    window.closeFullscreenGallery();
+        $items = array_slice($this->images, 0, $this->maxImages);
+        $count = count($items);
+        
+        // Регистрируем JS
+        $this->registerJs();
+        
+        return $this->renderGrid($items, $count);
+    }
+    
+    /**
+     * Регистрирует JavaScript
+     */
+    protected function registerJs()
+    {
+        $view = $this->getView();
+        
+        // Регистрируем JS файл
+        $view->registerJsFile(
+            '@web/js/image-grid-preview.js',
+            ['depends' => [\yii\web\JqueryAsset::class], 'position' => View::POS_END]
+        );
+    }
+    
+    /**
+     * Рендерит сетку элементов
+     */
+    protected function renderGrid($items, $count)
+    {
+        $html = Html::beginTag('div', [
+            'class' => $this->containerClass,
+            'style' => "width: {$this->containerSize}px; height: {$this->containerSize}px;",
+        ]);
+        
+        $html .= $this->renderOverlay($count);
+        $html .= $this->renderItems($items, $count);
+        $html .= $this->renderCountBadge($count);
+        
+        $html .= Html::endTag('div');
+        
+        return $html;
+    }
+    
+    /**
+     * Рендерит оверлей
+     */
+    protected function renderOverlay($count)
+    {
+        return Html::tag('div', '', [
+            'class' => 'image-overlay',
+        ]);
+    }
+    
+    /**
+     * Рендерит бейдж с количеством элементов (если больше 5)
+     */
+    protected function renderCountBadge($count)
+    {
+        $totalCount = count($this->images);
+        if ($totalCount <= $this->maxImages) {
+            return '';
+        }
+        
+        $moreCount = $totalCount - $this->maxImages;
+        return Html::tag('div', '+' . $moreCount, [
+            'class' => 'image-count-badge',
+        ]);
+    }
+    
+    /**
+     * Рендерит элементы в зависимости от количества
+     */
+    protected function renderItems($items, $count)
+    {
+        if ($count === 1) {
+            return $this->renderOneItem($items[0]);
+        } elseif ($count === 2) {
+            return $this->renderTwoItems($items);
+        } elseif ($count === 3) {
+            return $this->renderThreeItems($items);
+        } elseif ($count === 4) {
+            return $this->renderFourItems($items);
+        } else {
+            return $this->renderFiveItems($items);
+        }
+    }
+    
+    /**
+     * 1 элемент - на всю область
+     */
+    protected function renderOneItem($item)
+    {
+        $size = $this->containerSize;
+        return Html::tag('div', $this->getItemTag($item), [
+            'class' => 'grid-item grid-item-full',
+            'style' => "width: {$size}px; height: {$size}px;",
+        ]);
+    }
+    
+    /**
+     * 2 элемента - вертикальный сплит
+     */
+    protected function renderTwoItems($items)
+    {
+        $size = ($this->containerSize - $this->gap) / 2;
+        $html = Html::beginTag('div', [
+            'class' => 'grid-column',
+            'style' => "width: {$this->containerSize}px; height: {$this->containerSize}px;",
+        ]);
+        
+        foreach ($items as $item) {
+            $html .= Html::tag('div', $this->getItemTag($item), [
+                'class' => 'grid-item grid-item-half',
+                'style' => "width: {$this->containerSize}px; height: {$size}px;",
+            ]);
+        }
+        
+        $html .= Html::endTag('div');
+        return $html;
+    }
+    
+    /**
+     * 3 элемента - 2 сверху, 1 снизу
+     */
+    protected function renderThreeItems($items)
+    {
+        $halfSize = ($this->containerSize - $this->gap) / 2;
+        
+        $html = Html::beginTag('div', [
+            'style' => "width: {$this->containerSize}px; height: {$this->containerSize}px; " .
+                       "display: flex; flex-direction: column; gap: {$this->gap}px;",
+        ]);
+        
+        // Верхняя строка - 2 элемента
+        $topRow = Html::beginTag('div', [
+            'class' => 'grid-row',
+            'style' => "height: {$halfSize}px;",
+        ]);
+        foreach (array_slice($items, 0, 2) as $item) {
+            $topRow .= Html::tag('div', $this->getItemTag($item), [
+                'class' => 'grid-item grid-item-half',
+                'style' => "width: {$halfSize}px; height: {$halfSize}px;",
+            ]);
+        }
+        $topRow .= Html::endTag('div');
+        $html .= $topRow;
+        
+        // Нижняя строка - 1 элемент
+        $html .= Html::tag('div', $this->getItemTag($items[2]), [
+            'class' => 'grid-item grid-item-full',
+            'style' => "width: {$this->containerSize}px; height: {$halfSize}px;",
+        ]);
+        
+        $html .= Html::endTag('div');
+        return $html;
+    }
+    
+    /**
+     * 4 элемента - квадрат 2x2
+     */
+    protected function renderFourItems($items)
+    {
+        $size = ($this->containerSize - $this->gap) / 2;
+        $html = Html::beginTag('div', [
+            'style' => "width: {$this->containerSize}px; height: {$this->containerSize}px; " .
+                       "display: flex; flex-direction: column; gap: {$this->gap}px;",
+        ]);
+        
+        for ($row = 0; $row < 2; $row++) {
+            $rowHtml = Html::beginTag('div', [
+                'class' => 'grid-row',
+                'style' => "height: {$size}px;",
+            ]);
+            for ($col = 0; $col < 2; $col++) {
+                $index = $row * 2 + $col;
+                if (isset($items[$index])) {
+                    $rowHtml .= Html::tag('div', $this->getItemTag($items[$index]), [
+                        'class' => 'grid-item grid-item-quarter',
+                        'style' => "width: {$size}px; height: {$size}px;",
+                    ]);
                 }
-            });
-            
-            // Закрытие по ESC
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    window.closeFullscreenGallery();
-                }
-                if (e.key === 'ArrowLeft') {
-                    window.navigateFullscreenGallery(-1);
-                }
-                if (e.key === 'ArrowRight') {
-                    window.navigateFullscreenGallery(1);
-                }
-            });
-        }
-        
-        // Сохраняем массив изображений
-        window.fullscreenGalleryImages = images;
-        window.fullscreenGalleryIndex = startIndex || 0;
-        
-        // Обновляем изображение
-        var image = document.getElementById('fullscreen-image-gallery');
-        var counter = document.getElementById('fullscreen-counter-gallery');
-        
-        if (image && images.length > 0) {
-            image.src = images[window.fullscreenGalleryIndex];
-        }
-        
-        if (counter && images.length > 1) {
-            counter.textContent = (window.fullscreenGalleryIndex + 1) + ' / ' + images.length;
-        } else if (counter) {
-            counter.textContent = '';
-        }
-        
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    };
-
-    window.closeFullscreenGallery = function() {
-        var modal = document.getElementById('fullscreen-modal-gallery');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-        document.body.style.overflow = '';
-    };
-
-    window.navigateFullscreenGallery = function(direction) {
-        var images = window.fullscreenGalleryImages;
-        if (!images || images.length <= 1) return;
-        
-        window.fullscreenGalleryIndex += direction;
-        if (window.fullscreenGalleryIndex < 0) {
-            window.fullscreenGalleryIndex = images.length - 1;
-        } else if (window.fullscreenGalleryIndex >= images.length) {
-            window.fullscreenGalleryIndex = 0;
-        }
-        
-        var image = document.getElementById('fullscreen-image-gallery');
-        var counter = document.getElementById('fullscreen-counter-gallery');
-        
-        if (image && images.length > 0) {
-            image.src = images[window.fullscreenGalleryIndex];
-        }
-        
-        if (counter && images.length > 1) {
-            counter.textContent = (window.fullscreenGalleryIndex + 1) + ' / ' + images.length;
-        }
-    };
-
-    // Инициализация обработчиков для всех превью
-    function initPreviewHandlers() {
-        document.querySelectorAll('.image-grid-preview').forEach(function(container) {
-            // Удаляем старый обработчик, если есть
-            if (container._clickHandler) {
-                container.removeEventListener('click', container._clickHandler);
             }
-            
-            // Создаем новый обработчик
-            container._clickHandler = function(e) {
-                // Проверяем, что клик не по ссылке внутри
-                if (e.target.closest('a')) {
-                    return;
-                }
-                
-                var images = this.querySelectorAll('.grid-item img');
-                var fullscreenImages = [];
-                
-                images.forEach(function(img) {
-                    var fullImage = img.getAttribute('data-full-image');
-                    if (fullImage) {
-                        fullscreenImages.push(fullImage);
-                    }
-                });
-                
-                if (fullscreenImages.length === 0) {
-                    return;
-                }
-                
-                // Открываем полноэкранный просмотр
-                window.openFullscreenGallery(fullscreenImages, 0);
-            };
-            
-            container.addEventListener('click', container._clickHandler);
-        });
+            $rowHtml .= Html::endTag('div');
+            $html .= $rowHtml;
+        }
+        
+        $html .= Html::endTag('div');
+        return $html;
     }
-
-    // Инициализация при загрузке DOM
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initPreviewHandlers);
-    } else {
-        initPreviewHandlers();
-    }
-
-    // MutationObserver для динамически добавляемых элементов
-    if (typeof MutationObserver !== 'undefined') {
-        var observer = new MutationObserver(function(mutations) {
-            var hasNewNodes = false;
-            mutations.forEach(function(mutation) {
-                if (mutation.addedNodes.length > 0) {
-                    hasNewNodes = true;
+    
+    /**
+     * 5 элементов - как в Telegram/VK
+     * Схема: 1 большой слева, 4 маленьких справа (2x2)
+     */
+    protected function renderFiveItems($items)
+    {
+        $size = $this->containerSize;
+        $smallSize = ($size - $this->gap) / 2;
+        $leftSize = ($size - $this->gap) / 2;
+        
+        $html = Html::beginTag('div', [
+            'class' => 'grid-five',
+            'style' => "width: {$size}px; height: {$size}px;",
+        ]);
+        
+        // Левая часть - большой элемент
+        $html .= Html::tag('div', $this->getItemTag($items[0]), [
+            'class' => 'grid-item grid-item-main',
+            'style' => "width: {$leftSize}px; height: {$size}px; flex-shrink: 0;",
+        ]);
+        
+        // Правая часть - 4 маленьких (2x2)
+        $rightHtml = Html::beginTag('div', [
+            'class' => 'grid-right',
+            'style' => "width: {$leftSize}px; height: {$size}px;",
+        ]);
+        
+        for ($row = 0; $row < 2; $row++) {
+            $rowHtml = Html::beginTag('div', [
+                'class' => 'grid-row',
+                'style' => "height: {$smallSize}px;",
+            ]);
+            for ($col = 0; $col < 2; $col++) {
+                $index = 1 + $row * 2 + $col;
+                if (isset($items[$index])) {
+                    $rowHtml .= Html::tag('div', $this->getItemTag($items[$index]), [
+                        'class' => 'grid-item grid-item-small',
+                        'style' => "width: {$smallSize}px; height: {$smallSize}px;",
+                    ]);
+                } else {
+                    $rowHtml .= Html::tag('div', '', [
+                        'class' => 'grid-item grid-item-small',
+                        'style' => "width: {$smallSize}px; height: {$smallSize}px; background: #f0f0f0;",
+                    ]);
                 }
-            });
-            if (hasNewNodes) {
-                initPreviewHandlers();
             }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
+            $rowHtml .= Html::endTag('div');
+            $rightHtml .= $rowHtml;
+        }
+        
+        $rightHtml .= Html::endTag('div');
+        $html .= $rightHtml;
+        
+        $html .= Html::endTag('div');
+        return $html;
     }
-
-})();
+    
+    /**
+     * Получить HTML тег элемента (изображение или видео)
+     */
+    protected function getItemTag($item)
+    {
+        if (is_object($item)) {
+            if (method_exists($item, 'isVideo') && $item->isVideo()) {
+                return $this->getVideoTag($item);
+            }
+            if (method_exists($item, 'getThumbnailUrl')) {
+                $url = $item->getThumbnailUrl();
+            } else {
+                $url = '';
+            }
+            if (method_exists($item, 'getImageUrl')) {
+                $fullUrl = $item->getImageUrl();
+            } else {
+                $fullUrl = $url;
+            }
+            $isVideo = method_exists($item, 'isVideo') && $item->isVideo();
+        } elseif (is_string($item)) {
+            $url = $item;
+            $fullUrl = $item;
+            $isVideo = false;
+        } else {
+            $url = '';
+            $fullUrl = '';
+            $isVideo = false;
+        }
+        
+        // Для видео используем миниатюру с иконкой проигрывания
+        if ($isVideo) {
+            $videoIcon = '<div class="video-icon-overlay"><div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div></div>';
+            return Html::tag('div', 
+                Html::img($url, [
+                    'alt' => 'Видео',
+                    'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+                    'loading' => 'lazy',
+                    'data-full-image' => $fullUrl,
+                    'data-is-video' => 'true',
+                ]) . $videoIcon,
+                ['class' => 'video-item']
+            );
+        }
+        
+        return Html::img($url, [
+            'alt' => 'Изображение',
+            'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+            'loading' => 'lazy',
+            'data-full-image' => $fullUrl,
+            'data-is-video' => 'false',
+        ]);
+    }
+    
+    /**
+     * Получить HTML для видео
+     */
+    protected function getVideoTag($item)
+    {
+        $thumbnailUrl = $item->getThumbnailUrl();
+        $videoUrl = $item->getImageUrl();
+        
+        $videoIcon = '<div class="video-icon-overlay"><div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div></div>';
+        
+        return Html::tag('div', 
+            Html::img($thumbnailUrl, [
+                'alt' => 'Видео',
+                'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+                'loading' => 'lazy',
+                'data-full-image' => $videoUrl,
+                'data-is-video' => 'true',
+            ]) . $videoIcon,
+            ['class' => 'video-item']
+        );
+    }
+    
+    /**
+     * Рендерит плейсхолдер при отсутствии элементов
+     */
+    protected function renderPlaceholder()
+    {
+        $size = $this->containerSize;
+        return Html::tag('div', 
+            Html::tag('span', '', [
+                'class' => 'glyphicon glyphicon-picture',
+                'style' => 'font-size: 24px; color: #ccc;',
+            ]),
+            [
+                'class' => $this->containerClass . ' placeholder',
+                'style' => "width: {$size}px; height: {$size}px;",
+            ]
+        );
+    }
+}
 
 
 # ============================================================
@@ -3143,7 +3457,18 @@ return [
     'sms_api_url' => 'https://sms.ru/send',
     
     // Настройки для VK
-    'vk_access_token' => 'your_vk_access_token'
+    'vk_access_token' => 'your_vk_access_token',
+    
+    // Настройки для FFmpeg
+    'ffmpeg_paths' => [
+        'ffmpeg', // если в PATH
+        'C:\ffmpeg\bin\ffmpeg.exe',
+        'D:\Programs\ffmpeg\bin\ffmpeg.exe',
+        'C:\Program Files\ffmpeg\bin\ffmpeg.exe',
+        'C:\Program Files (x86)\ffmpeg\bin\ffmpeg.exe',
+        '/usr/bin/ffmpeg', // для Linux
+        '/usr/local/bin/ffmpeg', // для Linux
+    ]
 ];
 
 
@@ -3689,7 +4014,8 @@ class AdvertisementsController extends Controller
                 'thumbnailUrl' => $thumbnailUrl,
                 'imageId' => $image->id,
                 'deleteUrl' => $deleteUrl,
-                'message' => 'Изображение успешно загружено'
+                'isVideo' => $image->isVideo(),
+                'message' => 'Файл успешно загружен'
             ];
         } else {
             $errors = $image->getErrors();
@@ -4313,6 +4639,29 @@ class m240000_000002_create_notification_logs_table extends Migration
     public function safeDown()
     {
         $this->dropTable(self::TABLE_NAME);
+    }
+}
+
+
+# ============================================================
+# FILE: .\migrations\m240000_000003_add_file_type_to_advertisement_images.php
+# TYPE: .PHP
+# ============================================================
+
+<?php
+
+use yii\db\Migration;
+
+class m240000_000003_add_file_type_to_advertisement_images extends Migration
+{
+    public function safeUp()
+    {
+        $this->addColumn('advertisement_images', 'file_type', $this->string(20)->defaultValue('image')->after('thumbnail_path'));
+    }
+    
+    public function safeDown()
+    {
+        $this->dropColumn('advertisement_images', 'file_type');
     }
 }
 
@@ -5311,6 +5660,7 @@ use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use yii\web\UploadedFile;
 use yii\imagine\Image;
+use yii\helpers\FileHelper;
 
 class AdvertisementImage extends ActiveRecord
 {
@@ -5319,8 +5669,13 @@ class AdvertisementImage extends ActiveRecord
     const THUMBNAIL_WIDTH = 200;
     const THUMBNAIL_HEIGHT = 200;
     const QUALITY = 85;
+    const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100 MB
     
     public $imageFile;
+    
+    // Типы файлов
+    const TYPE_IMAGE = 'image';
+    const TYPE_VIDEO = 'video';
     
     public static function tableName()
     {
@@ -5343,15 +5698,61 @@ class AdvertisementImage extends ActiveRecord
         return [
             [['advertisement_id'], 'required'],
             [['advertisement_id', 'sort_order'], 'integer'],
-            [['file_name', 'file_path', 'thumbnail_path'], 'string', 'max' => 500],
+            [['file_name', 'file_path', 'thumbnail_path', 'file_type'], 'string', 'max' => 500],
             // imageFile валидируется отдельно, без обязательных полей
-            [['imageFile'], 'file', 'skipOnEmpty' => true, 'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp'], 'maxSize' => 5 * 1024 * 1024],
+            [['imageFile'], 'file', 
+                'skipOnEmpty' => true, 
+                'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'],
+                'maxSize' => self::MAX_VIDEO_SIZE,
+                'tooBig' => 'Размер файла не должен превышать 100 MB',
+                'checkExtensionByMimeType' => false,
+            ],
+        ];
+    }
+    
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'advertisement_id' => 'Объявление',
+            'file_name' => 'Имя файла',
+            'file_path' => 'Путь к файлу',
+            'thumbnail_path' => 'Путь к миниатюре',
+            'file_type' => 'Тип файла',
+            'sort_order' => 'Порядок сортировки',
+            'created_at' => 'Создано',
         ];
     }
     
     public function getAdvertisement()
     {
         return $this->hasOne(Advertisement::class, ['id' => 'advertisement_id']);
+    }
+    
+    /**
+     * Проверяет, является ли файл видео
+     */
+    public function isVideo()
+    {
+        if ($this->file_type === self::TYPE_VIDEO) {
+            return true;
+        }
+        $ext = strtolower(pathinfo($this->file_name, PATHINFO_EXTENSION));
+        $videoExtensions = ['mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
+        return in_array($ext, $videoExtensions);
+    }
+    
+    /**
+     * Проверяет, является ли файл изображением
+     */
+    public function isImage()
+    {
+        if ($this->file_type === self::TYPE_IMAGE) {
+            return true;
+        }
+        $ext = strtolower(pathinfo($this->file_name, PATHINFO_EXTENSION));
+        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        return in_array($ext, $imageExtensions);
     }
     
     public function getImageUrl()
@@ -5361,7 +5762,30 @@ class AdvertisementImage extends ActiveRecord
     
     public function getThumbnailUrl()
     {
+        if ($this->isVideo() && !empty($this->thumbnail_path)) {
+            return '/uploads/advertisements/thumbnails/' . $this->thumbnail_path;
+        }
+        if ($this->isImage()) {
+            return '/uploads/advertisements/thumbnails/' . $this->thumbnail_path;
+        }
         return '/uploads/advertisements/thumbnails/' . $this->thumbnail_path;
+    }
+    
+    /**
+     * Получить иконку видео
+     */
+    public function getVideoIcon()
+    {
+        return '<span class="video-icon"><span class="glyphicon glyphicon-play"></span></span>';
+    }
+    
+    /**
+     * Получить длительность видео (если есть)
+     */
+    public function getVideoDuration()
+    {
+        // В реальном проекте можно получить через FFmpeg
+        return null;
     }
     
     public function upload()
@@ -5370,12 +5794,29 @@ class AdvertisementImage extends ActiveRecord
             return false;
         }
         
-        // Проверяем валидацию только для imageFile
+        // Приводим расширение к нижнему регистру
+        $extension = strtolower($this->imageFile->extension);
+        
+        // Проверяем разрешенные расширения
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
+        if (!in_array($extension, $allowedExtensions)) {
+            $this->addError('imageFile', 'Разрешены только файлы с расширениями: ' . implode(', ', $allowedExtensions));
+            return false;
+        }
+        
+        // Проверка размера
+        if ($this->imageFile->size > self::MAX_VIDEO_SIZE) {
+            $this->addError('imageFile', 'Размер файла не должен превышать 100 MB');
+            return false;
+        }
+        
+        // Валидация
         if (!$this->validate(['imageFile'])) {
             return false;
         }
         
-        $fileName = $this->generateFileName($this->imageFile->extension);
+        $fileName = $this->generateFileName($extension);
+        $thumbFileName = $this->generateFileName('jpg');
         
         $uploadPath = Yii::getAlias('@webroot') . '/uploads/advertisements/';
         $thumbnailPath = Yii::getAlias('@webroot') . '/uploads/advertisements/thumbnails/';
@@ -5389,21 +5830,32 @@ class AdvertisementImage extends ActiveRecord
         }
         
         $fullPath = $uploadPath . $fileName;
-        $thumbnailFullPath = $thumbnailPath . $fileName;
+        $thumbnailFullPath = $thumbnailPath . $thumbFileName;
         
-        // Сохраняем файл
-        if (!$this->imageFile->saveAs($fullPath)) {
-            Yii::error('Failed to save file: ' . $fullPath);
-            return false;
+        // Определяем тип файла
+        if ($this->isVideoFile($extension)) {
+            $this->file_type = self::TYPE_VIDEO;
+            if (!$this->imageFile->saveAs($fullPath)) {
+                Yii::error('Failed to save video file: ' . $fullPath);
+                return false;
+            }
+            // Создаем превью для видео
+            $this->createVideoThumbnail($fullPath, $thumbnailFullPath);
+            $this->thumbnail_path = $thumbFileName;
+        } else {
+            $this->file_type = self::TYPE_IMAGE;
+            if (!$this->imageFile->saveAs($fullPath)) {
+                Yii::error('Failed to save file: ' . $fullPath);
+                return false;
+            }
+            // Оптимизируем и создаем превью
+            $this->optimizeImage($fullPath, self::IMAGE_WIDTH, self::IMAGE_HEIGHT, self::QUALITY);
+            $this->createThumbnail($fullPath, $thumbnailFullPath, self::THUMBNAIL_WIDTH, self::THUMBNAIL_HEIGHT);
+            $this->thumbnail_path = $thumbFileName;
         }
-        
-        // Оптимизируем и создаем превью
-        $this->optimizeImage($fullPath, self::IMAGE_WIDTH, self::IMAGE_HEIGHT, self::QUALITY);
-        $this->createThumbnail($fullPath, $thumbnailFullPath, self::THUMBNAIL_WIDTH, self::THUMBNAIL_HEIGHT);
         
         $this->file_name = $fileName;
         $this->file_path = $fileName;
-        $this->thumbnail_path = $fileName;
         
         return true;
     }
@@ -5417,11 +5869,28 @@ class AdvertisementImage extends ActiveRecord
             return false;
         }
         
+        // Приводим расширение к нижнему регистру
+        $extension = strtolower($this->imageFile->extension);
+        
+        // Проверяем разрешенные расширения
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
+        if (!in_array($extension, $allowedExtensions)) {
+            $this->addError('imageFile', 'Разрешены только файлы с расширениями: ' . implode(', ', $allowedExtensions));
+            return false;
+        }
+        
+        // Проверка размера
+        if ($this->imageFile->size > self::MAX_VIDEO_SIZE) {
+            $this->addError('imageFile', 'Размер файла не должен превышать 100 MB');
+            return false;
+        }
+        
         if (!$this->validate(['imageFile'])) {
             return false;
         }
         
-        $fileName = $this->generateFileName($this->imageFile->extension);
+        $fileName = $this->generateFileName($extension);
+        $thumbFileName = $this->generateFileName('jpg');
         
         // Используем временную директорию
         $uploadPath = Yii::getAlias('@webroot') . '/uploads/advertisements/temp/' . $tempId . '/';
@@ -5435,26 +5904,194 @@ class AdvertisementImage extends ActiveRecord
         }
         
         $fullPath = $uploadPath . $fileName;
-        $thumbnailFullPath = $thumbnailPath . $fileName;
+        $thumbnailFullPath = $thumbnailPath . $thumbFileName;
         
-        if (!$this->imageFile->saveAs($fullPath)) {
-            Yii::error('Failed to save temp file: ' . $fullPath);
-            return false;
+        // Определяем тип файла
+        if ($this->isVideoFile($extension)) {
+            $this->file_type = self::TYPE_VIDEO;
+            if (!$this->imageFile->saveAs($fullPath)) {
+                Yii::error('Failed to save temp video file: ' . $fullPath);
+                return false;
+            }
+            // Создаем превью для видео
+            $this->createVideoThumbnail($fullPath, $thumbnailFullPath);
+        } else {
+            $this->file_type = self::TYPE_IMAGE;
+            if (!$this->imageFile->saveAs($fullPath)) {
+                Yii::error('Failed to save temp file: ' . $fullPath);
+                return false;
+            }
+            $this->optimizeImage($fullPath, self::IMAGE_WIDTH, self::IMAGE_HEIGHT, self::QUALITY);
+            $this->createThumbnail($fullPath, $thumbnailFullPath, self::THUMBNAIL_WIDTH, self::THUMBNAIL_HEIGHT);
         }
-        
-        $this->optimizeImage($fullPath, self::IMAGE_WIDTH, self::IMAGE_HEIGHT, self::QUALITY);
-        $this->createThumbnail($fullPath, $thumbnailFullPath, self::THUMBNAIL_WIDTH, self::THUMBNAIL_HEIGHT);
         
         $this->file_name = $fileName;
         $this->file_path = 'temp/' . $tempId . '/' . $fileName;
-        $this->thumbnail_path = 'temp/' . $tempId . '/thumbnails/' . $fileName;
+        $this->thumbnail_path = 'temp/' . $tempId . '/thumbnails/' . $thumbFileName;
         
         return true;
     }
     
+    /**
+     * Проверяет, является ли файл видео по расширению
+     */
+    protected function isVideoFile($extension)
+    {
+        $videoExtensions = ['mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
+        return in_array(strtolower($extension), $videoExtensions);
+    }
+    
+    /**
+     * Создает миниатюру для видео (требуется FFmpeg)
+     */
+    protected function createVideoThumbnail($videoPath, $thumbnailPath)
+    {
+        // Проверяем, существует ли видео файл
+        if (!file_exists($videoPath)) {
+            $this->createPlaceholderThumbnail($thumbnailPath);
+            return false;
+        }
+
+        // Определяем путь к ffmpeg в зависимости от ОС
+        $ffmpegPath = $this->findFfmpegPath();
+        
+        if (!$ffmpegPath) {
+            $this->createPlaceholderThumbnail($thumbnailPath);
+            return false;
+        }
+
+        // Пробуем создать миниатюру через FFmpeg
+        $command = $ffmpegPath . ' -i ' . escapeshellarg($videoPath) .
+                   ' -ss 00:00:01 -vframes 1 -vf scale=' . self::THUMBNAIL_WIDTH . ':' . self::THUMBNAIL_HEIGHT .
+                   ' -f image2 ' . escapeshellarg($thumbnailPath) . ' 2>&1';
+
+        $output = shell_exec($command);
+
+        // Проверяем, создался ли файл
+        if (!file_exists($thumbnailPath) || filesize($thumbnailPath) === 0) {
+            $this->createPlaceholderThumbnail($thumbnailPath);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Находит путь к ffmpeg в системе
+     * @return string|null
+     */
+    protected function findFfmpegPath()
+    {
+        // Для Linux/Mac
+        if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+            $output = shell_exec('which ffmpeg 2>/dev/null');
+            if (!empty($output)) {
+                return trim($output);
+            }
+            // Проверяем пути из конфигурации
+            $paths = Yii::$app->params['ffmpeg_paths'] ?? [];
+            foreach ($paths as $path) {
+                if (!empty($path) && file_exists($path)) {
+                    return $path;
+                }
+            }
+            return null;
+        }
+        
+        // Для Windows - проверяем через where
+        $output = shell_exec('where ffmpeg 2>nul');
+        if (!empty($output)) {
+            $lines = explode("\n", trim($output));
+            if (!empty($lines[0]) && file_exists(trim($lines[0]))) {
+                return trim($lines[0]);
+            }
+        }
+        
+        // Проверяем пути из конфигурации
+        $paths = Yii::$app->params['ffmpeg_paths'] ?? [];
+        foreach ($paths as $path) {
+            if (empty($path)) continue;
+            if ($path === 'ffmpeg') continue; // пропускаем, уже проверили через where
+            if (file_exists($path)) {
+                return $path;
+            }
+        }
+        
+        // Проверяем переменную окружения
+        $envPath = getenv('FFMPEG_PATH');
+        if (!empty($envPath) && file_exists($envPath)) {
+            return $envPath;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Создает заглушку для видео
+     */
+    protected function createPlaceholderThumbnail($thumbnailPath)
+    {
+        // Проверяем наличие готового файла-заглушки
+        $defaultThumbnail = Yii::getAlias('@webroot') . '/images/thumbnail_video_default.jpg';
+        
+        if (file_exists($defaultThumbnail)) {
+            // Копируем готовую заглушку
+            if (copy($defaultThumbnail, $thumbnailPath)) {
+                return;
+            }
+            // Если копирование не удалось, продолжаем создавать через GD
+        }
+        
+        // Создаем простую заглушку с помощью GD
+        $width = self::THUMBNAIL_WIDTH;
+        $height = self::THUMBNAIL_HEIGHT;
+
+        // Проверяем, что GD расширение доступно
+        if (!function_exists('imagecreatetruecolor')) {
+            // Если GD нет, создаем пустой файл-заглушку
+            file_put_contents($thumbnailPath, '');
+            return;
+        }
+
+        $image = imagecreatetruecolor($width, $height);
+
+        // Темный фон
+        $bgColor = imagecolorallocate($image, 40, 40, 50);
+        imagefill($image, 0, 0, $bgColor);
+
+        // Рисуем треугольник "Play" (на 10% меньше)
+        $playColor = imagecolorallocate($image, 255, 255, 255);
+        
+        // Уменьшаем размер треугольника на 10%
+        $scale = 0.9;
+        $centerX = $width / 2;
+        $centerY = $height / 2;
+        $size = min($width, $height) * 0.35 * $scale;
+        
+        $points = [
+            $centerX - $size * 0.5, $centerY - $size * 0.6,
+            $centerX - $size * 0.5, $centerY + $size * 0.6,
+            $centerX + $size * 0.7, $centerY
+        ];
+
+        // Исправленный вызов imagefilledpolygon для PHP 8+
+        if (PHP_VERSION_ID >= 80000) {
+            imagefilledpolygon($image, $points, $playColor);
+        } else {
+            imagefilledpolygon($image, $points, 3, $playColor);
+        }
+
+        imagepng($image, $thumbnailPath);
+    }
+    
+    /**
+     * Генерирует имя файла в нижнем регистре
+     */
     private function generateFileName($extension)
     {
-        return uniqid() . '_' . time() . '.' . $extension;
+        $name = strtolower(uniqid() . '_' . time());
+        $ext = strtolower($extension);
+        return $name . '.' . $ext;
     }
     
     private function optimizeImage($path, $maxWidth, $maxHeight, $quality)
@@ -8064,7 +8701,7 @@ if ($isCreate) {
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">Фотографии товара</h3>
+        <h3 class="panel-title">Фотографии и видео товара</h3>
     </div>
     <div class="panel-body">
         <!-- Контейнер для изображений -->
@@ -8073,10 +8710,40 @@ if ($isCreate) {
                 <?php foreach ($images as $index => $image): ?>
                     <div class="col-md-3 col-sm-4 col-xs-6" <?= $imageDataAttribute ?>="<?= $isCreate ? $index : $image->id ?>">
                         <div class="thumbnail" style="position: relative;">
-                            <img src="<?= $isCreate ? Url::to('@web/uploads/advertisements/' . $image['thumbnail_path']) : $image->getThumbnailUrl() ?>" 
-                                 alt="Image" class="img-responsive" style="height: 100px; width: 100%; object-fit: cover;">
+                            <?php
+                            $isVideo = false;
+                            if ($isCreate) {
+                                // Для временных файлов определяем по расширению
+                                $ext = pathinfo($image['file_name'], PATHINFO_EXTENSION);
+                                $videoExts = ['mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
+                                $isVideo = in_array(strtolower($ext), $videoExts);
+                            } else {
+                                $isVideo = $image->isVideo();
+                            }
+                            ?>
+                            <?php if ($isVideo): ?>
+                                <div style="position: relative; width: 100%; height: 100px; overflow: hidden; background: #000;">
+                                    <?php
+                                    $thumbUrl = $isCreate
+                                        ? Url::to('@web/uploads/advertisements/' . $image['thumbnail_path'])
+                                        : $image->getThumbnailUrl();
+                                    ?>
+                                    <img src="<?= $thumbUrl ?>" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover;"
+                                         onerror="this.style.display='none'; this.parentElement.style.background='#222';">
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 30px; opacity: 0.8;">
+                                        <span class="glyphicon glyphicon-play"></span>
+                                    </div>
+                                    <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; font-size: 11px; padding: 2px 6px; border-radius: 3px;">
+                                        Видео
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <img src="<?= $isCreate ? Url::to('@web/uploads/advertisements/' . $image['thumbnail_path']) : $image->getThumbnailUrl() ?>"
+                                     alt="Image" class="img-responsive" style="height: 100px; width: 100%; object-fit: cover;"
+                                     onerror="this.src=''; this.parentElement.style.background='#f0f0f0';">
+                            <?php endif; ?>
                             <div class="caption" style="padding: 5px;">
-                                <button type="button" class="btn btn-danger btn-sm btn-block delete-image-btn" 
+                                <button type="button" class="btn btn-danger btn-sm btn-block delete-image-btn"
                                         data-id="<?= $isCreate ? $index : $image->id ?>"
                                         data-type="<?= $type ?>">
                                     Удалить
@@ -8092,25 +8759,27 @@ if ($isCreate) {
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
-        
+
         <!-- Сообщение при отсутствии изображений -->
         <div id="no-images-message" class="text-muted text-center" style="<?= !empty($images) ? 'display: none;' : '' ?> margin-bottom: 20px;">
-            <p>Нет загруженных фотографий</p>
+            <p>Нет загруженных файлов</p>
         </div>
-        
+
         <!-- Drag & Drop зона + выбор файла -->
         <div id="drag-drop-zone" class="drag-drop-zone" style="border: 2px dashed #ccc; border-radius: 10px; padding: 30px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: all 0.3s ease;">
             <div class="drag-drop-content">
                 <span class="glyphicon glyphicon-cloud-upload" style="font-size: 48px; color: #999;"></span>
                 <h4>Перетащите файлы сюда</h4>
+                <p class="text-muted">Поддерживаются изображения (JPG, PNG, GIF, WEBP) и видео (MP4, MOV, AVI, MKV, WEBM)</p>
+                <p class="text-muted" style="font-size: 12px;">Максимальный размер файла: 100 MB</p>
                 <p class="text-muted">или</p>
                 <label class="btn btn-primary btn-file">
                     Выберите файл
-                    <input type="file" accept="image/*" id="image-file-input" data-type="<?= $type ?>" style="display: none;">
+                    <input type="file" accept="image/*,video/*" id="image-file-input" data-type="<?= $type ?>" style="display: none;">
                 </label>
             </div>
         </div>
-        
+
         <!-- Прогресс загрузки -->
         <div id="upload-progress" style="display: none; margin-top: 10px;">
             <div class="progress">
@@ -8119,14 +8788,14 @@ if ($isCreate) {
                 </div>
             </div>
         </div>
-        
+
         <div id="upload-error" class="alert alert-danger" style="display: none; margin-top: 10px;">
             <span class="glyphicon glyphicon-exclamation-sign"></span>
             <span id="error-message"></span>
         </div>
-        
+
         <?php if ($isUpdate): ?>
-            <p class="help-block">* Перетаскивайте изображения мышкой для изменения порядка</p>
+            <p class="help-block">* Перетаскивайте файлы мышкой для изменения порядка</p>
         <?php endif; ?>
     </div>
 </div>
@@ -8139,6 +8808,7 @@ var currentType = '<?= $type ?>';
 var addImageUrl = '<?= $addImageUrl ?>';
 var deleteImageUrl = '<?= $deleteImageUrl ?>';
 var reorderUrl = '<?= Url::to(['advertisements/reorder-images']) ?>';
+var maxFileSize = 100 * 1024 * 1024; // 100 MB
 
 // DOM элементы
 var dragDropZone = document.getElementById('drag-drop-zone');
@@ -8178,9 +8848,9 @@ function showNotification(type, message) {
     alertDiv.style.right = '20px';
     alertDiv.style.zIndex = '9999';
     alertDiv.style.minWidth = '300px';
-    
+
     document.body.appendChild(alertDiv);
-    
+
     setTimeout(function() {
         alertDiv.style.opacity = '0';
         setTimeout(function() {
@@ -8192,66 +8862,112 @@ function showNotification(type, message) {
 // Загрузка файла
 function uploadFile(file) {
     if (!file) return;
-    
-    if (!file.type.match('image.*')) {
-        showError('Пожалуйста, выберите изображение (JPG, PNG, GIF, WEBP)');
+
+    // Проверяем тип файла
+    var allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    var allowedVideoTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/x-flv', 'video/webm'];
+    var allowedTypes = allowedImageTypes.concat(allowedVideoTypes);
+
+    if (!allowedTypes.includes(file.type)) {
+        showError('Пожалуйста, выберите изображение (JPG, PNG, GIF, WEBP) или видео (MP4, MOV, AVI, MKV, WEBM)');
         return;
     }
-    
-    if (file.size > 5 * 1024 * 1024) {
-        showError('Размер файла не должен превышать 5MB');
+
+    if (file.size > maxFileSize) {
+        showError('Размер файла не должен превышать 100 MB');
         return;
     }
-    
+
     hideError();
     if (progress) progress.style.display = 'block';
-    
+
     var formData = new FormData();
     formData.append('imageFile', file);
     formData.append('_csrf', csrfToken);
-    
+
     var xhr = new XMLHttpRequest();
     xhr.open('POST', addImageUrl, true);
-    
+
+    xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+            var percent = Math.round((e.loaded / e.total) * 100);
+            var progressBar = progress.querySelector('.progress-bar');
+            if (progressBar) {
+                progressBar.style.width = percent + '%';
+                progressBar.textContent = 'Загрузка... ' + percent + '%';
+            }
+        }
+    };
+
     xhr.onload = function() {
-        if (progress) progress.style.display = 'none';
-        
+        if (progress) {
+            progress.style.display = 'none';
+            var progressBar = progress.querySelector('.progress-bar');
+            if (progressBar) {
+                progressBar.style.width = '100%';
+                progressBar.textContent = 'Загрузка...';
+            }
+        }
+
         if (xhr.status === 200) {
             try {
                 var response = JSON.parse(xhr.responseText);
                 if (response.success) {
-                    addImageToContainer(response);
-                    showNotification('success', 'Изображение успешно загружено');
+                    addFileToContainer(response);
+                    showNotification('success', 'Файл успешно загружен');
                 } else {
                     showError(response.error || 'Ошибка загрузки');
                 }
             } catch(e) {
+                console.error('Parse error:', e);
+                console.error('Response:', xhr.responseText);
                 showError('Ошибка обработки ответа сервера');
             }
         } else {
             showError('Ошибка сервера (статус ' + xhr.status + ')');
         }
     };
-    
+
     xhr.onerror = function() {
         if (progress) progress.style.display = 'none';
         showError('Ошибка соединения с сервером');
     };
-    
+
     xhr.send(formData);
 }
 
-// Добавление изображения в контейнер
-function addImageToContainer(response) {
+// Добавление файла в контейнер (изображение или видео)
+function addFileToContainer(response) {
     var imageHtml = '';
-    
+    var isVideo = response.isVideo || false;
+    var displayUrl = response.thumbnailUrl;
+
     if (isCreateMode) {
+        var contentHtml = '';
+        if (isVideo) {
+            contentHtml = `
+                <div style="position: relative; width: 100%; height: 100px; overflow: hidden; background: #000;">
+                    <img src="${displayUrl}" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover;"
+                         onerror="this.style.display='none'; this.parentElement.style.background='#222';">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 30px; opacity: 0.8;">
+                        <span class="glyphicon glyphicon-play"></span>
+                    </div>
+                    <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; font-size: 11px; padding: 2px 6px; border-radius: 3px;">
+                        Видео
+                    </div>
+                </div>
+            `;
+        } else {
+            contentHtml = `<img src="${displayUrl}" alt="Image" class="img-responsive" style="height: 100px; width: 100%; object-fit: cover;"
+                                 onerror="this.src=''; this.parentElement.style.background='#f0f0f0';">`;
+        }
+
         imageHtml = `
             <div class="col-md-3 col-sm-4 col-xs-6" data-image-index="${response.index}">
                 <div class="thumbnail" style="position: relative;">
-                    <img src="${response.thumbnailUrl}" alt="Image" class="img-responsive" style="height: 100px; width: 100%; object-fit: cover;">
+                    ${contentHtml}
                     <div class="caption" style="padding: 5px;">
-                        <button type="button" class="btn btn-danger btn-sm btn-block delete-image-btn" 
+                        <button type="button" class="btn btn-danger btn-sm btn-block delete-image-btn"
                                 data-id="${response.index}" data-type="create">
                             Удалить
                         </button>
@@ -8260,12 +8976,31 @@ function addImageToContainer(response) {
             </div>
         `;
     } else {
+        var contentHtml = '';
+        if (isVideo) {
+            contentHtml = `
+                <div style="position: relative; width: 100%; height: 100px; overflow: hidden; background: #000;">
+                    <img src="${displayUrl}" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover;"
+                         onerror="this.style.display='none'; this.parentElement.style.background='#222';">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 30px; opacity: 0.8;">
+                        <span class="glyphicon glyphicon-play"></span>
+                    </div>
+                    <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; font-size: 11px; padding: 2px 6px; border-radius: 3px;">
+                        Видео
+                    </div>
+                </div>
+            `;
+        } else {
+            contentHtml = `<img src="${displayUrl}" alt="Image" class="img-responsive" style="height: 100px; width: 100%; object-fit: cover;"
+                                 onerror="this.src=''; this.parentElement.style.background='#f0f0f0';">`;
+        }
+
         imageHtml = `
             <div class="col-md-3 col-sm-4 col-xs-6" data-image-id="${response.imageId}">
                 <div class="thumbnail" style="position: relative;">
-                    <img src="${response.thumbnailUrl}" alt="Image" class="img-responsive" style="height: 100px; width: 100%; object-fit: cover;">
+                    ${contentHtml}
                     <div class="caption" style="padding: 5px;">
-                        <button type="button" class="btn btn-danger btn-sm btn-block delete-image-btn" 
+                        <button type="button" class="btn btn-danger btn-sm btn-block delete-image-btn"
                                 data-id="${response.imageId}" data-type="update">
                             Удалить
                         </button>
@@ -8277,17 +9012,17 @@ function addImageToContainer(response) {
             </div>
         `;
     }
-    
+
     if (imagesContainer) {
         imagesContainer.insertAdjacentHTML('beforeend', imageHtml);
     }
-    
+
     if (noImagesMessage) {
         noImagesMessage.style.display = 'none';
     }
-    
+
     attachDeleteHandlers();
-    
+
     if (!isCreateMode) {
         initSortable();
     }
@@ -8307,18 +9042,18 @@ function deleteImageHandler(e) {
     var id = this.getAttribute('data-id');
     var type = this.getAttribute('data-type');
     var url = deleteImageUrl;
-    
+
     if (type === 'create') {
         url = deleteImageUrl + '?tempId=' + <?= $id ?> + '&index=' + id;
     } else {
         url = deleteImageUrl + '?id=' + id;
     }
-    
-    if (confirm('Вы уверены, что хотите удалить это изображение?')) {
+
+    if (confirm('Вы уверены, что хотите удалить этот файл?')) {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', url, true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        
+
         xhr.onload = function() {
             if (xhr.status === 200) {
                 try {
@@ -8329,11 +9064,11 @@ function deleteImageHandler(e) {
                         if (imageElement) {
                             imageElement.remove();
                         }
-                        
+
                         if (imagesContainer && imagesContainer.children.length === 0 && noImagesMessage) {
                             noImagesMessage.style.display = 'block';
                         }
-                        
+
                         showNotification('success', response.message);
                     } else {
                         showError(response.error || 'Ошибка удаления');
@@ -8343,7 +9078,7 @@ function deleteImageHandler(e) {
                 }
             }
         };
-        
+
         xhr.send('_csrf=' + encodeURIComponent(csrfToken));
     }
 }
@@ -8361,7 +9096,7 @@ function initSortable() {
                         position: index
                     });
                 });
-                
+
                 $.ajax({
                     url: reorderUrl,
                     type: 'POST',
@@ -8389,7 +9124,7 @@ var dragCounter = 0;
 function handleDragEnter(e) {
     e.preventDefault();
     e.stopPropagation();
-    
+
     var hasFiles = false;
     if (e.dataTransfer.types) {
         for (var i = 0; i < e.dataTransfer.types.length; i++) {
@@ -8399,7 +9134,7 @@ function handleDragEnter(e) {
             }
         }
     }
-    
+
     if (hasFiles) {
         dragCounter++;
         if (dragDropZone) {
@@ -8421,9 +9156,9 @@ function handleDragOver(e) {
 function handleDragLeave(e) {
     e.preventDefault();
     e.stopPropagation();
-    
+
     dragCounter--;
-    
+
     if (dragCounter === 0 && dragDropZone) {
         dragDropZone.style.borderColor = '#ccc';
         dragDropZone.style.backgroundColor = 'transparent';
@@ -8434,15 +9169,15 @@ function handleDragLeave(e) {
 function handleDrop(e) {
     e.preventDefault();
     e.stopPropagation();
-    
+
     dragCounter = 0;
-    
+
     if (dragDropZone) {
         dragDropZone.style.borderColor = '#ccc';
         dragDropZone.style.backgroundColor = 'transparent';
         dragDropZone.classList.remove('drag-over');
     }
-    
+
     var files = e.dataTransfer.files;
     if (files && files.length > 0) {
         uploadFile(files[0]);
@@ -8458,7 +9193,7 @@ function handleFileSelect(e) {
     }
 }
 
-// Регистрация обработчиков (ТОЛЬКО если элементы существуют)
+// Регистрация обработчиков
 if (dragDropZone) {
     dragDropZone.addEventListener('dragenter', handleDragEnter);
     dragDropZone.addEventListener('dragover', handleDragOver);
@@ -8552,20 +9287,17 @@ $shortInfoString = implode(' | ', $shortInfo);
 ?>
 
 <div class="media">
+    <?php if ($imagesCount > 0): ?>
     <div class="media-left" style="padding-right: 15px;">
-        <?php if ($imagesCount > 0): ?>
+        
             <?= ImageGridPreview::widget([
                 'images' => $images,
                 'maxImages' => 5,
                 'containerSize' => 300,
                 'containerClass' => 'image-grid-preview',
             ]) ?>
-        <?php else: ?>
-            <div class="advertisement-placeholder" style="width: 120px; height: 120px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
-                <span class="glyphicon glyphicon-picture" style="font-size: 24px; color: #ccc;"></span>
-            </div>
-        <?php endif; ?>
     </div>
+    <?php endif; ?>
     
     <div class="media-body">
         <a href="<?= $link ?>" style="text-decoration: none; color: inherit;">
@@ -10687,12 +11419,12 @@ use yii\web\View;
 class ImageGridPreview extends Widget
 {
     /**
-     * @var array Список изображений с методом getThumbnailUrl() и getImageUrl()
+     * @var array Список изображений/видео с методом getThumbnailUrl() и getImageUrl()
      */
     public $images = [];
     
     /**
-     * @var int Максимальное количество изображений для отображения
+     * @var int Максимальное количество элементов для отображения
      */
     public $maxImages = 5;
     
@@ -10702,7 +11434,7 @@ class ImageGridPreview extends Widget
     public $containerSize = 120;
     
     /**
-     * @var int Зазор между изображениями в пикселях
+     * @var int Зазор между элементами в пикселях
      */
     public $gap = 3;
     
@@ -10717,19 +11449,19 @@ class ImageGridPreview extends Widget
             return $this->renderPlaceholder();
         }
         
-        $images = array_slice($this->images, 0, $this->maxImages);
-        $count = count($images);
+        $items = array_slice($this->images, 0, $this->maxImages);
+        $count = count($items);
         
         // Регистрируем JS
-        $this->registerAssets();
+        $this->registerJs();
         
-        return $this->renderGrid($images, $count);
+        return $this->renderGrid($items, $count);
     }
     
     /**
-     * Регистрирует необходимые assets
+     * Регистрирует JavaScript
      */
-    protected function registerAssets()
+    protected function registerJs()
     {
         $view = $this->getView();
         
@@ -10741,9 +11473,9 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * Рендерит сетку изображений
+     * Рендерит сетку элементов
      */
-    protected function renderGrid($images, $count)
+    protected function renderGrid($items, $count)
     {
         $html = Html::beginTag('div', [
             'class' => $this->containerClass,
@@ -10751,7 +11483,7 @@ class ImageGridPreview extends Widget
         ]);
         
         $html .= $this->renderOverlay($count);
-        $html .= $this->renderImages($images, $count);
+        $html .= $this->renderItems($items, $count);
         $html .= $this->renderCountBadge($count);
         
         $html .= Html::endTag('div');
@@ -10770,7 +11502,7 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * Рендерит бейдж с количеством изображений (если больше 5)
+     * Рендерит бейдж с количеством элементов (если больше 5)
      */
     protected function renderCountBadge($count)
     {
@@ -10786,39 +11518,39 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * Рендерит изображения в зависимости от количества
+     * Рендерит элементы в зависимости от количества
      */
-    protected function renderImages($images, $count)
+    protected function renderItems($items, $count)
     {
         if ($count === 1) {
-            return $this->renderOneImage($images[0]);
+            return $this->renderOneItem($items[0]);
         } elseif ($count === 2) {
-            return $this->renderTwoImages($images);
+            return $this->renderTwoItems($items);
         } elseif ($count === 3) {
-            return $this->renderThreeImages($images);
+            return $this->renderThreeItems($items);
         } elseif ($count === 4) {
-            return $this->renderFourImages($images);
+            return $this->renderFourItems($items);
         } else {
-            return $this->renderFiveImages($images);
+            return $this->renderFiveItems($items);
         }
     }
     
     /**
-     * 1 изображение - на всю область
+     * 1 элемент - на всю область
      */
-    protected function renderOneImage($image)
+    protected function renderOneItem($item)
     {
         $size = $this->containerSize;
-        return Html::tag('div', $this->getImageTag($image), [
+        return Html::tag('div', $this->getItemTag($item), [
             'class' => 'grid-item grid-item-full',
             'style' => "width: {$size}px; height: {$size}px;",
         ]);
     }
     
     /**
-     * 2 изображения - вертикальный сплит
+     * 2 элемента - вертикальный сплит
      */
-    protected function renderTwoImages($images)
+    protected function renderTwoItems($items)
     {
         $size = ($this->containerSize - $this->gap) / 2;
         $html = Html::beginTag('div', [
@@ -10826,8 +11558,8 @@ class ImageGridPreview extends Widget
             'style' => "width: {$this->containerSize}px; height: {$this->containerSize}px;",
         ]);
         
-        foreach ($images as $image) {
-            $html .= Html::tag('div', $this->getImageTag($image), [
+        foreach ($items as $item) {
+            $html .= Html::tag('div', $this->getItemTag($item), [
                 'class' => 'grid-item grid-item-half',
                 'style' => "width: {$this->containerSize}px; height: {$size}px;",
             ]);
@@ -10838,9 +11570,9 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * 3 изображения - 2 сверху, 1 снизу
+     * 3 элемента - 2 сверху, 1 снизу
      */
-    protected function renderThreeImages($images)
+    protected function renderThreeItems($items)
     {
         $halfSize = ($this->containerSize - $this->gap) / 2;
         
@@ -10849,13 +11581,13 @@ class ImageGridPreview extends Widget
                        "display: flex; flex-direction: column; gap: {$this->gap}px;",
         ]);
         
-        // Верхняя строка - 2 изображения
+        // Верхняя строка - 2 элемента
         $topRow = Html::beginTag('div', [
             'class' => 'grid-row',
             'style' => "height: {$halfSize}px;",
         ]);
-        foreach (array_slice($images, 0, 2) as $image) {
-            $topRow .= Html::tag('div', $this->getImageTag($image), [
+        foreach (array_slice($items, 0, 2) as $item) {
+            $topRow .= Html::tag('div', $this->getItemTag($item), [
                 'class' => 'grid-item grid-item-half',
                 'style' => "width: {$halfSize}px; height: {$halfSize}px;",
             ]);
@@ -10863,8 +11595,8 @@ class ImageGridPreview extends Widget
         $topRow .= Html::endTag('div');
         $html .= $topRow;
         
-        // Нижняя строка - 1 изображение
-        $html .= Html::tag('div', $this->getImageTag($images[2]), [
+        // Нижняя строка - 1 элемент
+        $html .= Html::tag('div', $this->getItemTag($items[2]), [
             'class' => 'grid-item grid-item-full',
             'style' => "width: {$this->containerSize}px; height: {$halfSize}px;",
         ]);
@@ -10874,9 +11606,9 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * 4 изображения - квадрат 2x2
+     * 4 элемента - квадрат 2x2
      */
-    protected function renderFourImages($images)
+    protected function renderFourItems($items)
     {
         $size = ($this->containerSize - $this->gap) / 2;
         $html = Html::beginTag('div', [
@@ -10891,8 +11623,8 @@ class ImageGridPreview extends Widget
             ]);
             for ($col = 0; $col < 2; $col++) {
                 $index = $row * 2 + $col;
-                if (isset($images[$index])) {
-                    $rowHtml .= Html::tag('div', $this->getImageTag($images[$index]), [
+                if (isset($items[$index])) {
+                    $rowHtml .= Html::tag('div', $this->getItemTag($items[$index]), [
                         'class' => 'grid-item grid-item-quarter',
                         'style' => "width: {$size}px; height: {$size}px;",
                     ]);
@@ -10907,10 +11639,10 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * 5 изображений - как в Telegram/VK
-     * Схема: 1 большое слева, 4 маленьких справа (2x2)
+     * 5 элементов - как в Telegram/VK
+     * Схема: 1 большой слева, 4 маленьких справа (2x2)
      */
-    protected function renderFiveImages($images)
+    protected function renderFiveItems($items)
     {
         $size = $this->containerSize;
         $smallSize = ($size - $this->gap) / 2;
@@ -10921,8 +11653,8 @@ class ImageGridPreview extends Widget
             'style' => "width: {$size}px; height: {$size}px;",
         ]);
         
-        // Левая часть - большое изображение
-        $html .= Html::tag('div', $this->getImageTag($images[0]), [
+        // Левая часть - большой элемент
+        $html .= Html::tag('div', $this->getItemTag($items[0]), [
             'class' => 'grid-item grid-item-main',
             'style' => "width: {$leftSize}px; height: {$size}px; flex-shrink: 0;",
         ]);
@@ -10940,8 +11672,8 @@ class ImageGridPreview extends Widget
             ]);
             for ($col = 0; $col < 2; $col++) {
                 $index = 1 + $row * 2 + $col;
-                if (isset($images[$index])) {
-                    $rowHtml .= Html::tag('div', $this->getImageTag($images[$index]), [
+                if (isset($items[$index])) {
+                    $rowHtml .= Html::tag('div', $this->getItemTag($items[$index]), [
                         'class' => 'grid-item grid-item-small',
                         'style' => "width: {$smallSize}px; height: {$smallSize}px;",
                     ]);
@@ -10964,27 +11696,48 @@ class ImageGridPreview extends Widget
     }
     
     /**
-     * Получить HTML тег изображения
+     * Получить HTML тег элемента (изображение или видео)
      */
-    protected function getImageTag($image)
+    protected function getItemTag($item)
     {
-        if (is_object($image)) {
-            if (method_exists($image, 'getThumbnailUrl')) {
-                $url = $image->getThumbnailUrl();
+        if (is_object($item)) {
+            if (method_exists($item, 'isVideo') && $item->isVideo()) {
+                return $this->getVideoTag($item);
+            }
+            if (method_exists($item, 'getThumbnailUrl')) {
+                $url = $item->getThumbnailUrl();
             } else {
                 $url = '';
             }
-            if (method_exists($image, 'getImageUrl')) {
-                $fullUrl = $image->getImageUrl();
+            if (method_exists($item, 'getImageUrl')) {
+                $fullUrl = $item->getImageUrl();
             } else {
                 $fullUrl = $url;
             }
-        } elseif (is_string($image)) {
-            $url = $image;
-            $fullUrl = $image;
+            $isVideo = method_exists($item, 'isVideo') && $item->isVideo();
+        } elseif (is_string($item)) {
+            $url = $item;
+            $fullUrl = $item;
+            $isVideo = false;
         } else {
             $url = '';
             $fullUrl = '';
+            $isVideo = false;
+        }
+        
+        // Для видео используем миниатюру с иконкой проигрывания
+        if ($isVideo) {
+            $videoIcon = '<div class="video-icon-overlay"><div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div></div>';
+            return Html::tag('div', 
+                Html::img($url, [
+                    'alt' => 'Видео',
+                    'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+                    'loading' => 'lazy',
+                    'data-full-image' => $fullUrl,
+                    'data-is-video' => 'true',
+                ]) . $videoIcon,
+                ['class' => 'video-item']
+            );
         }
         
         return Html::img($url, [
@@ -10992,11 +11745,34 @@ class ImageGridPreview extends Widget
             'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
             'loading' => 'lazy',
             'data-full-image' => $fullUrl,
+            'data-is-video' => 'false',
         ]);
     }
     
     /**
-     * Рендерит плейсхолдер при отсутствии изображений
+     * Получить HTML для видео
+     */
+    protected function getVideoTag($item)
+    {
+        $thumbnailUrl = $item->getThumbnailUrl();
+        $videoUrl = $item->getImageUrl();
+        
+        $videoIcon = '<div class="video-icon-overlay"><div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div></div>';
+        
+        return Html::tag('div', 
+            Html::img($thumbnailUrl, [
+                'alt' => 'Видео',
+                'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+                'loading' => 'lazy',
+                'data-full-image' => $videoUrl,
+                'data-is-video' => 'true',
+            ]) . $videoIcon,
+            ['class' => 'video-item']
+        );
+    }
+    
+    /**
+     * Рендерит плейсхолдер при отсутствии элементов
      */
     protected function renderPlaceholder()
     {

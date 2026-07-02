@@ -105,7 +105,83 @@
     border-radius: 4px;
 }
 
-/* Адаптивность */
+/* ============================================
+   Стили для видео
+   ============================================ */
+
+.video-item {
+    position: relative;
+}
+
+.video-item .video-icon-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    z-index: 2;
+    transition: background 0.3s ease;
+}
+
+.video-item:hover .video-icon-overlay {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.video-item .video-icon-overlay .play-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.video-item:hover .video-icon-overlay .play-icon {
+    transform: scale(1.1);
+}
+
+.video-item .video-icon-overlay .play-icon svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 4px;
+    color: #333;
+}
+
+.video-item .video-duration {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    z-index: 3;
+    font-family: monospace;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Стили для полноэкранного видео */
+.fullscreen-video {
+    max-width: 90%;
+    max-height: 90%;
+    background: #000;
+    border-radius: 8px;
+}
+
+/* ============================================
+   Адаптивность
+   ============================================ */
+
 @media (max-width: 768px) {
     .image-grid-preview {
         border-radius: 3px;
@@ -114,11 +190,31 @@
         font-size: 16px;
         padding: 6px 12px;
     }
+    .video-item .video-icon-overlay .play-icon {
+        width: 36px;
+        height: 36px;
+    }
+    .video-item .video-icon-overlay .play-icon svg {
+        width: 16px;
+        height: 16px;
+    }
 }
 
 @media (max-width: 576px) {
     .image-grid-preview .image-count-badge {
         font-size: 14px;
         padding: 4px 10px;
+    }
+    .video-item .video-icon-overlay .play-icon {
+        width: 30px;
+        height: 30px;
+    }
+    .video-item .video-icon-overlay .play-icon svg {
+        width: 14px;
+        height: 14px;
+    }
+    .video-item .video-duration {
+        font-size: 10px;
+        padding: 1px 5px;
     }
 }
