@@ -5,6 +5,7 @@
 @import url('forms.css');
 @import url('search.css');
 @import url('image-grid-preview.css');
+@import url('image-sortable.css');
 
 :root {
     --primary-color: #3498db;

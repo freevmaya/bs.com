@@ -410,24 +410,6 @@ class AdvertisementsController extends Controller
         return ['success' => false, 'error' => 'Ошибка при удалении'];
     }
     
-    public function actionReorderImages()
-    {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
-        if (Yii::$app->request->isPost) {
-            $orders = Yii::$app->request->post('orders');
-            foreach ($orders as $order) {
-                $image = AdvertisementImage::findOne($order['id']);
-                if ($image) {
-                    $image->sort_order = $order['position'];
-                    $image->save();
-                }
-            }
-            return ['success' => true];
-        }
-        return ['success' => false];
-    }
-    
     protected function findModel($id)
     {
         if (($model = Advertisement::findOne($id)) !== null) {
@@ -591,5 +573,98 @@ class AdvertisementsController extends Controller
         }
         
         return parent::beforeAction($action);
+    }
+
+    /**
+     * Сортировка временных изображений
+     */
+    public function actionReorderTempImages($tempId)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        // Проверяем CSRF
+        if (!Yii::$app->request->validateCsrfToken()) {
+            return ['success' => false, 'error' => 'CSRF token validation failed'];
+        }
+        
+        $sessionTempId = Yii::$app->session->get('temp_ad_id');
+        if ($sessionTempId != $tempId) {
+            return ['success' => false, 'error' => 'Неверный идентификатор сессии'];
+        }
+        
+        if (Yii::$app->request->isPost) {
+            $orders = Yii::$app->request->post('orders');
+            
+            if (!is_array($orders) || empty($orders)) {
+                return ['success' => false, 'error' => 'Нет данных для сортировки'];
+            }
+            
+            // Получаем текущие изображения
+            $tempImages = $this->tempStorage->getTempImages($tempId);
+            
+            // Создаем новый массив с правильным порядком
+            $newImages = [];
+            foreach ($orders as $order) {
+                $index = $order['id'];
+                $position = $order['position'];
+                if (isset($tempImages[$index])) {
+                    $image = $tempImages[$index];
+                    $image['sort_order'] = $position;
+                    $newImages[$position] = $image;
+                }
+            }
+            
+            // Сортируем по ключам
+            ksort($newImages);
+            
+            // Сохраняем обновленный порядок
+            $this->tempStorage->saveTempAd($tempId, ['images' => array_values($newImages)]);
+            
+            return ['success' => true, 'message' => 'Порядок сохранен'];
+        }
+        
+        return ['success' => false, 'error' => 'Неверный метод запроса'];
+    }
+
+    /**
+     * Сортировка постоянных изображений
+     */
+    public function actionReorderImages()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        // Проверяем CSRF
+        if (!Yii::$app->request->validateCsrfToken()) {
+            return ['success' => false, 'error' => 'CSRF token validation failed'];
+        }
+        
+        if (Yii::$app->request->isPost) {
+            $orders = Yii::$app->request->post('orders');
+            
+            if (!is_array($orders) || empty($orders)) {
+                return ['success' => false, 'error' => 'Нет данных для сортировки'];
+            }
+            
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                foreach ($orders as $order) {
+                    $image = \app\models\AdvertisementImage::findOne($order['id']);
+                    if ($image) {
+                        $image->sort_order = $order['position'];
+                        if (!$image->save()) {
+                            throw new \Exception('Ошибка сохранения изображения ID ' . $order['id']);
+                        }
+                    }
+                }
+                $transaction->commit();
+                return ['success' => true, 'message' => 'Порядок сохранен'];
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                Yii::error('Reorder error: ' . $e->getMessage());
+                return ['success' => false, 'error' => $e->getMessage()];
+            }
+        }
+        
+        return ['success' => false, 'error' => 'Неверный метод запроса'];
     }
 }
