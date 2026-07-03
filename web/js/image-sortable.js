@@ -15,18 +15,18 @@
      * @param {Object} options - Настройки
      * @param {string} options.reorderUrl - URL для сохранения порядка
      * @param {string} options.csrfToken - CSRF токен
-     * @param {string} options.handle - Селектор рукоятки (по умолчанию '.sort-handle')
      * @param {string} options.items - Селектор элементов (по умолчанию '.sortable-item')
      * @param {Function} options.onUpdate - Колбэк после обновления
      */
     function initImageSortable(container, options) {
         var defaults = {
-            handle: '.sort-handle',
             items: '.sortable-item',
             placeholder: 'sortable-placeholder',
             cursor: 'grabbing',
             tolerance: 'pointer',
             forcePlaceholderSize: true,
+            distance: 10,
+            delay: 100,
             onUpdate: null
         };
 
@@ -50,22 +50,41 @@
         }
 
         $container.sortable({
-            handle: settings.handle,
             items: settings.items,
             placeholder: settings.placeholder,
             cursor: settings.cursor,
             tolerance: settings.tolerance,
-            forcePlaceholderSize: settings.forcePlaceholderSize,
+            forcePlaceholderSize: true,
+            distance: settings.distance,
+            delay: settings.delay,
+            cancel: '.no-sort',
             start: function(event, ui) {
-                ui.item.addClass('sorting');
-                ui.item.data('startIndex', ui.item.index());
+                var $item = ui.item;
+                var $placeholder = ui.placeholder;
                 
-                // Сохраняем высоту плейсхолдера
-                var height = ui.item.outerHeight();
-                ui.placeholder.height(height);
+                $item.addClass('sorting');
+                $item.data('startIndex', $item.index());
+                
+                // ТОЧНО КОПИРУЕМ РАЗМЕРЫ ЭЛЕМЕНТА ДЛЯ ПЛЕЙСХОЛДЕРА
+                var height = $item.outerHeight();
+                var width = $item.outerWidth();
+                
+                // Применяем размеры к плейсхолдеру
+                $placeholder.css({
+                    height: height + 'px',
+                    width: width + 'px',
+                    minHeight: height + 'px',
+                    flex: '0 0 auto'
+                });
+                
+                // Копируем классы для правильного отображения
+                $placeholder.addClass('col-md-3 col-sm-4 col-xs-6');
+                
+                console.log('Placeholder size:', width, 'x', height);
             },
             update: function(event, ui) {
-                ui.item.removeClass('sorting');
+                var $item = ui.item;
+                $item.removeClass('sorting');
                 
                 // Обновляем номера
                 updateOrderNumbers($container);
@@ -80,11 +99,24 @@
             },
             stop: function(event, ui) {
                 ui.item.removeClass('sorting');
+                
+                // Очищаем стили плейсхолдера
+                var $placeholder = ui.placeholder;
+                $placeholder.css({
+                    height: '',
+                    width: '',
+                    minHeight: '',
+                    flex: ''
+                });
+                $placeholder.removeClass('col-md-3 col-sm-4 col-xs-6');
             }
         });
 
         // Добавляем класс для стилизации
         $container.addClass('sortable-container-initialized');
+
+        // Добавляем курсор для всех элементов
+        $container.find(settings.items).css('cursor', 'grab');
 
         return $container;
     }
@@ -201,7 +233,7 @@
         
         var timeout = 3000;
         if (type === 'loading') {
-            timeout = 60000; // Долго для загрузки
+            timeout = 60000;
         } else if (type === 'success') {
             timeout = 2000;
         } else if (type === 'error') {
@@ -269,21 +301,18 @@
 })(jQuery);
 
 /**
- * Автоматическая инициализация при загрузке страницы (если есть data-атрибуты)
+ * Автоматическая инициализация при загрузке страницы
  */
 $(document).ready(function() {
-    // Ищем контейнеры с data-image-sortable
     $('[data-image-sortable]').each(function() {
         var $container = $(this);
         var reorderUrl = $container.data('reorder-url') || $container.attr('data-reorder-url');
         var csrfToken = $container.data('csrf-token') || $container.attr('data-csrf-token');
-        var handle = $container.data('handle') || '.sort-handle';
         
         if (reorderUrl && csrfToken) {
             ImageSortable.init($container, {
                 reorderUrl: reorderUrl,
-                csrfToken: csrfToken,
-                handle: handle
+                csrfToken: csrfToken
             });
         }
     });

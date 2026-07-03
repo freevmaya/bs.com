@@ -56,10 +56,16 @@ $this->registerJs(
             <span class="glyphicon glyphicon-picture"></span> 
             Фотографии и видео товара
         </h3>
+        <?php if ($isUpdate): ?>
+            <p class="help-block" style="margin-top: 12px; font-size: 12px; color: #888;">
+                <span class="glyphicon glyphicon-info-sign"></span> 
+                <strong>Перетащите</strong> превьюшку мышкой для изменения порядка.
+            </p>
+        <?php endif; ?>
     </div>
     <div class="panel-body">
         <!-- Контейнер для изображений -->
-        <div id="images-container" class="row sortable-container" <?= $containerData ?> data-csrf-token="<?= Yii::$app->request->csrfToken ?>" data-handle=".sort-handle">
+        <div id="images-container" class="row sortable-container" <?= $containerData ?> data-csrf-token="<?= Yii::$app->request->csrfToken ?>">
             <?php if (!empty($images)): ?>
                 <?php foreach ($images as $index => $image): ?>
                     <div class="col-md-3 col-sm-4 col-xs-6 sortable-item" <?= $imageDataAttribute ?>="<?= $isCreate ? $index : $image->id ?>" data-sort-order="<?= $index ?>">
@@ -81,18 +87,18 @@ $this->registerJs(
                                         ? Url::to('@web/uploads/advertisements/' . $image['thumbnail_path'])
                                         : $image->getThumbnailUrl();
                                     ?>
-                                    <img src="<?= $thumbUrl ?>" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover;"
+                                    <img src="<?= $thumbUrl ?>" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover; cursor: grab;"
                                          onerror="this.style.display='none'; this.parentElement.style.background='#222';">
-                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; opacity: 0.85; text-shadow: 0 0 20px rgba(0,0,0,0.8);">
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; opacity: 0.85; text-shadow: 0 0 20px rgba(0,0,0,0.8); pointer-events: none;">
                                         <span class="glyphicon glyphicon-play"></span>
                                     </div>
-                                    <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600;">
+                                    <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600; pointer-events: none;">
                                         <span class="glyphicon glyphicon-film"></span> Видео
                                     </div>
                                 </div>
                             <?php else: ?>
                                 <img src="<?= $isCreate ? Url::to('@web/uploads/advertisements/' . $image['thumbnail_path']) : $image->getThumbnailUrl() ?>"
-                                     alt="Image" class="img-responsive" style="height: 120px; width: 100%; object-fit: cover;"
+                                     alt="Image" class="img-responsive" style="height: 120px; width: 100%; object-fit: cover; cursor: grab;"
                                      onerror="this.src=''; this.parentElement.style.background='#f0f0f0';">
                             <?php endif; ?>
                             <div class="caption" style="padding: 5px;">
@@ -103,19 +109,14 @@ $this->registerJs(
                                 </button>
                             </div>
                             
+                            <!-- Бейдж с номером (без отдельной рукоятки) -->
+                            <div class="sort-order-badge">
+                                #<span class="order-number"><?= $index + 1 ?></span>
+                            </div>
+                            
                             <?php if ($isUpdate): ?>
-                                <!-- Рукоятка для перетаскивания -->
-                                <div class="sort-handle" title="Перетащите для изменения порядка">
+                                <div style="position: absolute; bottom: 35px; right: 5px; background: rgba(0,0,0,0.5); color: white; padding: 2px 8px; border-radius: 10px; font-size: 9px; pointer-events: none;">
                                     <span class="glyphicon glyphicon-move"></span>
-                                </div>
-                                <!-- Бейдж с номером -->
-                                <div class="sort-order-badge">
-                                    #<span class="order-number"><?= $index + 1 ?></span>
-                                </div>
-                            <?php else: ?>
-                                <!-- Для create тоже показываем номер, но без сортировки -->
-                                <div class="sort-order-badge" style="background: rgba(0,0,0,0.5); cursor: default;">
-                                    #<?= $index + 1 ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -143,12 +144,6 @@ $this->registerJs(
                     <span class="glyphicon glyphicon-folder-open"></span> Выберите файлы
                     <input type="file" accept="image/*,video/*" id="image-file-input" data-type="<?= $type ?>" style="display: none;" multiple>
                 </label>
-                <?php if ($isUpdate): ?>
-                    <p class="help-block" style="margin-top: 12px; font-size: 12px; color: #888;">
-                        <span class="glyphicon glyphicon-info-sign"></span> 
-                        Перетащите загруженные файлы за иконку <span class="glyphicon glyphicon-move"></span> для изменения порядка
-                    </p>
-                <?php endif; ?>
             </div>
         </div>
 
@@ -315,18 +310,18 @@ $this->registerJs(
             if (isVideo) {
                 contentHtml = `
                     <div style="position: relative; width: 100%; height: 120px; overflow: hidden; background: #000;">
-                        <img src="${displayUrl}" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover;"
+                        <img src="${displayUrl}" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover; cursor: grab;"
                              onerror="this.style.display='none'; this.parentElement.style.background='#222';">
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; opacity: 0.85; text-shadow: 0 0 20px rgba(0,0,0,0.8);">
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; opacity: 0.85; text-shadow: 0 0 20px rgba(0,0,0,0.8); pointer-events: none;">
                             <span class="glyphicon glyphicon-play"></span>
                         </div>
-                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600;">
+                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600; pointer-events: none;">
                             <span class="glyphicon glyphicon-film"></span> Видео
                         </div>
                     </div>
                 `;
             } else {
-                contentHtml = `<img src="${displayUrl}" alt="Image" class="img-responsive" style="height: 120px; width: 100%; object-fit: cover;"
+                contentHtml = `<img src="${displayUrl}" alt="Image" class="img-responsive" style="height: 120px; width: 100%; object-fit: cover; cursor: grab;"
                                      onerror="this.src=''; this.parentElement.style.background='#f0f0f0';">`;
             }
 
@@ -343,7 +338,7 @@ $this->registerJs(
                                 <span class="glyphicon glyphicon-trash"></span> Удалить
                             </button>
                         </div>
-                        <div class="sort-order-badge" style="background: rgba(0,0,0,0.5); cursor: default;">
+                        <div class="sort-order-badge">
                             #${newOrder + 1}
                         </div>
                     </div>
@@ -354,18 +349,18 @@ $this->registerJs(
             if (isVideo) {
                 contentHtml = `
                     <div style="position: relative; width: 100%; height: 120px; overflow: hidden; background: #000;">
-                        <img src="${displayUrl}" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover;"
+                        <img src="${displayUrl}" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover; cursor: grab;"
                              onerror="this.style.display='none'; this.parentElement.style.background='#222';">
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; opacity: 0.85; text-shadow: 0 0 20px rgba(0,0,0,0.8);">
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; opacity: 0.85; text-shadow: 0 0 20px rgba(0,0,0,0.8); pointer-events: none;">
                             <span class="glyphicon glyphicon-play"></span>
                         </div>
-                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600;">
+                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600; pointer-events: none;">
                             <span class="glyphicon glyphicon-film"></span> Видео
                         </div>
                     </div>
                 `;
             } else {
-                contentHtml = `<img src="${displayUrl}" alt="Image" class="img-responsive" style="height: 120px; width: 100%; object-fit: cover;"
+                contentHtml = `<img src="${displayUrl}" alt="Image" class="img-responsive" style="height: 120px; width: 100%; object-fit: cover; cursor: grab;"
                                      onerror="this.src=''; this.parentElement.style.background='#f0f0f0';">`;
             }
 
@@ -382,11 +377,11 @@ $this->registerJs(
                                 <span class="glyphicon glyphicon-trash"></span> Удалить
                             </button>
                         </div>
-                        <div class="sort-handle" title="Перетащите для изменения порядка">
-                            <span class="glyphicon glyphicon-move"></span>
-                        </div>
                         <div class="sort-order-badge">
                             #<span class="order-number">${newOrder + 1}</span>
+                        </div>
+                        <div style="position: absolute; bottom: 35px; right: 5px; background: rgba(0,0,0,0.5); color: white; padding: 2px 8px; border-radius: 10px; font-size: 9px; pointer-events: none;">
+                            <span class="glyphicon glyphicon-move"></span>
                         </div>
                     </div>
                 </div>
