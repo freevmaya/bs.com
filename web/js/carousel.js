@@ -1,98 +1,11 @@
 /**
- * Image Grid Preview - полноэкранный просмотр
+ * Carousel - галерея изображений с полноэкранным режимом
+ * Поддержка видео
+ * Использует единый подход openFullscreenFromPreview
  */
 
-(function() {
+(function($) {
     'use strict';
-
-    /**
-     * Открытие полноэкранного режима из превью
-     */
-    window.openFullscreenFromPreview = function(element) {
-        var fullImage = element.getAttribute('data-full-image');
-        var isVideo = element.getAttribute('data-is-video') === 'true';
-        
-        if (!fullImage) {
-            return;
-        }
-        
-        // Находим родительский контейнер объявления
-        var $container = $(element).closest('.media, .advertisement-item, .item, .grid-preview-wrapper');
-        
-        // Если контейнер не найден, ищем ближайший общий родитель
-        if (!$container.length) {
-            $container = $(element).closest('[data-advertisement-id], .list-view .media, .advertisements-index .item');
-        }
-        
-        // Если контейнер все еще не найден, берем родителя с классом grid-preview-item
-        if (!$container.length) {
-            $container = $(element).closest('.grid-preview-item').parent();
-        }
-        
-        // Если контейнер найден, ищем элементы только внутри него
-        var previewItems;
-        if ($container.length) {
-            previewItems = $container.find('.grid-preview-item');
-        } else {
-            // Fallback: используем все элементы на странице
-            previewItems = document.querySelectorAll('.grid-preview-item');
-        }
-        
-        var images = [];
-        var currentIndex = 0;
-        
-        previewItems.each(function(index) {
-            var item = this;
-            var imgUrl = item.getAttribute('data-full-image');
-            if (imgUrl) {
-                images.push({
-                    url: imgUrl,
-                    isVideo: item.getAttribute('data-is-video') === 'true'
-                });
-                if (item === element) {
-                    currentIndex = images.length - 1;
-                }
-            }
-        });
-        
-        // Если не нашли изображения, пробуем другой метод поиска
-        if (images.length === 0) {
-            // Ищем все .grid-preview-item в том же родительском контейнере
-            var parentContainer = $(element).closest('.media-body, .advertisements-view, .item');
-            if (parentContainer.length) {
-                previewItems = parentContainer.find('.grid-preview-item');
-                previewItems.each(function(index) {
-                    var item = this;
-                    var imgUrl = item.getAttribute('data-full-image');
-                    if (imgUrl) {
-                        images.push({
-                            url: imgUrl,
-                            isVideo: item.getAttribute('data-is-video') === 'true'
-                        });
-                        if (item === element) {
-                            currentIndex = images.length - 1;
-                        }
-                    }
-                });
-            }
-        }
-        
-        // Если все еще нет изображений, используем только текущий элемент
-        if (images.length === 0) {
-            images = [{
-                url: fullImage,
-                isVideo: isVideo
-            }];
-            currentIndex = 0;
-        }
-        
-        // Открываем модальное окно
-        if (typeof window.openFullscreenFromGallery === 'function') {
-            window.openFullscreenFromGallery(images, currentIndex);
-        } else {
-            createFullscreenModal(images, currentIndex);
-        }
-    };
 
     /**
      * Создает модальное окно для полноэкранного просмотра
@@ -170,10 +83,18 @@
         document.body.style.overflow = 'hidden';
         
         var currentIndex = startIndex || 0;
+        var videoElement = null;
         
         function updateContent() {
             var item = images[currentIndex];
             if (!item) return;
+            
+            // Останавливаем предыдущее видео
+            if (videoElement) {
+                videoElement.pause();
+                videoElement.src = '';
+                videoElement = null;
+            }
             
             if (item.isVideo) {
                 image.style.display = 'none';
@@ -181,6 +102,7 @@
                 video.src = item.url;
                 video.load();
                 video.play().catch(function() {});
+                videoElement = video;
             } else {
                 video.style.display = 'none';
                 video.pause();
@@ -208,6 +130,11 @@
         function closeFullscreenModal() {
             var modal = document.getElementById('preview-fullscreen-modal');
             if (modal) {
+                if (videoElement) {
+                    videoElement.pause();
+                    videoElement.src = '';
+                    videoElement = null;
+                }
                 modal.remove();
                 document.body.style.overflow = '';
             }
@@ -244,29 +171,160 @@
         // Сохраняем функции для навигации
         window._previewNavigate = navigateFullscreen;
         window._previewClose = closeFullscreenModal;
-        
-        // Очищаем обработчики при закрытии
-        var originalClose = closeFullscreenModal;
-        closeFullscreenModal = function() {
-            document.removeEventListener('keydown', keydownHandler);
-            originalClose();
-        };
     }
-    
-    // Переопределяем функцию из _carousel.php если она существует
-    window.openFullscreenFromGallery = function(images, startIndex) {
-        createFullscreenModal(images, startIndex);
-    };
-    
-    // Обработка кликов на превью в списке
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.grid-preview-item').forEach(function(item) {
-            // Убеждаемся что обработчик onclick не переопределен
-            if (!item.hasAttribute('onclick')) {
-                item.addEventListener('click', function() {
-                    window.openFullscreenFromPreview(this);
+
+    /**
+     * Открытие полноэкранного режима из превью
+     * Работает как для списка объявлений, так и для страницы объявления
+     */
+    window.openFullscreenFromPreview = function(element) {
+        var fullImage = element.getAttribute('data-full-image');
+        var isVideo = element.getAttribute('data-is-video') === 'true';
+        
+        if (!fullImage) {
+            return;
+        }
+        
+        // Находим родительский контейнер
+        // Для страницы объявления: .gallery-container
+        // Для списка: .media, .advertisement-item, .item
+        var $container = $(element).closest('.gallery-container, .media, .advertisement-item, .item, .grid-preview-wrapper');
+        
+        // Если контейнер не найден, ищем по data-атрибуту
+        if (!$container.length) {
+            $container = $(element).closest('[data-advertisement-id], .list-view .media, .advertisements-index .item');
+        }
+        
+        // Если контейнер все еще не найден, берем родителя с классом grid-preview-item
+        if (!$container.length) {
+            $container = $(element).closest('.grid-preview-item').parent();
+        }
+        
+        // Если контейнер найден, ищем элементы только внутри него
+        var previewItems;
+        if ($container.length) {
+            previewItems = $container.find('.grid-preview-item');
+        } else {
+            // Fallback: используем все элементы на странице
+            previewItems = $('.grid-preview-item');
+        }
+        
+        var images = [];
+        var currentIndex = 0;
+        
+        previewItems.each(function(index) {
+            var item = this;
+            var imgUrl = item.getAttribute('data-full-image');
+            if (imgUrl) {
+                images.push({
+                    url: imgUrl,
+                    isVideo: item.getAttribute('data-is-video') === 'true'
                 });
+                if (item === element) {
+                    currentIndex = images.length - 1;
+                }
             }
         });
+        
+        // Если не нашли изображения, пробуем другой метод поиска
+        if (images.length === 0) {
+            // Ищем все .grid-preview-item в том же родительском контейнере
+            var parentContainer = $(element).closest('.media-body, .advertisements-view, .item, .gallery-container');
+            if (parentContainer.length) {
+                previewItems = parentContainer.find('.grid-preview-item');
+                previewItems.each(function(index) {
+                    var item = this;
+                    var imgUrl = item.getAttribute('data-full-image');
+                    if (imgUrl) {
+                        images.push({
+                            url: imgUrl,
+                            isVideo: item.getAttribute('data-is-video') === 'true'
+                        });
+                        if (item === element) {
+                            currentIndex = images.length - 1;
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Если все еще нет изображений, используем только текущий элемент
+        if (images.length === 0) {
+            images = [{
+                url: fullImage,
+                isVideo: isVideo
+            }];
+            currentIndex = 0;
+        }
+        
+        // Открываем модальное окно
+        createFullscreenModal(images, currentIndex);
+    };
+
+    /**
+     * Открытие из галереи с массивом изображений (для совместимости)
+     */
+    window.openFullscreenFromGallery = function(images, startIndex) {
+        if (!images || images.length === 0) {
+            return;
+        }
+        createFullscreenModal(images, startIndex || 0);
+    };
+
+    /**
+     * Закрытие полноэкранного режима
+     */
+    window.closeFullscreen = function() {
+        var modal = document.getElementById('preview-fullscreen-modal');
+        if (modal) {
+            modal.remove();
+            document.body.style.overflow = '';
+        }
+    };
+
+    /**
+     * Навигация
+     */
+    window.navigateFullscreen = function(direction) {
+        if (window._previewNavigate) {
+            window._previewNavigate(direction);
+        }
+    };
+
+    /**
+     * Закрытие из карусели (для совместимости)
+     */
+    window.closeCarouselFullscreen = function() {
+        window.closeFullscreen();
+    };
+
+    /**
+     * Навигация из карусели (для совместимости)
+     */
+    window.navigateCarouselFullscreen = function(direction) {
+        window.navigateFullscreen(direction);
+    };
+
+    /**
+     * Открытие из карусели (для совместимости со старым кодом)
+     */
+    window.openCarouselFullscreen = function(element) {
+        window.openFullscreenFromPreview(element);
+    };
+
+    // Инициализация при загрузке
+    $(document).ready(function() {
+        // Обработка кликов на превью (единый обработчик для всех)
+        $(document).on('click', '.grid-preview-item', function(e) {
+            e.preventDefault();
+            window.openFullscreenFromPreview(this);
+        });
+
+        // Обработка кликов на карусели (для страницы объявления)
+        $(document).on('click', '.gallery-thumb', function(e) {
+            e.preventDefault();
+            window.openFullscreenFromPreview(this);
+        });
     });
-})();
+
+})(jQuery);

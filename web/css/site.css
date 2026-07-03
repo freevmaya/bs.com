@@ -115,13 +115,15 @@ main > .container {
 }
 
 .gallery-grid {
-    max-height: 210px;
-    overflow-y: scroll;
-    overflow-x: none;
+    overflow: none;
 }
 
 .media .preview {
     color: gray;
+}
+
+.table > tbody {
+    border-style: none;
 }
 
 .image-preview-grid {

@@ -9,6 +9,11 @@ use yii\bootstrap5\NavBar;
 use app\assets\AppAsset;
 
 AppAsset::register($this);
+
+// Регистрируем CSS для уведомлений и форм
+$this->registerCssFile('@web/css/notification.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -43,9 +48,7 @@ AppAsset::register($this);
         $menuItems[] = ['label' => 'Регистрация', 'url' => ['/site/register']];
         $menuItems[] = ['label' => 'Вход', 'url' => ['/site/login']];
     } else {
-
         $menuItems[] = ['label' => 'Мои объявления', 'url' => ['/advertisements/my']];
-        //$menuItems[] = ['label' => 'Добавить', 'url' => ['/advertisements/create']];
         $menuItems[] = ['label' => 'Уведомления', 'url' => ['/notification/index']];
 
         $menuItems[] = '<li class="nav-item">'

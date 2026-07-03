@@ -13,6 +13,401 @@
 # Processed extensions: .js, .html, .css, .php
 
 # ============================================================
+# FILE: .\web\css\advertisement-form.css
+# TYPE: .CSS
+# ============================================================
+
+/* ============================================
+   Стили для форм объявлений
+   ============================================ */
+
+/* Блоки дополнительных полей */
+.glider-fields,
+.harness-fields,
+.device-fields {
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.glider-fields h4,
+.harness-fields h4,
+.device-fields h4 {
+    margin-top: 0;
+    color: #495057;
+    font-weight: 600;
+}
+
+/* Подсветка полей с ошибками */
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-error textarea {
+    border-color: #dc3545;
+    background-color: #ff000024;
+}
+
+.form-group.has-error .help-block {
+    color: #000000;
+    position: absolute;
+    width: 200px;
+    background: yellow;
+    padding: 0.5em;
+    border-radius: 8px;
+    box-shadow: 2px 2px 6px black;
+}
+
+/* Анимация тряски */
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+.shake-error {
+    animation: shake 0.3s ease-in-out;
+}
+
+/* Стили для Drag & Drop зоны */
+.drag-drop-zone {
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+    cursor: default;
+}
+
+.drag-drop-zone:hover {
+    border-color: #ccc !important;
+    background-color: transparent !important;
+}
+
+.drag-drop-zone.drag-over {
+    border-color: #5bc0de !important;
+    background-color: #f0f8ff !important;
+}
+
+.btn-file {
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+/* Прогресс загрузки */
+.progress {
+    height: 30px;
+    margin-bottom: 0;
+}
+
+/* Уведомления в форме */
+.alert {
+    transition: opacity 0.5s ease;
+}
+
+/* Сортировка изображений */
+.sort-handle:hover {
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* ============================================
+   Стили для карусели
+   ============================================ */
+
+.carousel-container {
+    position: relative;
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.carousel {
+    position: relative;
+}
+
+.carousel-inner {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.carousel-inner .item {
+    position: relative;
+    display: none;
+    transition: transform 0.6s ease;
+}
+
+.carousel-inner .item.active {
+    display: block;
+}
+
+.carousel-image {
+    width: 100%;
+    height: 400px;
+    object-fit: contain;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.carousel-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+    pointer-events: none;
+}
+
+.item:hover .carousel-image-overlay {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Кнопки управления */
+.carousel-control {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    border: none;
+    z-index: 10;
+    text-decoration: none;
+}
+
+.carousel-control:hover {
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    text-decoration: none;
+}
+
+.carousel-control.left {
+    left: 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.carousel-control.right {
+    right: 0;
+    border-radius: 4px 0 0 4px;
+}
+
+.carousel-control .glyphicon {
+    font-size: 30px;
+}
+
+/* Индикаторы */
+.carousel-indicators {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    gap: 8px;
+    z-index: 15;
+}
+
+.carousel-indicators li {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    display: block;
+    text-indent: -9999px;
+}
+
+.carousel-indicators li.active {
+    background: #fff;
+    border-color: #fff;
+}
+
+/* Миниатюры */
+.carousel-thumbnails {
+    display: flex;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #f8f9fa;
+    overflow-x: auto;
+    justify-content: center;
+}
+
+.carousel-thumbnail {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.carousel-thumbnail:hover {
+    opacity: 1;
+    border-color: #ccc;
+}
+
+.carousel-thumbnail.active {
+    border-color: #007bff;
+    opacity: 1;
+}
+
+.carousel-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Fullscreen модальное окно */
+.fullscreen-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.fullscreen-modal.open {
+    display: flex;
+}
+
+.fullscreen-image {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+}
+
+.fullscreen-close {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    color: #fff;
+    font-size: 40px;
+    cursor: pointer;
+    z-index: 10001;
+    transition: transform 0.3s ease;
+    font-weight: 300;
+    line-height: 1;
+}
+
+.fullscreen-close:hover {
+    transform: rotate(90deg);
+}
+
+.fullscreen-nav {
+    position: absolute;
+    bottom: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    pointer-events: none;
+}
+
+.fullscreen-prev,
+.fullscreen-next {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #fff;
+    font-size: 30px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background 0.3s ease;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-prev:hover,
+.fullscreen-next:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.fullscreen-counter {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .carousel-image {
+        height: 250px;
+    }
+    
+    .carousel-thumbnails {
+        padding: 5px 10px;
+        justify-content: flex-start;
+    }
+    
+    .carousel-thumbnail {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .carousel-control {
+        width: 30px;
+    }
+    
+    .carousel-control .glyphicon {
+        font-size: 20px;
+    }
+    
+    .fullscreen-image {
+        max-width: 95%;
+        max-height: 80%;
+    }
+    
+    .fullscreen-close {
+        top: 15px;
+        right: 20px;
+        font-size: 30px;
+    }
+    
+    .fullscreen-prev,
+    .fullscreen-next {
+        width: 35px;
+        height: 35px;
+        font-size: 20px;
+    }
+}
+
+
+# ============================================================
 # FILE: .\web\css\carousel.css
 # TYPE: .CSS
 # ============================================================
@@ -744,6 +1139,7 @@
 
 .video-item {
     position: relative;
+    height: 100%;
 }
 
 .video-item .video-icon-overlay {
@@ -868,19 +1264,28 @@
 }
 
 .sortable-item {
-    cursor: default;
-    transition: transform 0.2s ease;
+    cursor: grab;
+    transition: transform 0.2s ease, opacity 0.2s ease;
     padding: 5px;
+    user-select: none;
+    flex: 0 0 auto;
 }
 
 .sortable-item .thumbnail {
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
     position: relative;
     overflow: hidden;
     border: 2px solid transparent;
     border-radius: 8px;
     margin-bottom: 0;
     background: #ffffff17;
+    cursor: grab;
+    width: 100%;
+    height: 100%;
+}
+
+.sortable-item .thumbnail:active {
+    cursor: grabbing;
 }
 
 .sortable-item .thumbnail:hover {
@@ -903,63 +1308,79 @@
     user-select: none;
     font-family: monospace;
     letter-spacing: 0.5px;
+    pointer-events: none;
 }
 
-/* Рукоятка для перетаскивания */
+/* Убираем отдельную рукоятку - вся превьюшка становится захватываемой */
 .sort-handle {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(0, 0, 0, 0.55);
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 12px;
-    cursor: grab;
-    z-index: 5;
-    transition: background 0.3s ease, transform 0.2s ease;
-    user-select: none;
-    font-size: 14px;
-    line-height: 1.4;
+    display: none !important;
 }
 
-.sort-handle:hover {
-    background: rgba(0, 0, 0, 0.8);
-    transform: scale(1.05);
+/* Индикатор, что элемент перетаскивается */
+.sortable-item.sorting {
+    opacity: 0.3;
+    transform: scale(0.92);
 }
 
-.sort-handle:active {
-    cursor: grabbing !important;
-    transform: scale(0.95);
+.sortable-item.sorting img {
+    opacity: 0.3;
 }
 
-/* Плейсхолдер для вставки */
+.sortable-item.sorting button {
+    display: none;
+}
+
+/* Плейсхолдер для вставки - точно такого же размера как превьюшка */
 .sortable-placeholder {
     visibility: visible !important;
-    opacity: 0.5;
-    background: #e9ecef !important;
+    opacity: 0.6;
+    background: transparent !important;
     border: 2px dashed #007bff !important;
     border-radius: 8px;
-    min-height: 150px;
     transition: all 0.3s ease;
     margin: 5px;
+    background: rgba(0, 123, 255, 0.05) !important;
+    position: relative;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    /* Размер будет задаваться через JavaScript динамически */
+    min-height: 120px;
+    flex: 0 0 auto;
+}
+
+.sortable-placeholder::after {
+    content: 'Переместить сюда';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #007bff;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.7;
+    text-align: center;
+    word-wrap: break-word;
+    white-space: normal;
+    max-width: 90%;
+    line-height: 1.4;
+    padding: 5px;
+    pointer-events: none;
 }
 
 .sortable-placeholder .thumbnail {
     visibility: hidden !important;
-}
-
-/* Элемент при перетаскивании */
-.sortable-item.sorting {
-    opacity: 0.4;
-    transform: scale(0.92);
+    height: 100%;
+    min-height: 120px;
 }
 
 /* Вспомогательный элемент (копия) при перетаскивании */
 .ui-sortable-helper.sortable-item {
-    transform: scale(1.05) rotate(-2deg);
+    transform: scale(1.05) rotate(-5deg);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
     z-index: 1000;
     opacity: 0.92;
+    cursor: grabbing;
 }
 
 .ui-sortable-helper.sortable-item .thumbnail {
@@ -1052,13 +1473,6 @@
         padding: 3px;
     }
     
-    .sort-handle {
-        padding: 3px 8px;
-        font-size: 12px;
-        top: 3px;
-        right: 3px;
-    }
-    
     .sort-order-badge {
         font-size: 9px;
         padding: 1px 7px;
@@ -1067,7 +1481,17 @@
     }
     
     .sortable-placeholder {
-        min-height: 100px;
+        min-height: 80px;
+    }
+    
+    .sortable-placeholder::after {
+        font-size: 12px;
+        line-height: 1.3;
+        padding: 4px;
+    }
+    
+    .sortable-placeholder .thumbnail {
+        min-height: 80px;
     }
     
     #sort-save-indicator {
@@ -1080,8 +1504,24 @@
 }
 
 @media (max-width: 480px) {
+    .sortable-item {
+        padding: 3px;
+    }
+    
     .sortable-placeholder {
-        min-height: 80px;
+        min-height: 60px;
+    }
+    
+    .sortable-placeholder::after {
+        font-size: 10px;
+        line-height: 1.2;
+        padding: 3px;
+        max-width: 85%;
+        content: 'Переместить';
+    }
+    
+    .sortable-placeholder .thumbnail {
+        min-height: 60px;
     }
     
     #sort-save-indicator {
@@ -1090,6 +1530,158 @@
         padding: 8px 14px;
         font-size: 12px;
         min-width: 150px;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 360px) {
+    .sortable-placeholder::after {
+        font-size: 9px;
+        content: 'Сюда';
+        padding: 2px 4px;
+    }
+}
+
+
+# ============================================================
+# FILE: .\web\css\notification.css
+# TYPE: .CSS
+# ============================================================
+
+/* ============================================
+   Всплывающие уведомления
+   ============================================ */
+
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: 350px;
+}
+
+.notification {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    animation: slideIn 0.3s ease forwards;
+    margin-bottom: 10px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Типы уведомлений */
+.notification-content {
+    padding: 15px 40px 15px 20px;
+    position: relative;
+    min-height: 60px;
+}
+
+.notification-success .notification-content {
+    background: #d4edda;
+    border-left: 4px solid #28a745;
+}
+
+.notification-danger .notification-content {
+    background: #f8d7da;
+    border-left: 4px solid #dc3545;
+}
+
+.notification-warning .notification-content {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+}
+
+.notification-info .notification-content {
+    background: #d1ecf1;
+    border-left: 4px solid #17a2b8;
+}
+
+.notification-message {
+    color: #333;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.notification-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.notification-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+/* Прогресс-бар */
+.notification-progress {
+    height: 3px;
+    background: rgba(0, 0, 0, 0.1);
+    width: 100%;
+    animation: progress 10s linear forwards;
+    transform-origin: left;
+}
+
+.notification-success .notification-progress {
+    background: #28a745;
+}
+
+.notification-danger .notification-progress {
+    background: #dc3545;
+}
+
+.notification-warning .notification-progress {
+    background: #ffc107;
+}
+
+.notification-info .notification-progress {
+    background: #17a2b8;
+}
+
+@keyframes progress {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 576px) {
+    #notification-container {
+        width: calc(100% - 40px);
+        right: 20px;
+        top: 10px;
     }
 }
 
@@ -1659,13 +2251,15 @@ main > .container {
 }
 
 .gallery-grid {
-    max-height: 210px;
-    overflow-y: scroll;
-    overflow-x: none;
+    overflow: none;
 }
 
 .media .preview {
     color: gray;
+}
+
+.table > tbody {
+    border-style: none;
 }
 
 .image-preview-grid {
@@ -1680,6 +2274,862 @@ main > .container {
     border-radius: 4px; 
     background: #f0f0f0;
 }
+
+
+# ============================================================
+# FILE: .\web\js\advertisement-form.js
+# TYPE: .JS
+# ============================================================
+
+/**
+ * Advertisement Form - управление формой объявлений
+ * Включает: динамические поля, валидацию, загрузку изображений
+ */
+
+(function($) {
+    'use strict';
+
+    /**
+     * Инициализация формы объявления
+     */
+    function initAdvertisementForm() {
+        var $form = $('#advertisement-form');
+        if (!$form.length) return;
+
+        // Инициализация переключения полей типа
+        initTypeFields();
+
+        // Инициализация переключения раздела
+        initSectionToggle();
+
+        // Инициализация AJAX валидации
+        initAjaxValidation($form);
+
+        // Инициализация загрузки изображений
+        initImageUpload();
+    }
+
+    /**
+     * Инициализация динамических полей в зависимости от типа
+     */
+    function initTypeFields() {
+        var $typeSelect = $('#type-select');
+        if (!$typeSelect.length) return;
+
+        var $gliderFields = $('#glider-fields');
+        var $harnessFields = $('#harness-fields');
+        var $deviceFields = $('#device-fields');
+
+        function toggleTypeFields() {
+            var selectedType = $typeSelect.val();
+
+            $gliderFields.hide();
+            $harnessFields.hide();
+            $deviceFields.hide();
+
+            if (selectedType === 'glider') {
+                $gliderFields.show();
+            } else if (selectedType === 'harness') {
+                $harnessFields.show();
+            } else if (selectedType === 'device') {
+                $deviceFields.show();
+            }
+        }
+
+        $typeSelect.on('change', toggleTypeFields);
+        toggleTypeFields();
+    }
+
+    /**
+     * Инициализация переключения блока изображений
+     */
+    function initSectionToggle() {
+        var $sectionSelect = $('#section-select');
+        if (!$sectionSelect.length) return;
+
+        var $imagesBlock = $('#images-block');
+        if (!$imagesBlock.length) return;
+
+        function toggleImagesBlock() {
+            if ($sectionSelect.val() === 'sell') {
+                $imagesBlock.show();
+            } else {
+                $imagesBlock.hide();
+            }
+        }
+
+        $sectionSelect.on('change', toggleImagesBlock);
+        toggleImagesBlock();
+    }
+
+    /**
+     * Инициализация AJAX валидации
+     */
+    function initAjaxValidation($form) {
+        var $submitBtn = $form.find('[type="submit"]');
+        var originalText = $submitBtn.text();
+
+        $form.on('submit', function(e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+
+            $submitBtn.prop('disabled', true);
+            $submitBtn.text('Проверка...');
+
+            $.ajax({
+                url: window.location.href + '?validate=1',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $form.off('submit').submit();
+                        return;
+                    }
+
+                    // Показываем ошибки
+                    if (response.errors) {
+                        $.each(response.errors, function(field, message) {
+                            showNotification(message, 'danger');
+                        });
+                    } else if (response.message) {
+                        showNotification(response.message, 'danger');
+                    } else {
+                        showNotification('Пожалуйста, заполните все обязательные поля', 'danger');
+                    }
+
+                    // Подсвечиваем поля с ошибками
+                    if (response.invalidFields) {
+                        $.each(response.invalidFields, function(index, fieldName) {
+                            var $field = $('[name="' + fieldName + '"]');
+                            if ($field.length) {
+                                $field.css({
+                                    borderColor: '#dc3545',
+                                    backgroundColor: '#fff8f8'
+                                }).one('focus', function() {
+                                    $(this).css({
+                                        borderColor: '',
+                                        backgroundColor: ''
+                                    });
+                                });
+                            }
+                        });
+
+                        // Прокручиваем к первому полю с ошибкой
+                        var $firstError = $('[style*="border-color: rgb(220, 53, 69)"]').first();
+                        if ($firstError.length) {
+                            $('html, body').animate({
+                                scrollTop: $firstError.offset().top - 100
+                            }, 300);
+                        }
+                    }
+
+                    $submitBtn.prop('disabled', false);
+                    $submitBtn.text(originalText);
+                },
+                error: function() {
+                    $form.off('submit').submit();
+                }
+            });
+        });
+    }
+
+    /**
+     * Инициализация загрузки изображений
+     */
+    function initImageUpload() {
+        var $dragDropZone = $('#drag-drop-zone');
+        var $fileInput = $('#image-file-input');
+        var $progress = $('#upload-progress');
+        var $uploadError = $('#upload-error');
+        var $errorMessage = $('#error-message');
+        var $imagesContainer = $('#images-container');
+        var $noImagesMessage = $('#no-images-message');
+
+        if (!$dragDropZone.length) return;
+
+        var csrfToken = $('meta[name="csrf-token"]').attr('content') || $('[name="_csrf"]').val();
+        var isCreateMode = $fileInput.data('type') === 'create';
+        var addImageUrl = $dragDropZone.data('upload-url') || $fileInput.data('upload-url');
+
+        // Проверяем, определен ли ImageSortable
+        var hasImageSortable = typeof ImageSortable !== 'undefined';
+
+        // Drag & Drop обработчики
+        var dragCounter = 0;
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var hasFiles = false;
+            if (e.originalEvent.dataTransfer.types) {
+                for (var i = 0; i < e.originalEvent.dataTransfer.types.length; i++) {
+                    if (e.originalEvent.dataTransfer.types[i] === 'Files') {
+                        hasFiles = true;
+                        break;
+                    }
+                }
+            }
+
+            if (hasFiles) {
+                dragCounter++;
+                $dragDropZone.addClass('drag-over');
+            }
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.originalEvent.dataTransfer) {
+                e.originalEvent.dataTransfer.dropEffect = 'copy';
+            }
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCounter--;
+            if (dragCounter === 0) {
+                $dragDropZone.removeClass('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            dragCounter = 0;
+            $dragDropZone.removeClass('drag-over');
+
+            var files = e.originalEvent.dataTransfer.files;
+            if (files && files.length > 0) {
+                for (var i = 0; i < files.length; i++) {
+                    uploadFile(files[i]);
+                }
+            }
+        }
+
+        $dragDropZone.on('dragenter', handleDragEnter);
+        $dragDropZone.on('dragover', handleDragOver);
+        $dragDropZone.on('dragleave', handleDragLeave);
+        $dragDropZone.on('drop', handleDrop);
+
+        // Выбор файлов через input
+        $fileInput.on('change', function(e) {
+            var files = e.target.files;
+            if (files && files.length > 0) {
+                for (var i = 0; i < files.length; i++) {
+                    uploadFile(files[i]);
+                }
+                $(this).val('');
+            }
+        });
+
+        // Удаление изображений
+        $(document).on('click', '.delete-image-btn', function(e) {
+            var $btn = $(this);
+            var id = $btn.data('id');
+            var type = $btn.data('type');
+            var url = $btn.closest('[data-delete-url]').data('delete-url');
+
+            if (type === 'create') {
+                url = url + '?tempId=' + window.tempId + '&index=' + id;
+            } else {
+                url = url + '?id=' + id;
+            }
+
+            if (!confirm('Вы уверены, что хотите удалить этот файл?')) return;
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: { _csrf: csrfToken },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        var selector = (type === 'create')
+                            ? '[data-image-index="' + id + '"]'
+                            : '[data-image-id="' + id + '"]';
+                        var $item = $(selector);
+
+                        if ($item.length) {
+                            $item.remove();
+
+                            // Обновляем номера
+                            if (hasImageSortable) {
+                                ImageSortable.updateNumbers($imagesContainer);
+                                if (!isCreateMode) {
+                                    ImageSortable.saveOrder($imagesContainer, '', csrfToken);
+                                }
+                            } else {
+                                updateOrderNumbersLegacy();
+                            }
+                        }
+
+                        if ($imagesContainer.children().length === 0) {
+                            $noImagesMessage.show();
+                        }
+
+                        showNotification(response.message || 'Файл удален', 'success');
+                    } else {
+                        showError(response.error || 'Ошибка удаления');
+                    }
+                },
+                error: function() {
+                    showError('Ошибка соединения с сервером');
+                }
+            });
+        });
+
+        /**
+         * Загрузка файла
+         */
+        function uploadFile(file) {
+            var allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            var allowedVideoTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/x-flv', 'video/webm'];
+            var allowedTypes = allowedImageTypes.concat(allowedVideoTypes);
+
+            if (!allowedTypes.includes(file.type)) {
+                showError('Пожалуйста, выберите изображение или видео');
+                return;
+            }
+
+            var maxFileSize = $fileInput.data('max-size') || 100 * 1024 * 1024;
+            if (file.size > maxFileSize) {
+                showError('Размер файла не должен превышать ' + (maxFileSize / (1024 * 1024)) + ' MB');
+                return;
+            }
+
+            hideError();
+            $progress.show();
+
+            var formData = new FormData();
+            formData.append('imageFile', file);
+            formData.append('_csrf', csrfToken);
+
+            $.ajax({
+                url: addImageUrl,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                xhr: function() {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function(e) {
+                        if (e.lengthComputable) {
+                            var percent = Math.round((e.loaded / e.total) * 100);
+                            var $progressBar = $progress.find('.progress-bar');
+                            $progressBar.css('width', percent + '%');
+                            $progressBar.text('Загрузка... ' + percent + '%');
+                        }
+                    });
+                    return xhr;
+                },
+                success: function(response) {
+                    $progress.hide();
+                    var $progressBar = $progress.find('.progress-bar');
+                    $progressBar.css('width', '100%');
+                    $progressBar.text('Загрузка...');
+
+                    if (response.success) {
+                        addFileToContainer(response);
+                        showNotification('Файл успешно загружен', 'success');
+                    } else {
+                        showError(response.error || 'Ошибка загрузки');
+                    }
+                },
+                error: function() {
+                    $progress.hide();
+                    showError('Ошибка соединения с сервером');
+                }
+            });
+        }
+
+        /**
+         * Добавление файла в контейнер
+         */
+        function addFileToContainer(response) {
+            var isVideo = response.isVideo || false;
+            var displayUrl = response.thumbnailUrl;
+            var currentItems = $imagesContainer.find('.sortable-item');
+            var newOrder = currentItems.length;
+
+            var contentHtml = '';
+            if (isVideo) {
+                contentHtml = `
+                    <div style="position: relative; width: 100%; height: 120px; overflow: hidden; background: #000;">
+                        <img src="${displayUrl}" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover; cursor: grab;"
+                             onerror="this.style.display='none'; this.parentElement.style.background='#222';">
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; opacity: 0.85; text-shadow: 0 0 20px rgba(0,0,0,0.8); pointer-events: none;">
+                            <span class="glyphicon glyphicon-play"></span>
+                        </div>
+                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600; pointer-events: none;">
+                            <span class="glyphicon glyphicon-film"></span> Видео
+                        </div>
+                    </div>
+                `;
+            } else {
+                contentHtml = `<img src="${displayUrl}" alt="Image" class="img-responsive" style="height: 120px; width: 100%; object-fit: cover; cursor: grab;"
+                                     onerror="this.src=''; this.parentElement.style.background='#f0f0f0';">`;
+            }
+
+            var extraAttrs = '';
+            var dataIdAttr = '';
+            var moveIndicator = '';
+
+            if (isCreateMode) {
+                dataIdAttr = 'data-image-index="' + response.index + '"';
+            } else {
+                dataIdAttr = 'data-image-id="' + response.imageId + '"';
+                moveIndicator = `
+                    <div style="position: absolute; bottom: 35px; right: 5px; background: rgba(0,0,0,0.5); color: white; padding: 2px 8px; border-radius: 10px; font-size: 9px; pointer-events: none;">
+                        <span class="glyphicon glyphicon-move"></span>
+                    </div>
+                `;
+            }
+
+            var itemHtml = `
+                <div class="col-md-3 col-sm-4 col-xs-6 sortable-item" ${dataIdAttr} data-sort-order="${newOrder}">
+                    <div class="thumbnail" style="position: relative;">
+                        ${contentHtml}
+                        <div class="caption" style="padding: 5px;">
+                            <button type="button" class="btn btn-danger btn-sm btn-block delete-image-btn"
+                                    data-id="${isCreateMode ? response.index : response.imageId}"
+                                    data-type="${isCreateMode ? 'create' : 'update'}">
+                                <span class="glyphicon glyphicon-trash"></span> Удалить
+                            </button>
+                        </div>
+                        <div class="sort-order-badge">
+                            #<span class="order-number">${newOrder + 1}</span>
+                        </div>
+                        ${moveIndicator}
+                    </div>
+                </div>
+            `;
+
+            $imagesContainer.append(itemHtml);
+            $noImagesMessage.hide();
+
+            // Обновляем номера
+            if (hasImageSortable) {
+                ImageSortable.updateNumbers($imagesContainer);
+            } else {
+                updateOrderNumbersLegacy();
+            }
+        }
+
+        /**
+         * Обновление номеров (legacy)
+         */
+        function updateOrderNumbersLegacy() {
+            $imagesContainer.find('.sortable-item').each(function(index) {
+                var $item = $(this);
+                var $orderNumber = $item.find('.order-number');
+                if ($orderNumber.length) {
+                    $orderNumber.text(index + 1);
+                }
+                $item.attr('data-sort-order', index);
+            });
+        }
+
+        function showError(message) {
+            $errorMessage.text(message);
+            $uploadError.show();
+            setTimeout(function() {
+                $uploadError.hide();
+            }, 5000);
+        }
+
+        function hideError() {
+            $uploadError.hide();
+            $errorMessage.text('');
+        }
+    }
+
+    /**
+     * Показать уведомление
+     */
+    function showNotification(message, type) {
+        if (typeof window.showNotification === 'function') {
+            window.showNotification(message, type);
+            return;
+        }
+
+        // Fallback уведомление
+        var $alert = $('<div>', {
+            class: 'alert alert-' + type,
+            text: message,
+            css: {
+                position: 'fixed',
+                top: '20px',
+                right: '20px',
+                zIndex: '9999',
+                minWidth: '300px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                borderRadius: '8px'
+            }
+        });
+
+        $('body').append($alert);
+
+        setTimeout(function() {
+            $alert.fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+    // Инициализация при загрузке
+    $(document).ready(function() {
+        initAdvertisementForm();
+    });
+
+})(jQuery);
+
+
+# ============================================================
+# FILE: .\web\js\carousel.js
+# TYPE: .JS
+# ============================================================
+
+/**
+ * Carousel - галерея изображений с полноэкранным режимом
+ * Поддержка видео
+ * Использует единый подход openFullscreenFromPreview
+ */
+
+(function($) {
+    'use strict';
+
+    /**
+     * Создает модальное окно для полноэкранного просмотра
+     */
+    function createFullscreenModal(images, startIndex) {
+        // Проверяем, не существует ли уже модальное окно
+        var existingModal = document.getElementById('preview-fullscreen-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        var modal = document.createElement('div');
+        modal.id = 'preview-fullscreen-modal';
+        modal.className = 'fullscreen-modal open';
+        modal.style.cssText = 'display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; cursor: pointer;';
+        
+        var closeBtn = document.createElement('span');
+        closeBtn.className = 'fullscreen-close';
+        closeBtn.textContent = '×';
+        closeBtn.style.cssText = 'position: absolute; top: 20px; right: 40px; color: #fff; font-size: 40px; cursor: pointer; z-index: 10001; transition: transform 0.3s ease; font-weight: 300; line-height: 1;';
+        closeBtn.onclick = function(e) {
+            e.stopPropagation();
+            closeFullscreenModal();
+        };
+        
+        var content = document.createElement('div');
+        content.className = 'fullscreen-content';
+        content.style.cssText = 'display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;';
+        
+        var image = document.createElement('img');
+        image.className = 'fullscreen-image';
+        image.style.cssText = 'max-width: 90%; max-height: 90%; object-fit: contain; box-shadow: 0 0 40px rgba(0,0,0,0.5);';
+        
+        var video = document.createElement('video');
+        video.className = 'fullscreen-video';
+        video.style.cssText = 'max-width: 90%; max-height: 90%; background: #000; border-radius: 8px; display: none;';
+        video.controls = true;
+        video.autoplay = true;
+        
+        var counter = document.createElement('div');
+        counter.className = 'fullscreen-counter';
+        counter.style.cssText = 'position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.7); font-size: 16px; font-family: Arial, sans-serif;';
+        
+        var nav = document.createElement('div');
+        nav.className = 'fullscreen-nav';
+        nav.style.cssText = 'position: absolute; bottom: 50%; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; pointer-events: none;';
+        
+        var prevBtn = document.createElement('button');
+        prevBtn.className = 'fullscreen-prev';
+        prevBtn.textContent = '‹';
+        prevBtn.style.cssText = 'background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 30px; padding: 10px 15px; border-radius: 4px; cursor: pointer; pointer-events: auto; transition: background 0.3s ease; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;';
+        prevBtn.onclick = function(e) {
+            e.stopPropagation();
+            navigateFullscreen(-1);
+        };
+        
+        var nextBtn = document.createElement('button');
+        nextBtn.className = 'fullscreen-next';
+        nextBtn.textContent = '›';
+        nextBtn.style.cssText = 'background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 30px; padding: 10px 15px; border-radius: 4px; cursor: pointer; pointer-events: auto; transition: background 0.3s ease; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;';
+        nextBtn.onclick = function(e) {
+            e.stopPropagation();
+            navigateFullscreen(1);
+        };
+        
+        nav.appendChild(prevBtn);
+        nav.appendChild(nextBtn);
+        content.appendChild(image);
+        content.appendChild(video);
+        modal.appendChild(closeBtn);
+        modal.appendChild(content);
+        modal.appendChild(counter);
+        modal.appendChild(nav);
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+        
+        var currentIndex = startIndex || 0;
+        var videoElement = null;
+        
+        function updateContent() {
+            var item = images[currentIndex];
+            if (!item) return;
+            
+            // Останавливаем предыдущее видео
+            if (videoElement) {
+                videoElement.pause();
+                videoElement.src = '';
+                videoElement = null;
+            }
+            
+            if (item.isVideo) {
+                image.style.display = 'none';
+                video.style.display = 'block';
+                video.src = item.url;
+                video.load();
+                video.play().catch(function() {});
+                videoElement = video;
+            } else {
+                video.style.display = 'none';
+                video.pause();
+                video.src = '';
+                image.style.display = 'block';
+                image.src = item.url;
+            }
+            
+            counter.textContent = (currentIndex + 1) + ' / ' + images.length;
+        }
+        
+        function navigateFullscreen(direction) {
+            if (images.length <= 1) return;
+            
+            currentIndex += direction;
+            if (currentIndex < 0) {
+                currentIndex = images.length - 1;
+            } else if (currentIndex >= images.length) {
+                currentIndex = 0;
+            }
+            
+            updateContent();
+        }
+        
+        function closeFullscreenModal() {
+            var modal = document.getElementById('preview-fullscreen-modal');
+            if (modal) {
+                if (videoElement) {
+                    videoElement.pause();
+                    videoElement.src = '';
+                    videoElement = null;
+                }
+                modal.remove();
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Обработчики клавиш
+        var keydownHandler = function(e) {
+            var modal = document.getElementById('preview-fullscreen-modal');
+            if (!modal) return;
+            
+            if (e.key === 'Escape') {
+                closeFullscreenModal();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                navigateFullscreen(-1);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                navigateFullscreen(1);
+            }
+        };
+        
+        document.addEventListener('keydown', keydownHandler);
+        
+        // Закрытие по клику на фон
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal || e.target === content) {
+                closeFullscreenModal();
+            }
+        });
+        
+        // Инициализация
+        updateContent();
+        
+        // Сохраняем функции для навигации
+        window._previewNavigate = navigateFullscreen;
+        window._previewClose = closeFullscreenModal;
+    }
+
+    /**
+     * Открытие полноэкранного режима из превью
+     * Работает как для списка объявлений, так и для страницы объявления
+     */
+    window.openFullscreenFromPreview = function(element) {
+        var fullImage = element.getAttribute('data-full-image');
+        var isVideo = element.getAttribute('data-is-video') === 'true';
+        
+        if (!fullImage) {
+            return;
+        }
+        
+        // Находим родительский контейнер
+        // Для страницы объявления: .gallery-container
+        // Для списка: .media, .advertisement-item, .item
+        var $container = $(element).closest('.gallery-container, .media, .advertisement-item, .item, .grid-preview-wrapper');
+        
+        // Если контейнер не найден, ищем по data-атрибуту
+        if (!$container.length) {
+            $container = $(element).closest('[data-advertisement-id], .list-view .media, .advertisements-index .item');
+        }
+        
+        // Если контейнер все еще не найден, берем родителя с классом grid-preview-item
+        if (!$container.length) {
+            $container = $(element).closest('.grid-preview-item').parent();
+        }
+        
+        // Если контейнер найден, ищем элементы только внутри него
+        var previewItems;
+        if ($container.length) {
+            previewItems = $container.find('.grid-preview-item');
+        } else {
+            // Fallback: используем все элементы на странице
+            previewItems = $('.grid-preview-item');
+        }
+        
+        var images = [];
+        var currentIndex = 0;
+        
+        previewItems.each(function(index) {
+            var item = this;
+            var imgUrl = item.getAttribute('data-full-image');
+            if (imgUrl) {
+                images.push({
+                    url: imgUrl,
+                    isVideo: item.getAttribute('data-is-video') === 'true'
+                });
+                if (item === element) {
+                    currentIndex = images.length - 1;
+                }
+            }
+        });
+        
+        // Если не нашли изображения, пробуем другой метод поиска
+        if (images.length === 0) {
+            // Ищем все .grid-preview-item в том же родительском контейнере
+            var parentContainer = $(element).closest('.media-body, .advertisements-view, .item, .gallery-container');
+            if (parentContainer.length) {
+                previewItems = parentContainer.find('.grid-preview-item');
+                previewItems.each(function(index) {
+                    var item = this;
+                    var imgUrl = item.getAttribute('data-full-image');
+                    if (imgUrl) {
+                        images.push({
+                            url: imgUrl,
+                            isVideo: item.getAttribute('data-is-video') === 'true'
+                        });
+                        if (item === element) {
+                            currentIndex = images.length - 1;
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Если все еще нет изображений, используем только текущий элемент
+        if (images.length === 0) {
+            images = [{
+                url: fullImage,
+                isVideo: isVideo
+            }];
+            currentIndex = 0;
+        }
+        
+        // Открываем модальное окно
+        createFullscreenModal(images, currentIndex);
+    };
+
+    /**
+     * Открытие из галереи с массивом изображений (для совместимости)
+     */
+    window.openFullscreenFromGallery = function(images, startIndex) {
+        if (!images || images.length === 0) {
+            return;
+        }
+        createFullscreenModal(images, startIndex || 0);
+    };
+
+    /**
+     * Закрытие полноэкранного режима
+     */
+    window.closeFullscreen = function() {
+        var modal = document.getElementById('preview-fullscreen-modal');
+        if (modal) {
+            modal.remove();
+            document.body.style.overflow = '';
+        }
+    };
+
+    /**
+     * Навигация
+     */
+    window.navigateFullscreen = function(direction) {
+        if (window._previewNavigate) {
+            window._previewNavigate(direction);
+        }
+    };
+
+    /**
+     * Закрытие из карусели (для совместимости)
+     */
+    window.closeCarouselFullscreen = function() {
+        window.closeFullscreen();
+    };
+
+    /**
+     * Навигация из карусели (для совместимости)
+     */
+    window.navigateCarouselFullscreen = function(direction) {
+        window.navigateFullscreen(direction);
+    };
+
+    /**
+     * Открытие из карусели (для совместимости со старым кодом)
+     */
+    window.openCarouselFullscreen = function(element) {
+        window.openFullscreenFromPreview(element);
+    };
+
+    // Инициализация при загрузке
+    $(document).ready(function() {
+        // Обработка кликов на превью (единый обработчик для всех)
+        $(document).on('click', '.grid-preview-item', function(e) {
+            e.preventDefault();
+            window.openFullscreenFromPreview(this);
+        });
+
+        // Обработка кликов на карусели (для страницы объявления)
+        $(document).on('click', '.gallery-thumb', function(e) {
+            e.preventDefault();
+            window.openFullscreenFromPreview(this);
+        });
+    });
+
+})(jQuery);
 
 
 # ============================================================
@@ -1751,389 +3201,278 @@ main > .container {
 # TYPE: .JS
 # ============================================================
 
-<?php
+/**
+ * Image Grid Preview - полноэкранный просмотр
+ */
 
-namespace app\widgets;
+(function() {
+    'use strict';
 
-use Yii;
-use yii\base\Widget;
-use yii\helpers\Html;
-use yii\helpers\Url;
-use yii\web\View;
-
-class ImageGridPreview extends Widget
-{
     /**
-     * @var array Список изображений/видео с методом getThumbnailUrl() и getImageUrl()
+     * Открытие полноэкранного режима из превью
      */
-    public $images = [];
-    
-    /**
-     * @var int Максимальное количество элементов для отображения
-     */
-    public $maxImages = 5;
-    
-    /**
-     * @var int Размер контейнера в пикселях (квадрат)
-     */
-    public $containerSize = 120;
-    
-    /**
-     * @var int Зазор между элементами в пикселях
-     */
-    public $gap = 3;
-    
-    /**
-     * @var string CSS класс для контейнера
-     */
-    public $containerClass = 'image-grid-preview';
-    
-    public function run()
-    {
-        if (empty($this->images)) {
-            return $this->renderPlaceholder();
+    window.openFullscreenFromPreview = function(element) {
+        var fullImage = element.getAttribute('data-full-image');
+        var isVideo = element.getAttribute('data-is-video') === 'true';
+        
+        if (!fullImage) {
+            return;
         }
         
-        $items = array_slice($this->images, 0, $this->maxImages);
-        $count = count($items);
+        // Находим родительский контейнер объявления
+        var $container = $(element).closest('.media, .advertisement-item, .item, .grid-preview-wrapper');
         
-        // Регистрируем JS
-        $this->registerJs();
-        
-        return $this->renderGrid($items, $count);
-    }
-    
-    /**
-     * Регистрирует JavaScript
-     */
-    protected function registerJs()
-    {
-        $view = $this->getView();
-        
-        // Регистрируем JS файл
-        $view->registerJsFile(
-            '@web/js/image-grid-preview.js',
-            ['depends' => [\yii\web\JqueryAsset::class], 'position' => View::POS_END]
-        );
-    }
-    
-    /**
-     * Рендерит сетку элементов
-     */
-    protected function renderGrid($items, $count)
-    {
-        $html = Html::beginTag('div', [
-            'class' => $this->containerClass,
-            'style' => "width: {$this->containerSize}px; height: {$this->containerSize}px;",
-        ]);
-        
-        $html .= $this->renderOverlay($count);
-        $html .= $this->renderItems($items, $count);
-        $html .= $this->renderCountBadge($count);
-        
-        $html .= Html::endTag('div');
-        
-        return $html;
-    }
-    
-    /**
-     * Рендерит оверлей
-     */
-    protected function renderOverlay($count)
-    {
-        return Html::tag('div', '', [
-            'class' => 'image-overlay',
-        ]);
-    }
-    
-    /**
-     * Рендерит бейдж с количеством элементов (если больше 5)
-     */
-    protected function renderCountBadge($count)
-    {
-        $totalCount = count($this->images);
-        if ($totalCount <= $this->maxImages) {
-            return '';
+        // Если контейнер не найден, ищем ближайший общий родитель
+        if (!$container.length) {
+            $container = $(element).closest('[data-advertisement-id], .list-view .media, .advertisements-index .item');
         }
         
-        $moreCount = $totalCount - $this->maxImages;
-        return Html::tag('div', '+' . $moreCount, [
-            'class' => 'image-count-badge',
-        ]);
-    }
-    
-    /**
-     * Рендерит элементы в зависимости от количества
-     */
-    protected function renderItems($items, $count)
-    {
-        if ($count === 1) {
-            return $this->renderOneItem($items[0]);
-        } elseif ($count === 2) {
-            return $this->renderTwoItems($items);
-        } elseif ($count === 3) {
-            return $this->renderThreeItems($items);
-        } elseif ($count === 4) {
-            return $this->renderFourItems($items);
+        // Если контейнер все еще не найден, берем родителя с классом grid-preview-item
+        if (!$container.length) {
+            $container = $(element).closest('.grid-preview-item').parent();
+        }
+        
+        // Если контейнер найден, ищем элементы только внутри него
+        var previewItems;
+        if ($container.length) {
+            previewItems = $container.find('.grid-preview-item');
         } else {
-            return $this->renderFiveItems($items);
-        }
-    }
-    
-    /**
-     * 1 элемент - на всю область
-     */
-    protected function renderOneItem($item)
-    {
-        $size = $this->containerSize;
-        return Html::tag('div', $this->getItemTag($item), [
-            'class' => 'grid-item grid-item-full',
-            'style' => "width: {$size}px; height: {$size}px;",
-        ]);
-    }
-    
-    /**
-     * 2 элемента - вертикальный сплит
-     */
-    protected function renderTwoItems($items)
-    {
-        $size = ($this->containerSize - $this->gap) / 2;
-        $html = Html::beginTag('div', [
-            'class' => 'grid-column',
-            'style' => "width: {$this->containerSize}px; height: {$this->containerSize}px;",
-        ]);
-        
-        foreach ($items as $item) {
-            $html .= Html::tag('div', $this->getItemTag($item), [
-                'class' => 'grid-item grid-item-half',
-                'style' => "width: {$this->containerSize}px; height: {$size}px;",
-            ]);
+            // Fallback: используем все элементы на странице
+            previewItems = document.querySelectorAll('.grid-preview-item');
         }
         
-        $html .= Html::endTag('div');
-        return $html;
-    }
-    
-    /**
-     * 3 элемента - 2 сверху, 1 снизу
-     */
-    protected function renderThreeItems($items)
-    {
-        $halfSize = ($this->containerSize - $this->gap) / 2;
+        var images = [];
+        var currentIndex = 0;
         
-        $html = Html::beginTag('div', [
-            'style' => "width: {$this->containerSize}px; height: {$this->containerSize}px; " .
-                       "display: flex; flex-direction: column; gap: {$this->gap}px;",
-        ]);
-        
-        // Верхняя строка - 2 элемента
-        $topRow = Html::beginTag('div', [
-            'class' => 'grid-row',
-            'style' => "height: {$halfSize}px;",
-        ]);
-        foreach (array_slice($items, 0, 2) as $item) {
-            $topRow .= Html::tag('div', $this->getItemTag($item), [
-                'class' => 'grid-item grid-item-half',
-                'style' => "width: {$halfSize}px; height: {$halfSize}px;",
-            ]);
-        }
-        $topRow .= Html::endTag('div');
-        $html .= $topRow;
-        
-        // Нижняя строка - 1 элемент
-        $html .= Html::tag('div', $this->getItemTag($items[2]), [
-            'class' => 'grid-item grid-item-full',
-            'style' => "width: {$this->containerSize}px; height: {$halfSize}px;",
-        ]);
-        
-        $html .= Html::endTag('div');
-        return $html;
-    }
-    
-    /**
-     * 4 элемента - квадрат 2x2
-     */
-    protected function renderFourItems($items)
-    {
-        $size = ($this->containerSize - $this->gap) / 2;
-        $html = Html::beginTag('div', [
-            'style' => "width: {$this->containerSize}px; height: {$this->containerSize}px; " .
-                       "display: flex; flex-direction: column; gap: {$this->gap}px;",
-        ]);
-        
-        for ($row = 0; $row < 2; $row++) {
-            $rowHtml = Html::beginTag('div', [
-                'class' => 'grid-row',
-                'style' => "height: {$size}px;",
-            ]);
-            for ($col = 0; $col < 2; $col++) {
-                $index = $row * 2 + $col;
-                if (isset($items[$index])) {
-                    $rowHtml .= Html::tag('div', $this->getItemTag($items[$index]), [
-                        'class' => 'grid-item grid-item-quarter',
-                        'style' => "width: {$size}px; height: {$size}px;",
-                    ]);
+        previewItems.each(function(index) {
+            var item = this;
+            var imgUrl = item.getAttribute('data-full-image');
+            if (imgUrl) {
+                images.push({
+                    url: imgUrl,
+                    isVideo: item.getAttribute('data-is-video') === 'true'
+                });
+                if (item === element) {
+                    currentIndex = images.length - 1;
                 }
             }
-            $rowHtml .= Html::endTag('div');
-            $html .= $rowHtml;
+        });
+        
+        // Если не нашли изображения, пробуем другой метод поиска
+        if (images.length === 0) {
+            // Ищем все .grid-preview-item в том же родительском контейнере
+            var parentContainer = $(element).closest('.media-body, .advertisements-view, .item');
+            if (parentContainer.length) {
+                previewItems = parentContainer.find('.grid-preview-item');
+                previewItems.each(function(index) {
+                    var item = this;
+                    var imgUrl = item.getAttribute('data-full-image');
+                    if (imgUrl) {
+                        images.push({
+                            url: imgUrl,
+                            isVideo: item.getAttribute('data-is-video') === 'true'
+                        });
+                        if (item === element) {
+                            currentIndex = images.length - 1;
+                        }
+                    }
+                });
+            }
         }
         
-        $html .= Html::endTag('div');
-        return $html;
-    }
-    
-    /**
-     * 5 элементов - как в Telegram/VK
-     * Схема: 1 большой слева, 4 маленьких справа (2x2)
-     */
-    protected function renderFiveItems($items)
-    {
-        $size = $this->containerSize;
-        $smallSize = ($size - $this->gap) / 2;
-        $leftSize = ($size - $this->gap) / 2;
-        
-        $html = Html::beginTag('div', [
-            'class' => 'grid-five',
-            'style' => "width: {$size}px; height: {$size}px;",
-        ]);
-        
-        // Левая часть - большой элемент
-        $html .= Html::tag('div', $this->getItemTag($items[0]), [
-            'class' => 'grid-item grid-item-main',
-            'style' => "width: {$leftSize}px; height: {$size}px; flex-shrink: 0;",
-        ]);
-        
-        // Правая часть - 4 маленьких (2x2)
-        $rightHtml = Html::beginTag('div', [
-            'class' => 'grid-right',
-            'style' => "width: {$leftSize}px; height: {$size}px;",
-        ]);
-        
-        for ($row = 0; $row < 2; $row++) {
-            $rowHtml = Html::beginTag('div', [
-                'class' => 'grid-row',
-                'style' => "height: {$smallSize}px;",
-            ]);
-            for ($col = 0; $col < 2; $col++) {
-                $index = 1 + $row * 2 + $col;
-                if (isset($items[$index])) {
-                    $rowHtml .= Html::tag('div', $this->getItemTag($items[$index]), [
-                        'class' => 'grid-item grid-item-small',
-                        'style' => "width: {$smallSize}px; height: {$smallSize}px;",
-                    ]);
-                } else {
-                    $rowHtml .= Html::tag('div', '', [
-                        'class' => 'grid-item grid-item-small',
-                        'style' => "width: {$smallSize}px; height: {$smallSize}px; background: #f0f0f0;",
-                    ]);
-                }
-            }
-            $rowHtml .= Html::endTag('div');
-            $rightHtml .= $rowHtml;
+        // Если все еще нет изображений, используем только текущий элемент
+        if (images.length === 0) {
+            images = [{
+                url: fullImage,
+                isVideo: isVideo
+            }];
+            currentIndex = 0;
         }
         
-        $rightHtml .= Html::endTag('div');
-        $html .= $rightHtml;
-        
-        $html .= Html::endTag('div');
-        return $html;
-    }
-    
-    /**
-     * Получить HTML тег элемента (изображение или видео)
-     */
-    protected function getItemTag($item)
-    {
-        if (is_object($item)) {
-            if (method_exists($item, 'isVideo') && $item->isVideo()) {
-                return $this->getVideoTag($item);
-            }
-            if (method_exists($item, 'getThumbnailUrl')) {
-                $url = $item->getThumbnailUrl();
-            } else {
-                $url = '';
-            }
-            if (method_exists($item, 'getImageUrl')) {
-                $fullUrl = $item->getImageUrl();
-            } else {
-                $fullUrl = $url;
-            }
-            $isVideo = method_exists($item, 'isVideo') && $item->isVideo();
-        } elseif (is_string($item)) {
-            $url = $item;
-            $fullUrl = $item;
-            $isVideo = false;
+        // Открываем модальное окно
+        if (typeof window.openFullscreenFromGallery === 'function') {
+            window.openFullscreenFromGallery(images, currentIndex);
         } else {
-            $url = '';
-            $fullUrl = '';
-            $isVideo = false;
+            createFullscreenModal(images, currentIndex);
+        }
+    };
+
+    /**
+     * Создает модальное окно для полноэкранного просмотра
+     */
+    function createFullscreenModal(images, startIndex) {
+        // Проверяем, не существует ли уже модальное окно
+        var existingModal = document.getElementById('preview-fullscreen-modal');
+        if (existingModal) {
+            existingModal.remove();
         }
         
-        // Для видео используем миниатюру с иконкой проигрывания
-        if ($isVideo) {
-            $videoIcon = '<div class="video-icon-overlay"><div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div></div>';
-            return Html::tag('div', 
-                Html::img($url, [
-                    'alt' => 'Видео',
-                    'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
-                    'loading' => 'lazy',
-                    'data-full-image' => $fullUrl,
-                    'data-is-video' => 'true',
-                ]) . $videoIcon,
-                ['class' => 'video-item']
-            );
+        var modal = document.createElement('div');
+        modal.id = 'preview-fullscreen-modal';
+        modal.className = 'fullscreen-modal open';
+        modal.style.cssText = 'display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; cursor: pointer;';
+        
+        var closeBtn = document.createElement('span');
+        closeBtn.className = 'fullscreen-close';
+        closeBtn.textContent = '×';
+        closeBtn.style.cssText = 'position: absolute; top: 20px; right: 40px; color: #fff; font-size: 40px; cursor: pointer; z-index: 10001; transition: transform 0.3s ease; font-weight: 300; line-height: 1;';
+        closeBtn.onclick = function(e) {
+            e.stopPropagation();
+            closeFullscreenModal();
+        };
+        
+        var content = document.createElement('div');
+        content.className = 'fullscreen-content';
+        content.style.cssText = 'display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;';
+        
+        var image = document.createElement('img');
+        image.className = 'fullscreen-image';
+        image.style.cssText = 'max-width: 90%; max-height: 90%; object-fit: contain; box-shadow: 0 0 40px rgba(0,0,0,0.5);';
+        
+        var video = document.createElement('video');
+        video.className = 'fullscreen-video';
+        video.style.cssText = 'max-width: 90%; max-height: 90%; background: #000; border-radius: 8px; display: none;';
+        video.controls = true;
+        video.autoplay = true;
+        
+        var counter = document.createElement('div');
+        counter.className = 'fullscreen-counter';
+        counter.style.cssText = 'position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.7); font-size: 16px; font-family: Arial, sans-serif;';
+        
+        var nav = document.createElement('div');
+        nav.className = 'fullscreen-nav';
+        nav.style.cssText = 'position: absolute; bottom: 50%; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; pointer-events: none;';
+        
+        var prevBtn = document.createElement('button');
+        prevBtn.className = 'fullscreen-prev';
+        prevBtn.textContent = '‹';
+        prevBtn.style.cssText = 'background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 30px; padding: 10px 15px; border-radius: 4px; cursor: pointer; pointer-events: auto; transition: background 0.3s ease; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;';
+        prevBtn.onclick = function(e) {
+            e.stopPropagation();
+            navigateFullscreen(-1);
+        };
+        
+        var nextBtn = document.createElement('button');
+        nextBtn.className = 'fullscreen-next';
+        nextBtn.textContent = '›';
+        nextBtn.style.cssText = 'background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 30px; padding: 10px 15px; border-radius: 4px; cursor: pointer; pointer-events: auto; transition: background 0.3s ease; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;';
+        nextBtn.onclick = function(e) {
+            e.stopPropagation();
+            navigateFullscreen(1);
+        };
+        
+        nav.appendChild(prevBtn);
+        nav.appendChild(nextBtn);
+        content.appendChild(image);
+        content.appendChild(video);
+        modal.appendChild(closeBtn);
+        modal.appendChild(content);
+        modal.appendChild(counter);
+        modal.appendChild(nav);
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+        
+        var currentIndex = startIndex || 0;
+        
+        function updateContent() {
+            var item = images[currentIndex];
+            if (!item) return;
+            
+            if (item.isVideo) {
+                image.style.display = 'none';
+                video.style.display = 'block';
+                video.src = item.url;
+                video.load();
+                video.play().catch(function() {});
+            } else {
+                video.style.display = 'none';
+                video.pause();
+                video.src = '';
+                image.style.display = 'block';
+                image.src = item.url;
+            }
+            
+            counter.textContent = (currentIndex + 1) + ' / ' + images.length;
         }
         
-        return Html::img($url, [
-            'alt' => 'Изображение',
-            'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
-            'loading' => 'lazy',
-            'data-full-image' => $fullUrl,
-            'data-is-video' => 'false',
-        ]);
+        function navigateFullscreen(direction) {
+            if (images.length <= 1) return;
+            
+            currentIndex += direction;
+            if (currentIndex < 0) {
+                currentIndex = images.length - 1;
+            } else if (currentIndex >= images.length) {
+                currentIndex = 0;
+            }
+            
+            updateContent();
+        }
+        
+        function closeFullscreenModal() {
+            var modal = document.getElementById('preview-fullscreen-modal');
+            if (modal) {
+                modal.remove();
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Обработчики клавиш
+        var keydownHandler = function(e) {
+            var modal = document.getElementById('preview-fullscreen-modal');
+            if (!modal) return;
+            
+            if (e.key === 'Escape') {
+                closeFullscreenModal();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                navigateFullscreen(-1);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                navigateFullscreen(1);
+            }
+        };
+        
+        document.addEventListener('keydown', keydownHandler);
+        
+        // Закрытие по клику на фон
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal || e.target === content) {
+                closeFullscreenModal();
+            }
+        });
+        
+        // Инициализация
+        updateContent();
+        
+        // Сохраняем функции для навигации
+        window._previewNavigate = navigateFullscreen;
+        window._previewClose = closeFullscreenModal;
+        
+        // Очищаем обработчики при закрытии
+        var originalClose = closeFullscreenModal;
+        closeFullscreenModal = function() {
+            document.removeEventListener('keydown', keydownHandler);
+            originalClose();
+        };
     }
     
-    /**
-     * Получить HTML для видео
-     */
-    protected function getVideoTag($item)
-    {
-        $thumbnailUrl = $item->getThumbnailUrl();
-        $videoUrl = $item->getImageUrl();
-        
-        $videoIcon = '<div class="video-icon-overlay"><div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div></div>';
-        
-        return Html::tag('div', 
-            Html::img($thumbnailUrl, [
-                'alt' => 'Видео',
-                'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
-                'loading' => 'lazy',
-                'data-full-image' => $videoUrl,
-                'data-is-video' => 'true',
-            ]) . $videoIcon,
-            ['class' => 'video-item']
-        );
-    }
+    // Переопределяем функцию из _carousel.php если она существует
+    window.openFullscreenFromGallery = function(images, startIndex) {
+        createFullscreenModal(images, startIndex);
+    };
     
-    /**
-     * Рендерит плейсхолдер при отсутствии элементов
-     */
-    protected function renderPlaceholder()
-    {
-        $size = $this->containerSize;
-        return Html::tag('div', 
-            Html::tag('span', '', [
-                'class' => 'glyphicon glyphicon-picture',
-                'style' => 'font-size: 24px; color: #ccc;',
-            ]),
-            [
-                'class' => $this->containerClass . ' placeholder',
-                'style' => "width: {$size}px; height: {$size}px;",
-            ]
-        );
-    }
-}
+    // Обработка кликов на превью в списке
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.grid-preview-item').forEach(function(item) {
+            // Убеждаемся что обработчик onclick не переопределен
+            if (!item.hasAttribute('onclick')) {
+                item.addEventListener('click', function() {
+                    window.openFullscreenFromPreview(this);
+                });
+            }
+        });
+    });
+})();
 
 
 # ============================================================
@@ -2158,18 +3497,18 @@ class ImageGridPreview extends Widget
      * @param {Object} options - Настройки
      * @param {string} options.reorderUrl - URL для сохранения порядка
      * @param {string} options.csrfToken - CSRF токен
-     * @param {string} options.handle - Селектор рукоятки (по умолчанию '.sort-handle')
      * @param {string} options.items - Селектор элементов (по умолчанию '.sortable-item')
      * @param {Function} options.onUpdate - Колбэк после обновления
      */
     function initImageSortable(container, options) {
         var defaults = {
-            handle: '.sort-handle',
             items: '.sortable-item',
             placeholder: 'sortable-placeholder',
             cursor: 'grabbing',
             tolerance: 'pointer',
             forcePlaceholderSize: true,
+            distance: 10,
+            delay: 100,
             onUpdate: null
         };
 
@@ -2193,22 +3532,41 @@ class ImageGridPreview extends Widget
         }
 
         $container.sortable({
-            handle: settings.handle,
             items: settings.items,
             placeholder: settings.placeholder,
             cursor: settings.cursor,
             tolerance: settings.tolerance,
-            forcePlaceholderSize: settings.forcePlaceholderSize,
+            forcePlaceholderSize: true,
+            distance: settings.distance,
+            delay: settings.delay,
+            cancel: '.no-sort',
             start: function(event, ui) {
-                ui.item.addClass('sorting');
-                ui.item.data('startIndex', ui.item.index());
+                var $item = ui.item;
+                var $placeholder = ui.placeholder;
                 
-                // Сохраняем высоту плейсхолдера
-                var height = ui.item.outerHeight();
-                ui.placeholder.height(height);
+                $item.addClass('sorting');
+                $item.data('startIndex', $item.index());
+                
+                // ТОЧНО КОПИРУЕМ РАЗМЕРЫ ЭЛЕМЕНТА ДЛЯ ПЛЕЙСХОЛДЕРА
+                var height = $item.outerHeight();
+                var width = $item.outerWidth();
+                
+                // Применяем размеры к плейсхолдеру
+                $placeholder.css({
+                    height: height + 'px',
+                    width: width + 'px',
+                    minHeight: height + 'px',
+                    flex: '0 0 auto'
+                });
+                
+                // Копируем классы для правильного отображения
+                $placeholder.addClass('col-md-3 col-sm-4 col-xs-6');
+                
+                console.log('Placeholder size:', width, 'x', height);
             },
             update: function(event, ui) {
-                ui.item.removeClass('sorting');
+                var $item = ui.item;
+                $item.removeClass('sorting');
                 
                 // Обновляем номера
                 updateOrderNumbers($container);
@@ -2223,11 +3581,24 @@ class ImageGridPreview extends Widget
             },
             stop: function(event, ui) {
                 ui.item.removeClass('sorting');
+                
+                // Очищаем стили плейсхолдера
+                var $placeholder = ui.placeholder;
+                $placeholder.css({
+                    height: '',
+                    width: '',
+                    minHeight: '',
+                    flex: ''
+                });
+                $placeholder.removeClass('col-md-3 col-sm-4 col-xs-6');
             }
         });
 
         // Добавляем класс для стилизации
         $container.addClass('sortable-container-initialized');
+
+        // Добавляем курсор для всех элементов
+        $container.find(settings.items).css('cursor', 'grab');
 
         return $container;
     }
@@ -2344,7 +3715,7 @@ class ImageGridPreview extends Widget
         
         var timeout = 3000;
         if (type === 'loading') {
-            timeout = 60000; // Долго для загрузки
+            timeout = 60000;
         } else if (type === 'success') {
             timeout = 2000;
         } else if (type === 'error') {
@@ -2412,25 +3783,215 @@ class ImageGridPreview extends Widget
 })(jQuery);
 
 /**
- * Автоматическая инициализация при загрузке страницы (если есть data-атрибуты)
+ * Автоматическая инициализация при загрузке страницы
  */
 $(document).ready(function() {
-    // Ищем контейнеры с data-image-sortable
     $('[data-image-sortable]').each(function() {
         var $container = $(this);
         var reorderUrl = $container.data('reorder-url') || $container.attr('data-reorder-url');
         var csrfToken = $container.data('csrf-token') || $container.attr('data-csrf-token');
-        var handle = $container.data('handle') || '.sort-handle';
         
         if (reorderUrl && csrfToken) {
             ImageSortable.init($container, {
                 reorderUrl: reorderUrl,
-                csrfToken: csrfToken,
-                handle: handle
+                csrfToken: csrfToken
             });
         }
     });
 });
+
+
+# ============================================================
+# FILE: .\web\js\notification.js
+# TYPE: .JS
+# ============================================================
+
+/**
+ * Notification System - управление уведомлениями
+ */
+
+(function($) {
+    'use strict';
+
+    /**
+     * Показать уведомление
+     * @param {string} message - Текст сообщения
+     * @param {string} type - Тип: success, danger, warning, info
+     * @param {number} duration - Длительность показа (мс)
+     */
+    window.showNotification = function(message, type, duration) {
+        var container = $('#notification-container');
+        if (!container.length) {
+            container = $('<div id="notification-container"></div>');
+            $('body').append(container);
+        }
+
+        type = type || 'info';
+        duration = duration || 10000;
+
+        var $notification = $('<div>', {
+            class: 'notification notification-' + type + ' show'
+        });
+
+        var $content = $('<div>', {
+            class: 'notification-content'
+        });
+
+        var $message = $('<div>', {
+            class: 'notification-message',
+            text: message
+        });
+
+        var $closeBtn = $('<button>', {
+            class: 'notification-close',
+            html: '&times;'
+        });
+
+        var $progress = $('<div>', {
+            class: 'notification-progress'
+        });
+
+        $content.append($message);
+        $content.append($closeBtn);
+        $notification.append($content);
+        $notification.append($progress);
+        container.append($notification);
+
+        var timeout = setTimeout(function() {
+            closeNotification($notification);
+        }, duration);
+
+        $closeBtn.on('click', function() {
+            closeNotification($notification);
+            clearTimeout(timeout);
+        });
+
+        $notification.on('mouseenter', function() {
+            clearTimeout(timeout);
+            $progress.css('animation-play-state', 'paused');
+        });
+
+        $notification.on('mouseleave', function() {
+            $progress.css('animation-play-state', 'running');
+            timeout = setTimeout(function() {
+                closeNotification($notification);
+            }, 3000);
+        });
+    };
+
+    /**
+     * Закрыть уведомление
+     */
+    function closeNotification($notification) {
+        $notification.removeClass('show');
+        setTimeout(function() {
+            $notification.remove();
+        }, 300);
+    }
+
+    /**
+     * Инициализация существующих уведомлений
+     */
+    $(document).ready(function() {
+        $('.notification').each(function() {
+            var $notification = $(this);
+            var $closeBtn = $notification.find('.notification-close');
+            var $progress = $notification.find('.notification-progress');
+
+            $closeBtn.on('click', function() {
+                closeNotification($notification);
+            });
+
+            var timeout = setTimeout(function() {
+                closeNotification($notification);
+            }, 10000);
+
+            $notification.on('mouseenter', function() {
+                clearTimeout(timeout);
+                $progress.css('animation-play-state', 'paused');
+            });
+
+            $notification.on('mouseleave', function() {
+                $progress.css('animation-play-state', 'running');
+                timeout = setTimeout(function() {
+                    closeNotification($notification);
+                }, 3000);
+            });
+        });
+    });
+
+})(jQuery);
+
+
+# ============================================================
+# FILE: .\web\js\toggle-subscription.js
+# TYPE: .JS
+# ============================================================
+
+/**
+ * Toggle Subscription - управление подписками на уведомления
+ */
+
+(function($) {
+    'use strict';
+
+    $(document).ready(function() {
+        var csrfToken = $('meta[name="csrf-token"]').attr('content') || $('[name="_csrf"]').val();
+
+        $(document).on('click', '.toggle-subscription', function() {
+            var $button = $(this);
+            var event = $button.data('event');
+            var channel = $button.data('channel');
+            var isSubscribed = $button.hasClass('btn-success');
+
+            var url = isSubscribed
+                ? $button.data('unsubscribe-url') || '/notification/unsubscribe'
+                : $button.data('subscribe-url') || '/notification/subscribe';
+
+            $button.prop('disabled', true);
+            $button.text('Обработка...');
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    event: event,
+                    channel: channel,
+                    _csrf: csrfToken
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        if (isSubscribed) {
+                            $button.removeClass('btn-success').addClass('btn-default');
+                            $button.text('Подписаться');
+                        } else {
+                            $button.removeClass('btn-default').addClass('btn-success');
+                            $button.text('✓ Подписан');
+                        }
+
+                        showNotification(
+                            isSubscribed ? 'Вы отписались от уведомлений' : 'Вы подписались на уведомления',
+                            isSubscribed ? 'info' : 'success'
+                        );
+                    } else {
+                        var errorMsg = response.error || 'Неизвестная ошибка';
+                        showNotification('Ошибка: ' + errorMsg, 'danger');
+                        $button.text(isSubscribed ? '✓ Подписан' : 'Подписаться');
+                    }
+                },
+                error: function() {
+                    showNotification('Произошла ошибка при отправке запроса', 'danger');
+                    $button.text(isSubscribed ? '✓ Подписан' : 'Подписаться');
+                },
+                complete: function() {
+                    $button.prop('disabled', false);
+                }
+            });
+        });
+    });
+
+})(jQuery);
 
 
 # ============================================================
@@ -8968,113 +10529,49 @@ if (empty($images)) {
 }
 
 $id = $id ?? 'gallery-' . uniqid();
+
+// Регистрируем CSS и JS для карусели
+$this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerJsFile('@web/js/carousel.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
 ?>
 
 <div class="gallery-container">
     <div class="gallery-grid" id="<?= $id ?>">
         <?php foreach ($images as $index => $image): ?>
-            <div class="gallery-item">
-                <img src="<?= $image->getThumbnailUrl() ?>" 
+            <?php 
+            $isVideo = $image->isVideo();
+            $fullUrl = $image->getImageUrl();
+            $thumbUrl = $image->getThumbnailUrl();
+            ?>
+            <div class="gallery-item <?= $isVideo ? 'video-item' : '' ?>" 
+                 data-index="<?= $index ?>"
+                 data-is-video="<?= $isVideo ? 'true' : 'false' ?>"
+                 data-full-image="<?= $fullUrl ?>"
+                 data-thumbnail="<?= $thumbUrl ?>">
+                <img src="<?= $thumbUrl ?>" 
                      alt="Фото <?= $index + 1 ?>" 
                      class="gallery-thumb"
-                     data-full-image="<?= $image->getImageUrl() ?>"
-                     onclick="openFullscreen(this)">
+                     data-full-image="<?= $fullUrl ?>"
+                     data-is-video="<?= $isVideo ? 'true' : 'false' ?>">
                 <div class="gallery-overlay">
-                    <span class="glyphicon glyphicon-search"></span>
+                    <?php if ($isVideo): ?>
+                        <span class="glyphicon glyphicon-play" style="font-size: 40px; color: #fff; opacity: 0.8; text-shadow: 0 0 30px rgba(0,0,0,0.8);"></span>
+                    <?php else: ?>
+                        <span class="glyphicon glyphicon-search"></span>
+                    <?php endif; ?>
                 </div>
+                <?php if ($isVideo): ?>
+                    <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: white; font-size: 11px; padding: 2px 12px; border-radius: 12px; font-weight: 600; pointer-events: none; z-index: 5;">
+                        <span class="glyphicon glyphicon-film"></span> Видео
+                    </div>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     </div>
 </div>
-
-<!-- Модальное окно для полноэкранного просмотра -->
-<div id="fullscreen-modal" class="fullscreen-modal" onclick="closeFullscreen()">
-    <span class="fullscreen-close" onclick="event.stopPropagation(); closeFullscreen();">&times;</span>
-    <img class="fullscreen-image" id="fullscreen-image" src="" alt="Fullscreen">
-    <div class="fullscreen-nav">
-        <button class="fullscreen-prev" onclick="event.stopPropagation(); navigateFullscreen(-1);">&#10094;</button>
-        <button class="fullscreen-next" onclick="event.stopPropagation(); navigateFullscreen(1);">&#10095;</button>
-    </div>
-    <div class="fullscreen-counter" id="fullscreen-counter"></div>
-</div>
-
-<script>
-var fullscreenImages = [];
-var currentFullscreenIndex = 0;
-
-// Открытие полноэкранного режима
-function openFullscreen(element) {
-    // Собираем все изображения из галереи
-    var thumbElements = document.querySelectorAll('.gallery-thumb');
-    fullscreenImages = [];
-    thumbElements.forEach(function(img) {
-        fullscreenImages.push(img.getAttribute('data-full-image'));
-    });
-    
-    var src = element.getAttribute('data-full-image');
-    currentFullscreenIndex = fullscreenImages.indexOf(src);
-    if (currentFullscreenIndex === -1) {
-        currentFullscreenIndex = 0;
-    }
-    
-    var modal = document.getElementById('fullscreen-modal');
-    var image = document.getElementById('fullscreen-image');
-    var counter = document.getElementById('fullscreen-counter');
-    
-    image.src = src;
-    if (fullscreenImages.length > 1) {
-        counter.textContent = (currentFullscreenIndex + 1) + ' / ' + fullscreenImages.length;
-    } else {
-        counter.textContent = '';
-    }
-    
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-}
-
-// Закрытие полноэкранного режима
-function closeFullscreen() {
-    var modal = document.getElementById('fullscreen-modal');
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-}
-
-// Навигация в полноэкранном режиме
-function navigateFullscreen(direction) {
-    if (fullscreenImages.length <= 1) return;
-    
-    currentFullscreenIndex += direction;
-    if (currentFullscreenIndex < 0) {
-        currentFullscreenIndex = fullscreenImages.length - 1;
-    } else if (currentFullscreenIndex >= fullscreenImages.length) {
-        currentFullscreenIndex = 0;
-    }
-    
-    var image = document.getElementById('fullscreen-image');
-    var counter = document.getElementById('fullscreen-counter');
-    
-    image.src = fullscreenImages[currentFullscreenIndex];
-    counter.textContent = (currentFullscreenIndex + 1) + ' / ' + fullscreenImages.length;
-}
-
-// Закрытие по клавише ESC
-document.addEventListener('keydown', function(e) {
-    var modal = document.getElementById('fullscreen-modal');
-    if (e.key === 'Escape') {
-        closeFullscreen();
-    }
-    if (modal.classList.contains('open')) {
-        if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            navigateFullscreen(-1);
-        }
-        if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            navigateFullscreen(1);
-        }
-    }
-});
-</script>
 
 
 # ============================================================
@@ -9328,18 +10825,12 @@ $isUpdate = ($type === 'update');
 // Определяем URL для загрузки и удаления
 if ($isCreate) {
     $addImageUrl = Url::to(['advertisements/add-temp-image', 'tempId' => $id]);
-    $deleteImageUrl = Url::to(['advertisements/delete-temp-image-ajax']);
-    $imageDataAttribute = 'data-image-index';
-    $imageIdKey = 'index';
     $reorderUrl = Url::to(['advertisements/reorder-temp-images', 'tempId' => $id]);
-    $containerData = 'data-image-sortable="true" data-reorder-url="' . $reorderUrl . '"';
+    $containerData = 'data-image-sortable="true" data-reorder-url="' . $reorderUrl . '" data-csrf-token="' . Yii::$app->request->csrfToken . '"';
 } else {
     $addImageUrl = Url::to(['advertisements/add-image', 'id' => $id]);
-    $deleteImageUrl = Url::to(['advertisements/delete-image-ajax']);
-    $imageDataAttribute = 'data-image-id';
-    $imageIdKey = 'imageId';
     $reorderUrl = Url::to(['advertisements/reorder-images']);
-    $containerData = 'data-image-sortable="true" data-reorder-url="' . $reorderUrl . '"';
+    $containerData = 'data-image-sortable="true" data-reorder-url="' . $reorderUrl . '" data-csrf-token="' . Yii::$app->request->csrfToken . '"';
 }
 
 // Регистрируем CSS и JS
@@ -9360,7 +10851,6 @@ $this->registerJs(
     '}',
     \yii\web\View::POS_READY
 );
-
 ?>
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -9368,13 +10858,19 @@ $this->registerJs(
             <span class="glyphicon glyphicon-picture"></span> 
             Фотографии и видео товара
         </h3>
+        <?php if ($isUpdate): ?>
+            <p class="help-block" style="margin-top: 12px; font-size: 12px; color: #888;">
+                <span class="glyphicon glyphicon-info-sign"></span> 
+                <strong>Перетащите</strong> превьюшку мышкой для изменения порядка.
+            </p>
+        <?php endif; ?>
     </div>
     <div class="panel-body">
         <!-- Контейнер для изображений -->
-        <div id="images-container" class="row sortable-container" <?= $containerData ?> data-csrf-token="<?= Yii::$app->request->csrfToken ?>" data-handle=".sort-handle">
+        <div id="images-container" class="row sortable-container" <?= $containerData ?>>
             <?php if (!empty($images)): ?>
                 <?php foreach ($images as $index => $image): ?>
-                    <div class="col-md-3 col-sm-4 col-xs-6 sortable-item" <?= $imageDataAttribute ?>="<?= $isCreate ? $index : $image->id ?>" data-sort-order="<?= $index ?>">
+                    <div class="col-md-3 col-sm-4 col-xs-6 sortable-item" <?= $isCreate ? 'data-image-index="' . $index . '"' : 'data-image-id="' . $image->id . '"' ?> data-sort-order="<?= $index ?>">
                         <div class="thumbnail" style="position: relative;">
                             <?php
                             $isVideo = false;
@@ -9393,18 +10889,18 @@ $this->registerJs(
                                         ? Url::to('@web/uploads/advertisements/' . $image['thumbnail_path'])
                                         : $image->getThumbnailUrl();
                                     ?>
-                                    <img src="<?= $thumbUrl ?>" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover;"
+                                    <img src="<?= $thumbUrl ?>" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover; cursor: grab;"
                                          onerror="this.style.display='none'; this.parentElement.style.background='#222';">
-                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; opacity: 0.85; text-shadow: 0 0 20px rgba(0,0,0,0.8);">
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; opacity: 0.85; text-shadow: 0 0 20px rgba(0,0,0,0.8); pointer-events: none;">
                                         <span class="glyphicon glyphicon-play"></span>
                                     </div>
-                                    <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600;">
+                                    <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600; pointer-events: none;">
                                         <span class="glyphicon glyphicon-film"></span> Видео
                                     </div>
                                 </div>
                             <?php else: ?>
                                 <img src="<?= $isCreate ? Url::to('@web/uploads/advertisements/' . $image['thumbnail_path']) : $image->getThumbnailUrl() ?>"
-                                     alt="Image" class="img-responsive" style="height: 120px; width: 100%; object-fit: cover;"
+                                     alt="Image" class="img-responsive" style="height: 120px; width: 100%; object-fit: cover; cursor: grab;"
                                      onerror="this.src=''; this.parentElement.style.background='#f0f0f0';">
                             <?php endif; ?>
                             <div class="caption" style="padding: 5px;">
@@ -9415,19 +10911,14 @@ $this->registerJs(
                                 </button>
                             </div>
                             
+                            <!-- Бейдж с номером -->
+                            <div class="sort-order-badge">
+                                #<span class="order-number"><?= $index + 1 ?></span>
+                            </div>
+                            
                             <?php if ($isUpdate): ?>
-                                <!-- Рукоятка для перетаскивания -->
-                                <div class="sort-handle" title="Перетащите для изменения порядка">
+                                <div style="position: absolute; bottom: 35px; right: 5px; background: rgba(0,0,0,0.5); color: white; padding: 2px 8px; border-radius: 10px; font-size: 9px; pointer-events: none;">
                                     <span class="glyphicon glyphicon-move"></span>
-                                </div>
-                                <!-- Бейдж с номером -->
-                                <div class="sort-order-badge">
-                                    #<span class="order-number"><?= $index + 1 ?></span>
-                                </div>
-                            <?php else: ?>
-                                <!-- Для create тоже показываем номер, но без сортировки -->
-                                <div class="sort-order-badge" style="background: rgba(0,0,0,0.5); cursor: default;">
-                                    #<?= $index + 1 ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -9444,7 +10935,7 @@ $this->registerJs(
         </div>
 
         <!-- Drag & Drop зона + выбор файла -->
-        <div id="drag-drop-zone" class="drag-drop-zone">
+        <div id="drag-drop-zone" class="drag-drop-zone" data-upload-url="<?= $addImageUrl ?>">
             <div class="drag-drop-content">
                 <span class="glyphicon glyphicon-cloud-upload" style="font-size: 52px; color: #999; display: block; margin-bottom: 10px; transition: color 0.3s ease;"></span>
                 <h4 style="margin-bottom: 5px;">Перетащите файлы сюда</h4>
@@ -9453,14 +10944,8 @@ $this->registerJs(
                 <p class="text-muted" style="margin-bottom: 10px;">или</p>
                 <label class="btn btn-primary btn-file">
                     <span class="glyphicon glyphicon-folder-open"></span> Выберите файлы
-                    <input type="file" accept="image/*,video/*" id="image-file-input" data-type="<?= $type ?>" style="display: none;" multiple>
+                    <input type="file" accept="image/*,video/*" id="image-file-input" data-type="<?= $type ?>" data-max-size="<?= AdvertisementImage::MAX_VIDEO_SIZE ?>" style="display: none;" multiple>
                 </label>
-                <?php if ($isUpdate): ?>
-                    <p class="help-block" style="margin-top: 12px; font-size: 12px; color: #888;">
-                        <span class="glyphicon glyphicon-info-sign"></span> 
-                        Перетащите загруженные файлы за иконку <span class="glyphicon glyphicon-move"></span> для изменения порядка
-                    </p>
-                <?php endif; ?>
             </div>
         </div>
 
@@ -9480,421 +10965,6 @@ $this->registerJs(
         </div>
     </div>
 </div>
-
-<script>
-(function() {
-    'use strict';
-
-    var csrfToken = '<?= Yii::$app->request->csrfToken ?>';
-    var isCreateMode = <?= $isCreate ? 'true' : 'false' ?>;
-    var addImageUrl = '<?= $addImageUrl ?>';
-    var deleteImageUrl = '<?= $deleteImageUrl ?>';
-    var maxFileSize = <?= AdvertisementImage::MAX_VIDEO_SIZE ?>;
-
-    // DOM элементы
-    var dragDropZone = document.getElementById('drag-drop-zone');
-    var fileInput = document.getElementById('image-file-input');
-    var progress = document.getElementById('upload-progress');
-    var uploadError = document.getElementById('upload-error');
-    var errorMessage = document.getElementById('error-message');
-    var imagesContainer = document.getElementById('images-container');
-    var noImagesMessage = document.getElementById('no-images-message');
-
-    // Вспомогательные функции
-    function hideError() {
-        if (uploadError) {
-            uploadError.style.display = 'none';
-            if (errorMessage) errorMessage.textContent = '';
-        }
-    }
-
-    function showError(message) {
-        if (uploadError && errorMessage) {
-            errorMessage.textContent = message;
-            uploadError.style.display = 'block';
-            setTimeout(function() {
-                uploadError.style.display = 'none';
-            }, 5000);
-        }
-    }
-
-    function showNotification(type, message) {
-        var alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-' + type;
-        alertDiv.innerHTML = message;
-        alertDiv.style.position = 'fixed';
-        alertDiv.style.top = '20px';
-        alertDiv.style.right = '20px';
-        alertDiv.style.zIndex = '9999';
-        alertDiv.style.minWidth = '300px';
-        alertDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-        alertDiv.style.borderRadius = '8px';
-
-        document.body.appendChild(alertDiv);
-
-        setTimeout(function() {
-            alertDiv.style.opacity = '0';
-            alertDiv.style.transition = 'opacity 0.5s ease';
-            setTimeout(function() {
-                if (alertDiv && alertDiv.remove) alertDiv.remove();
-            }, 500);
-        }, 3000);
-    }
-
-    // Загрузка файла
-    function uploadFile(file) {
-        if (!file) return;
-
-        var allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        var allowedVideoTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/x-flv', 'video/webm'];
-        var allowedTypes = allowedImageTypes.concat(allowedVideoTypes);
-
-        if (!allowedTypes.includes(file.type)) {
-            showError('Пожалуйста, выберите изображение (JPG, PNG, GIF, WEBP) или видео (MP4, MOV, AVI, MKV, WEBM)');
-            return;
-        }
-
-        if (file.size > maxFileSize) {
-            showError('Размер файла не должен превышать <?= AdvertisementImage::MAX_VIDEO_SIZE_MGB ?> MB');
-            return;
-        }
-
-        hideError();
-        if (progress) progress.style.display = 'block';
-
-        var formData = new FormData();
-        formData.append('imageFile', file);
-        formData.append('_csrf', csrfToken);
-
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', addImageUrl, true);
-
-        xhr.upload.onprogress = function(e) {
-            if (e.lengthComputable) {
-                var percent = Math.round((e.loaded / e.total) * 100);
-                var progressBar = progress.querySelector('.progress-bar');
-                if (progressBar) {
-                    progressBar.style.width = percent + '%';
-                    progressBar.textContent = 'Загрузка... ' + percent + '%';
-                }
-            }
-        };
-
-        xhr.onload = function() {
-            if (progress) {
-                progress.style.display = 'none';
-                var progressBar = progress.querySelector('.progress-bar');
-                if (progressBar) {
-                    progressBar.style.width = '100%';
-                    progressBar.textContent = 'Загрузка...';
-                }
-            }
-
-            if (xhr.status === 200) {
-                try {
-                    var response = JSON.parse(xhr.responseText);
-                    if (response.success) {
-                        addFileToContainer(response);
-                        showNotification('success', 'Файл успешно загружен');
-                    } else {
-                        showError(response.error || 'Ошибка загрузки');
-                    }
-                } catch(e) {
-                    console.error('Parse error:', e);
-                    showError('Ошибка обработки ответа сервера');
-                }
-            } else {
-                showError('Ошибка сервера (статус ' + xhr.status + ')');
-            }
-        };
-
-        xhr.onerror = function() {
-            if (progress) progress.style.display = 'none';
-            showError('Ошибка соединения с сервером');
-        };
-
-        xhr.send(formData);
-    }
-
-    // Добавление файла в контейнер
-    function addFileToContainer(response) {
-        var imageHtml = '';
-        var isVideo = response.isVideo || false;
-        var displayUrl = response.thumbnailUrl;
-
-        if (isCreateMode) {
-            var contentHtml = '';
-            if (isVideo) {
-                contentHtml = `
-                    <div style="position: relative; width: 100%; height: 120px; overflow: hidden; background: #000;">
-                        <img src="${displayUrl}" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover;"
-                             onerror="this.style.display='none'; this.parentElement.style.background='#222';">
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; opacity: 0.85; text-shadow: 0 0 20px rgba(0,0,0,0.8);">
-                            <span class="glyphicon glyphicon-play"></span>
-                        </div>
-                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600;">
-                            <span class="glyphicon glyphicon-film"></span> Видео
-                        </div>
-                    </div>
-                `;
-            } else {
-                contentHtml = `<img src="${displayUrl}" alt="Image" class="img-responsive" style="height: 120px; width: 100%; object-fit: cover;"
-                                     onerror="this.src=''; this.parentElement.style.background='#f0f0f0';">`;
-            }
-
-            var currentItems = document.querySelectorAll('.sortable-item');
-            var newOrder = currentItems.length;
-
-            imageHtml = `
-                <div class="col-md-3 col-sm-4 col-xs-6 sortable-item" data-image-index="${response.index}" data-sort-order="${newOrder}">
-                    <div class="thumbnail" style="position: relative;">
-                        ${contentHtml}
-                        <div class="caption" style="padding: 5px;">
-                            <button type="button" class="btn btn-danger btn-sm btn-block delete-image-btn"
-                                    data-id="${response.index}" data-type="create">
-                                <span class="glyphicon glyphicon-trash"></span> Удалить
-                            </button>
-                        </div>
-                        <div class="sort-order-badge" style="background: rgba(0,0,0,0.5); cursor: default;">
-                            #${newOrder + 1}
-                        </div>
-                    </div>
-                </div>
-            `;
-        } else {
-            var contentHtml = '';
-            if (isVideo) {
-                contentHtml = `
-                    <div style="position: relative; width: 100%; height: 120px; overflow: hidden; background: #000;">
-                        <img src="${displayUrl}" alt="Video preview" style="width: 100%; height: 100%; object-fit: cover;"
-                             onerror="this.style.display='none'; this.parentElement.style.background='#222';">
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; opacity: 0.85; text-shadow: 0 0 20px rgba(0,0,0,0.8);">
-                            <span class="glyphicon glyphicon-play"></span>
-                        </div>
-                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600;">
-                            <span class="glyphicon glyphicon-film"></span> Видео
-                        </div>
-                    </div>
-                `;
-            } else {
-                contentHtml = `<img src="${displayUrl}" alt="Image" class="img-responsive" style="height: 120px; width: 100%; object-fit: cover;"
-                                     onerror="this.src=''; this.parentElement.style.background='#f0f0f0';">`;
-            }
-
-            var currentItems = document.querySelectorAll('.sortable-item');
-            var newOrder = currentItems.length;
-
-            imageHtml = `
-                <div class="col-md-3 col-sm-4 col-xs-6 sortable-item" data-image-id="${response.imageId}" data-sort-order="${newOrder}">
-                    <div class="thumbnail" style="position: relative;">
-                        ${contentHtml}
-                        <div class="caption" style="padding: 5px;">
-                            <button type="button" class="btn btn-danger btn-sm btn-block delete-image-btn"
-                                    data-id="${response.imageId}" data-type="update">
-                                <span class="glyphicon glyphicon-trash"></span> Удалить
-                            </button>
-                        </div>
-                        <div class="sort-handle" title="Перетащите для изменения порядка">
-                            <span class="glyphicon glyphicon-move"></span>
-                        </div>
-                        <div class="sort-order-badge">
-                            #<span class="order-number">${newOrder + 1}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        if (imagesContainer) {
-            imagesContainer.insertAdjacentHTML('beforeend', imageHtml);
-            
-            // Обновляем номера через внешнюю функцию, если доступна
-            if (typeof ImageSortable !== 'undefined') {
-                ImageSortable.updateNumbers($(imagesContainer));
-            } else {
-                updateOrderNumbersLegacy();
-            }
-        }
-
-        if (noImagesMessage) {
-            noImagesMessage.style.display = 'none';
-        }
-
-        attachDeleteHandlers();
-    }
-
-    // Legacy обновление номеров (если ImageSortable не загружен)
-    function updateOrderNumbersLegacy() {
-        var items = document.querySelectorAll('.sortable-item');
-        items.forEach(function(item, index) {
-            var orderNumber = item.querySelector('.order-number');
-            if (orderNumber) {
-                orderNumber.textContent = index + 1;
-            }
-            item.dataset.sortOrder = index;
-        });
-    }
-
-    // Удаление изображения
-    function attachDeleteHandlers() {
-        var deleteButtons = document.querySelectorAll('.delete-image-btn');
-        for (var i = 0; i < deleteButtons.length; i++) {
-            var btn = deleteButtons[i];
-            btn.removeEventListener('click', deleteImageHandler);
-            btn.addEventListener('click', deleteImageHandler);
-        }
-    }
-
-    function deleteImageHandler(e) {
-        var id = this.getAttribute('data-id');
-        var type = this.getAttribute('data-type');
-        var url = deleteImageUrl;
-
-        if (type === 'create') {
-            url = deleteImageUrl + '?tempId=' + <?= $id ?> + '&index=' + id;
-        } else {
-            url = deleteImageUrl + '?id=' + id;
-        }
-
-        if (confirm('Вы уверены, что хотите удалить этот файл?')) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', url, true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    try {
-                        var response = JSON.parse(xhr.responseText);
-                        if (response.success) {
-                            var selector = (type === 'create') ? '[data-image-index="' + id + '"]' : '[data-image-id="' + id + '"]';
-                            var imageElement = document.querySelector(selector);
-                            if (imageElement) {
-                                imageElement.remove();
-                                
-                                // Обновляем номера
-                                if (typeof ImageSortable !== 'undefined') {
-                                    ImageSortable.updateNumbers($(imagesContainer));
-                                    // Сохраняем порядок после удаления
-                                    if (!isCreateMode) {
-                                        ImageSortable.saveOrder(
-                                            $(imagesContainer),
-                                            '<?= $reorderUrl ?>',
-                                            csrfToken
-                                        );
-                                    }
-                                } else {
-                                    updateOrderNumbersLegacy();
-                                }
-                            }
-
-                            if (imagesContainer && imagesContainer.children.length === 0 && noImagesMessage) {
-                                noImagesMessage.style.display = 'block';
-                            }
-
-                            showNotification('success', response.message || 'Файл удален');
-                        } else {
-                            showError(response.error || 'Ошибка удаления');
-                        }
-                    } catch(e) {
-                        showError('Ошибка обработки ответа');
-                    }
-                }
-            };
-
-            xhr.send('_csrf=' + encodeURIComponent(csrfToken));
-        }
-    }
-
-    // Drag & Drop обработчики
-    var dragCounter = 0;
-
-    function handleDragEnter(e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        var hasFiles = false;
-        if (e.dataTransfer.types) {
-            for (var i = 0; i < e.dataTransfer.types.length; i++) {
-                if (e.dataTransfer.types[i] === 'Files') {
-                    hasFiles = true;
-                    break;
-                }
-            }
-        }
-
-        if (hasFiles) {
-            dragCounter++;
-            if (dragDropZone) {
-                dragDropZone.classList.add('drag-over');
-            }
-        }
-    }
-
-    function handleDragOver(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.dataTransfer) {
-            e.dataTransfer.dropEffect = 'copy';
-        }
-    }
-
-    function handleDragLeave(e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        dragCounter--;
-
-        if (dragCounter === 0 && dragDropZone) {
-            dragDropZone.classList.remove('drag-over');
-        }
-    }
-
-    function handleDrop(e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        dragCounter = 0;
-
-        if (dragDropZone) {
-            dragDropZone.classList.remove('drag-over');
-        }
-
-        var files = e.dataTransfer.files;
-        if (files && files.length > 0) {
-            for (var i = 0; i < files.length; i++) {
-                uploadFile(files[i]);
-            }
-        }
-    }
-
-    // Выбор файла через input
-    function handleFileSelect(e) {
-        var files = e.target.files;
-        if (files && files.length > 0) {
-            for (var i = 0; i < files.length; i++) {
-                uploadFile(files[i]);
-            }
-            e.target.value = '';
-        }
-    }
-
-    // Регистрация обработчиков
-    if (dragDropZone) {
-        dragDropZone.addEventListener('dragenter', handleDragEnter);
-        dragDropZone.addEventListener('dragover', handleDragOver);
-        dragDropZone.addEventListener('dragleave', handleDragLeave);
-        dragDropZone.addEventListener('drop', handleDrop);
-    }
-
-    if (fileInput) {
-        fileInput.addEventListener('change', handleFileSelect);
-    }
-
-    // Инициализация
-    attachDeleteHandlers();
-
-})();
-</script>
 
 
 # ============================================================
@@ -9964,16 +11034,18 @@ if ($model->type === 'glider' && $model->glider) {
 $shortInfoString = implode(' | ', $shortInfo);
 ?>
 
-<div class="media">
+<!-- Добавляем обертку с классом для корректного поиска -->
+<div class="media advertisement-item" data-advertisement-id="<?= $model->id ?>">
     <?php if ($imagesCount > 0): ?>
     <div class="media-left" style="padding-right: 15px;">
-        
+        <div class="grid-preview-wrapper">
             <?= ImageGridPreview::widget([
                 'images' => $images,
                 'maxImages' => 5,
                 'containerSize' => 300,
                 'containerClass' => 'image-grid-preview',
             ]) ?>
+        </div>
     </div>
     <?php endif; ?>
     
@@ -10027,12 +11099,29 @@ $shortInfoString = implode(' | ', $shortInfo);
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use yii\helpers\Url;
 use app\models\Advertisement;
 
 $this->title = 'Добавить объявление';
 $this->params['breadcrumbs'][] = ['label' => 'Объявления', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
+// Регистрируем CSS и JS для формы
+$this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerJsFile('@web/js/advertisement-form.js', [
+    'depends' => [\yii\web\JqueryAsset::class, \yii\jui\JuiAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
+
+// Передаем параметры в JS
+$this->registerJs(
+    'window.tempId = ' . json_encode($tempId) . ';',
+    \yii\web\View::POS_BEGIN
+);
+
+$section = Yii::$app->request->get('section');
+if ($section) {
+    $model->section = $section;
+}
 ?>
 
 <div class="advertisements-create">
@@ -10042,7 +11131,12 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data', 'id' => 'advertisement-form']]); ?>
+                    <?php $form = ActiveForm::begin([
+                        'options' => [
+                            'enctype' => 'multipart/form-data',
+                            'id' => 'advertisement-form'
+                        ]
+                    ]); ?>
                     
                     <?= $form->field($model, 'section')->dropDownList([
                         '' => 'Выберите раздел',
@@ -10106,7 +11200,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         
         <div class="col-md-6">
-            <div id="images-block" style="display: none;">
+            <div id="images-block" style="display: none;" data-delete-url="<?= \yii\helpers\Url::to(['advertisements/delete-temp-image-ajax']) ?>">
                 <?= $this->render('_images_block', [
                     'images' => $tempImages,
                     'type' => 'create',
@@ -10116,130 +11210,6 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 </div>
-
-<script>
-// Отслеживаем изменение раздела
-var sectionSelect = document.getElementById('section-select');
-var imagesBlock = document.getElementById('images-block');
-
-function toggleImagesBlock() {
-    if (sectionSelect.value === 'sell') {
-        imagesBlock.style.display = 'block';
-    } else {
-        imagesBlock.style.display = 'none';
-    }
-}
-
-toggleImagesBlock();
-sectionSelect.addEventListener('change', toggleImagesBlock);
-
-// Динамическое отображение полей в зависимости от типа
-var typeSelect = document.getElementById('type-select');
-var gliderFields = document.getElementById('glider-fields');
-var harnessFields = document.getElementById('harness-fields');
-var deviceFields = document.getElementById('device-fields');
-
-function toggleTypeFields() {
-    // Скрываем все поля
-    gliderFields.style.display = 'none';
-    harnessFields.style.display = 'none';
-    deviceFields.style.display = 'none';
-    
-    // Показываем нужные
-    var selectedType = typeSelect.value;
-    if (selectedType === 'glider') {
-        gliderFields.style.display = 'block';
-    } else if (selectedType === 'harness') {
-        harnessFields.style.display = 'block';
-    } else if (selectedType === 'device') {
-        deviceFields.style.display = 'block';
-    }
-}
-
-toggleTypeFields();
-typeSelect.addEventListener('change', toggleTypeFields);
-</script>
-
-<script>
-// AJAX валидация формы перед отправкой
-document.getElementById('advertisement-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    var form = this;
-    var formData = new FormData(form);
-    var submitButton = form.querySelector('[type="submit"]');
-    
-    // Блокируем кнопку
-    submitButton.disabled = true;
-    submitButton.textContent = 'Проверка...';
-    
-    // Отправляем AJAX запрос для валидации
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', form.action + '?validate=1', true);
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            try {
-                var response = JSON.parse(xhr.responseText);
-                if (response.success) {
-                    // Если валидация прошла, отправляем форму
-                    form.submit();
-                } else {
-                    // Показываем ошибки
-                    if (response.errors) {
-                        for (var field in response.errors) {
-                            var message = response.errors[field];
-                            showNotification(message, 'danger');
-                        }
-                    } else if (response.message) {
-                        showNotification(response.message, 'danger');
-                    } else {
-                        showNotification('Пожалуйста, заполните все обязательные поля', 'danger');
-                    }
-                    
-                    // Подсвечиваем поля с ошибками
-                    if (response.invalidFields) {
-                        for (var i = 0; i < response.invalidFields.length; i++) {
-                            var field = document.querySelector('[name="' + response.invalidFields[i] + '"]');
-                            if (field) {
-                                field.style.borderColor = '#dc3545';
-                                field.style.backgroundColor = '#fff8f8';
-                                field.addEventListener('focus', function() {
-                                    this.style.borderColor = '';
-                                    this.style.backgroundColor = '';
-                                }, { once: true });
-                            }
-                        }
-                    }
-                    
-                    // Разблокируем кнопку
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Создать объявление';
-                    
-                    // Прокручиваем к первому полю с ошибкой
-                    var firstError = document.querySelector('[style*="border-color: rgb(220, 53, 69)"]');
-                    if (firstError) {
-                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-            } catch(e) {
-                // Если не JSON, отправляем форму
-                form.submit();
-            }
-        } else {
-            // Если ошибка сервера, отправляем обычную форму
-            form.submit();
-        }
-    };
-    
-    xhr.onerror = function() {
-        form.submit();
-    };
-    
-    xhr.send(formData);
-});
-</script>
 
 
 # ============================================================
@@ -10422,6 +11392,13 @@ $this->title = 'Редактирование: ' . $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Объявления', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->title, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Редактирование';
+
+// Регистрируем CSS и JS для формы
+$this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerJsFile('@web/js/advertisement-form.js', [
+    'depends' => [\yii\web\JqueryAsset::class, \yii\jui\JuiAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
 ?>
 
 <div class="advertisements-update">
@@ -10431,7 +11408,12 @@ $this->params['breadcrumbs'][] = 'Редактирование';
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data', 'id' => 'advertisement-form']]); ?>
+                    <?php $form = ActiveForm::begin([
+                        'options' => [
+                            'enctype' => 'multipart/form-data',
+                            'id' => 'advertisement-form'
+                        ]
+                    ]); ?>
                     
                     <?= $form->field($model, 'section')->dropDownList([
                         'sell' => 'Продам',
@@ -10495,120 +11477,17 @@ $this->params['breadcrumbs'][] = 'Редактирование';
         
         <?php if ($model->section === 'sell'): ?>
             <div class="col-md-6">
-                <?= $this->render('_images_block', [
-                    'images' => $model->images,
-                    'type' => 'update',
-                    'id' => $model->id,
-                ]) ?>
+                <div id="images-block" data-delete-url="<?= \yii\helpers\Url::to(['advertisements/delete-image-ajax']) ?>">
+                    <?= $this->render('_images_block', [
+                        'images' => $model->images,
+                        'type' => 'update',
+                        'id' => $model->id,
+                    ]) ?>
+                </div>
             </div>
         <?php endif; ?>
     </div>
 </div>
-
-<script>
-// Динамическое отображение полей в зависимости от типа
-var typeSelect = document.getElementById('type-select');
-var gliderFields = document.getElementById('glider-fields');
-var harnessFields = document.getElementById('harness-fields');
-var deviceFields = document.getElementById('device-fields');
-
-function toggleTypeFields() {
-    gliderFields.style.display = 'none';
-    harnessFields.style.display = 'none';
-    deviceFields.style.display = 'none';
-    
-    var selectedType = typeSelect.value;
-    if (selectedType === 'glider') {
-        gliderFields.style.display = 'block';
-    } else if (selectedType === 'harness') {
-        harnessFields.style.display = 'block';
-    } else if (selectedType === 'device') {
-        deviceFields.style.display = 'block';
-    }
-}
-
-toggleTypeFields();
-typeSelect.addEventListener('change', toggleTypeFields);
-
-// AJAX валидация формы перед отправкой
-document.getElementById('advertisement-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    var form = this;
-    var formData = new FormData(form);
-    var submitButton = form.querySelector('[type="submit"]');
-    
-    // Блокируем кнопку
-    submitButton.disabled = true;
-    submitButton.textContent = 'Сохранение...';
-    
-    // Отправляем AJAX запрос для валидации
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', form.action + '?validate=1', true);
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            try {
-                var response = JSON.parse(xhr.responseText);
-                if (response.success) {
-                    // Если валидация прошла, отправляем форму
-                    form.submit();
-                } else {
-                    // Показываем ошибки
-                    if (response.errors) {
-                        for (var field in response.errors) {
-                            var message = response.errors[field];
-                            showNotification(message, 'danger');
-                        }
-                    } else if (response.message) {
-                        showNotification(response.message, 'danger');
-                    } else {
-                        showNotification('Пожалуйста, заполните все обязательные поля', 'danger');
-                    }
-                    
-                    // Подсвечиваем поля с ошибками
-                    if (response.invalidFields) {
-                        for (var i = 0; i < response.invalidFields.length; i++) {
-                            var field = document.querySelector('[name="' + response.invalidFields[i] + '"]');
-                            if (field) {
-                                field.style.borderColor = '#dc3545';
-                                field.style.backgroundColor = '#fff8f8';
-                                field.addEventListener('focus', function() {
-                                    this.style.borderColor = '';
-                                    this.style.backgroundColor = '';
-                                }, { once: true });
-                            }
-                        }
-                    }
-                    
-                    // Разблокируем кнопку
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Сохранить';
-                    
-                    // Прокручиваем к первому полю с ошибкой
-                    var firstError = document.querySelector('[style*="border-color: rgb(220, 53, 69)"]');
-                    if (firstError) {
-                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-            } catch(e) {
-                // Если не JSON, отправляем форму
-                form.submit();
-            }
-        } else {
-            // Если ошибка сервера, отправляем обычную форму
-            form.submit();
-        }
-    };
-    
-    xhr.onerror = function() {
-        form.submit();
-    };
-    
-    xhr.send(formData);
-});
-</script>
 
 
 # ============================================================
@@ -10624,6 +11503,13 @@ use yii\helpers\Url;
 $this->title = $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Объявления', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
+// Регистрируем CSS и JS для карусели
+$this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerJsFile('@web/js/carousel.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
 ?>
 
 <div class="advertisements-view">
@@ -10632,10 +11518,36 @@ $this->params['breadcrumbs'][] = $this->title;
             <?php if ($model->section === 'sell' && $model->getImageCount() > 0): ?>
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <?= $this->render('_carousel', [
-                            'images' => $model->getImages()->all(),
-                            'id' => 'gallery-' . $model->id,
-                        ]) ?>
+                        <div class="gallery-container">
+                            <div class="gallery-grid" id="gallery-<?= $model->id ?>">
+                                <?php foreach ($model->getImages()->all() as $index => $image): ?>
+                                    <?php 
+                                    $isVideo = $image->isVideo();
+                                    $fullUrl = $image->getImageUrl();
+                                    $thumbUrl = $image->getThumbnailUrl();
+                                    ?>
+                                    <div class="gallery-item <?= $isVideo ? 'video-item' : '' ?>">
+                                        <img src="<?= $thumbUrl ?>" 
+                                             alt="Фото <?= $index + 1 ?>" 
+                                             class="gallery-thumb grid-preview-item"
+                                             data-full-image="<?= $fullUrl ?>"
+                                             data-is-video="<?= $isVideo ? 'true' : 'false' ?>">
+                                        <div class="gallery-overlay">
+                                            <?php if ($isVideo): ?>
+                                                <span class="glyphicon glyphicon-play" style="font-size: 40px; color: #fff; opacity: 0.8; text-shadow: 0 0 30px rgba(0,0,0,0.8);"></span>
+                                            <?php else: ?>
+                                                <span class="glyphicon glyphicon-search"></span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if ($isVideo): ?>
+                                            <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: white; font-size: 11px; padding: 2px 12px; border-radius: 12px; font-weight: 600; pointer-events: none; z-index: 5;">
+                                                <span class="glyphicon glyphicon-film"></span> Видео
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
             <?php else: ?>
@@ -10674,7 +11586,6 @@ $this->params['breadcrumbs'][] = $this->title;
                         <?php endif; ?>
                     </div>
                     
-                    <!--<h4>Описание</h4>-->
                     <div class="well">
                         <?= nl2br(Html::encode($model->description)) ?>
                     </div>
@@ -10764,16 +11675,6 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 </div>
-
-<?php
-$script = <<< JS
-$('.thumbnail-item').click(function() {
-    var slideTo = $(this).data('slide-to');
-    $('#image-gallery').carousel(slideTo);
-});
-JS;
-$this->registerJs($script);
-?>
 
 
 # ============================================================
@@ -10956,6 +11857,19 @@ $items = [
 # ============================================================
 
 <?php
+/**
+ * @var yii\web\View $this
+ */
+?>
+
+<?php
+// Регистрируем CSS и JS для уведомлений
+$this->registerCssFile('@web/css/notification.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerJsFile('@web/js/notification.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
+
 $flashes = Yii::$app->session->getAllFlashes();
 ?>
 
@@ -10970,102 +11884,6 @@ $flashes = Yii::$app->session->getAllFlashes();
         </div>
     <?php endforeach; ?>
 </div>
-
-<script>
-// Функция для показа уведомления
-function showNotification(message, type = 'info') {
-    var container = document.getElementById('notification-container');
-    if (!container) return;
-    
-    var notification = document.createElement('div');
-    notification.className = 'notification notification-' + type + ' show';
-    notification.innerHTML = `
-        <div class="notification-content">
-            <div class="notification-message">${escapeHtml(message)}</div>
-            <button class="notification-close">&times;</button>
-        </div>
-        <div class="notification-progress"></div>
-    `;
-    
-    container.appendChild(notification);
-    
-    var closeBtn = notification.querySelector('.notification-close');
-    closeBtn.addEventListener('click', function() {
-        closeNotification(notification);
-    });
-    
-    var timeout = setTimeout(function() {
-        closeNotification(notification);
-    }, 10000);
-    
-    notification.addEventListener('mouseenter', function() {
-        clearTimeout(timeout);
-        var progress = notification.querySelector('.notification-progress');
-        if (progress) {
-            progress.style.animationPlayState = 'paused';
-        }
-    });
-    
-    notification.addEventListener('mouseleave', function() {
-        var progress = notification.querySelector('.notification-progress');
-        if (progress) {
-            progress.style.animationPlayState = 'running';
-        }
-        timeout = setTimeout(function() {
-            closeNotification(notification);
-        }, 3000);
-    });
-}
-
-function closeNotification(notification) {
-    notification.classList.remove('show');
-    setTimeout(function() {
-        if (notification && notification.remove) {
-            notification.remove();
-        }
-    }, 300);
-}
-
-function escapeHtml(text) {
-    var div = document.createElement('div');
-    div.appendChild(document.createTextNode(text));
-    return div.innerHTML;
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    var existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(function(notification) {
-        var closeBtn = notification.querySelector('.notification-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', function() {
-                closeNotification(notification);
-            });
-        }
-        
-        var timeout = setTimeout(function() {
-            closeNotification(notification);
-        }, 10000);
-        
-        notification.addEventListener('mouseenter', function() {
-            clearTimeout(timeout);
-            var progress = notification.querySelector('.notification-progress');
-            if (progress) {
-                progress.style.animationPlayState = 'paused';
-            }
-        });
-        
-        notification.addEventListener('mouseleave', function() {
-            var progress = notification.querySelector('.notification-progress');
-            if (progress) {
-                progress.style.animationPlayState = 'running';
-            }
-            timeout = setTimeout(function() {
-                closeNotification(notification);
-            }, 3000);
-        });
-    });
-});
-</script>
 
 
 # ============================================================
@@ -11084,6 +11902,11 @@ use yii\bootstrap5\NavBar;
 use app\assets\AppAsset;
 
 AppAsset::register($this);
+
+// Регистрируем CSS для уведомлений и форм
+$this->registerCssFile('@web/css/notification.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -11118,9 +11941,7 @@ AppAsset::register($this);
         $menuItems[] = ['label' => 'Регистрация', 'url' => ['/site/register']];
         $menuItems[] = ['label' => 'Вход', 'url' => ['/site/login']];
     } else {
-
         $menuItems[] = ['label' => 'Мои объявления', 'url' => ['/advertisements/my']];
-        //$menuItems[] = ['label' => 'Добавить', 'url' => ['/advertisements/create']];
         $menuItems[] = ['label' => 'Уведомления', 'url' => ['/notification/index']];
 
         $menuItems[] = '<li class="nav-item">'
@@ -11175,6 +11996,12 @@ use yii\helpers\Url;
 $this->title = 'Управление уведомлениями';
 $this->params['breadcrumbs'][] = $this->title;
 
+// Регистрируем JS для управления подписками
+$this->registerJsFile('@web/js/toggle-subscription.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
+
 // Получаем CSRF токен
 $csrfToken = Yii::$app->request->csrfToken;
 ?>
@@ -11195,7 +12022,7 @@ $csrfToken = Yii::$app->request->csrfToken;
                         <thead>
                             <tr>
                                 <th>Событие</th>
-                                <?php foreach ($channels as $channel): ?>
+                                <?php foreach ($channels as $channelKey => $channel): ?>
                                     <th><?= $channel->getDescription() ?></th>
                                 <?php endforeach; ?>
                             </tr>
@@ -11213,7 +12040,9 @@ $csrfToken = Yii::$app->request->csrfToken;
                                             <button class="btn btn-<?= $isSubscribed ? 'success' : 'default' ?> btn-sm toggle-subscription"
                                                     data-event="<?= $eventKey ?>"
                                                     data-channel="<?= $channelKey ?>"
-                                                    data-subscribed="<?= $isSubscribed ? 'true' : 'false' ?>">
+                                                    data-subscribed="<?= $isSubscribed ? 'true' : 'false' ?>"
+                                                    data-subscribe-url="<?= Url::to(['notification/subscribe']) ?>"
+                                                    data-unsubscribe-url="<?= Url::to(['notification/unsubscribe']) ?>">
                                                 <?= $isSubscribed ? '✓ Подписан' : 'Подписаться' ?>
                                             </button>
                                         </td>
@@ -11245,109 +12074,11 @@ $csrfToken = Yii::$app->request->csrfToken;
 </div>
 
 <?php
-// Правильные URL для AJAX запросов
-$subscribeUrl = Url::to(['notification/subscribe']);
-$unsubscribeUrl = Url::to(['notification/unsubscribe']);
-
-$script = <<<JS
-$(document).on('click', '.toggle-subscription', function() {
-    var button = $(this);
-    var event = button.data('event');
-    var channel = button.data('channel');
-    
-    // Определяем текущее состояние по классу и тексту кнопки
-    var isSubscribed = button.hasClass('btn-success');
-    
-    // Определяем URL в зависимости от действия
-    var url = isSubscribed ? '{$unsubscribeUrl}' : '{$subscribeUrl}';
-    var action = isSubscribed ? 'отписка' : 'подписка';
-    
-    // Блокируем кнопку
-    button.prop('disabled', true);
-    button.text('Обработка...');
-    
-    console.log('Action:', action, 'Event:', event, 'Channel:', channel);
-    
-    $.ajax({
-        url: url,
-        type: 'POST',
-        data: {
-            event: event,
-            channel: channel,
-            _csrf: '{$csrfToken}'
-        },
-        dataType: 'json',
-        success: function(response) {
-            console.log('Response:', response);
-            
-            if (response.success) {
-                if (isSubscribed) {
-                    // Отписка
-                    button.removeClass('btn-success').addClass('btn-default');
-                    button.text('Подписаться');
-                    button.data('subscribed', 'false');
-                    showNotification('Вы отписались от уведомлений', 'info');
-                } else {
-                    // Подписка
-                    button.removeClass('btn-default').addClass('btn-success');
-                    button.text('✓ Подписан');
-                    button.data('subscribed', 'true');
-                    showNotification('Вы подписались на уведомления', 'success');
-                }
-            } else {
-                var errorMsg = response.error || 'Неизвестная ошибка';
-                showNotification('Ошибка: ' + errorMsg, 'danger');
-                // Восстанавливаем состояние
-                if (isSubscribed) {
-                    button.text('✓ Подписан');
-                } else {
-                    button.text('Подписаться');
-                }
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('AJAX Error:', status, error);
-            console.error('Response:', xhr.responseText);
-            showNotification('Произошла ошибка при отправке запроса', 'danger');
-            // Восстанавливаем состояние
-            if (isSubscribed) {
-                button.text('✓ Подписан');
-            } else {
-                button.text('Подписаться');
-            }
-        },
-        complete: function() {
-            button.prop('disabled', false);
-        }
-    });
-});
-
-// Функция для показа уведомлений
-function showNotification(message, type) {
-    var alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-' + type;
-    alertDiv.innerHTML = message;
-    alertDiv.style.position = 'fixed';
-    alertDiv.style.top = '20px';
-    alertDiv.style.right = '20px';
-    alertDiv.style.zIndex = '9999';
-    alertDiv.style.minWidth = '300px';
-    alertDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-    
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(function() {
-        alertDiv.style.opacity = '0';
-        alertDiv.style.transition = 'opacity 0.5s ease';
-        setTimeout(function() {
-            if (alertDiv && alertDiv.remove) {
-                alertDiv.remove();
-            }
-        }, 500);
-    }, 3000);
-}
-JS;
-$this->registerJs($script);
+// Передаем CSRF токен в JS
+$this->registerJs(
+    'var csrfToken = ' . json_encode($csrfToken) . ';',
+    \yii\web\View::POS_BEGIN
+);
 ?>
 
 
@@ -12432,21 +13163,25 @@ class ImageGridPreview extends Widget
             return Html::tag('div', 
                 Html::img($url, [
                     'alt' => 'Видео',
-                    'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+                    'style' => 'width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer;',
                     'loading' => 'lazy',
                     'data-full-image' => $fullUrl,
                     'data-is-video' => 'true',
+                    'class' => 'grid-preview-item',
+                    'onclick' => 'window.openFullscreenFromPreview(this)',
                 ]) . $videoIcon,
-                ['class' => 'video-item']
+                ['class' => 'video-item', 'style' => 'cursor: pointer;']
             );
         }
         
         return Html::img($url, [
             'alt' => 'Изображение',
-            'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+            'style' => 'width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer;',
             'loading' => 'lazy',
             'data-full-image' => $fullUrl,
             'data-is-video' => 'false',
+            'class' => 'grid-preview-item',
+            'onclick' => 'window.openFullscreenFromPreview(this)',
         ]);
     }
     
@@ -12463,12 +13198,14 @@ class ImageGridPreview extends Widget
         return Html::tag('div', 
             Html::img($thumbnailUrl, [
                 'alt' => 'Видео',
-                'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+                'style' => 'width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer;',
                 'loading' => 'lazy',
                 'data-full-image' => $videoUrl,
                 'data-is-video' => 'true',
+                'class' => 'grid-preview-item',
+                'onclick' => 'window.openFullscreenFromPreview(this)',
             ]) . $videoIcon,
-            ['class' => 'video-item']
+            ['class' => 'video-item', 'style' => 'cursor: pointer;']
         );
     }
     

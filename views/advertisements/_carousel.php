@@ -13,110 +13,46 @@ if (empty($images)) {
 }
 
 $id = $id ?? 'gallery-' . uniqid();
+
+// Регистрируем CSS и JS для карусели
+$this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerJsFile('@web/js/carousel.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
 ?>
 
 <div class="gallery-container">
     <div class="gallery-grid" id="<?= $id ?>">
         <?php foreach ($images as $index => $image): ?>
-            <div class="gallery-item">
-                <img src="<?= $image->getThumbnailUrl() ?>" 
+            <?php 
+            $isVideo = $image->isVideo();
+            $fullUrl = $image->getImageUrl();
+            $thumbUrl = $image->getThumbnailUrl();
+            ?>
+            <div class="gallery-item <?= $isVideo ? 'video-item' : '' ?>" 
+                 data-index="<?= $index ?>"
+                 data-is-video="<?= $isVideo ? 'true' : 'false' ?>"
+                 data-full-image="<?= $fullUrl ?>"
+                 data-thumbnail="<?= $thumbUrl ?>">
+                <img src="<?= $thumbUrl ?>" 
                      alt="Фото <?= $index + 1 ?>" 
                      class="gallery-thumb"
-                     data-full-image="<?= $image->getImageUrl() ?>"
-                     onclick="openFullscreen(this)">
+                     data-full-image="<?= $fullUrl ?>"
+                     data-is-video="<?= $isVideo ? 'true' : 'false' ?>">
                 <div class="gallery-overlay">
-                    <span class="glyphicon glyphicon-search"></span>
+                    <?php if ($isVideo): ?>
+                        <span class="glyphicon glyphicon-play" style="font-size: 40px; color: #fff; opacity: 0.8; text-shadow: 0 0 30px rgba(0,0,0,0.8);"></span>
+                    <?php else: ?>
+                        <span class="glyphicon glyphicon-search"></span>
+                    <?php endif; ?>
                 </div>
+                <?php if ($isVideo): ?>
+                    <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: white; font-size: 11px; padding: 2px 12px; border-radius: 12px; font-weight: 600; pointer-events: none; z-index: 5;">
+                        <span class="glyphicon glyphicon-film"></span> Видео
+                    </div>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     </div>
 </div>
-
-<!-- Модальное окно для полноэкранного просмотра -->
-<div id="fullscreen-modal" class="fullscreen-modal" onclick="closeFullscreen()">
-    <span class="fullscreen-close" onclick="event.stopPropagation(); closeFullscreen();">&times;</span>
-    <img class="fullscreen-image" id="fullscreen-image" src="" alt="Fullscreen">
-    <div class="fullscreen-nav">
-        <button class="fullscreen-prev" onclick="event.stopPropagation(); navigateFullscreen(-1);">&#10094;</button>
-        <button class="fullscreen-next" onclick="event.stopPropagation(); navigateFullscreen(1);">&#10095;</button>
-    </div>
-    <div class="fullscreen-counter" id="fullscreen-counter"></div>
-</div>
-
-<script>
-var fullscreenImages = [];
-var currentFullscreenIndex = 0;
-
-// Открытие полноэкранного режима
-function openFullscreen(element) {
-    // Собираем все изображения из галереи
-    var thumbElements = document.querySelectorAll('.gallery-thumb');
-    fullscreenImages = [];
-    thumbElements.forEach(function(img) {
-        fullscreenImages.push(img.getAttribute('data-full-image'));
-    });
-    
-    var src = element.getAttribute('data-full-image');
-    currentFullscreenIndex = fullscreenImages.indexOf(src);
-    if (currentFullscreenIndex === -1) {
-        currentFullscreenIndex = 0;
-    }
-    
-    var modal = document.getElementById('fullscreen-modal');
-    var image = document.getElementById('fullscreen-image');
-    var counter = document.getElementById('fullscreen-counter');
-    
-    image.src = src;
-    if (fullscreenImages.length > 1) {
-        counter.textContent = (currentFullscreenIndex + 1) + ' / ' + fullscreenImages.length;
-    } else {
-        counter.textContent = '';
-    }
-    
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-}
-
-// Закрытие полноэкранного режима
-function closeFullscreen() {
-    var modal = document.getElementById('fullscreen-modal');
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-}
-
-// Навигация в полноэкранном режиме
-function navigateFullscreen(direction) {
-    if (fullscreenImages.length <= 1) return;
-    
-    currentFullscreenIndex += direction;
-    if (currentFullscreenIndex < 0) {
-        currentFullscreenIndex = fullscreenImages.length - 1;
-    } else if (currentFullscreenIndex >= fullscreenImages.length) {
-        currentFullscreenIndex = 0;
-    }
-    
-    var image = document.getElementById('fullscreen-image');
-    var counter = document.getElementById('fullscreen-counter');
-    
-    image.src = fullscreenImages[currentFullscreenIndex];
-    counter.textContent = (currentFullscreenIndex + 1) + ' / ' + fullscreenImages.length;
-}
-
-// Закрытие по клавише ESC
-document.addEventListener('keydown', function(e) {
-    var modal = document.getElementById('fullscreen-modal');
-    if (e.key === 'Escape') {
-        closeFullscreen();
-    }
-    if (modal.classList.contains('open')) {
-        if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            navigateFullscreen(-1);
-        }
-        if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            navigateFullscreen(1);
-        }
-    }
-});
-</script>

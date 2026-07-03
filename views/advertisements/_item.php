@@ -60,16 +60,18 @@ if ($model->type === 'glider' && $model->glider) {
 $shortInfoString = implode(' | ', $shortInfo);
 ?>
 
-<div class="media">
+<!-- Добавляем обертку с классом для корректного поиска -->
+<div class="media advertisement-item" data-advertisement-id="<?= $model->id ?>">
     <?php if ($imagesCount > 0): ?>
     <div class="media-left" style="padding-right: 15px;">
-        
+        <div class="grid-preview-wrapper">
             <?= ImageGridPreview::widget([
                 'images' => $images,
                 'maxImages' => 5,
                 'containerSize' => 300,
                 'containerClass' => 'image-grid-preview',
             ]) ?>
+        </div>
     </div>
     <?php endif; ?>
     

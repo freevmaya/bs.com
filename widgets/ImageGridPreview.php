@@ -323,21 +323,25 @@ class ImageGridPreview extends Widget
             return Html::tag('div', 
                 Html::img($url, [
                     'alt' => 'Видео',
-                    'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+                    'style' => 'width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer;',
                     'loading' => 'lazy',
                     'data-full-image' => $fullUrl,
                     'data-is-video' => 'true',
+                    'class' => 'grid-preview-item',
+                    'onclick' => 'window.openFullscreenFromPreview(this)',
                 ]) . $videoIcon,
-                ['class' => 'video-item']
+                ['class' => 'video-item', 'style' => 'cursor: pointer;']
             );
         }
         
         return Html::img($url, [
             'alt' => 'Изображение',
-            'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+            'style' => 'width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer;',
             'loading' => 'lazy',
             'data-full-image' => $fullUrl,
             'data-is-video' => 'false',
+            'class' => 'grid-preview-item',
+            'onclick' => 'window.openFullscreenFromPreview(this)',
         ]);
     }
     
@@ -354,12 +358,14 @@ class ImageGridPreview extends Widget
         return Html::tag('div', 
             Html::img($thumbnailUrl, [
                 'alt' => 'Видео',
-                'style' => 'width: 100%; height: 100%; object-fit: cover; display: block;',
+                'style' => 'width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer;',
                 'loading' => 'lazy',
                 'data-full-image' => $videoUrl,
                 'data-is-video' => 'true',
+                'class' => 'grid-preview-item',
+                'onclick' => 'window.openFullscreenFromPreview(this)',
             ]) . $videoIcon,
-            ['class' => 'video-item']
+            ['class' => 'video-item', 'style' => 'cursor: pointer;']
         );
     }
     

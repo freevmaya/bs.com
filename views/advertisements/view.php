@@ -6,6 +6,13 @@ use yii\helpers\Url;
 $this->title = $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Объявления', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
+// Регистрируем CSS и JS для карусели
+$this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerJsFile('@web/js/carousel.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
 ?>
 
 <div class="advertisements-view">
@@ -14,10 +21,36 @@ $this->params['breadcrumbs'][] = $this->title;
             <?php if ($model->section === 'sell' && $model->getImageCount() > 0): ?>
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <?= $this->render('_carousel', [
-                            'images' => $model->getImages()->all(),
-                            'id' => 'gallery-' . $model->id,
-                        ]) ?>
+                        <div class="gallery-container">
+                            <div class="gallery-grid" id="gallery-<?= $model->id ?>">
+                                <?php foreach ($model->getImages()->all() as $index => $image): ?>
+                                    <?php 
+                                    $isVideo = $image->isVideo();
+                                    $fullUrl = $image->getImageUrl();
+                                    $thumbUrl = $image->getThumbnailUrl();
+                                    ?>
+                                    <div class="gallery-item <?= $isVideo ? 'video-item' : '' ?>">
+                                        <img src="<?= $thumbUrl ?>" 
+                                             alt="Фото <?= $index + 1 ?>" 
+                                             class="gallery-thumb grid-preview-item"
+                                             data-full-image="<?= $fullUrl ?>"
+                                             data-is-video="<?= $isVideo ? 'true' : 'false' ?>">
+                                        <div class="gallery-overlay">
+                                            <?php if ($isVideo): ?>
+                                                <span class="glyphicon glyphicon-play" style="font-size: 40px; color: #fff; opacity: 0.8; text-shadow: 0 0 30px rgba(0,0,0,0.8);"></span>
+                                            <?php else: ?>
+                                                <span class="glyphicon glyphicon-search"></span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if ($isVideo): ?>
+                                            <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: white; font-size: 11px; padding: 2px 12px; border-radius: 12px; font-weight: 600; pointer-events: none; z-index: 5;">
+                                                <span class="glyphicon glyphicon-film"></span> Видео
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
             <?php else: ?>
@@ -56,7 +89,6 @@ $this->params['breadcrumbs'][] = $this->title;
                         <?php endif; ?>
                     </div>
                     
-                    <!--<h4>Описание</h4>-->
                     <div class="well">
                         <?= nl2br(Html::encode($model->description)) ?>
                     </div>
@@ -146,13 +178,3 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 </div>
-
-<?php
-$script = <<< JS
-$('.thumbnail-item').click(function() {
-    var slideTo = $(this).data('slide-to');
-    $('#image-gallery').carousel(slideTo);
-});
-JS;
-$this->registerJs($script);
-?>

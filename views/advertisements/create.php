@@ -2,12 +2,29 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use yii\helpers\Url;
 use app\models\Advertisement;
 
 $this->title = 'Добавить объявление';
 $this->params['breadcrumbs'][] = ['label' => 'Объявления', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
+// Регистрируем CSS и JS для формы
+$this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerJsFile('@web/js/advertisement-form.js', [
+    'depends' => [\yii\web\JqueryAsset::class, \yii\jui\JuiAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
+
+// Передаем параметры в JS
+$this->registerJs(
+    'window.tempId = ' . json_encode($tempId) . ';',
+    \yii\web\View::POS_BEGIN
+);
+
+$section = Yii::$app->request->get('section');
+if ($section) {
+    $model->section = $section;
+}
 ?>
 
 <div class="advertisements-create">
@@ -17,7 +34,12 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data', 'id' => 'advertisement-form']]); ?>
+                    <?php $form = ActiveForm::begin([
+                        'options' => [
+                            'enctype' => 'multipart/form-data',
+                            'id' => 'advertisement-form'
+                        ]
+                    ]); ?>
                     
                     <?= $form->field($model, 'section')->dropDownList([
                         '' => 'Выберите раздел',
@@ -81,7 +103,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         
         <div class="col-md-6">
-            <div id="images-block" style="display: none;">
+            <div id="images-block" style="display: none;" data-delete-url="<?= \yii\helpers\Url::to(['advertisements/delete-temp-image-ajax']) ?>">
                 <?= $this->render('_images_block', [
                     'images' => $tempImages,
                     'type' => 'create',
@@ -91,127 +113,3 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 </div>
-
-<script>
-// Отслеживаем изменение раздела
-var sectionSelect = document.getElementById('section-select');
-var imagesBlock = document.getElementById('images-block');
-
-function toggleImagesBlock() {
-    if (sectionSelect.value === 'sell') {
-        imagesBlock.style.display = 'block';
-    } else {
-        imagesBlock.style.display = 'none';
-    }
-}
-
-toggleImagesBlock();
-sectionSelect.addEventListener('change', toggleImagesBlock);
-
-// Динамическое отображение полей в зависимости от типа
-var typeSelect = document.getElementById('type-select');
-var gliderFields = document.getElementById('glider-fields');
-var harnessFields = document.getElementById('harness-fields');
-var deviceFields = document.getElementById('device-fields');
-
-function toggleTypeFields() {
-    // Скрываем все поля
-    gliderFields.style.display = 'none';
-    harnessFields.style.display = 'none';
-    deviceFields.style.display = 'none';
-    
-    // Показываем нужные
-    var selectedType = typeSelect.value;
-    if (selectedType === 'glider') {
-        gliderFields.style.display = 'block';
-    } else if (selectedType === 'harness') {
-        harnessFields.style.display = 'block';
-    } else if (selectedType === 'device') {
-        deviceFields.style.display = 'block';
-    }
-}
-
-toggleTypeFields();
-typeSelect.addEventListener('change', toggleTypeFields);
-</script>
-
-<script>
-// AJAX валидация формы перед отправкой
-document.getElementById('advertisement-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    var form = this;
-    var formData = new FormData(form);
-    var submitButton = form.querySelector('[type="submit"]');
-    
-    // Блокируем кнопку
-    submitButton.disabled = true;
-    submitButton.textContent = 'Проверка...';
-    
-    // Отправляем AJAX запрос для валидации
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', form.action + '?validate=1', true);
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            try {
-                var response = JSON.parse(xhr.responseText);
-                if (response.success) {
-                    // Если валидация прошла, отправляем форму
-                    form.submit();
-                } else {
-                    // Показываем ошибки
-                    if (response.errors) {
-                        for (var field in response.errors) {
-                            var message = response.errors[field];
-                            showNotification(message, 'danger');
-                        }
-                    } else if (response.message) {
-                        showNotification(response.message, 'danger');
-                    } else {
-                        showNotification('Пожалуйста, заполните все обязательные поля', 'danger');
-                    }
-                    
-                    // Подсвечиваем поля с ошибками
-                    if (response.invalidFields) {
-                        for (var i = 0; i < response.invalidFields.length; i++) {
-                            var field = document.querySelector('[name="' + response.invalidFields[i] + '"]');
-                            if (field) {
-                                field.style.borderColor = '#dc3545';
-                                field.style.backgroundColor = '#fff8f8';
-                                field.addEventListener('focus', function() {
-                                    this.style.borderColor = '';
-                                    this.style.backgroundColor = '';
-                                }, { once: true });
-                            }
-                        }
-                    }
-                    
-                    // Разблокируем кнопку
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Создать объявление';
-                    
-                    // Прокручиваем к первому полю с ошибкой
-                    var firstError = document.querySelector('[style*="border-color: rgb(220, 53, 69)"]');
-                    if (firstError) {
-                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-            } catch(e) {
-                // Если не JSON, отправляем форму
-                form.submit();
-            }
-        } else {
-            // Если ошибка сервера, отправляем обычную форму
-            form.submit();
-        }
-    };
-    
-    xhr.onerror = function() {
-        form.submit();
-    };
-    
-    xhr.send(formData);
-});
-</script>
