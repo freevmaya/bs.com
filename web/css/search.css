@@ -1,3 +1,5 @@
+/* FILE: .\web\css\search.css */
+
 /* ============================================
    Стили для блока поиска
    ============================================ */
@@ -45,25 +47,31 @@
 }
 
 /* ============================================
-   Активные параметры поиска (простая строка)
+   Активные параметры поиска
    ============================================ */
 
 .search-active-params {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #00000047;
+    border-radius: 6px;
 }
 
 .search-params-label {
     font-size: 0.85rem;
     color: #6c757d;
     font-weight: 500;
+    margin-right: 8px;
 }
 
 .search-params-text {
     font-size: 0.9rem;
     color: #495057;
     padding: 4px 12px;
+    flex: 1;
 }
 
 .search-params-clear {
@@ -77,6 +85,7 @@
     border-radius: 20px;
     border: 1px solid transparent;
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
 .search-params-clear:hover {
@@ -90,6 +99,63 @@
     width: 14px;
     height: 14px;
     display: block;
+}
+
+/* ============================================
+   Кнопка подписки в блоке активных параметров
+   ============================================ */
+
+.search-subscribe-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #28a745;
+    border: none;
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    margin-left: 8px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.search-subscribe-btn:hover {
+    background-color: #218838;
+    color: #fff;
+    text-decoration: none;
+}
+
+.search-subscribe-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.search-subscribe-btn .glyphicon-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+.search-subscribe-btn .btn-text {
+    display: inline;
+}
+
+@media (max-width: 576px) {
+    .search-subscribe-btn .btn-text {
+        display: none;
+    }
+    
+    .search-subscribe-btn {
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        margin-left: 4px;
+    }
 }
 
 /* ============================================
@@ -161,6 +227,103 @@
 }
 
 /* ============================================
+   Стили для кнопки подписки в панели
+   ============================================ */
+
+#subscribe-button,
+.subscribe-button {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#subscribe-button:hover,
+.subscribe-button:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    color: #fff;
+}
+
+#subscribe-button:disabled,
+.subscribe-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+#subscribe-button .glyphicon-spin,
+.subscribe-button .glyphicon-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Группа кнопок в панели параметров */
+.search-params-panel .text-end {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.search-params-panel .text-end .btn {
+    margin-left: 0;
+}
+
+/* ============================================
+   Дополнительные поля для разных типов
+   ============================================ */
+
+.extra-fields {
+    padding-top: 10px;
+    border-top: 1px solid #555;
+}
+
+.extra-fields h5 {
+    color: #e0e0e0;
+    margin-bottom: 12px;
+}
+
+/* Стили для multiple select в темной теме */
+.search-params-panel select[multiple] {
+    min-height: 80px;
+    background: #4a4a4a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+}
+
+.search-params-panel select[multiple] option {
+    padding: 4px 8px;
+    background: #4a4a4a;
+    color: #e0e0e0;
+    border-bottom: 1px solid #3a3a3a;
+    transition: all 0.2s ease;
+}
+
+.search-params-panel select[multiple] option:checked {
+    background: #007bff;
+    color: #fff;
+}
+
+.search-params-panel select[multiple] option:hover {
+    background: #555;
+}
+
+.search-params-panel select[multiple] option:checked:hover {
+    background: #0056b3;
+}
+
+/* Стили для подсказки */
+.search-params-panel .text-muted {
+    color: #999 !important;
+    font-size: 0.75rem;
+    display: block;
+    margin-top: 4px;
+}
+
+/* ============================================
    Адаптивность
    ============================================ */
 
@@ -189,6 +352,10 @@
         font-size: 0.8rem;
         padding: 3px 10px;
     }
+
+    .search-active-params {
+        padding: 6px 10px;
+    }
 }
 
 @media (max-width: 576px) {
@@ -204,90 +371,183 @@
         width: 100%;
         margin-bottom: 4px;
     }
+
+    .search-active-params {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .search-params-text {
+        width: 100%;
+        padding: 4px 0;
+    }
+
+    .search-params-clear {
+        align-self: flex-start;
+    }
+
+    /* Кнопка подписки на мобильных */
+    #subscribe-button,
+    .subscribe-button {
+        width: 100%;
+    }
+
+    .search-params-panel .text-end {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-params-panel .text-end .btn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
 }
 
-/* Дополнительные поля для разных типов */
-.extra-fields {
-    padding-top: 10px;
-    border-top: 1px solid #555;
+/* Для очень маленьких экранов */
+@media (max-width: 400px) {
+    .search-bar-container .input-group {
+        flex-wrap: nowrap;
+    }
+    
+    .search-bar-container .btn-lg {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .search-bar-container .btn svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .search-params-panel {
+        padding: 10px;
+    }
+    
+    .search-params-panel .form-control,
+    .search-params-panel .form-select {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.5rem;
+    }
 }
 
-.extra-fields h5 {
-    color: #e0e0e0;
-    margin-bottom: 12px;
+/* ============================================
+   Стили для светлой темы (data-bs-theme="light")
+   ============================================ */
+
+[data-bs-theme="light"] .search-params-panel {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
 }
 
-/* Стили для multiple select в темной теме */
-.search-params-panel select[multiple] {
-    min-height: 80px;
+[data-bs-theme="light"] .search-params-panel .form-label {
+    color: #495057;
 }
 
-.search-params-panel select[multiple] option {
-    padding: 4px 8px;
-    background: #4a4a4a;
-    color: #e0e0e0;
+[data-bs-theme="light"] .search-params-panel .form-control,
+[data-bs-theme="light"] .search-params-panel .form-select {
+    background: #fff;
+    border: 1px solid #ced4da;
+    color: #212529;
 }
 
-.search-params-panel select[multiple] option:checked {
-    background: #007bff;
-    color: #fff;
-}
-
-.search-params-panel select[multiple] option:hover {
-    background: #555;
-}
-
-/* Стили для полей ввода */
-.search-params-panel .form-control {
-    background: #4a4a4a;
-    border: 1px solid #555;
-    color: #fff;
-}
-
-.search-params-panel .form-control:focus {
-    background: #555;
+[data-bs-theme="light"] .search-params-panel .form-control:focus,
+[data-bs-theme="light"] .search-params-panel .form-select:focus {
+    background: #fff;
     border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    color: #fff;
+    color: #212529;
 }
 
-.search-params-panel .form-control::placeholder {
-    color: #888;
+[data-bs-theme="light"] .search-params-panel .form-control::placeholder {
+    color: #6c757d;
 }
 
-/* Стили для multiple select */
-.search-params-panel select[multiple] {
-    min-height: 100px;
-    background: #4a4a4a;
-    color: #e0e0e0;
-    border: 1px solid #555;
+[data-bs-theme="light"] .search-params-panel .form-control:hover,
+[data-bs-theme="light"] .search-params-panel .form-select:hover {
+    background: #f8f9fa;
 }
 
-.search-params-panel select[multiple] option {
-    padding: 6px 10px;
-    background: #4a4a4a;
-    color: #e0e0e0;
-    border-bottom: 1px solid #3a3a3a;
-    transition: all 0.2s ease;
+[data-bs-theme="light"] .search-params-panel .btn-outline-secondary {
+    color: #6c757d;
+    border-color: #ced4da;
 }
 
-.search-params-panel select[multiple] option:hover {
-    background: #555;
+[data-bs-theme="light"] .search-params-panel .btn-outline-secondary:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    color: #495057;
 }
 
-.search-params-panel select[multiple] option:checked {
+[data-bs-theme="light"] .extra-fields {
+    border-top-color: #dee2e6;
+}
+
+[data-bs-theme="light"] .extra-fields h5 {
+    color: #495057;
+}
+
+[data-bs-theme="light"] .search-params-panel select[multiple] {
+    background: #fff;
+    border: 1px solid #ced4da;
+    color: #212529;
+}
+
+[data-bs-theme="light"] .search-params-panel select[multiple] option {
+    background: #fff;
+    color: #212529;
+    border-bottom-color: #e9ecef;
+}
+
+[data-bs-theme="light"] .search-params-panel select[multiple] option:checked {
     background: #007bff;
     color: #fff;
 }
 
-.search-params-panel select[multiple] option:checked:hover {
+[data-bs-theme="light"] .search-params-panel select[multiple] option:hover {
+    background: #e9ecef;
+}
+
+[data-bs-theme="light"] .search-params-panel select[multiple] option:checked:hover {
     background: #0056b3;
 }
 
-/* Стили для подсказки */
-.search-params-panel .text-muted {
-    color: #999 !important;
-    font-size: 0.75rem;
-    display: block;
-    margin-top: 4px;
+[data-bs-theme="light"] .search-params-panel .text-muted {
+    color: #6c757d !important;
+}
+
+[data-bs-theme="light"] .search-active-params {
+    background: #fff;
+    border-color: #dee2e6;
+}
+
+[data-bs-theme="light"] .search-params-label {
+    color: #6c757d;
+}
+
+[data-bs-theme="light"] .search-params-text {
+    color: #212529;
+}
+
+[data-bs-theme="light"] #subscribe-button,
+[data-bs-theme="light"] .subscribe-button {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+[data-bs-theme="light"] #subscribe-button:hover,
+[data-bs-theme="light"] .subscribe-button:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    color: #fff;
+}
+
+[data-bs-theme="light"] .search-subscribe-btn {
+    background-color: #28a745;
+    color: #fff;
+}
+
+[data-bs-theme="light"] .search-subscribe-btn:hover {
+    background-color: #218838;
+    color: #fff;
 }

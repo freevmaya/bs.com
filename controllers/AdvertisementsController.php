@@ -1,4 +1,5 @@
 <?php
+// FILE: .\controllers\AdvertisementsController.php
 
 namespace app\controllers;
 
@@ -18,6 +19,7 @@ use app\models\AdvertisementHarness;
 use app\models\AdvertisementDevice;
 use app\models\Producer;
 use app\models\Certification;
+use app\models\SearchSubscription;
 use app\components\TempAdStorage;
 
 class AdvertisementsController extends Controller
@@ -127,7 +129,7 @@ class AdvertisementsController extends Controller
         
         $tempImages = $this->tempStorage->getTempImages($tempId);
         
-        // Создаем дополнительные модели - ВАЖНО: используем полное пространство имен
+        // Создаем дополнительные модели
         $gliderModel = new AdvertisementGlider();
         $harnessModel = new AdvertisementHarness();
         $deviceModel = new AdvertisementDevice();
@@ -138,6 +140,10 @@ class AdvertisementsController extends Controller
                 if ($this->saveExtraFields($model, Yii::$app->request->post())) {
                     // Переносим изображения
                     $migratedCount = $this->tempStorage->migrateImages($tempId, $model->id);
+                    
+                    // Отправляем уведомления подписчикам
+                    $this->notifySubscribers($model);
+                    
                     Yii::$app->session->setFlash('success', 'Объявление создано. Загружено фотографий: ' . $migratedCount);
                     Yii::$app->session->remove('temp_ad_id');
                     return $this->redirect(['view', 'id' => $model->id]);
@@ -216,16 +222,13 @@ class AdvertisementsController extends Controller
                     $extraModel = $advertisement->glider ?: new AdvertisementGlider();
                     $extraModel->advertisement_id = $advertisement->id;
                     
-                    // Загружаем данные
                     $extraModel->setAttributes($postData['AdvertisementGlider']);
                     $extraModel->advertisement_id = $advertisement->id;
                     
-                    // Обрабатываем certification_id - если пустая строка, устанавливаем NULL
                     if (isset($postData['AdvertisementGlider']['certification_id']) && $postData['AdvertisementGlider']['certification_id'] === '') {
                         $extraModel->certification_id = null;
                     }
                     
-                    // Устанавливаем значение по умолчанию для condition
                     if (empty($extraModel->condition)) {
                         $extraModel->condition = AdvertisementGlider::CONDITION_GOOD;
                     }
@@ -349,7 +352,6 @@ class AdvertisementsController extends Controller
             return ['success' => false, 'error' => 'У вас нет прав для добавления изображений'];
         }
         
-        // Проверяем CSRF
         if (!Yii::$app->request->validateCsrfToken()) {
             return ['success' => false, 'error' => 'CSRF token validation failed'];
         }
@@ -398,7 +400,6 @@ class AdvertisementsController extends Controller
             return ['success' => false, 'error' => 'У вас нет прав для удаления этого изображения'];
         }
         
-        // Проверяем CSRF
         if (!Yii::$app->request->validateCsrfToken()) {
             return ['success' => false, 'error' => 'CSRF token validation failed'];
         }
@@ -422,7 +423,6 @@ class AdvertisementsController extends Controller
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         
-        // Проверяем CSRF
         if (!Yii::$app->request->validateCsrfToken()) {
             return ['success' => false, 'error' => 'CSRF token validation failed'];
         }
@@ -471,7 +471,6 @@ class AdvertisementsController extends Controller
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         
-        // Проверяем CSRF
         if (!Yii::$app->request->validateCsrfToken()) {
             return ['success' => false, 'error' => 'CSRF token validation failed'];
         }
@@ -484,10 +483,8 @@ class AdvertisementsController extends Controller
         $tempImages = $this->tempStorage->getTempImages($tempId);
         
         if (isset($tempImages[$index])) {
-            // Удаляем файлы
             $this->tempStorage->deleteTempFiles($tempImages[$index]);
             
-            // Удаляем из сессии
             unset($tempImages[$index]);
             $this->tempStorage->saveTempAd($tempId, ['images' => array_values($tempImages)]);
             
@@ -521,7 +518,6 @@ class AdvertisementsController extends Controller
             $errors = [];
             $invalidFields = [];
             
-            // Валидация основной модели
             if (!$model->validate()) {
                 foreach ($model->errors as $field => $fieldErrors) {
                     $errors[$field] = implode(', ', $fieldErrors);
@@ -529,7 +525,6 @@ class AdvertisementsController extends Controller
                 }
             }
             
-            // Валидация дополнительных моделей
             $type = $model->type;
             if ($type === 'glider') {
                 $gliderModel = new AdvertisementGlider();
@@ -582,7 +577,6 @@ class AdvertisementsController extends Controller
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         
-        // Проверяем CSRF
         if (!Yii::$app->request->validateCsrfToken()) {
             return ['success' => false, 'error' => 'CSRF token validation failed'];
         }
@@ -599,10 +593,8 @@ class AdvertisementsController extends Controller
                 return ['success' => false, 'error' => 'Нет данных для сортировки'];
             }
             
-            // Получаем текущие изображения
             $tempImages = $this->tempStorage->getTempImages($tempId);
             
-            // Создаем новый массив с правильным порядком
             $newImages = [];
             foreach ($orders as $order) {
                 $index = $order['id'];
@@ -614,10 +606,8 @@ class AdvertisementsController extends Controller
                 }
             }
             
-            // Сортируем по ключам
             ksort($newImages);
             
-            // Сохраняем обновленный порядок
             $this->tempStorage->saveTempAd($tempId, ['images' => array_values($newImages)]);
             
             return ['success' => true, 'message' => 'Порядок сохранен'];
@@ -633,7 +623,6 @@ class AdvertisementsController extends Controller
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         
-        // Проверяем CSRF
         if (!Yii::$app->request->validateCsrfToken()) {
             return ['success' => false, 'error' => 'CSRF token validation failed'];
         }
@@ -666,5 +655,130 @@ class AdvertisementsController extends Controller
         }
         
         return ['success' => false, 'error' => 'Неверный метод запроса'];
+    }
+
+    /**
+     * Отправка уведомлений подписчикам
+     */
+    protected function notifySubscribers($advertisement)
+    {
+        $subscriptions = SearchSubscription::getSubscriptionsForSection($advertisement->section);
+        $notified = 0;
+        
+        foreach ($subscriptions as $subscription) {
+            if ($subscription->matchesAdvertisement($advertisement)) {
+                $this->sendSubscriptionNotification($advertisement, $subscription);
+                $notified++;
+                
+                $subscription->last_notified_at = time();
+                $subscription->save(false);
+            }
+        }
+        
+        Yii::info("Notified {$notified} subscribers about new advertisement #{$advertisement->id}", 'search_subscription');
+        return $notified;
+    }
+
+    /**
+     * Отправка уведомления подписчику
+     */
+    protected function sendSubscriptionNotification($advertisement, $subscription)
+    {
+        $user = $subscription->user;
+        if (!$user) return;
+        
+        $subject = "Новое объявление по вашей подписке: {$advertisement->title}";
+        $message = $this->buildSubscriptionMessage($advertisement, $subscription);
+        
+        try {
+            $manager = Yii::$app->notificationManager;
+            $result = $manager->sendToUser(
+                $user->id,
+                'search_subscription',
+                $subject,
+                $message,
+                ['html_body' => $this->buildSubscriptionHtmlMessage($advertisement, $subscription)]
+            );
+            
+            Yii::info("Subscription notification sent to user {$user->id}", 'search_subscription');
+        } catch (\Exception $e) {
+            Yii::error("Failed to send subscription notification: " . $e->getMessage(), 'search_subscription');
+        }
+    }
+
+    /**
+     * Сборка текстового сообщения для подписчика
+     */
+    protected function buildSubscriptionMessage($advertisement, $subscription)
+    {
+        $parts = [
+            "По вашей подписке появилось новое объявление!",
+            "",
+            "Заголовок: {$advertisement->title}",
+            "Раздел: " . $advertisement->getSectionLabel(),
+            "Цена: " . ($advertisement->price ? number_format($advertisement->price, 0, '.', ' ') . ' ₽' : 'не указана'),
+            "Город: " . ($advertisement->city ?: 'не указан'),
+            "",
+            "Ваши параметры подписки:",
+            $subscription->getDescription(),
+            "",
+            "Ссылка: " . Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]),
+        ];
+        
+        return implode("\n", $parts);
+    }
+
+    /**
+     * Сборка HTML сообщения для подписчика
+     */
+    protected function buildSubscriptionHtmlMessage($advertisement, $subscription)
+    {
+        $price = $advertisement->price ? number_format($advertisement->price, 0, '.', ' ') . ' ₽' : 'не указана';
+        $link = Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]);
+        $description = $subscription->getDescription();
+        
+        return "
+            <html>
+            <head><style>
+                body { font-family: Arial, sans-serif; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: #28a745; color: white; padding: 15px; text-align: center; }
+                .content { padding: 20px; background: #f8f9fa; }
+                .price { font-size: 24px; color: #d9534f; font-weight: bold; }
+                .params { background: #e9ecef; padding: 15px; border-radius: 5px; margin: 15px 0; }
+                .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+                .footer { text-align: center; padding: 15px; color: #6c757d; font-size: 12px; }
+            </style></head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h2>📢 Новое объявление!</h2>
+                    </div>
+                    <div class='content'>
+                        <h3>{$advertisement->title}</h3>
+                        <p><strong>Раздел:</strong> {$advertisement->getSectionLabel()}</p>
+                        <p class='price'>{$price}</p>
+                        <p><strong>Город:</strong> " . ($advertisement->city ?: 'не указан') . "</p>
+                        <p><strong>Описание:</strong></p>
+                        <p>" . nl2br($advertisement->description ?: 'не указано') . "</p>
+                        <div class='params'>
+                            <strong>Ваши параметры подписки:</strong><br>
+                            {$description}
+                        </div>
+                        <p style='margin-top: 20px;'>
+                            <a href='{$link}' class='btn'>Посмотреть объявление</a>
+                        </p>
+                        <p style='margin-top: 10px; font-size: 12px; color: #6c757d;'>
+                            Вы получили это уведомление, так как подписаны на параметры поиска.
+                            <a href='" . Yii::$app->urlManager->createAbsoluteUrl(['search-subscription/index']) . "'>Управлять подписками</a>
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        &copy; " . Yii::$app->name . " " . date('Y') . "
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
     }
 }

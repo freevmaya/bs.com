@@ -54,6 +54,11 @@ $config = [
                 'notification' => 'notification/index',
                 'notification/subscribe' => 'notification/subscribe',
                 'notification/unsubscribe' => 'notification/unsubscribe',
+        
+                // Правила для подписок на поиск
+                'search-subscription' => 'search-subscription/index',
+                'search-subscription/create' => 'search-subscription/create',
+                'search-subscription/delete/<id:\d+>' => 'search-subscription/delete',
             ],
         ],
         'tempAdStorage' => [

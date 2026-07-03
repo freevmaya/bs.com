@@ -49,6 +49,7 @@ $this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bo
         $menuItems[] = ['label' => 'Вход', 'url' => ['/site/login']];
     } else {
         $menuItems[] = ['label' => 'Мои объявления', 'url' => ['/advertisements/my']];
+        $menuItems[] = ['label' => 'Подписки', 'url' => ['/search-subscription/index']];
         $menuItems[] = ['label' => 'Уведомления', 'url' => ['/notification/index']];
 
         $menuItems[] = '<li class="nav-item">'
