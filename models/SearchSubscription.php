@@ -221,7 +221,7 @@ class SearchSubscription extends ActiveRecord
         }
 
         // Проверка типа
-        if (!empty($params['type']) && $params['type'] !== 'normal' && $advertisement->type !== $params['type']) {
+        if (!empty($params['type']) && $advertisement->type !== $params['type']) {
             return false;
         }
 
@@ -238,19 +238,41 @@ class SearchSubscription extends ActiveRecord
         return true;
     }
 
+    /**
+     * Проверка соответствия параметров параплана
+     */
     protected function matchesGlider($glider, $params)
     {
-        if (!empty($params['glider_model']) && stripos($glider->model, $params['glider_model']) === false) {
-            return false;
+        // Модель (поиск по части названия)
+        if (!empty($params['glider_model'])) {
+            if (stripos($glider->model, $params['glider_model']) === false) {
+                return false;
+            }
         }
-        if (!empty($params['glider_producer_ids']) && !in_array($glider->producer_id, $params['glider_producer_ids'])) {
-            return false;
+        
+        // Производитель (может быть несколько)
+        if (!empty($params['glider_producer_ids'])) {
+            $producerIds = array_filter($params['glider_producer_ids'], function($id) {
+                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
+            });
+            if (!empty($producerIds) && !in_array($glider->producer_id, $producerIds)) {
+                return false;
+            }
         }
-        if (!empty($params['glider_certification_ids']) && !in_array($glider->certification_id, $params['glider_certification_ids'])) {
-            return false;
+        
+        // Сертификация (может быть несколько)
+        if (!empty($params['glider_certification_ids'])) {
+            $certIds = array_filter($params['glider_certification_ids'], function($id) {
+                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
+            });
+            if (!empty($certIds) && !in_array($glider->certification_id, $certIds)) {
+                return false;
+            }
         }
+        
+        // Взлетный вес
         if (!empty($params['glider_weight'])) {
-            $weight = $params['glider_weight'];
+            $weight = (int)$params['glider_weight'];
             if ($glider->weight_min !== null && $glider->weight_min > $weight) {
                 return false;
             }
@@ -258,49 +280,103 @@ class SearchSubscription extends ActiveRecord
                 return false;
             }
         }
-        if (!empty($params['glider_date_release_min']) && $glider->date_release < $params['glider_date_release_min']) {
-            return false;
+        
+        // Год выпуска (от)
+        if (!empty($params['glider_date_release_min'])) {
+            if ($glider->date_release < $params['glider_date_release_min']) {
+                return false;
+            }
         }
-        if (!empty($params['glider_flight_time_max']) && $glider->flight_time > $params['glider_flight_time_max']) {
-            return false;
+        
+        // Налёт (до)
+        if (!empty($params['glider_flight_time_max'])) {
+            if ($glider->flight_time > $params['glider_flight_time_max']) {
+                return false;
+            }
         }
+        
+        // Состояние
         if (!empty($params['glider_condition']) && $glider->condition !== $params['glider_condition']) {
             return false;
         }
+        
         return true;
     }
 
+    /**
+     * Проверка соответствия параметров подвесной системы
+     */
     protected function matchesHarness($harness, $params)
     {
-        if (!empty($params['harness_model']) && stripos($harness->model, $params['harness_model']) === false) {
-            return false;
+        // Модель (поиск по части названия)
+        if (!empty($params['harness_model'])) {
+            if (stripos($harness->model, $params['harness_model']) === false) {
+                return false;
+            }
         }
-        if (!empty($params['harness_producer_ids']) && !in_array($harness->producer_id, $params['harness_producer_ids'])) {
-            return false;
+        
+        // Производитель (может быть несколько)
+        if (!empty($params['harness_producer_ids'])) {
+            $producerIds = array_filter($params['harness_producer_ids'], function($id) {
+                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
+            });
+            if (!empty($producerIds) && !in_array($harness->producer_id, $producerIds)) {
+                return false;
+            }
         }
-        if (!empty($params['harness_sizes']) && !in_array($harness->size, $params['harness_sizes'])) {
-            return false;
+        
+        // Размер (может быть несколько)
+        if (!empty($params['harness_sizes'])) {
+            $sizes = array_filter($params['harness_sizes'], function($size) {
+                return $size !== '' && $size !== null && $size !== '0';
+            });
+            if (!empty($sizes) && !in_array($harness->size, $sizes)) {
+                return false;
+            }
         }
-        if (!empty($params['harness_date_release_min']) && $harness->date_release < $params['harness_date_release_min']) {
-            return false;
+        
+        // Год выпуска (от)
+        if (!empty($params['harness_date_release_min'])) {
+            if ($harness->date_release < $params['harness_date_release_min']) {
+                return false;
+            }
         }
+        
+        // Состояние
         if (!empty($params['harness_condition']) && $harness->condition !== $params['harness_condition']) {
             return false;
         }
+        
         return true;
     }
 
+    /**
+     * Проверка соответствия параметров прибора
+     */
     protected function matchesDevice($device, $params)
     {
-        if (!empty($params['device_model']) && stripos($device->model, $params['device_model']) === false) {
-            return false;
+        // Модель (поиск по части названия)
+        if (!empty($params['device_model'])) {
+            if (stripos($device->model, $params['device_model']) === false) {
+                return false;
+            }
         }
-        if (!empty($params['device_producer_ids']) && !in_array($device->producer_id, $params['device_producer_ids'])) {
-            return false;
+        
+        // Производитель (может быть несколько)
+        if (!empty($params['device_producer_ids'])) {
+            $producerIds = array_filter($params['device_producer_ids'], function($id) {
+                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
+            });
+            if (!empty($producerIds) && !in_array($device->producer_id, $producerIds)) {
+                return false;
+            }
         }
+        
+        // Состояние
         if (!empty($params['device_condition']) && $device->condition !== $params['device_condition']) {
             return false;
         }
+        
         return true;
     }
 }

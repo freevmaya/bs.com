@@ -3,6 +3,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\helpers\ArrayHelper;
 
 $this->registerJsFile('@web/js/search-subscription.js', [
     'depends' => [\yii\web\JqueryAsset::class],
@@ -11,11 +12,6 @@ $this->registerJsFile('@web/js/search-subscription.js', [
 
 $this->title = 'Мои подписки на поиск';
 $this->params['breadcrumbs'][] = $this->title;
-
-$this->registerJsFile('@web/js/search-subscription.js', [
-    'depends' => [\yii\web\JqueryAsset::class],
-    'position' => \yii\web\View::POS_END
-]);
 ?>
 
 <div class="search-subscription-index">
@@ -28,7 +24,40 @@ $this->registerJsFile('@web/js/search-subscription.js', [
         </div>
     <?php else: ?>
         <div class="row">
-            <?php foreach ($subscriptions as $subscription): ?>
+            <?php foreach ($subscriptions as $subscription): 
+                // --- НАЧАЛО: Генерация URL для поиска ---
+                $searchParams = $subscription->getParamsArray();
+                
+                // Создаем массив для параметров запроса в формате AdvertisementSearch[param]
+                $queryParams = [];
+                foreach ($searchParams as $key => $value) {
+                    // Если значение - массив (например, producer_ids), передаем как массив
+                    if (is_array($value)) {
+                        foreach ($value as $item) {
+                            if ($item !== '' && $item !== null && $item !== '0') {
+                                $queryParams['AdvertisementSearch[' . $key . '][]'] = $item;
+                            }
+                        }
+                    } else {
+                        // Для простых значений
+                        if ($value !== '' && $value !== null && $value !== '0') {
+                            $queryParams['AdvertisementSearch[' . $key . ']'] = $value;
+                        }
+                    }
+                }
+                
+                // Добавляем раздел, если он есть в подписке
+                if ($subscription->section) {
+                    $queryParams['AdvertisementSearch[section]'] = $subscription->section;
+                }
+                
+                // Формируем URL для страницы поиска с параметрами
+                $searchUrl = Url::toRoute(array_merge(
+                    ['advertisements/index'], 
+                    $queryParams
+                ));
+                // --- КОНЕЦ: Генерация URL для поиска ---
+            ?>
                 <div class="col-md-6 col-lg-4 mb-3">
                     <div class="card">
                         <div class="card-body">
@@ -46,10 +75,19 @@ $this->registerJsFile('@web/js/search-subscription.js', [
                                     Создана: <?= Yii::$app->formatter->asDate($subscription->created_at) ?>
                                 </small>
                             </p>
-                            <button class="btn btn-danger btn-sm delete-subscription" 
-                                    data-id="<?= $subscription->id ?>">
-                                <span class="glyphicon glyphicon-trash"></span> Отписаться
-                            </button>
+                            <div class="btn-group" role="group">
+                                <!-- Новая кнопка "Искать" -->
+                                <?= Html::a(
+                                    '<span class="glyphicon glyphicon-search"></span> Искать',
+                                    $searchUrl,
+                                    ['class' => 'btn btn-primary btn-sm']
+                                ) ?>
+                                <!-- Кнопка "Отписаться" -->
+                                <button class="btn btn-danger btn-sm delete-subscription" 
+                                        data-id="<?= $subscription->id ?>">
+                                    <span class="glyphicon glyphicon-trash"></span> Отписаться
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

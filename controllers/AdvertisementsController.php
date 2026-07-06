@@ -659,14 +659,29 @@ class AdvertisementsController extends Controller
 
     /**
      * Отправка уведомлений подписчикам
+     * Исправлено: учитываем все параметры подписки, включая дополнительные поля
      */
     protected function notifySubscribers($advertisement)
     {
-        $subscriptions = SearchSubscription::getSubscriptionsForSection($advertisement->section);
+        // Получаем все активные подписки для данного раздела
+        $subscriptions = SearchSubscription::find()
+            ->where([
+                'section' => $advertisement->section,
+                'is_active' => true,
+            ])
+            ->all();
+        
         $notified = 0;
         
         foreach ($subscriptions as $subscription) {
+            // Проверяем соответствие объявления параметрам подписки
             if ($subscription->matchesAdvertisement($advertisement)) {
+                // Проверяем, не отправляли ли уже уведомление об этом объявлении
+                $lastNotified = $subscription->last_notified_at;
+                if ($lastNotified && $lastNotified > $advertisement->created_at - 3600) {
+                    continue; // Не отправляем повторно в течение часа
+                }
+                
                 $this->sendSubscriptionNotification($advertisement, $subscription);
                 $notified++;
                 

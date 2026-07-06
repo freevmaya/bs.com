@@ -43,6 +43,7 @@ class SearchSubscriptionController extends Controller
 
     /**
      * Создание подписки из параметров поиска
+     * Исправлено: сохраняем все параметры, включая дополнительные поля
      */
     public function actionCreate()
     {
@@ -81,7 +82,7 @@ class SearchSubscriptionController extends Controller
             return ['success' => true, 'message' => 'Подписка создана'];
         }
 
-        return ['success' => false, 'error' => 'Ошибка при создании подписки'];
+        return ['success' => false, 'error' => 'Ошибка при создании подписки: ' . json_encode($subscription->errors)];
     }
 
     /**
