@@ -81,6 +81,10 @@ $csrfToken = Yii::$app->request->csrfToken;
             </div>
         </div>
     </div>
+    
+    <p>
+        <?= Html::a('← Назад в профиль', ['/user/profile'], ['class' => 'btn btn-default']) ?>
+    </p>
 </div>
 
 <?php

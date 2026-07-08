@@ -65,7 +65,7 @@ $this->registerJs("
     <h1><?= Html::encode($this->title) ?></h1>
     
     <p>
-        <?= Html::a('Добавить объявление', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('➕ Добавить объявление', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
     
     <?= GridView::widget([
@@ -145,4 +145,8 @@ $this->registerJs("
             ],
         ],
     ]); ?>
+    
+    <p style="margin-top: 20px;">
+        <?= Html::a('← Назад в профиль', ['/user/profile'], ['class' => 'btn btn-default']) ?>
+    </p>
 </div>

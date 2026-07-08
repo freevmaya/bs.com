@@ -35,4 +35,8 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
         </div>
     </div>
+    
+    <p>
+        <?= Html::a('← Назад в профиль', ['/user/profile'], ['class' => 'btn btn-default']) ?>
+    </p>
 </div>

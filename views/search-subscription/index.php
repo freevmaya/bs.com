@@ -103,6 +103,6 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php endif; ?>
 
     <p>
-        <?= Html::a('← Назад к объявлениям', ['advertisements/index'], ['class' => 'btn btn-default']) ?>
+        <?= Html::a('← Назад в профиль', ['/user/profile'], ['class' => 'btn btn-default']) ?>
     </p>
 </div>

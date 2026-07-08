@@ -19,6 +19,10 @@
     --bs-link-color-rgb: #EEE;
 }
 
+.container {
+    padding-top: 1em;
+}
+
 /* Дополнительные стили для объявлений */
 .advertisement-meta {
     font-size: 12px;
@@ -139,4 +143,8 @@
 .advertisement-item .media-body {
     display: flex;
     align-items: center;
+}
+
+.pagination li {
+    margin: 0px 5px;
 }

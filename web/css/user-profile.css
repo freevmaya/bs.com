@@ -61,7 +61,8 @@
 
 .profile-menu .btn {
     flex: 1;
-    min-width: 120px;
+    min-width: 135px;
+    white-space: nowrap;
 }
 
 .profile-section-title {
@@ -70,31 +71,6 @@
     margin: 20px 0 15px 0;
 }
 
-/* ============================================
-   Адаптивность
-   ============================================ */
-
-@media (max-width: 576px) {
-    .profile-menu .btn {
-        min-width: 80px;
-        font-size: 12px;
-        padding: 6px 10px;
-    }
-    
-    .profile-stats {
-        gap: 15px;
-    }
-    
-    .profile-stat .number {
-        font-size: 16px;
-    }
-    
-    .profile-avatar {
-        font-size: 60px;
-    }
-}
-
-/* Светлая тема */
 [data-bs-theme="light"] .profile-header {
     border-bottom-color: #dee2e6;
 }

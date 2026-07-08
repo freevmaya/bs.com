@@ -1,4 +1,4 @@
- <?php
+<?php
 
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -33,15 +33,15 @@ $this->registerCssFile('@web/css/user-profile.css', ['depends' => [\yii\bootstra
 
     <!-- Меню профиля -->
     <div class="profile-menu">
-        <?= Html::a('📋 Мои объявления', ['/advertisements/my'], ['class' => 'btn btn-outline-primary btn-sm']) ?>
-        <?= Html::a('✏️ Редактировать', ['/user/edit'], ['class' => 'btn btn-outline-secondary btn-sm']) ?>
-        <?= Html::a('🔔 Уведомления', ['/notification/index'], ['class' => 'btn btn-outline-info btn-sm']) ?>
-        <?= Html::a('📬 Подписки', ['/search-subscription/index'], ['class' => 'btn btn-outline-success btn-sm']) ?>
+        <?= Html::a('📋 Мои объявления', ['/advertisements/my'], ['class' => 'btn btn-sm']) ?>
+        <?= Html::a('✏️ Редактировать', ['/user/edit'], ['class' => 'btn btn-sm']) ?>
+        <?= Html::a('🔔 Уведомления', ['/notification/index'], ['class' => 'btn btn-sm']) ?>
+        <?= Html::a('📬 Подписки', ['/search-subscription/index'], ['class' => 'btn btn-sm']) ?>
         <?= Html::a(
             '🚪 Выйти',
             ['/site/logout'],
             [
-                'class' => 'btn btn-outline-danger btn-sm',
+                'class' => 'btn btn-sm',
                 'data-method' => 'post',
             ]
         ) ?>
