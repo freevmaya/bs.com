@@ -118,13 +118,6 @@ $this->registerJs(
             <?php endif; ?>
         </div>
 
-        <!-- Сообщение при отсутствии изображений -->
-        <div id="no-images-message" class="text-muted text-center" style="<?= !empty($images) ? 'display: none;' : '' ?> padding: 40px 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
-            <p><span class="glyphicon glyphicon-picture" style="font-size: 40px; color: #ddd; display: block; margin-bottom: 10px;"></span></p>
-            <p style="font-size: 16px;">Нет загруженных файлов</p>
-            <p style="font-size: 13px; color: #999;">Загрузите изображения или видео, используя форму ниже</p>
-        </div>
-
         <!-- Drag & Drop зона + выбор файла -->
         <div id="drag-drop-zone" class="drag-drop-zone" data-upload-url="<?= $addImageUrl ?>">
             <div class="drag-drop-content">

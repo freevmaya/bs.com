@@ -2,9 +2,63 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\helpers\Url;
+use app\models\Advertisement;
 
 $this->title = 'Мои объявления';
 $this->params['breadcrumbs'][] = $this->title;
+
+// Регистрируем JS для переключения статуса
+$this->registerJs("
+    $(document).on('change', '.status-toggle', function() {
+        var checkbox = $(this);
+        var id = checkbox.data('id');
+        var status = checkbox.prop('checked') ? 'active' : 'closed';
+        var row = checkbox.closest('tr');
+        var statusLabel = row.find('.status-label');
+        
+        // Отключаем чекбокс на время запроса
+        checkbox.prop('disabled', true);
+        
+        $.ajax({
+            url: '" . Url::to(['advertisements/toggle-status']) . "',
+            type: 'POST',
+            data: {
+                id: id,
+                status: status,
+                _csrf: '" . Yii::$app->request->csrfToken . "'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Обновляем метку статуса
+                    if (status === 'active') {
+                        statusLabel.html('<span class=\"label label-success\">Активно</span>');
+                        checkbox.prop('checked', true);
+                    } else {
+                        statusLabel.html('<span class=\"label label-default\">Неактивно</span>');
+                        checkbox.prop('checked', false);
+                    }
+                    // Показываем уведомление
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification(response.message, 'success');
+                    }
+                } else {
+                    alert(response.error || 'Ошибка при изменении статуса');
+                    // Возвращаем предыдущее состояние
+                    checkbox.prop('checked', !checkbox.prop('checked'));
+                }
+            },
+            error: function() {
+                alert('Ошибка соединения с сервером');
+                checkbox.prop('checked', !checkbox.prop('checked'));
+            },
+            complete: function() {
+                checkbox.prop('disabled', false);
+            }
+        });
+    });
+", \yii\web\View::POS_READY);
 ?>
 
 <div class="advertisements-my">
@@ -43,9 +97,26 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'status',
+                'format' => 'raw',
                 'value' => function ($model) {
-                    return $model->getStatusLabel();
+                    $isActive = ($model->status === Advertisement::STATUS_ACTIVE);
+                    $label = $isActive ? 'Активно' : 'Неактивно';
+                    $class = $isActive ? 'label-success' : 'label-default';
+                    return '<span class="status-label label ' . $class . '">' . $label . '</span>';
                 },
+            ],
+            [
+                'label' => 'Активно',
+                'format' => 'raw',
+                'value' => function ($model) {
+                    $isActive = ($model->status === Advertisement::STATUS_ACTIVE);
+                    return Html::checkbox('status', $isActive, [
+                        'class' => 'status-toggle',
+                        'data-id' => $model->id,
+                        'title' => $isActive ? 'Отключить объявление' : 'Включить объявление',
+                    ]);
+                },
+                'contentOptions' => ['style' => 'text-align: center; vertical-align: middle; width: 80px;'],
             ],
             [
                 'attribute' => 'created_at',

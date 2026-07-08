@@ -7,10 +7,6 @@
 <?php
 // Регистрируем CSS и JS для уведомлений
 $this->registerCssFile('@web/css/notification.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
-$this->registerJsFile('@web/js/notification.js', [
-    'depends' => [\yii\web\JqueryAsset::class],
-    'position' => \yii\web\View::POS_END
-]);
 
 $flashes = Yii::$app->session->getAllFlashes();
 ?>

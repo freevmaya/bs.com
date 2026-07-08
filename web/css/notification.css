@@ -8,6 +8,13 @@
     right: 20px;
     z-index: 9999;
     width: 350px;
+    max-height: 100vh;
+    overflow-y: auto;
+    pointer-events: none;
+}
+
+#notification-container .notification {
+    pointer-events: auto;
 }
 
 .notification {
@@ -16,13 +23,14 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     overflow: hidden;
     transform: translateX(400px);
-    transition: transform 0.3s ease;
-    animation: slideIn 0.3s ease forwards;
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
     margin-bottom: 10px;
 }
 
 .notification.show {
     transform: translateX(0);
+    opacity: 1;
 }
 
 @keyframes slideIn {

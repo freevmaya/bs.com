@@ -10,9 +10,15 @@ use app\assets\AppAsset;
 
 AppAsset::register($this);
 
-// Регистрируем CSS для уведомлений и форм
+// Регистрируем CSS и JS для уведомлений и форм
 $this->registerCssFile('@web/css/notification.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 $this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+
+// РЕГИСТРИРУЕМ notification.js
+$this->registerJsFile('@web/js/notification.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
 
 ?>
 <?php $this->beginPage() ?>
@@ -85,6 +91,7 @@ $this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bo
 </footer>
 
 <?php $this->endBody() ?>
+<!-- Подключаем _notifications.php перед endBody() -->
 <?= $this->render('_notifications') ?>
 </body>
 </html>

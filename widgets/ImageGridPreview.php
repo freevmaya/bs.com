@@ -41,10 +41,18 @@ class ImageGridPreview extends Widget
             return $this->renderPlaceholder();
         }
         
-        $items = array_slice($this->images, 0, $this->maxImages);
+        // ✅ Если передан массив объектов, используем их напрямую
+        // Если передан Query, то выполняем запрос
+        if ($this->images instanceof \yii\db\ActiveQuery) {
+            $this->images = $this->images->limit($this->maxImages)->all();
+        } elseif (is_array($this->images)) {
+            // Уже массив, используем как есть
+            $this->images = array_slice($this->images, 0, $this->maxImages);
+        }
+        
+        $items = $this->images;
         $count = count($items);
         
-        // Регистрируем JS
         $this->registerJs();
         
         return $this->renderGrid($items, $count);

@@ -480,28 +480,8 @@
             return;
         }
 
-        // Fallback уведомление
-        var $alert = $('<div>', {
-            class: 'alert alert-' + type,
-            text: message,
-            css: {
-                position: 'fixed',
-                top: '20px',
-                right: '20px',
-                zIndex: '9999',
-                minWidth: '300px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                borderRadius: '8px'
-            }
-        });
-
-        $('body').append($alert);
-
-        setTimeout(function() {
-            $alert.fadeOut(500, function() {
-                $(this).remove();
-            });
-        }, 3000);
+        // Fallback - используем alert если showNotification не доступен
+        alert(message);
     }
 
     // Инициализация при загрузке

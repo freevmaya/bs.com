@@ -99,7 +99,10 @@ class AdvertisementSearch extends Advertisement
     
     public function search($params, $section = null)
     {
+
         $query = Advertisement::find()->where(['status' => Advertisement::STATUS_ACTIVE]);
+        
+        $query->with(['images', 'glider', 'harness', 'device']);
         
         if ($section) {
             $query->andWhere(['section' => $section]);

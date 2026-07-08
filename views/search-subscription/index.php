@@ -25,38 +25,47 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php else: ?>
         <div class="row">
             <?php foreach ($subscriptions as $subscription): 
-                // --- НАЧАЛО: Генерация URL для поиска ---
+                // Получаем очищенные параметры из подписки
                 $searchParams = $subscription->getParamsArray();
                 
-                // Создаем массив для параметров запроса в формате AdvertisementSearch[param]
+                // Строим параметры для URL в формате AdvertisementSearch[param]
                 $queryParams = [];
-                foreach ($searchParams as $key => $value) {
-                    // Если значение - массив (например, producer_ids), передаем как массив
-                    if (is_array($value)) {
-                        foreach ($value as $item) {
-                            if ($item !== '' && $item !== null && $item !== '0') {
-                                $queryParams['AdvertisementSearch[' . $key . '][]'] = $item;
-                            }
-                        }
-                    } else {
-                        // Для простых значений
-                        if ($value !== '' && $value !== null && $value !== '0') {
-                            $queryParams['AdvertisementSearch[' . $key . ']'] = $value;
-                        }
-                    }
-                }
                 
-                // Добавляем раздел, если он есть в подписке
+                // Добавляем раздел
                 if ($subscription->section) {
                     $queryParams['AdvertisementSearch[section]'] = $subscription->section;
                 }
                 
-                // Формируем URL для страницы поиска с параметрами
+                // Проходим по всем параметрам
+                foreach ($searchParams as $key => $value) {
+                    // Пропускаем пустые значения
+                    if ($value === '' || $value === null) {
+                        continue;
+                    }
+                    
+                    // Если это массив (например, producer_ids, certification_ids, sizes)
+                    if (is_array($value)) {
+                        $filteredValues = array_filter($value, function($item) {
+                            return $item !== '' && $item !== null && $item !== '0';
+                        });
+                        
+                        if (!empty($filteredValues)) {
+                            foreach ($filteredValues as $item) {
+                                // Правильный формат: AdvertisementSearch[glider_producer_ids][]
+                                $queryParams['AdvertisementSearch[' . $key . '][]'] = $item;
+                            }
+                        }
+                    } else {
+                        // Для простых значений: AdvertisementSearch[glider_weight]=70
+                        $queryParams['AdvertisementSearch[' . $key . ']'] = $value;
+                    }
+                }
+                
+                // Формируем URL
                 $searchUrl = Url::toRoute(array_merge(
-                    ['advertisements/index'], 
+                    ["advertisements/" . $subscription->section], 
                     $queryParams
                 ));
-                // --- КОНЕЦ: Генерация URL для поиска ---
             ?>
                 <div class="col-md-6 col-lg-4 mb-3">
                     <div class="card">
@@ -76,13 +85,11 @@ $this->params['breadcrumbs'][] = $this->title;
                                 </small>
                             </p>
                             <div class="btn-group" role="group">
-                                <!-- Новая кнопка "Искать" -->
                                 <?= Html::a(
                                     '<span class="glyphicon glyphicon-search"></span> Искать',
                                     $searchUrl,
                                     ['class' => 'btn btn-primary btn-sm']
                                 ) ?>
-                                <!-- Кнопка "Отписаться" -->
                                 <button class="btn btn-danger btn-sm delete-subscription" 
                                         data-id="<?= $subscription->id ?>">
                                     <span class="glyphicon glyphicon-trash"></span> Отписаться

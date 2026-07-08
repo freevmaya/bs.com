@@ -78,7 +78,7 @@
         $notification.removeClass('show');
         setTimeout(function() {
             $notification.remove();
-        }, 300);
+        }, 100);
     }
 
     /**

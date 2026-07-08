@@ -43,7 +43,7 @@ class SearchSubscriptionController extends Controller
 
     /**
      * Создание подписки из параметров поиска
-     * Исправлено: сохраняем все параметры, включая дополнительные поля
+     * Исправлено: сохраняем параметры в правильном формате
      */
     public function actionCreate()
     {
@@ -58,6 +58,34 @@ class SearchSubscriptionController extends Controller
 
         $userId = Yii::$app->user->id;
 
+        // Очищаем параметры от префикса AdvertisementSearch[]
+        $cleanedParams = [];
+        foreach ($params as $key => $value) {
+            // Удаляем префикс AdvertisementSearch[ и ] из ключа, если он есть
+            $cleanKey = $key;
+            if (strpos($key, 'AdvertisementSearch[') === 0) {
+                $cleanKey = str_replace(['AdvertisementSearch[', ']'], '', $key);
+            }
+            
+            // Если значение - массив, очищаем каждый элемент
+            if (is_array($value)) {
+                $cleanedParams[$cleanKey] = array_values(array_filter($value, function($item) {
+                    return $item !== '' && $item !== null && $item !== '0';
+                }));
+            } else {
+                // Пропускаем пустые значения
+                if ($value === '' || $value === null || $value === '0') {
+                    continue;
+                }
+                $cleanedParams[$cleanKey] = $value;
+            }
+        }
+
+        // Проверяем, есть ли вообще параметры после очистки
+        if (empty($cleanedParams)) {
+            return ['success' => false, 'error' => 'Нет значимых параметров для подписки'];
+        }
+
         // Проверяем, существует ли уже такая подписка
         $existing = SearchSubscription::find()
             ->where([
@@ -65,7 +93,7 @@ class SearchSubscriptionController extends Controller
                 'section' => $section,
                 'is_active' => true,
             ])
-            ->andWhere(['params' => json_encode($params, JSON_UNESCAPED_UNICODE)])
+            ->andWhere(['params' => json_encode($cleanedParams, JSON_UNESCAPED_UNICODE)])
             ->one();
 
         if ($existing) {
@@ -75,7 +103,7 @@ class SearchSubscriptionController extends Controller
         $subscription = new SearchSubscription();
         $subscription->user_id = $userId;
         $subscription->section = $section;
-        $subscription->setParamsArray($params);
+        $subscription->setParamsArray($cleanedParams);
         $subscription->is_active = true;
 
         if ($subscription->save()) {

@@ -12,11 +12,6 @@ use yii\widgets\ActiveForm;
         'buy' => 'Куплю',
     ], ['id' => 'section-select']) ?>
     
-    <?= $form->field($model, 'section')->dropDownList([
-        'sell' => 'Продам',
-        'buy' => 'Куплю',
-    ], ['prompt' => 'Выберите раздел']) ?>
-    
     <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
     
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>

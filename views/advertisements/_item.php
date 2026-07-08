@@ -10,9 +10,14 @@ if ($model->price_negotiable) {
     $priceText .= ' (договорная)';
 }
 
-// Получаем изображения (до 5 штук)
-$images = $model->getImages()->limit(5)->all();
+// ✅ ИСПРАВЛЕНО: используем уже загруженные изображения
+$images = $model->images;
+// Ограничиваем до 5 для отображения (виджет сам ограничит, но для безопасности)
+if (count($images) > 5) {
+    $images = array_slice($images, 0, 5);
+}
 $imagesCount = count($images);
+
 $link = Url::toRoute(['advertisements/view', 'id' => $model->id]);
 
 // Собираем краткую информацию в зависимости от типа
@@ -60,13 +65,12 @@ if ($model->type === 'glider' && $model->glider) {
 $shortInfoString = implode(' | ', $shortInfo);
 ?>
 
-<!-- Добавляем обертку с классом для корректного поиска -->
 <div class="media advertisement-item" data-advertisement-id="<?= $model->id ?>">
     <?php if ($imagesCount > 0): ?>
     <div class="media-left" style="padding-right: 15px;">
         <div class="grid-preview-wrapper">
             <?= ImageGridPreview::widget([
-                'images' => $images,
+                'images' => $images, // ✅ Передаем уже загруженные изображения
                 'maxImages' => 5,
                 'containerSize' => 300,
                 'containerClass' => 'image-grid-preview',
@@ -93,7 +97,6 @@ $shortInfoString = implode(' | ', $shortInfo);
             
             <p style="margin-bottom: 8px;"><?= Html::encode(StringHelper::truncate($model->description, 120)) ?></p>
             
-            <!-- Краткая информация в зависимости от типа -->
             <?php if (!empty($shortInfoString)): ?>
                 <div class="preview">
                     <?= $shortInfoString ?>

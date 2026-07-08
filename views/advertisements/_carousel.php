@@ -15,7 +15,7 @@ if (empty($images)) {
 $id = $id ?? 'gallery-' . uniqid();
 
 // Регистрируем CSS и JS для карусели
-$this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerCssFile('@web/css/carousel.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 $this->registerJsFile('@web/js/carousel.js', [
     'depends' => [\yii\web\JqueryAsset::class],
     'position' => \yii\web\View::POS_END

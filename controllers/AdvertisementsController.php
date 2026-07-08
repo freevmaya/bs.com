@@ -37,7 +37,7 @@ class AdvertisementsController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['create', 'update', 'delete', 'my', 'add-image', 'delete-image', 'reorder-images', 'add-temp-image', 'delete-temp-image'],
+                'only' => ['create', 'update', 'delete', 'my', 'add-image', 'delete-image', 'reorder-images', 'add-temp-image', 'delete-temp-image', 'toggle-status'],
                 'rules' => [
                     [
                         'allow' => true,
@@ -52,6 +52,7 @@ class AdvertisementsController extends Controller
                     'delete-image' => ['POST'],
                     'delete-temp-image' => ['POST'],
                     'reorder-images' => ['POST'],
+                    'toggle-status' => ['POST'],
                 ],
             ],
         ];
@@ -61,6 +62,8 @@ class AdvertisementsController extends Controller
     {
         $searchModel = new AdvertisementSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        $dataProvider->query->with(['images', 'glider', 'harness', 'device']);
         
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -75,6 +78,8 @@ class AdvertisementsController extends Controller
             Yii::$app->request->queryParams,
             Advertisement::SECTION_SELL
         );
+        
+        $dataProvider->query->with(['images', 'glider', 'harness', 'device']);
         
         return $this->render('section', [
             'searchModel' => $searchModel,
@@ -91,6 +96,8 @@ class AdvertisementsController extends Controller
             Yii::$app->request->queryParams,
             Advertisement::SECTION_BUY
         );
+        
+        $dataProvider->query->with(['images', 'glider', 'harness', 'device']);
         
         return $this->render('section', [
             'searchModel' => $searchModel,
@@ -114,7 +121,8 @@ class AdvertisementsController extends Controller
     {
         $model = new Advertisement();
         $model->user_id = Yii::$app->user->id;
-        $model->status = Advertisement::STATUS_MODERATION;
+        // Меняем статус на ACTIVE при создании
+        $model->status = Advertisement::STATUS_ACTIVE;
         
         if ($section && in_array($section, [Advertisement::SECTION_SELL, Advertisement::SECTION_BUY])) {
             $model->section = $section;
@@ -341,6 +349,41 @@ class AdvertisementsController extends Controller
             'dataProvider' => $dataProvider,
         ]);
     }
+    
+    /**
+     * Переключение статуса объявления (активный/неактивный)
+     */
+    public function actionToggleStatus()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        $id = Yii::$app->request->post('id');
+        $status = Yii::$app->request->post('status');
+        
+        if (!$id || !$status) {
+            return ['success' => false, 'error' => 'Не указаны параметры'];
+        }
+        
+        $model = $this->findModel($id);
+        
+        if ($model->user_id !== Yii::$app->user->id && !Yii::$app->user->can('admin')) {
+            return ['success' => false, 'error' => 'У вас нет прав для изменения статуса этого объявления'];
+        }
+        
+        if (!in_array($status, [Advertisement::STATUS_ACTIVE, Advertisement::STATUS_CLOSED])) {
+            return ['success' => false, 'error' => 'Некорректный статус'];
+        }
+        
+        $model->status = $status;
+        if ($model->save()) {
+            return [
+                'success' => true, 
+                'message' => 'Статус изменен на ' . $model->getStatusLabel()
+            ];
+        }
+        
+        return ['success' => false, 'error' => 'Ошибка при сохранении статуса'];
+    }
 
     public function actionAddImage($id)
     {
@@ -367,7 +410,7 @@ class AdvertisementsController extends Controller
         
         if ($image->upload()) {
             $image->sort_order = $model->getImages()->count();
-            $image->save(false);
+            $image->save();
             
             $thumbnailUrl = $image->getThumbnailUrl();
             $deleteUrl = \yii\helpers\Url::to(['delete-image-ajax', 'id' => $image->id]);
@@ -507,7 +550,7 @@ class AdvertisementsController extends Controller
             if ($action->id == 'create') {
                 $model = new Advertisement();
                 $model->user_id = Yii::$app->user->id;
-                $model->status = Advertisement::STATUS_MODERATION;
+                $model->status = Advertisement::STATUS_ACTIVE;
             } else {
                 $id = Yii::$app->request->get('id');
                 $model = $this->findModel($id);
@@ -659,7 +702,6 @@ class AdvertisementsController extends Controller
 
     /**
      * Отправка уведомлений подписчикам
-     * Исправлено: учитываем все параметры подписки, включая дополнительные поля
      */
     protected function notifySubscribers($advertisement)
     {
@@ -686,7 +728,7 @@ class AdvertisementsController extends Controller
                 $notified++;
                 
                 $subscription->last_notified_at = time();
-                $subscription->save(false);
+                $subscription->save();
             }
         }
         
