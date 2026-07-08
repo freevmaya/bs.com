@@ -10,9 +10,9 @@ if ($model->price_negotiable) {
     $priceText .= ' (договорная)';
 }
 
-// ✅ ИСПРАВЛЕНО: используем уже загруженные изображения
+// ✅ Используем уже загруженные изображения
 $images = $model->images;
-// Ограничиваем до 5 для отображения (виджет сам ограничит, но для безопасности)
+// Ограничиваем до 5 для отображения
 if (count($images) > 5) {
     $images = array_slice($images, 0, 5);
 }
@@ -67,12 +67,11 @@ $shortInfoString = implode(' | ', $shortInfo);
 
 <div class="media advertisement-item" data-advertisement-id="<?= $model->id ?>">
     <?php if ($imagesCount > 0): ?>
-    <div class="media-left" style="padding-right: 15px;">
+    <div class="media-left">
         <div class="grid-preview-wrapper">
             <?= ImageGridPreview::widget([
-                'images' => $images, // ✅ Передаем уже загруженные изображения
+                'images' => $images,
                 'maxImages' => 5,
-                'containerSize' => 300,
                 'containerClass' => 'image-grid-preview',
             ]) ?>
         </div>

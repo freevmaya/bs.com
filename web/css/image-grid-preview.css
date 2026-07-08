@@ -9,25 +9,62 @@
     border-radius: 0.8em;
     position: relative;
     cursor: pointer;
+    /* Размер по умолчанию - 300x300 (для больших экранов) */
+    width: 300px;
+    height: 300px;
+    flex-shrink: 0;
 }
 
-.image-grid-preview .grid-row {
+/* --- Внутренние контейнеры --- */
+.image-grid-preview .grid-row,
+.image-grid-preview .grid-column,
+.image-grid-preview .grid-three,
+.image-grid-preview .grid-four,
+.image-grid-preview .grid-five {
     display: flex;
     overflow: hidden;
     gap: 3px;
+    width: 100%;
+    height: 100%;
 }
 
 .image-grid-preview .grid-column {
-    display: flex;
     flex-direction: column;
-    overflow: hidden;
+}
+
+.image-grid-preview .grid-three {
+    flex-direction: column;
     gap: 3px;
 }
 
+.image-grid-preview .grid-four {
+    flex-direction: column;
+    gap: 3px;
+}
+
+.image-grid-preview .grid-five {
+    flex-direction: row;
+    gap: 3px;
+}
+
+.image-grid-preview .grid-five .grid-right {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+}
+
+.image-grid-preview .grid-five .grid-right .grid-row {
+    gap: 3px;
+    flex: 1;
+}
+
+/* --- Элементы сетки --- */
 .image-grid-preview .grid-item {
     overflow: hidden;
     background: #f0f0f0;
     position: relative;
+    flex: 1;
 }
 
 .image-grid-preview .grid-item img {
@@ -42,29 +79,7 @@
     transform: scale(1.05);
 }
 
-.image-grid-preview .grid-five {
-    display: flex;
-    overflow: hidden;
-    gap: 3px;
-}
-
-.image-grid-preview .grid-five .grid-right {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.image-grid-preview .grid-five .grid-right .grid-row {
-    gap: 3px;
-}
-
-/* Обнуляем отступы для вложенных grid */
-.image-grid-preview .grid-five .grid-right .grid-row,
-.image-grid-preview .grid-five .grid-right {
-    gap: 3px;
-}
-
-/* Стили для просмотра */
+/* --- Стили для просмотра --- */
 .image-grid-preview .image-count-badge {
     position: absolute;
     top: 50%;
@@ -96,13 +111,18 @@
     background: rgba(0, 0, 0, 0.1);
 }
 
-/* Плейсхолдер */
+/* --- Плейсхолдер --- */
 .image-grid-preview.placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
     background: #f0f0f0;
     border-radius: 4px;
+}
+
+.image-grid-preview.placeholder .glyphicon-picture {
+    font-size: 48px;
+    color: #ccc;
 }
 
 /* ============================================
@@ -112,6 +132,7 @@
 .video-item {
     position: relative;
     height: 100%;
+    width: 100%;
 }
 
 .video-item .video-icon-overlay {
@@ -171,7 +192,7 @@
     letter-spacing: 0.5px;
 }
 
-/* Стили для полноэкранного видео */
+/* --- Стили для полноэкранного видео --- */
 .fullscreen-video {
     max-width: 90%;
     max-height: 90%;
@@ -180,21 +201,84 @@
 }
 
 /* ============================================
-   Адаптивность
+   Адаптивность для страницы объявлений
+   ============================================ */
+
+/* Обертка превью */
+.grid-preview-wrapper {
+    display: block;
+}
+
+/* При ширине меньше 992px - предпросмотр на всю ширину контейнера */
+@media (max-width: 991px) {
+    .image-grid-preview {
+        width: 100%;
+        height: 300px;
+        flex-shrink: 1;
+        border-radius: 0.6em;
+    }
+    
+    .grid-preview-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .media .media-left {
+        display: block;
+        width: 100%;
+        padding-right: 0 !important;
+        padding-bottom: 10px;
+    }
+    
+    .media .media-left .grid-preview-wrapper {
+        width: 100% !important;
+    }
+    
+    .media .media-left .grid-preview-wrapper .image-grid-preview {
+        width: 100%;
+        height: 300px;
+    }
+}
+
+/* При ширине больше или равно 992px - 300x300 */
+@media (min-width: 992px) {
+    .image-grid-preview {
+        width: 300px;
+        height: 300px;
+        flex-shrink: 0;
+    }
+    
+    .grid-preview-wrapper {
+        width: 300px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .media .media-left {
+        display: block;
+        flex-shrink: 0;
+        padding-right: 15px;
+    }
+}
+
+/* ============================================
+   Адаптивность для мобильных устройств
    ============================================ */
 
 @media (max-width: 768px) {
     .image-grid-preview {
-        border-radius: 3px;
+        height: 250px !important;
     }
+    
     .image-grid-preview .image-count-badge {
         font-size: 16px;
         padding: 6px 12px;
     }
+    
     .video-item .video-icon-overlay .play-icon {
         width: 36px;
         height: 36px;
     }
+    
     .video-item .video-icon-overlay .play-icon svg {
         width: 16px;
         height: 16px;
@@ -202,20 +286,33 @@
 }
 
 @media (max-width: 576px) {
+    .image-grid-preview {
+        height: 200px !important;
+    }
+    
     .image-grid-preview .image-count-badge {
         font-size: 14px;
         padding: 4px 10px;
     }
+    
     .video-item .video-icon-overlay .play-icon {
         width: 30px;
         height: 30px;
     }
+    
     .video-item .video-icon-overlay .play-icon svg {
         width: 14px;
         height: 14px;
     }
+    
     .video-item .video-duration {
         font-size: 10px;
         padding: 1px 5px;
+    }
+}
+
+@media (max-width: 400px) {
+    .image-grid-preview {
+        height: 160px;
     }
 }
