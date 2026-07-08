@@ -73,10 +73,24 @@ class NotificationLog extends ActiveRecord
         $log->channel = $channel;
         $log->event = $event;
         $log->subject = $subject;
-        $log->message = $message;
+        // Очищаем сообщение от эмодзи и других 4-байтовых символов
+        $log->message = self::cleanUtf8String($message);
         $log->status = self::STATUS_PENDING;
         
         return $log;
+    }
+
+    /**
+     * Очистка строки от 4-байтовых символов (эмодзи)
+     */
+    private static function cleanUtf8String($string)
+    {
+        if ($string === null || $string === '') {
+            return $string;
+        }
+        
+        // Удаляем 4-байтовые символы (эмодзи)
+        return preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $string);
     }
     
     /**

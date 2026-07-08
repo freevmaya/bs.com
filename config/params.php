@@ -2,8 +2,8 @@
 
 return [
     'adminEmail' => 'admin@example.com',
-    'senderEmail' => 'noreply@example.com',
-    'senderName' => 'Example.com mailer',
+    'senderEmail' => 'noreply@bs.com',
+    'senderName' => 'BS.com',
     
     // Настройки для SMS
     'sms_api_key' => 'your_sms_api_key',

@@ -49,6 +49,10 @@ $config = [
                 'advertisements/buy' => 'advertisements/buy',
                 'advertisements/my' => 'advertisements/my',
                 'advertisement/<id:\d+>' => 'advertisements/view',
+    
+                // Правила для пользователя
+                'user/profile' => 'user/profile',
+                'user/edit' => 'user/edit',
                 
                 // Правила для уведомлений
                 'notification' => 'notification/index',
@@ -65,9 +69,17 @@ $config = [
             'class' => 'app\components\TempAdStorage',
         ],
         'notificationManager' => [
-                'class' => 'app\components\notifications\NotificationManager',
-            ]
+                'class' => 'app\components\notifications\NotificationManager'
         ],
+        'mailer' => [
+            'class' => 'yii\symfonymailer\Mailer',
+            'useFileTransport' => true,
+            'fileTransportPath' => '@runtime/mail',
+            'transport' => [
+                'dsn' => 'smtp://localhost:25',
+            ],
+        ],
+    ],
     'params' => $params,
 ];
 

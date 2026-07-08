@@ -29,6 +29,7 @@ class NotificationManager extends Component
         
         // Регистрируем события
         $this->registerEvent('new_advertisement', 'Новое объявление');
+        $this->registerEvent('search_subscription', 'Подписка на поиск');
     }
     
     /**

@@ -23,7 +23,7 @@
                 // Собираем все параметры из формы поиска
                 var params = {};
                 var hasAnyValue = false;
-                var section = '';
+                var section = 'sell'; // По умолчанию 'sell'
                 
                 // Ищем все поля с именем AdvertisementSearch[...]
                 $('input[name^="AdvertisementSearch["], select[name^="AdvertisementSearch["]').each(function() {
@@ -40,9 +40,16 @@
                     if ($field.is('select') && $field.prop('multiple')) {
                         var selectedValues = $field.val() || [];
                         if (selectedValues.length > 0) {
-                            var key = name.replace('[]', '');
-                            params[key] = selectedValues;
-                            hasAnyValue = true;
+                            // Очищаем ключ от префикса AdvertisementSearch[]
+                            var cleanKey = name.replace('AdvertisementSearch[', '').replace('[]', '').replace(']', '');
+                            // Фильтруем пустые значения
+                            var filteredValues = selectedValues.filter(function(v) {
+                                return v !== '' && v !== null && v !== '0';
+                            });
+                            if (filteredValues.length > 0) {
+                                params[cleanKey] = filteredValues;
+                                hasAnyValue = true;
+                            }
                         }
                         return;
                     }
@@ -52,7 +59,7 @@
                         return;
                     }
                     
-                    // Сохраняем значение
+                    // Очищаем ключ от префикса AdvertisementSearch[]
                     var cleanName = name.replace('AdvertisementSearch[', '').replace(']', '');
                     params[cleanName] = value;
                     hasAnyValue = true;
@@ -72,21 +79,6 @@
                     }
                 });
                 
-                // Получаем секцию
-                section = $button.data('section') || 
-                          $('input[name="AdvertisementSearch[section]"]').val() || 
-                          '';
-                
-                // Также ищем секцию в URL
-                if (!section) {
-                    var urlParts = window.location.pathname.split('/');
-                    if (urlParts.indexOf('sell') > -1) {
-                        section = 'sell';
-                    } else if (urlParts.indexOf('buy') > -1) {
-                        section = 'buy';
-                    }
-                }
-                
                 // Если параметров нет, но есть текст поиска - берем его
                 if (!hasAnyValue) {
                     var searchText = $('input[name="AdvertisementSearch[search_text]"]').val();
@@ -96,21 +88,51 @@
                     }
                 }
                 
-                if (!hasAnyValue) {
-                    SearchActiveSubscribe.showNotification('Укажите хотя бы один параметр для подписки (поиск, цена, город и т.д.)', 'warning');
+                // Если есть секция в data-атрибуте или в форме - используем её
+                var dataSection = $button.data('section');
+                if (dataSection) {
+                    section = dataSection;
+                } else {
+                    var formSection = $('input[name="AdvertisementSearch[section]"]').val();
+                    if (formSection) {
+                        section = formSection;
+                    }
+                }
+                
+                // Проверяем, есть ли хотя бы один параметр для подписки
+                var hasValidParams = false;
+                for (var key in params) {
+                    if (params.hasOwnProperty(key)) {
+                        var val = params[key];
+                        if (Array.isArray(val) && val.length > 0) {
+                            hasValidParams = true;
+                            break;
+                        } else if (typeof val === 'string' && val.trim() !== '') {
+                            hasValidParams = true;
+                            break;
+                        } else if (typeof val === 'number' || typeof val === 'boolean') {
+                            hasValidParams = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!hasValidParams) {
+                    SearchActiveSubscribe.showNotification('Укажите хотя бы один параметр для подписки (поиск, цена, город, тип, сертификация и т.д.)', 'warning');
                     return;
                 }
                 
                 var originalText = $button.html();
                 $button.prop('disabled', true).html('<span class="glyphicon glyphicon-refresh glyphicon-spin"></span> <span class="btn-text">Сохранение...</span>');
                 
+                // Отправляем запрос
                 $.ajax({
                     url: '/search-subscription/create',
                     type: 'POST',
                     data: {
                         params: params,
                         section: section,
-                        _csrf: $('meta[name="csrf-token"]').attr('content')
+                        _csrf: $('meta[name="csrf-token"]').attr('content') || $('[name="_csrf"]').val()
                     },
                     dataType: 'json',
                     success: function(response) {
@@ -127,7 +149,7 @@
                             $button.prop('disabled', false);
                         }
                     },
-                    error: function() {
+                    error: function(xhr, status, error) {
                         SearchActiveSubscribe.showNotification('Ошибка соединения с сервером', 'danger');
                         $button.html(originalText);
                         $button.prop('disabled', false);

@@ -10,12 +10,23 @@ use app\assets\AppAsset;
 
 AppAsset::register($this);
 
-// Регистрируем CSS и JS для уведомлений и форм
+// Регистрируем CSS для уведомлений и форм
 $this->registerCssFile('@web/css/notification.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 $this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerCssFile('@web/css/bottom-nav.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 
-// РЕГИСТРИРУЕМ notification.js
+// Регистрируем JS для уведомлений и нижнего меню
 $this->registerJsFile('@web/js/notification.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
+$this->registerJsFile('@web/js/bottom-nav.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
+
+// Убеждаемся, что Bootstrap JS загружен (для collapse)
+$this->registerJsFile('@web/js/bootstrap.bundle.min.js', [
     'depends' => [\yii\web\JqueryAsset::class],
     'position' => \yii\web\View::POS_END
 ]);
@@ -34,56 +45,50 @@ $this->registerJsFile('@web/js/notification.js', [
 <body class="d-flex flex-column h-100">
 <?php $this->beginBody() ?>
 
-<header>
-    <?php
-    NavBar::begin([
-        'brandLabel' => 'КупиПродайка',
-        'brandUrl' => Yii::$app->homeUrl,
-        'options' => [
-            'class' => 'navbar navbar-expand-md navbar-dark bg-dark fixed-top',
-        ],
-    ]);
-    
-    $menuItems = [
-        ['label' => 'Главная', 'url' => ['/advertisements/index']],
-        ['label' => 'Продам', 'url' => ['/advertisements/sell']],
-        ['label' => 'Куплю', 'url' => ['/advertisements/buy']],
-    ];
-    
-    if (Yii::$app->user->isGuest) {
-        $menuItems[] = ['label' => 'Регистрация', 'url' => ['/site/register']];
-        $menuItems[] = ['label' => 'Вход', 'url' => ['/site/login']];
-    } else {
-        $menuItems[] = ['label' => 'Мои объявления', 'url' => ['/advertisements/my']];
-        $menuItems[] = ['label' => 'Подписки', 'url' => ['/search-subscription/index']];
-        $menuItems[] = ['label' => 'Уведомления', 'url' => ['/notification/index']];
-
-        $menuItems[] = '<li class="nav-item">'
-            . Html::beginForm(['/site/logout'])
-            . Html::submitButton(
-                'Выход (' . Yii::$app->user->identity->username . ')',
-                ['class' => 'nav-link btn btn-link logout']
-            )
-            . Html::endForm()
-            . '</li>';
-    }
-    
-    echo Nav::widget([
-        'options' => ['class' => 'navbar-nav ms-auto mb-2 mb-md-0'],
-        'items' => $menuItems,
-    ]);
-    
-    NavBar::end();
-    ?>
-</header>
-
-<main role="main" class="flex-shrink-0">
+<main role="main" class="flex-shrink-0" style="padding-bottom: 60px;">
     <div class="container">
         <?= $content ?>
     </div>
 </main>
 
-<footer class="footer mt-auto py-3 text-muted">
+<!-- Нижнее меню -->
+<nav class="bottom-nav">
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <?= Html::a(
+                '<span class="nav-icon">📤</span><span class="nav-label">Продам</span>',
+                ['/advertisements/sell'],
+                ['class' => 'nav-link']
+            ) ?>
+        </li>
+        <li class="nav-item">
+            <?= Html::a(
+                '<span class="nav-icon">🛒</span><span class="nav-label">Куплю</span>',
+                ['/advertisements/buy'],
+                ['class' => 'nav-link']
+            ) ?>
+        </li>
+        <?php if (Yii::$app->user->isGuest): ?>
+            <li class="nav-item">
+                <?= Html::a(
+                    '<span class="nav-icon">🔑</span><span class="nav-label">Вход</span>',
+                    ['/site/login'],
+                    ['class' => 'nav-link']
+                ) ?>
+            </li>
+        <?php else: ?>
+            <li class="nav-item">
+                <?= Html::a(
+                    '<span class="nav-icon">👤</span><span class="nav-label">' . Html::encode(Yii::$app->user->identity->username) . '</span>',
+                    ['/user/profile'],
+                    ['class' => 'nav-link']
+                ) ?>
+            </li>
+        <?php endif; ?>
+    </ul>
+</nav>
+
+<footer class="footer mt-auto py-3 text-muted" style="display: none;">
     <div class="container">
         <p class="float-start">&copy; КупиПродайка <?= date('Y') ?></p>
         <p class="float-end"><?= Yii::powered() ?></p>

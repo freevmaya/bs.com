@@ -54,11 +54,12 @@ class SearchSubscription extends ActiveRecord
     }
 
     /**
-     * Получить параметры поиска в виде массива
+     * Получить параметры поиска в виде массива с нормализацией
      */
     public function getParamsArray()
     {
-        return json_decode($this->params, true) ?: [];
+        $params = json_decode($this->params, true) ?: [];
+        return $this->normalizeParams($params);
     }
 
     /**
@@ -67,6 +68,50 @@ class SearchSubscription extends ActiveRecord
     public function setParamsArray($params)
     {
         $this->params = json_encode($params, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Нормализация параметров (приведение к правильным типам)
+     */
+    private function normalizeParams($params)
+    {
+        // Если params не массив, возвращаем пустой массив
+        if (!is_array($params)) {
+            return [];
+        }
+        
+        // Список ключей, которые должны быть массивами
+        $arrayKeys = [
+            'glider_producer_ids',
+            'glider_certification_ids',
+            'harness_producer_ids',
+            'harness_sizes',
+            'device_producer_ids',
+        ];
+        
+        foreach ($arrayKeys as $key) {
+            if (isset($params[$key])) {
+                // Если значение не массив, преобразуем в массив
+                if (!is_array($params[$key])) {
+                    // Если строка содержит запятые, разбиваем
+                    if (is_string($params[$key]) && strpos($params[$key], ',') !== false) {
+                        $params[$key] = array_map('trim', explode(',', $params[$key]));
+                    } else {
+                        $params[$key] = [$params[$key]];
+                    }
+                }
+                // Удаляем пустые значения
+                $params[$key] = array_filter($params[$key], function($value) {
+                    return $value !== '' && $value !== null && $value !== '0' && $value !== 0;
+                });
+                // Если после фильтрации массив пуст, удаляем ключ
+                if (empty($params[$key])) {
+                    unset($params[$key]);
+                }
+            }
+        }
+        
+        return $params;
     }
 
     /**
@@ -98,7 +143,9 @@ class SearchSubscription extends ActiveRecord
         if (!empty($params['glider_model'])) {
             $parts[] = 'Модель: ' . $params['glider_model'];
         }
-        if (!empty($params['glider_producer_ids'])) {
+        
+        // Безопасное получение названий производителей
+        if (!empty($params['glider_producer_ids']) && is_array($params['glider_producer_ids'])) {
             $producerNames = \yii\helpers\ArrayHelper::getColumn(
                 Producer::find()->where(['id' => $params['glider_producer_ids']])->all(),
                 'name'
@@ -107,13 +154,18 @@ class SearchSubscription extends ActiveRecord
                 $parts[] = 'Производитель: ' . implode(', ', $producerNames);
             }
         }
-        if (!empty($params['glider_certification_ids'])) {
+        
+        // Безопасное получение названий сертификаций
+        if (!empty($params['glider_certification_ids']) && is_array($params['glider_certification_ids'])) {
             $certNames = \yii\helpers\ArrayHelper::getColumn(
                 Certification::find()->where(['id' => $params['glider_certification_ids']])->all(),
                 'name'
             );
-            $parts[] = 'Сертификация: ' . implode(', ', $certNames);
+            if (!empty($certNames)) {
+                $parts[] = 'Сертификация: ' . implode(', ', $certNames);
+            }
         }
+        
         if (!empty($params['glider_weight'])) {
             $parts[] = 'Вес: ' . $params['glider_weight'] . ' кг';
         }
@@ -132,14 +184,16 @@ class SearchSubscription extends ActiveRecord
         if (!empty($params['harness_model'])) {
             $parts[] = 'Модель: ' . $params['harness_model'];
         }
-        if (!empty($params['harness_producer_ids'])) {
+        if (!empty($params['harness_producer_ids']) && is_array($params['harness_producer_ids'])) {
             $producerNames = \yii\helpers\ArrayHelper::getColumn(
                 Producer::find()->where(['id' => $params['harness_producer_ids']])->all(),
                 'name'
             );
-            $parts[] = 'Производитель: ' . implode(', ', $producerNames);
+            if (!empty($producerNames)) {
+                $parts[] = 'Производитель: ' . implode(', ', $producerNames);
+            }
         }
-        if (!empty($params['harness_sizes'])) {
+        if (!empty($params['harness_sizes']) && is_array($params['harness_sizes'])) {
             $parts[] = 'Размер: ' . implode(', ', $params['harness_sizes']);
         }
         if (!empty($params['harness_date_release_min'])) {
@@ -154,12 +208,14 @@ class SearchSubscription extends ActiveRecord
         if (!empty($params['device_model'])) {
             $parts[] = 'Модель: ' . $params['device_model'];
         }
-        if (!empty($params['device_producer_ids'])) {
+        if (!empty($params['device_producer_ids']) && is_array($params['device_producer_ids'])) {
             $producerNames = \yii\helpers\ArrayHelper::getColumn(
                 Producer::find()->where(['id' => $params['device_producer_ids']])->all(),
                 'name'
             );
-            $parts[] = 'Производитель: ' . implode(', ', $producerNames);
+            if (!empty($producerNames)) {
+                $parts[] = 'Производитель: ' . implode(', ', $producerNames);
+            }
         }
         if (!empty($params['device_condition'])) {
             $conditionList = AdvertisementDevice::getConditionList();
@@ -195,7 +251,7 @@ class SearchSubscription extends ActiveRecord
      */
     public function matchesAdvertisement($advertisement)
     {
-        $params = $this->getParamsArray();
+        $params = $this->normalizeParams($this->getParamsArray());
 
         // Проверка текста поиска
         if (!empty($params['search_text'])) {
@@ -251,21 +307,15 @@ class SearchSubscription extends ActiveRecord
         }
         
         // Производитель (может быть несколько)
-        if (!empty($params['glider_producer_ids'])) {
-            $producerIds = array_filter($params['glider_producer_ids'], function($id) {
-                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
-            });
-            if (!empty($producerIds) && !in_array($glider->producer_id, $producerIds)) {
+        if (!empty($params['glider_producer_ids']) && is_array($params['glider_producer_ids'])) {
+            if (!in_array($glider->producer_id, $params['glider_producer_ids'])) {
                 return false;
             }
         }
         
         // Сертификация (может быть несколько)
-        if (!empty($params['glider_certification_ids'])) {
-            $certIds = array_filter($params['glider_certification_ids'], function($id) {
-                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
-            });
-            if (!empty($certIds) && !in_array($glider->certification_id, $certIds)) {
+        if (!empty($params['glider_certification_ids']) && is_array($params['glider_certification_ids'])) {
+            if (!in_array($glider->certification_id, $params['glider_certification_ids'])) {
                 return false;
             }
         }
@@ -316,21 +366,15 @@ class SearchSubscription extends ActiveRecord
         }
         
         // Производитель (может быть несколько)
-        if (!empty($params['harness_producer_ids'])) {
-            $producerIds = array_filter($params['harness_producer_ids'], function($id) {
-                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
-            });
-            if (!empty($producerIds) && !in_array($harness->producer_id, $producerIds)) {
+        if (!empty($params['harness_producer_ids']) && is_array($params['harness_producer_ids'])) {
+            if (!in_array($harness->producer_id, $params['harness_producer_ids'])) {
                 return false;
             }
         }
         
         // Размер (может быть несколько)
-        if (!empty($params['harness_sizes'])) {
-            $sizes = array_filter($params['harness_sizes'], function($size) {
-                return $size !== '' && $size !== null && $size !== '0';
-            });
-            if (!empty($sizes) && !in_array($harness->size, $sizes)) {
+        if (!empty($params['harness_sizes']) && is_array($params['harness_sizes'])) {
+            if (!in_array($harness->size, $params['harness_sizes'])) {
                 return false;
             }
         }
@@ -363,11 +407,8 @@ class SearchSubscription extends ActiveRecord
         }
         
         // Производитель (может быть несколько)
-        if (!empty($params['device_producer_ids'])) {
-            $producerIds = array_filter($params['device_producer_ids'], function($id) {
-                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
-            });
-            if (!empty($producerIds) && !in_array($device->producer_id, $producerIds)) {
+        if (!empty($params['device_producer_ids']) && is_array($params['device_producer_ids'])) {
+            if (!in_array($device->producer_id, $params['device_producer_ids'])) {
                 return false;
             }
         }

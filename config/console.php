@@ -26,15 +26,24 @@ $config = [
             ],
         ],
         'db' => $db,
-    ],
-    'params' => $params,
-    /*
-    'controllerMap' => [
-        'fixture' => [ // Fixture generation command line.
-            'class' => 'yii\faker\FixtureController',
+        // Добавляем notificationManager для консоли
+        'notificationManager' => [
+            'class' => 'app\components\notifications\NotificationManager',
+        ],
+        // Добавляем mailer для консоли
+        'mailer' => [
+            'class' => 'yii\symfonymailer\Mailer',
+            'useFileTransport' => true, // Для тестирования сохраняем в файлы
+            'fileTransportPath' => '@runtime/mail',
+        ],
+        // Настройка UrlManager для консоли
+        'urlManager' => [
+            'baseUrl' => 'https://bs.com',
+            'hostInfo' => 'https://bs.com',
+            'scriptUrl' => 'https://bs.com/index.php',
         ],
     ],
-    */
+    'params' => $params,
 ];
 
 if (YII_ENV_DEV) {

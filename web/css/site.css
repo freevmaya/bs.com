@@ -6,6 +6,7 @@
 @import url('search.css');
 @import url('image-grid-preview.css');
 @import url('image-sortable.css');
+@import url('bottom-nav.css');  /* Добавлено */
 
 :root {
     --primary-color: #3498db;
@@ -41,10 +42,6 @@
 
 .nav-item {
     text-wrap-mode: nowrap;
-}
-
-main > .container {
-    margin-top: 50px;
 }
 
 .media {

@@ -724,11 +724,18 @@ class AdvertisementsController extends Controller
                     continue; // Не отправляем повторно в течение часа
                 }
                 
-                $this->sendSubscriptionNotification($advertisement, $subscription);
-                $notified++;
+                // Отправляем уведомление и получаем результат
+                $result = $this->sendSubscriptionNotification($advertisement, $subscription);
                 
-                $subscription->last_notified_at = time();
-                $subscription->save();
+                // Обновляем время последнего уведомления ТОЛЬКО если отправка успешна
+                if ($result) {
+                    $subscription->last_notified_at = time();
+                    $subscription->save(false);
+                    $notified++;
+                    Yii::info("Subscription notification sent successfully to user {$subscription->user_id}", 'search_subscription');
+                } else {
+                    Yii::warning("Subscription notification FAILED for user {$subscription->user_id}", 'search_subscription');
+                }
             }
         }
         
@@ -738,11 +745,15 @@ class AdvertisementsController extends Controller
 
     /**
      * Отправка уведомления подписчику
+     * @return bool true если уведомление успешно отправлено хотя бы по одному каналу
      */
     protected function sendSubscriptionNotification($advertisement, $subscription)
     {
         $user = $subscription->user;
-        if (!$user) return;
+        if (!$user) {
+            Yii::warning("User not found for subscription {$subscription->id}", 'search_subscription');
+            return false;
+        }
         
         $subject = "Новое объявление по вашей подписке: {$advertisement->title}";
         $message = $this->buildSubscriptionMessage($advertisement, $subscription);
@@ -757,9 +768,17 @@ class AdvertisementsController extends Controller
                 ['html_body' => $this->buildSubscriptionHtmlMessage($advertisement, $subscription)]
             );
             
-            Yii::info("Subscription notification sent to user {$user->id}", 'search_subscription');
+            // Проверяем, было ли успешно отправлено хотя бы по одному каналу
+            if ($result && is_array($result) && in_array(true, $result)) {
+                Yii::info("Subscription notification sent to user {$user->id}", 'search_subscription');
+                return true;
+            } else {
+                Yii::error("Subscription notification failed for user {$user->id}", 'search_subscription');
+                return false;
+            }
         } catch (\Exception $e) {
             Yii::error("Failed to send subscription notification: " . $e->getMessage(), 'search_subscription');
+            return false;
         }
     }
 

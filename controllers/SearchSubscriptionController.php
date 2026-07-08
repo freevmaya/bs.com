@@ -43,7 +43,7 @@ class SearchSubscriptionController extends Controller
 
     /**
      * Создание подписки из параметров поиска
-     * Исправлено: сохраняем параметры в правильном формате
+     * Исправлено: сохраняем параметры в правильном формате с логированием
      */
     public function actionCreate()
     {
@@ -52,7 +52,13 @@ class SearchSubscriptionController extends Controller
         $params = Yii::$app->request->post('params');
         $section = Yii::$app->request->post('section');
 
+        // Логируем полученные данные
+        Yii::info('SearchSubscription create request', 'search_subscription');
+        Yii::info('Params: ' . json_encode($params), 'search_subscription');
+        Yii::info('Section: ' . $section, 'search_subscription');
+
         if (!$params || !$section) {
+            Yii::warning('Missing params or section', 'search_subscription');
             return ['success' => false, 'error' => 'Не указаны параметры поиска'];
         }
 
@@ -69,9 +75,12 @@ class SearchSubscriptionController extends Controller
             
             // Если значение - массив, очищаем каждый элемент
             if (is_array($value)) {
-                $cleanedParams[$cleanKey] = array_values(array_filter($value, function($item) {
+                $filtered = array_filter($value, function($item) {
                     return $item !== '' && $item !== null && $item !== '0';
-                }));
+                });
+                if (!empty($filtered)) {
+                    $cleanedParams[$cleanKey] = array_values($filtered);
+                }
             } else {
                 // Пропускаем пустые значения
                 if ($value === '' || $value === null || $value === '0') {
@@ -81,8 +90,12 @@ class SearchSubscriptionController extends Controller
             }
         }
 
+        // Логируем очищенные параметры
+        Yii::info('Cleaned params: ' . json_encode($cleanedParams), 'search_subscription');
+
         // Проверяем, есть ли вообще параметры после очистки
         if (empty($cleanedParams)) {
+            Yii::warning('No significant params after cleaning', 'search_subscription');
             return ['success' => false, 'error' => 'Нет значимых параметров для подписки'];
         }
 
@@ -107,9 +120,11 @@ class SearchSubscriptionController extends Controller
         $subscription->is_active = true;
 
         if ($subscription->save()) {
+            Yii::info('Subscription created: ' . $subscription->id, 'search_subscription');
             return ['success' => true, 'message' => 'Подписка создана'];
         }
 
+        Yii::error('Failed to save subscription: ' . json_encode($subscription->errors), 'search_subscription');
         return ['success' => false, 'error' => 'Ошибка при создании подписки: ' . json_encode($subscription->errors)];
     }
 
