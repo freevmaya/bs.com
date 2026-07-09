@@ -412,3 +412,235 @@
 * {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+/* ============================================
+   Монохромные иконки
+   ============================================ */
+
+/* Все иконки по умолчанию — серые */
+.glyphicon,
+.glyphicon-class,
+[class*="glyphicon-"],
+.nav-icon,
+.extension-icon,
+.profile-avatar,
+.footer-logo-light,
+.footer-logo-dark {
+    color: #6c757d !important;
+    transition: color 0.3s ease, fill 0.3s ease;
+}
+
+/* SVG иконки по умолчанию — серые */
+svg {
+    color: #6c757d;
+    stroke: #6c757d;
+    fill: #6c757d;
+    transition: color 0.3s ease, stroke 0.3s ease, fill 0.3s ease;
+}
+
+/* При наведении — синие */
+a:hover .glyphicon,
+a:hover .glyphicon-class,
+a:hover [class*="glyphicon-"],
+button:hover .glyphicon,
+button:hover .glyphicon-class,
+button:hover [class*="glyphicon-"],
+.nav-link:hover .nav-icon,
+.nav-link.active .nav-icon,
+a:hover .nav-icon,
+button:hover .nav-icon,
+.btn:hover .glyphicon,
+.btn-primary:hover .glyphicon,
+.btn-success:hover .glyphicon,
+.btn-info:hover .glyphicon,
+.btn-warning:hover .glyphicon,
+.btn-danger:hover .glyphicon {
+    color: #0d6efd !important;
+}
+
+/* SVG при наведении на ссылку или кнопку */
+a:hover svg,
+button:hover svg,
+.btn:hover svg {
+    color: #0d6efd !important;
+    stroke: #0d6efd !important;
+    fill: #0d6efd !important;
+}
+
+/* Исключение для кнопок с белыми иконками (на тёмном фоне) */
+.btn-primary .glyphicon,
+.btn-success .glyphicon,
+.btn-danger .glyphicon,
+.btn-info .glyphicon,
+.btn-warning .glyphicon,
+.btn-dark .glyphicon,
+.btn-primary svg,
+.btn-success svg,
+.btn-danger svg,
+.btn-info svg,
+.btn-warning svg,
+.btn-dark svg,
+.btn-primary .nav-icon,
+.btn-success .nav-icon,
+.btn-danger .nav-icon,
+.btn-info .nav-icon,
+.btn-warning .nav-icon,
+.btn-dark .nav-icon {
+    color: #fff !important;
+    stroke: #fff !important;
+    fill: #fff !important;
+}
+
+/* При наведении на кнопки с тёмным фоном — иконки остаются белыми */
+.btn-primary:hover .glyphicon,
+.btn-success:hover .glyphicon,
+.btn-danger:hover .glyphicon,
+.btn-info:hover .glyphicon,
+.btn-warning:hover .glyphicon,
+.btn-dark:hover .glyphicon,
+.btn-primary:hover svg,
+.btn-success:hover svg,
+.btn-danger:hover svg,
+.btn-info:hover svg,
+.btn-warning:hover svg,
+.btn-dark:hover svg {
+    color: #fff !important;
+    stroke: #fff !important;
+    fill: #fff !important;
+}
+
+/* Для ссылок в навигации (нижнее меню) */
+.bottom-nav .navbar-nav .nav-link .nav-icon {
+    color: #8a8a8a !important;
+    transition: color 0.3s ease;
+}
+
+.bottom-nav .navbar-nav .nav-link:hover .nav-icon,
+.bottom-nav .navbar-nav .nav-link.active .nav-icon {
+    color: #0d6efd !important;
+}
+
+/* Для эмодзи в меню — превращаем их в монохромные с помощью фильтра */
+.bottom-nav .navbar-nav .nav-link .nav-icon {
+    filter: grayscale(1) brightness(0.5);
+    transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+.bottom-nav .navbar-nav .nav-link:hover .nav-icon,
+.bottom-nav .navbar-nav .nav-link.active .nav-icon {
+    filter: grayscale(0) brightness(1);
+}
+
+/* Для темной темы — корректировка */
+[data-bs-theme="dark"] .glyphicon,
+[data-bs-theme="dark"] .glyphicon-class,
+[data-bs-theme="dark"] [class*="glyphicon-"],
+[data-bs-theme="dark"] .nav-icon {
+    color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] a:hover .glyphicon,
+[data-bs-theme="dark"] button:hover .glyphicon,
+[data-bs-theme="dark"] .nav-link:hover .nav-icon,
+[data-bs-theme="dark"] .nav-link.active .nav-icon {
+    color: #6ea8fe !important;
+}
+
+[data-bs-theme="dark"] .bottom-nav .navbar-nav .nav-link .nav-icon {
+    filter: grayscale(1) brightness(0.7);
+}
+
+[data-bs-theme="dark"] .bottom-nav .navbar-nav .nav-link:hover .nav-icon,
+[data-bs-theme="dark"] .bottom-nav .navbar-nav .nav-link.active .nav-icon {
+    filter: grayscale(0) brightness(1);
+    color: #6ea8fe !important;
+}
+
+/* Исключение для иконок с флагами и другими цветными элементами */
+.notification .glyphicon,
+.alert .glyphicon,
+.label .glyphicon {
+    color: inherit !important;
+}
+
+/* ============================================
+   Кнопка переключения темы
+   ============================================ */
+
+#theme-toggle .nav-icon {
+    font-size: 20px;
+    line-height: 1.2;
+    display: block;
+    margin-bottom: 1px;
+    filter: grayscale(1) brightness(0.5);
+    transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+#theme-toggle:hover .nav-icon {
+    filter: grayscale(0) brightness(1);
+    transform: scale(1.1);
+}
+
+#theme-toggle .nav-label {
+    font-size: 9px;
+    line-height: 1.2;
+    display: block;
+    color: #8a8a8a;
+}
+
+#theme-toggle:hover .nav-label {
+    color: #ffffff;
+}
+
+[data-bs-theme="light"] #theme-toggle .nav-icon {
+    filter: grayscale(1) brightness(0.4);
+}
+
+[data-bs-theme="light"] #theme-toggle:hover .nav-icon {
+    filter: grayscale(0) brightness(1);
+}
+
+/* ============================================
+   Монохромные эмодзи (profile-avatar, extension-icon)
+   ============================================ */
+
+.profile-avatar {
+    display: block;
+    font-size: 80px;
+    line-height: 1;
+    filter: grayscale(1) brightness(0.5);
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.profile-header:hover .profile-avatar {
+    filter: grayscale(0) brightness(1);
+    transform: scale(1.05);
+}
+
+[data-bs-theme="dark"] .profile-avatar {
+    filter: grayscale(1) brightness(0.7);
+}
+
+[data-bs-theme="dark"] .profile-header:hover .profile-avatar {
+    filter: grayscale(0) brightness(1);
+}
+
+.extension-icon {
+    font-size: 24px;
+    line-height: 1;
+    filter: grayscale(1) brightness(0.4);
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.extension-card:hover .extension-icon {
+    filter: grayscale(0) brightness(1);
+    transform: scale(1.15);
+}
+
+[data-bs-theme="dark"] .extension-icon {
+    filter: grayscale(1) brightness(0.6);
+}
+
+[data-bs-theme="dark"] .extension-card:hover .extension-icon {
+    filter: grayscale(0) brightness(1);
+}

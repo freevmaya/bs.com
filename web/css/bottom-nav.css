@@ -24,10 +24,11 @@
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-    width: 100%;
+    width: 80%;
     margin: 0;
     padding: 0;
     list-style: none;
+    margin-left: 10%;
 }
 
 .bottom-nav .navbar-nav .nav-item {
@@ -59,11 +60,22 @@
     background: none;
 }
 
+/* Иконки в нижнем меню — монохромные */
 .bottom-nav .navbar-nav .nav-link .nav-icon {
     font-size: 22px;
     line-height: 1.2;
     display: block;
     margin-bottom: 1px;
+    /* Делаем монохромными с помощью grayscale + brightness */
+    filter: grayscale(1) brightness(0.5);
+    transition: filter 0.3s ease, transform 0.2s ease, color 0.3s ease;
+}
+
+.bottom-nav .navbar-nav .nav-link:hover .nav-icon,
+.bottom-nav .navbar-nav .nav-link.active .nav-icon {
+    filter: grayscale(0) brightness(1);
+    transform: scale(1.1);
+    color: #0d6efd !important;
 }
 
 .bottom-nav .navbar-nav .nav-link .nav-label {
@@ -91,7 +103,7 @@
     left: 25%;
     right: 25%;
     height: 2px;
-    background: #ffffff;
+    background: #0d6efd;
     border-radius: 0 0 2px 2px;
 }
 
@@ -126,4 +138,51 @@ body {
     .bottom-nav .navbar-nav .nav-item {
         padding: 4px 0 6px 0;
     }
+}
+
+/* ============================================
+   Светлая тема для нижнего меню
+   ============================================ */
+
+[data-bs-theme="light"] .bottom-nav {
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link {
+    color: #6c757d;
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link:hover,
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link.active {
+    color: #212529;
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link .nav-label {
+    color: #6c757d;
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link:hover .nav-label,
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link.active .nav-label {
+    color: #212529;
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link .nav-icon {
+    filter: grayscale(1) brightness(0.4);
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link:hover .nav-icon,
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link.active .nav-icon {
+    filter: grayscale(0) brightness(1);
+    color: #0d6efd !important;
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-item.active .nav-link::after {
+    background: #0d6efd;
+}
+
+/* Плавный переход при смене темы */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
 }

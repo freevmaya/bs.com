@@ -13,14 +13,14 @@ use yii\helpers\Html;
     <ul class="navbar-nav">
         <li class="nav-item">
             <?= Html::a(
-                '<span class="nav-icon">📤</span><span class="nav-label">Продам</span>',
+                '<span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span><span class="nav-label">Продам</span>',
                 ['/advertisements/sell'],
                 ['class' => 'nav-link']
             ) ?>
         </li>
         <li class="nav-item">
             <?= Html::a(
-                '<span class="nav-icon">🛒</span><span class="nav-label">Куплю</span>',
+                '<span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span><span class="nav-label">Куплю</span>',
                 ['/advertisements/buy'],
                 ['class' => 'nav-link']
             ) ?>
@@ -28,7 +28,7 @@ use yii\helpers\Html;
         <?php if (Yii::$app->user->isGuest): ?>
             <li class="nav-item">
                 <?= Html::a(
-                    '<span class="nav-icon">🔑</span><span class="nav-label">Вход</span>',
+                    '<span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span><span class="nav-label">Вход</span>',
                     ['/site/login'],
                     ['class' => 'nav-link']
                 ) ?>
@@ -36,23 +36,23 @@ use yii\helpers\Html;
         <?php else: ?>
             <li class="nav-item">
                 <?= Html::a(
-                    '<span class="nav-icon">👤</span><span class="nav-label">' . Html::encode(Yii::$app->user->identity->username) . '</span>',
+                    '<span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="nav-label">' . Html::encode(Yii::$app->user->identity->username) . '</span>',
                     ['/user/profile'],
                     ['class' => 'nav-link']
                 ) ?>
             </li>
         <?php endif; ?>
 
-            <li class="nav-item">
-                <?= Html::button(
-                    '🌓',  // Или можно использовать 🌙/☀️
-                    [
-                        'id' => 'theme-toggle',
-                        'class' => 'btn btn-link nav-link fs-5',
-                        'aria-label' => 'Переключить тему',
-                        'style' => 'color: #fff; padding: 0 15px; font-size: 24px;',
-                    ],
-                ) ?>
-            </li>
+        <li class="nav-item">
+            <?= Html::button(
+                '<span class="nav-icon" style="font-size: 20px;">
+                </span><span class="nav-label" id="theme-label">Тема</span>',
+                [
+                    'id' => 'theme-toggle',
+                    'class' => 'btn btn-link nav-link',
+                    'aria-label' => 'Переключить тему',
+                ],
+            ) ?>
+        </li>
     </ul>
 </nav>
