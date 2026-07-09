@@ -27,9 +27,9 @@ class NotificationManager extends Component
         $this->registerChannel(new \app\components\notifications\channels\SmsChannel());
         $this->registerChannel(new \app\components\notifications\channels\VkChannel());
         
-        // Регистрируем события
-        $this->registerEvent('new_advertisement', 'Новое объявление');
-        $this->registerEvent('search_subscription', 'Подписка на поиск');
+        // Регистрируем все события
+        $this->registerEvent('search_subscription', 'Новое объявление по критериям подписки');
+        $this->registerEvent('new_advertisement', 'Новое объявление на сайте');
     }
     
     /**

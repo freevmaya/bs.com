@@ -33,17 +33,34 @@ class User extends ActiveRecord implements IdentityInterface
             [['username'], 'unique'],
             [['email'], 'email'],
             [['email'], 'unique'],
-            [['phone', 'city'], 'string', 'max' => 100],
+            [['phone', 'city', 'vk_id', 'vk_profile_url'], 'string', 'max' => 255],
+            [['vk_id'], 'match', 'pattern' => '/^\d+$/', 'message' => 'ID в VK должен содержать только цифры'],
+            [['vk_profile_url'], 'validateVkProfileUrl'],
             [['password'], 'string', 'min' => 6, 'on' => 'register'],
             [['password_repeat'], 'compare', 'compareAttribute' => 'password', 'on' => 'register'],
         ];
     }
     
+    /**
+     * Валидация ссылки на профиль VK
+     */
+    public function validateVkProfileUrl($attribute, $params)
+    {
+        if (empty($this->$attribute)) {
+            return;
+        }
+        
+        // Проверяем, что ссылка ведет на VK
+        if (!preg_match('/^https?:\/\/(?:www\.)?vk\.com\/(?:id\d+|[\w\.]+)$/i', $this->$attribute)) {
+            $this->addError($attribute, 'Введите корректную ссылку на профиль VK (например: https://vk.com/durov)');
+        }
+    }
+    
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios['register'] = ['username', 'email', 'password', 'password_repeat', 'phone', 'city'];
-        $scenarios['update'] = ['username', 'email', 'phone', 'city'];
+        $scenarios['register'] = ['username', 'email', 'password', 'password_repeat', 'phone', 'city', 'vk_profile_url'];
+        $scenarios['update'] = ['username', 'email', 'phone', 'city', 'vk_profile_url'];
         return $scenarios;
     }
     
@@ -57,6 +74,8 @@ class User extends ActiveRecord implements IdentityInterface
             'password_repeat' => 'Повторите пароль',
             'phone' => 'Телефон',
             'city' => 'Город',
+            'vk_id' => 'ID в VK',
+            'vk_profile_url' => 'Ссылка на профиль VK',
             'created_at' => 'Дата регистрации',
         ];
     }

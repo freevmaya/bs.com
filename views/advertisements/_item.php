@@ -102,7 +102,7 @@ $shortInfoString = implode(' | ', $shortInfo);
                 </div>
             <?php endif; ?>
             
-            <div class="advertisement-meta" style="font-size: 12px; color: #666;">
+            <div class="advertisement-meta">
                 <span class="glyphicon glyphicon-tag"></span> <strong><?= $priceText ?></strong>
                 <?php if ($model->city): ?>
                     | <span class="glyphicon glyphicon-map-marker"></span> <?= Html::encode($model->city) ?>

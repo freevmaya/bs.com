@@ -25,7 +25,7 @@
 
 /* Дополнительные стили для объявлений */
 .advertisement-meta {
-    font-size: 12px;
+    font-size: 16px;
     color: #666;
     margin-top: 10px;
 }
@@ -57,7 +57,20 @@
     border-radius: 1em;
 }
 
+.list-view {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.list-view > div {
+    width: 330px;
+}
+
 .list-view .media {
+    display: flex;
+    flex-direction: column;
     padding: 1rem;
     text-decoration: none;
     margin-bottom: 20px;
@@ -65,13 +78,6 @@
 
 .list-view .media:hover {
     background: #283939;
-}
-
-@media (min-width: 992px) {
-    .list-view .media {
-        display: flex;
-        flex-direction: row;
-    }
 }
 
 .price-large {
@@ -184,28 +190,8 @@
     border-color: #ddd;
 }
 
-[data-bs-theme="dark"] .panel-default {
-    border-color: #444;
-    background: #2a2a2a;
-}
-
-[data-bs-theme="light"] .panel-default .panel-heading {
-    background-color: #f5f5f5;
-    color: #333;
-}
-
 [data-bs-theme="dark"] .panel-default .panel-heading {
     background-color: #333;
-    color: #eee;
-}
-
-[data-bs-theme="light"] .panel-default .panel-body {
-    background-color: #fff;
-    color: #333;
-}
-
-[data-bs-theme="dark"] .panel-default .panel-body {
-    background-color: #2a2a2a;
     color: #eee;
 }
 

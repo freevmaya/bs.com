@@ -10,16 +10,13 @@ return [
     'sms_api_url' => 'https://sms.ru/send',
     
     // Настройки для VK
-    'vk_access_token' => 'your_vk_access_token',
+    'vk_access_token' => 'vk1.a.f13FiAyX8EGlICNdvmjy83T9YhlYAM0ay6OxRVN-2NSR5ZfRrExzzphvSigozC3EV-S2sC4uN5axQXIgVeIoyp-WWWT6Gk6Lx62ClBKxafwk7LNUaXnfntZsn0GBq2IMkIUPPXueTymWzixZTVBxwxZFE2ycvBUWkGKU97aQ3BAkPUaUyCLp-BJI0k0UAMB7OXp7jwgxwpZ4ZcTid1AwhQ', // Замените на реальный токен
+    'vk_group_id' => 240146240, // ID вашего сообщества (для отправки от имени сообщества)
+    'vk_confirm_token' => 'ew3243dew32re2e32e', // Для callback API
     
     // Настройки для FFmpeg
     'ffmpeg_paths' => [
-        'ffmpeg', // если в PATH
-        'C:\ffmpeg\bin\ffmpeg.exe',
-        'D:\Programs\ffmpeg\bin\ffmpeg.exe',
-        'C:\Program Files\ffmpeg\bin\ffmpeg.exe',
-        'C:\Program Files (x86)\ffmpeg\bin\ffmpeg.exe',
-        '/usr/bin/ffmpeg', // для Linux
-        '/usr/local/bin/ffmpeg', // для Linux
+        'ffmpeg',
+        // ...
     ]
 ];

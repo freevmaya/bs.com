@@ -8,6 +8,7 @@ use yii\console\ExitCode;
 use yii\helpers\Console;
 use app\models\Advertisement;
 use app\models\SearchSubscription;
+use app\components\notifications\channels\VkChannel;
 
 /**
  * Тестовый контроллер для отладки уведомлений и подписок
@@ -21,6 +22,10 @@ use app\models\SearchSubscription;
  *   php yii test-notification/clear-logs
  *   php yii test-notification/show-subscription 1
  *   php yii test-notification/check-channels
+ *   php yii test-notification/test-vk 123456789
+ *   php yii test-notification/test-vk 123456789 "Привет!"
+ *   php yii test-notification/check-vk-config
+ *   php yii test-notification/test-email test@example.com
  */
 class TestNotificationController extends Controller
 {
@@ -582,19 +587,24 @@ class TestNotificationController extends Controller
         
         $usersWithEmail = \app\models\User::find()->where(['not', ['email' => null]])->andWhere(['!=', 'email', ''])->count();
         $usersWithPhone = \app\models\User::find()->where(['not', ['phone' => null]])->andWhere(['!=', 'phone', ''])->count();
+        $usersWithVk = \app\models\User::find()->where(['not', ['vk_profile_url' => null]])->andWhere(['!=', 'vk_profile_url', ''])->count();
         
         $this->stdout("Пользователей с email: {$usersWithEmail}\n");
         $this->stdout("Пользователей с телефоном: {$usersWithPhone}\n");
+        $this->stdout("Пользователей с VK: {$usersWithVk}\n");
         
         return ExitCode::OK;
     }
 
     /**
      * Тестовая отправка email напрямую
+     * 
+     * @param string $to Email получателя
      */
-    public function actionTestEmail()
+    public function actionTestEmail($to = 'test@example.com')
     {
-        $to = 'test@example.com'; // Замените на email пользователя
+        $this->stdout("=== ТЕСТ EMAIL ===\n", Console::FG_YELLOW);
+        $this->stdout("Получатель: {$to}\n");
         
         try {
             // Проверяем, что mailer зарегистрирован
@@ -609,7 +619,6 @@ class TestNotificationController extends Controller
             $senderName = Yii::$app->params['senderName'] ?? 'BS.com';
             
             $this->stdout("Отправитель: {$senderEmail} ({$senderName})\n", Console::FG_CYAN);
-            $this->stdout("Получатель: {$to}\n", Console::FG_CYAN);
             
             // Пробуем отправить через mailer с указанием From
             $message = Yii::$app->mailer->compose()
@@ -656,6 +665,222 @@ class TestNotificationController extends Controller
         } catch (\Exception $e) {
             $this->stderr("❌ Ошибка: " . $e->getMessage() . "\n", Console::FG_RED);
             $this->stderr($e->getTraceAsString() . "\n", Console::FG_RED);
+        }
+        
+        return ExitCode::OK;
+    }
+
+    /**
+     * Тестовая отправка сообщения в VK
+     * 
+     * @param int $userId ID пользователя в VK
+     * @param string $message Текст сообщения (опционально)
+     */
+    public function actionTestVk($userId, $message = 'Тестовое сообщение от сайта BS.com')
+    {
+        $this->stdout("=== ТЕСТ ОТПРАВКИ В VK ===\n", Console::FG_YELLOW);
+        $this->stdout("Получатель VK ID: {$userId}\n");
+        $this->stdout("Сообщение: {$message}\n\n");
+        
+        // Проверяем настройки
+        $accessToken = Yii::$app->params['vk_access_token'] ?? null;
+        if (!$accessToken || $accessToken === 'ваш_токен_доступа_от_сообщества_или_пользователя') {
+            $this->stderr("❌ VK access_token не настроен в config/params.php\n", Console::FG_RED);
+            $this->stdout("Добавьте параметр 'vk_access_token' в config/params.php\n");
+            $this->stdout("Как получить токен:\n");
+            $this->stdout("  1. Перейдите в настройки сообщества\n");
+            $this->stdout("  2. Найдите раздел 'Работа с API'\n");
+            $this->stdout("  3. Создайте ключ доступа с правом 'Сообщения сообщества'\n");
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        
+        $this->stdout("✅ VK access_token найден\n", Console::FG_GREEN);
+        
+        // Проверяем access_token
+        $this->stdout("\nПроверка токена...\n", Console::FG_CYAN);
+        $checkResult = $this->checkVkToken($accessToken);
+        if (!$checkResult['success']) {
+            $this->stderr("❌ Токен недействителен: " . $checkResult['error'] . "\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        $this->stdout("✅ Токен действителен\n", Console::FG_GREEN);
+        
+        // Создаем канал VK
+        $vkChannel = new VkChannel($accessToken);
+        
+        // Отправляем сообщение
+        $this->stdout("\nОтправка сообщения...\n", Console::FG_CYAN);
+        
+        try {
+            $result = $vkChannel->send(
+                $userId,           // Получатель
+                'Тест VK',         // Subject (не используется в VK)
+                $message,          // Текст сообщения
+                []                 // Дополнительные опции
+            );
+            
+            if ($result) {
+                $this->stdout("✅ Сообщение успешно отправлено пользователю VK ID: {$userId}\n", Console::FG_GREEN);
+            } else {
+                $this->stderr("❌ Не удалось отправить сообщение\n", Console::FG_RED);
+                $this->stdout("\nВозможные причины:\n");
+                $this->stdout("  1. Пользователь не подписан на сообщения сообщества\n");
+                $this->stdout("  2. У пользователя закрыт доступ к сообщениям\n");
+                $this->stdout("  3. Превышен лимит запросов к VK API\n");
+            }
+        } catch (\Exception $e) {
+            $this->stderr("❌ Ошибка: " . $e->getMessage() . "\n", Console::FG_RED);
+            $this->stderr($e->getTraceAsString() . "\n", Console::FG_RED);
+        }
+        
+        return ExitCode::OK;
+    }
+
+    /**
+     * Проверка настроек VK
+     */
+    public function actionCheckVkConfig()
+    {
+        $this->stdout("=== ПРОВЕРКА НАСТРОЕК VK ===\n", Console::FG_YELLOW);
+        
+        $accessToken = Yii::$app->params['vk_access_token'] ?? null;
+        $groupId = Yii::$app->params['vk_group_id'] ?? null;
+        $confirmToken = Yii::$app->params['vk_confirm_token'] ?? null;
+        
+        $this->stdout("Access token: " . ($accessToken ? '✅ Установлен' : '❌ Не установлен') . "\n");
+        if ($accessToken) {
+            $this->stdout("  Токен (первые 10 символов): " . substr($accessToken, 0, 10) . "...\n");
+            
+            // Проверяем токен
+            $this->stdout("\nПроверка токена...\n", Console::FG_CYAN);
+            $checkResult = $this->checkVkToken($accessToken);
+            if ($checkResult['success']) {
+                $this->stdout("✅ Токен действителен\n", Console::FG_GREEN);
+                if (isset($checkResult['group_name'])) {
+                    $this->stdout("  Группа: {$checkResult['group_name']} (ID: {$checkResult['group_id']})\n", Console::FG_CYAN);
+                }
+            } else {
+                $this->stderr("❌ Токен недействителен: " . $checkResult['error'] . "\n", Console::FG_RED);
+            }
+        }
+        
+        $this->stdout("\nGroup ID: " . ($groupId ? '✅ Установлен' : '❌ Не установлен') . "\n");
+        $this->stdout("Confirm token: " . ($confirmToken ? '✅ Установлен' : '❌ Не установлен') . "\n");
+        
+        $this->stdout("\nРекомендации по настройке:\n");
+        $this->stdout("  1. Создайте сообщество VK или используйте существующее\n");
+        $this->stdout("  2. В настройках сообщества включите 'Сообщения сообщества'\n");
+        $this->stdout("  3. В разделе 'Работа с API' создайте ключ доступа с правом 'Сообщения сообщества'\n");
+        $this->stdout("  4. Скопируйте ключ в config/params.php как 'vk_access_token'\n");
+        $this->stdout("  5. Скопируйте ID группы в config/params.php как 'vk_group_id'\n");
+        
+        return ExitCode::OK;
+    }
+
+    /**
+     * Проверка VK токена через API
+     * 
+     * @param string $accessToken
+     * @return array
+     */
+    private function checkVkToken($accessToken)
+    {
+        try {
+            $client = new \yii\httpclient\Client();
+            $response = $client->get('https://api.vk.com/method/groups.getById', [
+                'access_token' => $accessToken,
+                'v' => '5.131',
+            ])->send();
+            
+            if ($response->isOk) {
+                $data = $response->data;
+                if (isset($data['response']) && !empty($data['response'])) {
+                    $group = $data['response'][0];
+                    return [
+                        'success' => true,
+                        'group_id' => $group['id'],
+                        'group_name' => $group['name'],
+                    ];
+                }
+                if (isset($data['error'])) {
+                    return [
+                        'success' => false,
+                        'error' => $data['error']['error_msg'] ?? 'Неизвестная ошибка API',
+                    ];
+                }
+            }
+            return ['success' => false, 'error' => 'Ошибка соединения с VK API'];
+        } catch (\Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Тестовая отправка сообщения в VK через прямой API запрос (без NotificationManager)
+     * 
+     * @param int $userId ID пользователя в VK
+     * @param string $message Текст сообщения (опционально)
+     */
+    public function actionTestVkDirect($userId, $message = 'Тестовое сообщение от сайта BS.com')
+    {
+        $this->stdout("=== ТЕСТ ОТПРАВКИ В VK (прямой API) ===\n", Console::FG_YELLOW);
+        $this->stdout("Получатель VK ID: {$userId}\n");
+        $this->stdout("Сообщение: {$message}\n\n");
+        
+        $accessToken = Yii::$app->params['vk_access_token'] ?? null;
+        if (!$accessToken) {
+            $this->stderr("❌ VK access_token не настроен\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        
+        $this->stdout("Отправка через прямой API...\n", Console::FG_CYAN);
+        
+        try {
+            $client = new \yii\httpclient\Client();
+            $response = $client->post('https://api.vk.com/method/messages.send', [
+                'user_id' => $userId,
+                'message' => $message,
+                'random_id' => rand(1, 1000000),
+                'v' => '5.131',
+                'access_token' => $accessToken,
+            ])->send();
+            
+            if ($response->isOk) {
+                $data = $response->data;
+                if (isset($data['response'])) {
+                    $this->stdout("✅ Сообщение отправлено! ID сообщения: {$data['response']}\n", Console::FG_GREEN);
+                } elseif (isset($data['error'])) {
+                    $this->stderr("❌ Ошибка VK API: " . ($data['error']['error_msg'] ?? 'Неизвестная ошибка') . "\n", Console::FG_RED);
+                    $this->stdout("Код ошибки: " . ($data['error']['error_code'] ?? '') . "\n");
+                    
+                    // Расшифровка ошибок
+                    $errorCode = $data['error']['error_code'] ?? 0;
+                    $this->stdout("\nРасшифровка ошибки:\n");
+                    switch ($errorCode) {
+                        case 7:
+                            $this->stdout("  - Нет прав на отправку сообщений этому пользователю\n");
+                            break;
+                        case 14:
+                            $this->stdout("  - Требуется капча\n");
+                            break;
+                        case 15:
+                            $this->stdout("  - Пользователь заблокировал сообщения сообщества\n");
+                            break;
+                        case 200:
+                            $this->stdout("  - Доступ запрещен\n");
+                            break;
+                        case 901:
+                            $this->stdout("  - Пользователь не подписан на сообщения сообщества\n");
+                            break;
+                        default:
+                            $this->stdout("  - См. документацию VK API\n");
+                    }
+                }
+            } else {
+                $this->stderr("❌ Ошибка HTTP: " . $response->statusCode . "\n", Console::FG_RED);
+            }
+        } catch (\Exception $e) {
+            $this->stderr("❌ Ошибка: " . $e->getMessage() . "\n", Console::FG_RED);
         }
         
         return ExitCode::OK;

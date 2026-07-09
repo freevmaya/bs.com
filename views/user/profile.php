@@ -34,6 +34,9 @@ $this->registerCssFile('@web/css/user-profile.css', ['depends' => [\yii\bootstra
                 <span class="label">Подписок</span>
             </div>
         </div>
+        <?php if ($user->vk_id): ?>
+            <p><strong>VK ID:</strong> <?= Html::encode($user->vk_id) ?></p>
+        <?php endif; ?>
     </div>
 
     <!-- Меню профиля -->

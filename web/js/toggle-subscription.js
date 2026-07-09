@@ -1,5 +1,5 @@
 /**
- * Toggle Subscription - управление подписками на уведомления
+ * Toggle Subscription - управление каналами уведомлений с переключателями (switches)
  */
 
 (function($) {
@@ -8,57 +8,132 @@
     $(document).ready(function() {
         var csrfToken = $('meta[name="csrf-token"]').attr('content') || $('[name="_csrf"]').val();
 
-        $(document).on('click', '.toggle-subscription', function() {
-            var $button = $(this);
-            var event = $button.data('event');
-            var channel = $button.data('channel');
-            var isSubscribed = $button.hasClass('btn-success');
-
-            var url = isSubscribed
-                ? $button.data('unsubscribe-url') || '/notification/unsubscribe'
-                : $button.data('subscribe-url') || '/notification/subscribe';
-
-            $button.prop('disabled', true);
-            $button.text('Обработка...');
-
+        $(document).on('change', '.toggle-channel', function(event) {
+            var $switch = $(this);
+            var channel = $switch.data('channel');
+            
+            // Проверяем, не заблокирован ли переключатель
+            if ($switch.prop('disabled')) {
+                // Возвращаем предыдущее состояние
+                var previousActive = $switch.data('active') === 'true';
+                $switch.prop('checked', previousActive);
+                return;
+            }
+            
+            // Определяем новое состояние (которое хочет установить пользователь)
+            var newActive = $switch.prop('checked');
+            
+            // Блокируем переключатель
+            $switch.prop('disabled', true).addClass('updating');
+            
+            // Определяем URL в зависимости от действия
+            var url = newActive 
+                ? $switch.data('enable-url') 
+                : $switch.data('disable-url');
+            
+            var actionText = newActive ? 'включение' : 'выключение';
+            
             $.ajax({
                 url: url,
                 type: 'POST',
                 data: {
-                    event: event,
                     channel: channel,
                     _csrf: csrfToken
                 },
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        if (isSubscribed) {
-                            $button.removeClass('btn-success').addClass('btn-default');
-                            $button.text('Подписаться');
-                        } else {
-                            $button.removeClass('btn-default').addClass('btn-success');
-                            $button.text('✓ Подписан');
+                        // Обновляем data-атрибут
+                        $switch.data('active', newActive ? 'true' : 'false');
+                        
+                        // Обновляем текст статуса
+                        var $setting = $switch.closest('.channel-setting');
+                        var $statusText = $setting.find('.toggle-status');
+                        if ($statusText.length) {
+                            if (newActive) {
+                                $statusText.text('Включены').css('color', '#28a745');
+                            } else {
+                                $statusText.text('Выключены').css('color', '#6c757d');
+                            }
                         }
-
-                        showNotification(
-                            isSubscribed ? 'Вы отписались от уведомлений' : 'Вы подписались на уведомления',
-                            isSubscribed ? 'info' : 'success'
-                        );
+                        
+                        showNotification(response.message || 'Готово', 'success');
                     } else {
-                        var errorMsg = response.error || 'Неизвестная ошибка';
-                        showNotification('Ошибка: ' + errorMsg, 'danger');
-                        $button.text(isSubscribed ? '✓ Подписан' : 'Подписаться');
+                        // Возвращаем предыдущее состояние
+                        var previousActive = !newActive;
+                        $switch.prop('checked', previousActive);
+                        showNotification(response.error || 'Ошибка при ' + actionText, 'danger');
                     }
                 },
-                error: function() {
-                    showNotification('Произошла ошибка при отправке запроса', 'danger');
-                    $button.text(isSubscribed ? '✓ Подписан' : 'Подписаться');
+                error: function(xhr, status, error) {
+                    // Возвращаем предыдущее состояние
+                    var previousActive = !newActive;
+                    $switch.prop('checked', previousActive);
+                    
+                    var errorMsg = 'Ошибка соединения с сервером';
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response && response.error) {
+                            errorMsg = response.error;
+                        }
+                    } catch(e) {}
+                    showNotification(errorMsg, 'danger');
                 },
                 complete: function() {
-                    $button.prop('disabled', false);
+                    $switch.prop('disabled', false).removeClass('updating');
                 }
             });
         });
     });
+
+    /**
+     * Показать уведомление
+     */
+    function showNotification(message, type) {
+        if (typeof window.showNotification === 'function') {
+            window.showNotification(message, type);
+            return;
+        }
+
+        var container = $('#notification-container');
+        if (!container.length) {
+            container = $('<div id="notification-container"></div>');
+            $('body').append(container);
+        }
+
+        var $notification = $('<div>', {
+            class: 'notification notification-' + type + ' show'
+        });
+
+        $notification.html(
+            '<div class="notification-content">' +
+                '<div class="notification-message">' + message + '</div>' +
+                '<button class="notification-close">&times;</button>' +
+            '</div>' +
+            '<div class="notification-progress"></div>'
+        );
+
+        container.append($notification);
+
+        var timeout = setTimeout(function() {
+            $notification.fadeOut(300, function() {
+                $(this).remove();
+            });
+        }, 5000);
+
+        $notification.on('mouseenter', function() {
+            clearTimeout(timeout);
+            $(this).find('.notification-progress').css('animation-play-state', 'paused');
+        });
+
+        $notification.on('mouseleave', function() {
+            $(this).find('.notification-progress').css('animation-play-state', 'running');
+            timeout = setTimeout(function() {
+                $notification.fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        });
+    }
 
 })(jQuery);
