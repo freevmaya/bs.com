@@ -25,6 +25,12 @@ $this->registerJsFile('@web/js/bottom-nav.js', [
     'position' => \yii\web\View::POS_END
 ]);
 
+// ✅ Подключаем color-mode.js для переключения тем
+$this->registerJsFile('@web/js/color-mode.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
+
 // Убеждаемся, что Bootstrap JS загружен (для collapse)
 $this->registerJsFile('@web/js/bootstrap.bundle.min.js', [
     'depends' => [\yii\web\JqueryAsset::class],
@@ -51,49 +57,8 @@ $this->registerJsFile('@web/js/bootstrap.bundle.min.js', [
     </div>
 </main>
 
-<!-- Нижнее меню -->
-<nav class="bottom-nav">
-    <ul class="navbar-nav">
-        <li class="nav-item">
-            <?= Html::a(
-                '<span class="nav-icon">📤</span><span class="nav-label">Продам</span>',
-                ['/advertisements/sell'],
-                ['class' => 'nav-link']
-            ) ?>
-        </li>
-        <li class="nav-item">
-            <?= Html::a(
-                '<span class="nav-icon">🛒</span><span class="nav-label">Куплю</span>',
-                ['/advertisements/buy'],
-                ['class' => 'nav-link']
-            ) ?>
-        </li>
-        <?php if (Yii::$app->user->isGuest): ?>
-            <li class="nav-item">
-                <?= Html::a(
-                    '<span class="nav-icon">🔑</span><span class="nav-label">Вход</span>',
-                    ['/site/login'],
-                    ['class' => 'nav-link']
-                ) ?>
-            </li>
-        <?php else: ?>
-            <li class="nav-item">
-                <?= Html::a(
-                    '<span class="nav-icon">👤</span><span class="nav-label">' . Html::encode(Yii::$app->user->identity->username) . '</span>',
-                    ['/user/profile'],
-                    ['class' => 'nav-link']
-                ) ?>
-            </li>
-        <?php endif; ?>
-    </ul>
-</nav>
-
-<footer class="footer mt-auto py-3 text-muted" style="display: none;">
-    <div class="container">
-        <p class="float-start">&copy; КупиПродайка <?= date('Y') ?></p>
-        <p class="float-end"><?= Yii::powered() ?></p>
-    </div>
-</footer>
+<!-- меню -->
+<?= $this->render('_header') ?>
 
 <?php $this->endBody() ?>
 <!-- Подключаем _notifications.php перед endBody() -->
