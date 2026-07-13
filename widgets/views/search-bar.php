@@ -162,19 +162,6 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
 ?>
 
 <div class="search-bar-container">
-    <!-- Индикатор активных фильтров -->
-    <?php if ($hasParams): ?>
-        <div class="alert alert-info alert-dismissible fade show" role="alert" style="padding: 8px 15px; margin-bottom: 10px; font-size: 13px;">
-            <span class="glyphicon glyphicon-filter"></span>
-            <strong>Фильтры активны</strong>
-            <span class="text-muted" style="margin-left: 8px;">
-                <?= count($paramParts) ?> активных фильтр<?= count($paramParts) > 1 ? 'ов' : 'а' ?>
-            </span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" 
-                    onclick="window.location.href='<?= Url::to(['advertisements/reset-filters', 'section' => $section]) ?>'">
-            </button>
-        </div>
-    <?php endif; ?>
     
     <!-- Основная строка поиска на всю ширину -->
     <?php $form = ActiveForm::begin([

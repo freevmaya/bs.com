@@ -98,7 +98,7 @@ a:not(.btn):not(.nav-link):not(.dropdown-item):not(.search-params-clear):not(.bo
    ОБЩИЕ СТИЛИ ДЛЯ ИКОНОК
    ============================================ */
 
-/* Все иконки по умолчанию */
+/*
 .glyphicon,
 .glyphicon-class,
 [class*="glyphicon-"],
@@ -114,7 +114,6 @@ svg:not(.btn svg):not(.search-params-clear svg) {
     transition: color 0.3s ease, fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease, transform 0.3s ease;
 }
 
-/* Иконки в ссылках при наведении */
 a:hover .glyphicon,
 a:hover .glyphicon-class,
 a:hover [class*="glyphicon-"],
@@ -126,6 +125,7 @@ a:hover svg:not(.btn svg) {
     fill: var(--bs-link-hover-color) !important;
     stroke: var(--bs-link-hover-color) !important;
 }
+*/
 
 /* ============================================
    СТИЛИ ДЛЯ КНОПОК С ИКОНКАМИ

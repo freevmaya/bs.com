@@ -897,4 +897,32 @@ class AdvertisementsController extends Controller
             </html>
         ";
     }
+
+
+    /**
+     * Сброс всех фильтров поиска
+     * 
+     * @param string|null $section - раздел (sell/buy)
+     * @return \yii\web\Response
+     */
+    public function actionResetFilters($section = null)
+    {
+        // Очищаем все параметры поиска из сессии
+        $session = Yii::$app->session;
+        
+        // Удаляем все параметры, связанные с поиском
+        $session->remove('AdvertisementSearch');
+        $session->remove('search_params');
+        $session->remove('advertisement_search');
+        
+        // Если указан раздел, перенаправляем на соответствующую страницу
+        if ($section === 'sell') {
+            return $this->redirect(['/advertisements/sell']);
+        } elseif ($section === 'buy') {
+            return $this->redirect(['/advertisements/buy']);
+        }
+        
+        // Иначе на главную страницу объявлений
+        return $this->redirect(['/advertisements/index']);
+    }
 }
