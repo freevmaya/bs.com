@@ -1,0 +1,650 @@
+
+@import url('gallery.css');
+@import url('carousel.css');
+@import url('notifications.css');
+@import url('forms.css');
+@import url('search.css');
+@import url('image-grid-preview.css');
+@import url('image-sortable.css');
+@import url('bottom-nav.css');  /* Добавлено */
+
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    
+    /* Добавляем новые переменные */
+    --gallery-gap: 10px;
+    --gallery-bg: #f8f9fa;
+    --gallery-radius: 8px;
+    --bs-link-color-rgb: #EEE;
+}
+
+thead, tbody, tfoot, tr, td, th {
+    border-style: none;
+}
+
+.container {
+    padding: 1em 0px 0px 0px;
+        width: 1320px;
+        max-width: 1320px;
+}
+
+@media (max-width: 1330px) {
+    .container {
+        width: 990px;
+        max-width: 990px;
+    }
+}
+
+@media (max-width: 1000px) {
+    .container {
+        width: 660px;
+        max-width: 660px;
+    }
+}
+
+@media (max-width: 680px) {
+    .container {
+        width: 330px;
+        max-width: 330px;
+    }
+}
+
+/* Дополнительные стили для объявлений */
+.advertisement-meta {
+    font-size: 16px;
+    color: #666;
+    margin-top: 10px;
+}
+
+.advertisement-placeholder {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.navbar {
+    height: 40px;
+}
+
+.navbar-nav {
+    flex-wrap: nowrap;
+}
+
+.nav-item {
+    text-wrap-mode: nowrap;
+}
+
+.media {
+    transition: all 0.3s ease;
+}
+
+.media:hover {
+    background: #fafafa;
+    border-radius: 1em;
+}
+
+.list-view {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.list-view > div {
+    width: 330px;
+}
+
+.list-view .media {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+.list-view .media:hover {
+    background: #283939;
+}
+
+.price-large {
+    font-size: 24px;
+    color: #d9534f;
+    font-weight: bold;
+}
+
+.section-badge {
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.section-badge.sell {
+    background: #d9534f;
+    color: white;
+}
+
+.section-badge.buy {
+    background: #5bc0de;
+    color: white;
+}
+
+/* Стили для форм */
+.form-group.required label:after {
+    content: " *";
+    color: red;
+}
+
+/* Кнопка выхода */
+.logout {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.logout:hover {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.media-body {
+    text-decoration: none;
+}
+
+.gallery-grid {
+    overflow: none;
+}
+
+.media .preview {
+    color: gray;
+}
+
+.table > tbody {
+    border-style: none;
+}
+
+.image-preview-grid {
+    display: grid;
+    gap: 5px;
+}
+
+.image-preview-grid .image-thumb {
+    width: 100px; 
+    height: 100px; 
+    overflow: hidden; 
+    border-radius: 4px; 
+    background: #f0f0f0;
+}
+
+.advertisement-item .media-body {
+    display: flex;
+    align-items: center;
+}
+
+.pagination li {
+    margin: 0px 5px;
+}
+
+/* ============================================
+   Поддержка тем (дополнение)
+   ============================================ */
+
+/* Стили для navbar в темной теме */
+[data-bs-theme="dark"] .navbar-dark {
+    background-color: #212529 !important;
+}
+
+[data-bs-theme="light"] .navbar-dark {
+    background-color: #f8f9fa !important;
+}
+
+/* Стили для объявлений */
+[data-bs-theme="light"] .media:hover {
+    background: #f5f5f5;
+}
+
+[data-bs-theme="dark"] .media:hover {
+    background: #2a2a2a;
+}
+
+[data-bs-theme="light"] .advertisement-meta {
+    color: #666;
+}
+
+[data-bs-theme="dark"] .advertisement-meta {
+    color: #aaa;
+}
+
+/* Стили для панелей */
+[data-bs-theme="light"] .panel-default {
+    border-color: #ddd;
+}
+
+[data-bs-theme="dark"] .panel-default .panel-heading {
+    background-color: #333;
+    color: #eee;
+}
+
+/* Стили для форм */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #333;
+    border-color: #555;
+    color: #eee;
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    background-color: #444;
+    border-color: #007bff;
+    color: #eee;
+}
+
+[data-bs-theme="dark"] .form-control::placeholder {
+    color: #888;
+}
+
+[data-bs-theme="light"] .form-control,
+[data-bs-theme="light"] .form-select {
+    background-color: #fff;
+    border-color: #ced4da;
+    color: #212529;
+}
+
+/* Стили для текста */
+[data-bs-theme="dark"] .text-muted {
+    color: #888 !important;
+}
+
+[data-bs-theme="dark"] .text-body-secondary {
+    color: #aaa !important;
+}
+
+[data-bs-theme="dark"] .help-block {
+    color: #aaa !important;
+}
+
+/* Стили для кнопок */
+[data-bs-theme="dark"] .btn-default {
+    background-color: #444;
+    border-color: #555;
+    color: #eee;
+}
+
+[data-bs-theme="dark"] .btn-default:hover {
+    background-color: #555;
+    border-color: #666;
+    color: #fff;
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary {
+    color: #ccc;
+    border-color: #555;
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary:hover {
+    background-color: #444;
+    border-color: #666;
+    color: #fff;
+}
+
+/* Стили для ссылок */
+[data-bs-theme="dark"] a:not(.btn):not(.nav-link) {
+    color: #6ea8fe;
+}
+
+[data-bs-theme="dark"] a:not(.btn):not(.nav-link):hover {
+    color: #9ec5fe;
+}
+
+/* Стили для breadcrumbs */
+[data-bs-theme="dark"] .breadcrumb {
+    background-color: #2a2a2a;
+}
+
+[data-bs-theme="dark"] .breadcrumb-item.active {
+    color: #aaa;
+}
+
+/* Стили для карточек */
+[data-bs-theme="dark"] .card {
+    background-color: #2a2a2a;
+    border-color: #444;
+}
+
+[data-bs-theme="dark"] .card-header,
+[data-bs-theme="dark"] .card-footer {
+    background-color: #333;
+    border-color: #444;
+}
+
+[data-bs-theme="dark"] .card-title {
+    color: #eee;
+}
+
+/* Стили для таблиц */
+[data-bs-theme="dark"] .table {
+    color: #eee;
+}
+
+[data-bs-theme="dark"] .table > thead > tr > th {
+    border-color: #444;
+    color: #ddd;
+}
+
+[data-bs-theme="dark"] .table > tbody > tr > td {
+    border-color: #444;
+}
+
+[data-bs-theme="dark"] .table-hover > tbody > tr:hover {
+    background-color: #333;
+}
+
+/* Стили для well */
+[data-bs-theme="dark"] .well {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #eee;
+}
+
+/* Стили для alert */
+[data-bs-theme="dark"] .alert-info {
+    background-color: #1a2a3a;
+    border-color: #2a4a6a;
+    color: #8ec8e8;
+}
+
+[data-bs-theme="dark"] .alert-success {
+    background-color: #1a3a1a;
+    border-color: #2a5a2a;
+    color: #8ec88e;
+}
+
+[data-bs-theme="dark"] .alert-warning {
+    background-color: #3a3a1a;
+    border-color: #5a5a2a;
+    color: #e8e88e;
+}
+
+[data-bs-theme="dark"] .alert-danger {
+    background-color: #3a1a1a;
+    border-color: #5a2a2a;
+    color: #e88e8e;
+}
+
+/* Стили для галереи */
+[data-bs-theme="dark"] .gallery-container {
+    background: #2a2a2a;
+}
+
+[data-bs-theme="dark"] .gallery-item {
+    background: #333;
+}
+
+[data-bs-theme="dark"] .carousel-thumbnails {
+    background: #2a2a2a;
+}
+
+/* Стили для профиля */
+[data-bs-theme="dark"] .profile-header {
+    border-bottom-color: #444;
+}
+
+[data-bs-theme="dark"] .profile-menu {
+    border-top-color: #444;
+    border-bottom-color: #444;
+}
+
+/* Стили для нижнего меню */
+[data-bs-theme="light"] .bottom-nav {
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link {
+    color: #6c757d;
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link:hover,
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link.active {
+    color: #212529;
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link .nav-label {
+    color: #6c757d;
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link:hover .nav-label,
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link.active .nav-label {
+    color: #212529;
+}
+
+[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-item.active .nav-link::after {
+    background: #212529;
+}
+
+/* Плавный переход при смене темы */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ============================================
+   Монохромные иконки
+   ============================================ */
+
+/* Все иконки по умолчанию — серые */
+.glyphicon,
+.glyphicon-class,
+[class*="glyphicon-"],
+.nav-icon,
+.extension-icon,
+.profile-avatar,
+.footer-logo-light,
+.footer-logo-dark {
+    color: #6c757d !important;
+    transition: color 0.3s ease, fill 0.3s ease;
+}
+
+/* SVG иконки по умолчанию — серые */
+svg {
+    color: #cdcdcd;
+    stroke: #ffffff;
+    fill: #ffffff;
+    transition: color 0.3s ease, stroke 0.3s ease, fill 0.3s ease;
+}
+
+/* При наведении — синие */
+a:hover .glyphicon,
+a:hover .glyphicon-class,
+a:hover [class*="glyphicon-"],
+button:hover .glyphicon,
+button:hover .glyphicon-class,
+button:hover [class*="glyphicon-"],
+.nav-link:hover .nav-icon,
+.nav-link.active .nav-icon,
+a:hover .nav-icon,
+button:hover .nav-icon,
+.btn:hover .glyphicon,
+.btn-primary:hover .glyphicon,
+.btn-success:hover .glyphicon,
+.btn-info:hover .glyphicon,
+.btn-warning:hover .glyphicon,
+.btn-danger:hover .glyphicon {
+    color: #0d6efd !important;
+}
+
+/* Исключение для кнопок с белыми иконками (на тёмном фоне) */
+.btn-primary .glyphicon,
+.btn-success .glyphicon,
+.btn-danger .glyphicon,
+.btn-info .glyphicon,
+.btn-warning .glyphicon,
+.btn-dark .glyphicon,
+.btn-primary svg,
+.btn-success svg,
+.btn-danger svg,
+.btn-info svg,
+.btn-warning svg,
+.btn-dark svg,
+.btn-primary .nav-icon,
+.btn-success .nav-icon,
+.btn-danger .nav-icon,
+.btn-info .nav-icon,
+.btn-warning .nav-icon,
+.btn-dark .nav-icon {
+    color: #fff !important;
+    stroke: #fff !important;
+    fill: #fff !important;
+}
+
+/* При наведении на кнопки с тёмным фоном — иконки остаются белыми */
+.btn-primary:hover .glyphicon,
+.btn-success:hover .glyphicon,
+.btn-danger:hover .glyphicon,
+.btn-info:hover .glyphicon,
+.btn-warning:hover .glyphicon,
+.btn-dark:hover .glyphicon,
+.btn-primary:hover svg,
+.btn-success:hover svg,
+.btn-danger:hover svg,
+.btn-info:hover svg,
+.btn-warning:hover svg,
+.btn-dark:hover svg {
+    color: #fff !important;
+    stroke: #fff !important;
+    fill: #fff !important;
+}
+
+/* Для ссылок в навигации (нижнее меню) */
+.bottom-nav .navbar-nav .nav-link .nav-icon {
+    color: #8a8a8a !important;
+    transition: color 0.3s ease;
+}
+
+.bottom-nav .navbar-nav .nav-link:hover .nav-icon,
+.bottom-nav .navbar-nav .nav-link.active .nav-icon {
+    color: #0d6efd !important;
+}
+
+/* Для эмодзи в меню — превращаем их в монохромные с помощью фильтра */
+.bottom-nav .navbar-nav .nav-link .nav-icon {
+    filter: grayscale(1) brightness(0.5);
+    transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+.bottom-nav .navbar-nav .nav-link:hover .nav-icon,
+.bottom-nav .navbar-nav .nav-link.active .nav-icon {
+    filter: grayscale(0) brightness(1);
+}
+
+/* Для темной темы — корректировка */
+[data-bs-theme="dark"] .glyphicon,
+[data-bs-theme="dark"] .glyphicon-class,
+[data-bs-theme="dark"] [class*="glyphicon-"],
+[data-bs-theme="dark"] .nav-icon {
+    color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] a:hover .glyphicon,
+[data-bs-theme="dark"] button:hover .glyphicon,
+[data-bs-theme="dark"] .nav-link:hover .nav-icon,
+[data-bs-theme="dark"] .nav-link.active .nav-icon {
+    color: #6ea8fe !important;
+}
+
+[data-bs-theme="dark"] .bottom-nav .navbar-nav .nav-link .nav-icon {
+    filter: grayscale(1) brightness(0.7);
+}
+
+[data-bs-theme="dark"] .bottom-nav .navbar-nav .nav-link:hover .nav-icon,
+[data-bs-theme="dark"] .bottom-nav .navbar-nav .nav-link.active .nav-icon {
+    filter: grayscale(0) brightness(1);
+    color: #6ea8fe !important;
+}
+
+/* Исключение для иконок с флагами и другими цветными элементами */
+.notification .glyphicon,
+.alert .glyphicon,
+.label .glyphicon {
+    color: inherit !important;
+}
+
+/* ============================================
+   Кнопка переключения темы
+   ============================================ */
+
+#theme-toggle .nav-icon {
+    font-size: 20px;
+    line-height: 1.2;
+    display: block;
+    margin-bottom: 1px;
+    filter: grayscale(1) brightness(0.5);
+    transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+#theme-toggle:hover .nav-icon {
+    filter: grayscale(0) brightness(1);
+    transform: scale(1.1);
+}
+
+#theme-toggle .nav-label {
+    font-size: 9px;
+    line-height: 1.2;
+    display: block;
+    color: #8a8a8a;
+}
+
+#theme-toggle:hover .nav-label {
+    color: #ffffff;
+}
+
+[data-bs-theme="light"] #theme-toggle .nav-icon {
+    filter: grayscale(1) brightness(0.4);
+}
+
+[data-bs-theme="light"] #theme-toggle:hover .nav-icon {
+    filter: grayscale(0) brightness(1);
+}
+
+/* ============================================
+   Монохромные эмодзи (profile-avatar, extension-icon)
+   ============================================ */
+
+.profile-avatar {
+    display: block;
+    font-size: 80px;
+    line-height: 1;
+    filter: grayscale(1) brightness(0.5);
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.profile-header:hover .profile-avatar {
+    filter: grayscale(0) brightness(1);
+    transform: scale(1.05);
+}
+
+[data-bs-theme="dark"] .profile-avatar {
+    filter: grayscale(1) brightness(0.7);
+}
+
+[data-bs-theme="dark"] .profile-header:hover .profile-avatar {
+    filter: grayscale(0) brightness(1);
+}
+
+.extension-icon {
+    font-size: 24px;
+    line-height: 1;
+    filter: grayscale(1) brightness(0.4);
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.extension-card:hover .extension-icon {
+    filter: grayscale(0) brightness(1);
+    transform: scale(1.15);
+}
+
+[data-bs-theme="dark"] .extension-icon {
+    filter: grayscale(1) brightness(0.6);
+}
+
+[data-bs-theme="dark"] .extension-card:hover .extension-icon {
+    filter: grayscale(0) brightness(1);
+}
