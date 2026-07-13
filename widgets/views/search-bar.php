@@ -162,6 +162,20 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
 ?>
 
 <div class="search-bar-container">
+    <!-- Индикатор активных фильтров -->
+    <?php if ($hasParams): ?>
+        <div class="alert alert-info alert-dismissible fade show" role="alert" style="padding: 8px 15px; margin-bottom: 10px; font-size: 13px;">
+            <span class="glyphicon glyphicon-filter"></span>
+            <strong>Фильтры активны</strong>
+            <span class="text-muted" style="margin-left: 8px;">
+                <?= count($paramParts) ?> активных фильтр<?= count($paramParts) > 1 ? 'ов' : 'а' ?>
+            </span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" 
+                    onclick="window.location.href='<?= Url::to(['advertisements/reset-filters', 'section' => $section]) ?>'">
+            </button>
+        </div>
+    <?php endif; ?>
+    
     <!-- Основная строка поиска на всю ширину -->
     <?php $form = ActiveForm::begin([
         'method' => 'get',
@@ -192,6 +206,7 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
                 <line x1="9" y1="8" x2="15" y2="8"></line>
                 <line x1="17" y1="16" x2="23" y2="16"></line>
             </svg>
+            <span class="d-none d-sm-inline">Параметры</span>
         </button>
     </div>
     
@@ -204,7 +219,7 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
         <span class="search-params-text"><?= $paramsString ?></span>
         
         <!-- Кнопка подписки -->
-        <button type="button" class="search-subscribe-btn" data-section="" style="transition: all 0.3s ease;">
+        <button type="button" class="search-subscribe-btn" data-section="<?= $section ?>" style="transition: all 0.3s ease;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -212,18 +227,22 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
             <span class="btn-text">Подписаться</span>
         </button>
         
-        <a href="<?= $resetUrlString ?>" class="search-params-clear">
+        <!-- Кнопка сброса с очисткой сессии -->
+        <a href="<?= Url::to(['advertisements/reset-filters', 'section' => $section]) ?>" 
+           class="search-params-clear" 
+           data-method="post"
+           title="Сбросить все фильтры">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 4 23 10 17 10"></polyline>
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
             </svg>
-            Сбросить
+            Сбросить фильтры
         </a>
     </div>
     <?php endif; ?>
     
     <!-- Всплывающий блок параметров поиска -->
-    <div class="collapse mt-3" id="searchParamsCollapse">
+    <div class="collapse mt-3 <?= $hasParams ? 'show' : '' ?>" id="searchParamsCollapse">
         <div class="search-params-panel">
             <?php $form = ActiveForm::begin([
                 'method' => 'get',
@@ -436,7 +455,15 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
             
             <div class="col-12 text-end mt-3">
                 <?= Html::submitButton('Применить', ['class' => 'btn btn-primary']) ?>
-                <?= Html::a('Сбросить', $resetUrlString, ['class' => 'btn btn-outline-secondary']) ?>
+                <!-- Кнопка сброса с очисткой сессии -->
+                <?= Html::a(
+                    'Сбросить',
+                    ['advertisements/reset-filters', 'section' => $section],
+                    [
+                        'class' => 'btn btn-outline-secondary',
+                        'data-method' => 'post',
+                    ]
+                ) ?>
             </div>
             
             <?php ActiveForm::end(); ?>

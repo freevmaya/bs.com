@@ -69,6 +69,10 @@ $config = [
                 'messages/view/<id:\d+>' => 'messages/view',
                 'messages/start/<advertisementId:\d+>' => 'messages/start',
                 'messages/close/<id:\d+>' => 'messages/close',
+
+                // Сброс фильтров
+                'advertisements/reset-filters' => 'advertisements/reset-filters',
+                'advertisements/reset-filters/<section:(sell|buy)>' => 'advertisements/reset-filters',
             ],
         ],
         'tempAdStorage' => [
