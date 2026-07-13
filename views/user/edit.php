@@ -1,4 +1,5 @@
 <?php
+// FILE: .\views\user\edit.php
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -33,9 +34,20 @@ $this->registerJsFile('@web/js/vk-profile.js', [
                     
                     <?= $form->field($user, 'email')->textInput() ?>
                     
-                    <?= $form->field($user, 'phone')->textInput() ?>
+                    <hr>
+                    <h5>Контактная информация</h5>
                     
-                    <?= $form->field($user, 'city')->textInput() ?>
+                    <?= $form->field($user, 'phone')->textInput(['placeholder' => '+7 (999) 123-45-67']) ?>
+                    
+                    <?= $form->field($user, 'city')->textInput(['placeholder' => 'Москва']) ?>
+                    
+                    <?= $form->field($user, 'telegram')->textInput([
+                        'placeholder' => '@username или username',
+                    ])->hint('Введите ваш username в Telegram (без @ или с @)') ?>
+                    
+                    <?= $form->field($user, 'whatsapp')->textInput([
+                        'placeholder' => '+7 (999) 123-45-67',
+                    ])->hint('Введите номер WhatsApp в международном формате') ?>
                     
                     <?= $form->field($user, 'vk_profile_url')->textInput([
                         'placeholder' => 'https://vk.com/durov',

@@ -1,3 +1,5 @@
+/* FILE: .\public_html\css\bottom-nav.css */
+
 /* ============================================
    Нижнее навигационное меню
    ============================================ */
@@ -44,55 +46,59 @@
     align-items: center;
     justify-content: center;
     padding: 0;
-    color: #8a8a8a;
     font-size: 10px;
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: color 0.25s ease;
     border: none;
     background: none;
     width: 100%;
+    /* Цвет наследуется из site.css через CSS-переменные */
+    color: var(--bs-link-color, #8a8a8a) !important;
 }
 
 .bottom-nav .navbar-nav .nav-link:hover,
 .bottom-nav .navbar-nav .nav-link:focus,
 .bottom-nav .navbar-nav .nav-link.active {
-    color: #ffffff;
+    color: var(--bs-link-hover-color, #ffffff) !important;
     background: none;
+    text-decoration: none;
 }
 
-/* Иконки в нижнем меню — монохромные */
+/* Иконки в нижнем меню */
 .bottom-nav .navbar-nav .nav-link .nav-icon {
     font-size: 22px;
     line-height: 1.2;
     display: block;
     margin-bottom: 1px;
-    /* Делаем монохромными с помощью grayscale + brightness */
-    filter: grayscale(1) brightness(0.5);
-    transition: filter 0.3s ease, transform 0.2s ease, color 0.3s ease;
+    color: var(--bs-link-color, #8a8a8a) !important;
+    fill: var(--bs-link-color, #8a8a8a) !important;
+    stroke: var(--bs-link-color, #8a8a8a) !important;
+    filter: var(--icon-filter, grayscale(1) brightness(0.5));
+    transition: color 0.3s ease, fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease, transform 0.2s ease;
 }
 
 .bottom-nav .navbar-nav .nav-link:hover .nav-icon,
+.bottom-nav .navbar-nav .nav-link:focus .nav-icon,
 .bottom-nav .navbar-nav .nav-link.active .nav-icon {
-    filter: grayscale(0) brightness(1);
+    color: var(--bs-link-hover-color, #0d6efd) !important;
+    fill: var(--bs-link-hover-color, #0d6efd) !important;
+    stroke: var(--bs-link-hover-color, #0d6efd) !important;
+    filter: var(--icon-filter-hover, grayscale(0) brightness(1));
     transform: scale(1.1);
-    color: #0d6efd !important;
 }
 
 .bottom-nav .navbar-nav .nav-link .nav-label {
     font-size: 9px;
     line-height: 1.2;
     display: block;
-    color: #8a8a8a;
-    transition: color 0.2s ease;
+    color: var(--bs-link-color, #8a8a8a) !important;
+    transition: color 0.25s ease;
 }
 
 .bottom-nav .navbar-nav .nav-link:hover .nav-label,
+.bottom-nav .navbar-nav .nav-link:focus .nav-label,
 .bottom-nav .navbar-nav .nav-link.active .nav-label {
-    color: #ffffff;
-}
-
-.bottom-nav .navbar-nav .nav-link.active .nav-icon {
-    color: #ffffff;
+    color: var(--bs-link-hover-color, #ffffff) !important;
 }
 
 /* Индикатор активного пункта */
@@ -103,7 +109,7 @@
     left: 25%;
     right: 25%;
     height: 2px;
-    background: #0d6efd;
+    background: var(--bs-link-hover-color, #0d6efd);
     border-radius: 0 0 2px 2px;
 }
 
@@ -141,48 +147,10 @@ body {
 }
 
 /* ============================================
-   Светлая тема для нижнего меню
+   Плавный переход при смене темы
    ============================================ */
 
-[data-bs-theme="light"] .bottom-nav {
-    background: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link {
-    color: #6c757d;
-}
-
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link:hover,
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link.active {
-    color: #212529;
-}
-
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link .nav-label {
-    color: #6c757d;
-}
-
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link:hover .nav-label,
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link.active .nav-label {
-    color: #212529;
-}
-
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link .nav-icon {
-    filter: grayscale(1) brightness(0.4);
-}
-
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link:hover .nav-icon,
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link.active .nav-icon {
-    filter: grayscale(0) brightness(1);
-    color: #0d6efd !important;
-}
-
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-item.active .nav-link::after {
-    background: #0d6efd;
-}
-
-/* Плавный переход при смене темы */
 * {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, 
+                box-shadow 0.3s ease, fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease;
 }

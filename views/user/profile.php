@@ -1,4 +1,5 @@
 <?php
+// FILE: .\views\user\profile.php
 
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -34,9 +35,44 @@ $this->registerCssFile('@web/css/user-profile.css', ['depends' => [\yii\bootstra
                 <span class="label">Подписок</span>
             </div>
         </div>
-        <?php if ($user->vk_id): ?>
-            <p><strong>VK ID:</strong> <?= Html::encode($user->vk_id) ?></p>
-        <?php endif; ?>
+        
+        <!-- Контакты -->
+        <div style="margin-top: 15px;">
+            <?php if ($user->city): ?>
+                <span class="label label-default" style="margin: 3px;">
+                    <span class="glyphicon glyphicon-map-marker"></span> <?= Html::encode($user->city) ?>
+                </span>
+            <?php endif; ?>
+            <?php if ($user->phone): ?>
+                <span class="label label-default" style="margin: 3px;">
+                    <span class="glyphicon glyphicon-phone"></span> <?= Html::encode($user->phone) ?>
+                </span>
+            <?php endif; ?>
+            <?php if ($user->telegram): ?>
+                <span class="label label-default" style="margin: 3px;">
+                    <span class="glyphicon glyphicon-send"></span> 
+                    <a href="https://t.me/<?= ltrim($user->telegram, '@') ?>" target="_blank" style="color: inherit;">
+                        <?= Html::encode($user->telegram) ?>
+                    </a>
+                </span>
+            <?php endif; ?>
+            <?php if ($user->whatsapp): ?>
+                <span class="label label-default" style="margin: 3px;">
+                    <span class="glyphicon glyphicon-phone"></span> 
+                    <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $user->whatsapp) ?>" target="_blank" style="color: inherit;">
+                        WhatsApp
+                    </a>
+                </span>
+            <?php endif; ?>
+            <?php if ($user->vk_profile_url): ?>
+                <span class="label label-default" style="margin: 3px;">
+                    <span class="glyphicon glyphicon-user"></span> 
+                    <a href="<?= Html::encode($user->vk_profile_url) ?>" target="_blank" style="color: inherit;">
+                        VK
+                    </a>
+                </span>
+            <?php endif; ?>
+        </div>
     </div>
 
     <!-- Меню профиля -->

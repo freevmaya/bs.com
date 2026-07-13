@@ -1,4 +1,5 @@
 <?php
+// FILE: .\models\NotificationSubscription.php
 
 namespace app\models;
 
@@ -11,11 +12,14 @@ class NotificationSubscription extends ActiveRecord
     // Список доступных событий
     const EVENT_SEARCH_SUBSCRIPTION = 'search_subscription';
     const EVENT_NEW_ADVERTISEMENT = 'new_advertisement';
+    const EVENT_NEW_MESSAGE = 'new_message';
     
     // Список доступных каналов
     const CHANNEL_EMAIL = 'email';
     const CHANNEL_SMS = 'sms';
     const CHANNEL_VK = 'vk';
+    const CHANNEL_TELEGRAM = 'telegram';
+    const CHANNEL_WHATSAPP = 'whatsapp';
     
     public static function tableName()
     {
@@ -139,7 +143,6 @@ class NotificationSubscription extends ActiveRecord
 
     /**
      * Получить статус подписки пользователя по каналу
-     * Проверяет, подписан ли пользователь хотя бы на одно событие через этот канал
      */
     public static function getChannelStatus($userId, $channel)
     {
@@ -162,6 +165,7 @@ class NotificationSubscription extends ActiveRecord
         $events = [
             self::EVENT_SEARCH_SUBSCRIPTION,
             self::EVENT_NEW_ADVERTISEMENT,
+            self::EVENT_NEW_MESSAGE,
         ];
         
         $success = true;
@@ -182,6 +186,7 @@ class NotificationSubscription extends ActiveRecord
         $events = [
             self::EVENT_SEARCH_SUBSCRIPTION,
             self::EVENT_NEW_ADVERTISEMENT,
+            self::EVENT_NEW_MESSAGE,
         ];
         
         $success = true;
@@ -202,6 +207,7 @@ class NotificationSubscription extends ActiveRecord
         return [
             self::EVENT_SEARCH_SUBSCRIPTION => 'Новые объявления по подписке',
             self::EVENT_NEW_ADVERTISEMENT => 'Новые объявления на сайте',
+            self::EVENT_NEW_MESSAGE => 'Новые сообщения',
         ];
     }
 
@@ -214,6 +220,8 @@ class NotificationSubscription extends ActiveRecord
             self::CHANNEL_EMAIL => 'Email',
             self::CHANNEL_SMS => 'SMS',
             self::CHANNEL_VK => 'VK',
+            self::CHANNEL_TELEGRAM => 'Telegram',
+            self::CHANNEL_WHATSAPP => 'WhatsApp',
         ];
     }
 
@@ -226,6 +234,8 @@ class NotificationSubscription extends ActiveRecord
             self::CHANNEL_EMAIL => 'Получать уведомления на электронную почту',
             self::CHANNEL_SMS => 'Получать уведомления по SMS',
             self::CHANNEL_VK => 'Получать уведомления в VK',
+            self::CHANNEL_TELEGRAM => 'Получать уведомления в Telegram',
+            self::CHANNEL_WHATSAPP => 'Получать уведомления в WhatsApp',
         ];
         return $descriptions[$channel] ?? $channel;
     }
@@ -241,8 +251,11 @@ class NotificationSubscription extends ActiveRecord
             case self::CHANNEL_SMS:
                 return !empty($user->phone);
             case self::CHANNEL_VK:
-                // Теперь проверяем наличие ссылки на профиль
                 return !empty($user->vk_profile_url);
+            case self::CHANNEL_TELEGRAM:
+                return !empty($user->telegram);
+            case self::CHANNEL_WHATSAPP:
+                return !empty($user->whatsapp);
             default:
                 return false;
         }

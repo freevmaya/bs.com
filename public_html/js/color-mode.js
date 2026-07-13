@@ -1,4 +1,4 @@
-// FILE: .\web\js\color-mode.js
+// FILE: .\public_html\js\color-mode.js
 /*!
  * Color mode toggler for Bootstrap 5.3+
  */
@@ -17,8 +17,11 @@
 
     const setTheme = theme => {
         document.documentElement.setAttribute('data-bs-theme', theme);
-        // Для Bootstrap 5.3+ также устанавливаем атрибут на body
         document.body.setAttribute('data-bs-theme', theme);
+        
+        // Триггерим событие для обновления других компонентов
+        const event = new CustomEvent('themeChanged', { detail: { theme: theme } });
+        document.dispatchEvent(event);
     };
 
     const updateToggle = theme => {
@@ -35,6 +38,9 @@
             toggle.innerHTML = `<span class="nav-icon">${moonIcon}</span><span class="nav-label">Тёмная</span>`;
             toggle.setAttribute('aria-label', 'Переключить на темную тему');
         }
+        
+        // Применяем текущую тему к кнопке
+        toggle.setAttribute('data-bs-theme', theme);
     };
 
     // Применяем сохраненную тему

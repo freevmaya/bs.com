@@ -1,4 +1,5 @@
 <?php
+// FILE: .\components\notifications\NotificationManager.php
 
 namespace app\components\notifications;
 
@@ -26,11 +27,13 @@ class NotificationManager extends Component
         $this->registerChannel(new \app\components\notifications\channels\EmailChannel(Yii::$app->mailer));
         $this->registerChannel(new \app\components\notifications\channels\SmsChannel());
         $this->registerChannel(new \app\components\notifications\channels\VkChannel());
+        $this->registerChannel(new \app\components\notifications\channels\TelegramChannel());
+        $this->registerChannel(new \app\components\notifications\channels\WhatsAppChannel());
         
         // Регистрируем все события
         $this->registerEvent('search_subscription', 'Новое объявление по критериям подписки');
         $this->registerEvent('new_advertisement', 'Новое объявление на сайте');
-        $this->registerEvent('new_message', 'Новое сообщение в диалоге'); // ✅ Добавляем
+        $this->registerEvent('new_message', 'Новое сообщение в диалоге');
     }
     
     /**
@@ -195,6 +198,10 @@ class NotificationManager extends Component
                 return $user->phone;
             case 'vk':
                 return $user->vk_id ?? null;
+            case 'telegram':
+                return $user->telegram;
+            case 'whatsapp':
+                return $user->whatsapp;
             default:
                 return null;
         }

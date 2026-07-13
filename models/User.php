@@ -1,4 +1,5 @@
 <?php
+// FILE: .\models\User.php
 
 namespace app\models;
 
@@ -33,9 +34,11 @@ class User extends ActiveRecord implements IdentityInterface
             [['username'], 'unique'],
             [['email'], 'email'],
             [['email'], 'unique'],
-            [['phone', 'city', 'vk_id', 'vk_profile_url'], 'string', 'max' => 255],
+            [['phone', 'city', 'vk_id', 'vk_profile_url', 'telegram', 'whatsapp'], 'string', 'max' => 255],
             [['vk_id'], 'match', 'pattern' => '/^\d+$/', 'message' => 'ID в VK должен содержать только цифры'],
             [['vk_profile_url'], 'validateVkProfileUrl'],
+            [['telegram'], 'match', 'pattern' => '/^@?[a-zA-Z0-9_]{5,32}$/', 'message' => 'Введите корректный username Telegram (например: @username или username)'],
+            [['whatsapp'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]{5,20}$/', 'message' => 'Введите корректный номер WhatsApp'],
             [['password'], 'string', 'min' => 6, 'on' => 'register'],
             [['password_repeat'], 'compare', 'compareAttribute' => 'password', 'on' => 'register'],
         ];
@@ -59,8 +62,8 @@ class User extends ActiveRecord implements IdentityInterface
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios['register'] = ['username', 'email', 'password', 'password_repeat', 'phone', 'city', 'vk_profile_url'];
-        $scenarios['update'] = ['username', 'email', 'phone', 'city', 'vk_profile_url'];
+        $scenarios['register'] = ['username', 'email', 'password', 'password_repeat', 'phone', 'city', 'vk_profile_url', 'telegram', 'whatsapp'];
+        $scenarios['update'] = ['username', 'email', 'phone', 'city', 'vk_profile_url', 'telegram', 'whatsapp'];
         return $scenarios;
     }
     
@@ -76,6 +79,8 @@ class User extends ActiveRecord implements IdentityInterface
             'city' => 'Город',
             'vk_id' => 'ID в VK',
             'vk_profile_url' => 'Ссылка на профиль VK',
+            'telegram' => 'Telegram',
+            'whatsapp' => 'WhatsApp',
             'created_at' => 'Дата регистрации',
         ];
     }

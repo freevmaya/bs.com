@@ -1,4 +1,5 @@
 <?php
+// FILE: .\views\advertisements\update.php
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -54,11 +55,14 @@ $this->registerJsFile('@web/js/advertisement-form.js', [
                         </div>
                     </div>
                     
-                    <?= $form->field($model, 'city')->textInput(['maxlength' => true]) ?>
+                    <hr>
+                    <p class="text-muted"><small>Контактная информация (необязательно)</small></p>
                     
-                    <?= $form->field($model, 'phone')->textInput(['maxlength' => true]) ?>
+                    <?= $form->field($model, 'city')->textInput(['maxlength' => true, 'placeholder' => 'Город (необязательно)']) ?>
                     
-                    <?= $form->field($model, 'email')->textInput(['maxlength' => true]) ?>
+                    <?= $form->field($model, 'phone')->textInput(['maxlength' => true, 'placeholder' => 'Телефон (необязательно)']) ?>
+                    
+                    <?= $form->field($model, 'email')->textInput(['maxlength' => true, 'placeholder' => 'Email (необязательно)']) ?>
                     
                     <!-- Динамические поля для разных типов -->
                     <div id="glider-fields" style="display: <?= $model->type === 'glider' ? 'block' : 'none' ?>;">

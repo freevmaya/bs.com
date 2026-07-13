@@ -1,4 +1,5 @@
 <?php
+// FILE: .\models\Advertisement.php
 
 namespace app\models;
 
@@ -50,7 +51,8 @@ class Advertisement extends ActiveRecord
             [['title'], 'string', 'max' => 200],
             [['city', 'phone', 'email'], 'string', 'max' => 100],
             [['email'], 'email'],
-            [['phone'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]+$/'],
+            [['phone'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]*$/', 'message' => 'Телефон может содержать только цифры, пробелы, +, (, ), -'],
+            // Поля city, phone, email теперь НЕ обязательные
         ];
     }
     

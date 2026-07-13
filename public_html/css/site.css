@@ -1,3 +1,4 @@
+/* FILE: .\public_html\css\site.css */
 
 @import url('gallery.css');
 @import url('carousel.css');
@@ -6,18 +7,546 @@
 @import url('search.css');
 @import url('image-grid-preview.css');
 @import url('image-sortable.css');
-@import url('bottom-nav.css');  /* Добавлено */
+@import url('bottom-nav.css');
 
 :root {
     --primary-color: #3498db;
     --secondary-color: #2ecc71;
     
-    /* Добавляем новые переменные */
+    /* Переменные для ссылок и кнопок */
+    --bs-dark-link-color: #8b8b8b;
+    --bs-dark-link-color-hover: #ffffff;
+    --bs-light-link-color: #3b3b3b;
+    --bs-light-link-color-hover: #000000;
+    
+    /* Дополнительные переменные */
     --gallery-gap: 10px;
     --gallery-bg: #f8f9fa;
     --gallery-radius: 8px;
     --bs-link-color-rgb: #EEE;
 }
+
+/* ============================================
+   ЕДИНЫЕ СТИЛИ ДЛЯ КНОПОК, ССЫЛОК И ИКОНОК
+   ============================================ */
+
+/* --- Темная тема (по умолчанию) --- */
+[data-bs-theme="dark"] {
+    /* Ссылки */
+    --bs-link-color: var(--bs-dark-link-color);
+    --bs-link-hover-color: var(--bs-dark-link-color-hover);
+    --bs-link-decoration: none;
+    --bs-link-hover-decoration: underline;
+    
+    /* Кнопки-ссылки (btn-link) */
+    --bs-btn-link-color: var(--bs-dark-link-color);
+    --bs-btn-link-hover-color: var(--bs-dark-link-color-hover);
+    
+    /* Иконки в ссылках и кнопках */
+    --icon-filter: grayscale(1) brightness(0.6);
+    --icon-filter-hover: grayscale(0) brightness(1);
+}
+
+/* --- Светлая тема --- */
+[data-bs-theme="light"] {
+    --bs-link-color: var(--bs-light-link-color);
+    --bs-link-hover-color: var(--bs-light-link-color-hover);
+    --bs-link-decoration: none;
+    --bs-link-hover-decoration: underline;
+    
+    --bs-btn-link-color: var(--bs-light-link-color);
+    --bs-btn-link-hover-color: var(--bs-light-link-color-hover);
+    
+    --icon-filter: grayscale(1) brightness(0.4);
+    --icon-filter-hover: grayscale(0) brightness(1);
+}
+
+/* ============================================
+   ОБЩИЕ СТИЛИ ДЛЯ ССЫЛОК
+   ============================================ */
+
+/* Все ссылки (кроме кнопок и навигации) */
+a:not(.btn):not(.nav-link):not(.dropdown-item):not(.search-params-clear):not(.bottom-nav .nav-link) {
+    color: var(--bs-link-color) !important;
+    text-decoration: var(--bs-link-decoration);
+    transition: color 0.25s ease, text-decoration 0.25s ease;
+}
+
+a:not(.btn):not(.nav-link):not(.dropdown-item):not(.search-params-clear):not(.bottom-nav .nav-link):hover,
+a:not(.btn):not(.nav-link):not(.dropdown-item):not(.search-params-clear):not(.bottom-nav .nav-link):focus {
+    color: var(--bs-link-hover-color) !important;
+    text-decoration: var(--bs-link-hover-decoration);
+}
+
+/* ============================================
+   ОБЩИЕ СТИЛИ ДЛЯ КНОПОК (btn-link)
+   ============================================ */
+
+.btn-link {
+    color: var(--bs-link-color) !important;
+    text-decoration: var(--bs-link-decoration);
+    transition: color 0.25s ease, text-decoration 0.25s ease;
+}
+
+.btn-link:hover,
+.btn-link:focus {
+    color: var(--bs-link-hover-color) !important;
+    text-decoration: var(--bs-link-hover-decoration);
+}
+
+/* ============================================
+   ОБЩИЕ СТИЛИ ДЛЯ ИКОНОК
+   ============================================ */
+
+/* Все иконки по умолчанию */
+.glyphicon,
+.glyphicon-class,
+[class*="glyphicon-"],
+.nav-icon,
+.extension-icon,
+.profile-avatar,
+.footer-logo-light,
+.footer-logo-dark,
+svg:not(.btn svg):not(.search-params-clear svg) {
+    color: var(--bs-link-color) !important;
+    fill: var(--bs-link-color) !important;
+    stroke: var(--bs-link-color) !important;
+    transition: color 0.3s ease, fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease, transform 0.3s ease;
+}
+
+/* Иконки в ссылках при наведении */
+a:hover .glyphicon,
+a:hover .glyphicon-class,
+a:hover [class*="glyphicon-"],
+a:hover .nav-icon,
+a:hover .extension-icon,
+a:hover .profile-avatar,
+a:hover svg:not(.btn svg) {
+    color: var(--bs-link-hover-color) !important;
+    fill: var(--bs-link-hover-color) !important;
+    stroke: var(--bs-link-hover-color) !important;
+}
+
+/* ============================================
+   СТИЛИ ДЛЯ КНОПОК С ИКОНКАМИ
+   ============================================ */
+
+/* Кнопки с иконками (стандартные) */
+.btn .glyphicon,
+.btn .glyphicon-class,
+.btn [class*="glyphicon-"],
+.btn .nav-icon,
+.btn svg {
+    color: inherit !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    transition: color 0.3s ease, fill 0.3s ease, stroke 0.3s ease;
+}
+
+/* Кнопки-ссылки */
+.btn-link .glyphicon,
+.btn-link [class*="glyphicon-"],
+.btn-link .nav-icon,
+.btn-link svg {
+    color: var(--bs-link-color) !important;
+    fill: var(--bs-link-color) !important;
+    stroke: var(--bs-link-color) !important;
+}
+
+.btn-link:hover .glyphicon,
+.btn-link:hover [class*="glyphicon-"],
+.btn-link:hover .nav-icon,
+.btn-link:hover svg,
+.btn-link:focus .glyphicon,
+.btn-link:focus [class*="glyphicon-"],
+.btn-link:focus .nav-icon,
+.btn-link:focus svg {
+    color: var(--bs-link-hover-color) !important;
+    fill: var(--bs-link-hover-color) !important;
+    stroke: var(--bs-link-hover-color) !important;
+}
+
+/* ============================================
+   НИЖНЕЕ МЕНЮ (bottom-nav)
+   ============================================ */
+
+.bottom-nav .navbar-nav .nav-link {
+    color: var(--bs-link-color) !important;
+    text-decoration: none !important;
+    transition: color 0.25s ease;
+}
+
+.bottom-nav .navbar-nav .nav-link:hover,
+.bottom-nav .navbar-nav .nav-link:focus,
+.bottom-nav .navbar-nav .nav-link.active {
+    color: var(--bs-link-hover-color) !important;
+    text-decoration: none !important;
+}
+
+/* Иконки в нижнем меню */
+.bottom-nav .navbar-nav .nav-link .nav-icon {
+    color: var(--bs-link-color) !important;
+    fill: var(--bs-link-color) !important;
+    stroke: var(--bs-link-color) !important;
+    filter: var(--icon-filter);
+    transition: color 0.3s ease, fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease, transform 0.2s ease;
+}
+
+.bottom-nav .navbar-nav .nav-link:hover .nav-icon,
+.bottom-nav .navbar-nav .nav-link:focus .nav-icon,
+.bottom-nav .navbar-nav .nav-link.active .nav-icon {
+    color: var(--bs-link-hover-color) !important;
+    fill: var(--bs-link-hover-color) !important;
+    stroke: var(--bs-link-hover-color) !important;
+    filter: var(--icon-filter-hover);
+    transform: scale(1.1);
+}
+
+/* Метки в нижнем меню */
+.bottom-nav .navbar-nav .nav-link .nav-label {
+    color: var(--bs-link-color) !important;
+    transition: color 0.25s ease;
+}
+
+.bottom-nav .navbar-nav .nav-link:hover .nav-label,
+.bottom-nav .navbar-nav .nav-link:focus .nav-label,
+.bottom-nav .navbar-nav .nav-link.active .nav-label {
+    color: var(--bs-link-hover-color) !important;
+}
+
+/* Индикатор активного пункта */
+.bottom-nav .navbar-nav .nav-item.active .nav-link::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 25%;
+    right: 25%;
+    height: 2px;
+    background: var(--bs-link-hover-color);
+    border-radius: 0 0 2px 2px;
+}
+
+/* ============================================
+   КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
+   ============================================ */
+
+#theme-toggle .nav-icon {
+    color: var(--bs-link-color) !important;
+    fill: var(--bs-link-color) !important;
+    stroke: var(--bs-link-color) !important;
+    filter: var(--icon-filter);
+    transition: color 0.3s ease, fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease, transform 0.2s ease;
+}
+
+#theme-toggle:hover .nav-icon,
+#theme-toggle:focus .nav-icon {
+    color: var(--bs-link-hover-color) !important;
+    fill: var(--bs-link-hover-color) !important;
+    stroke: var(--bs-link-hover-color) !important;
+    filter: var(--icon-filter-hover);
+    transform: scale(1.1);
+}
+
+#theme-toggle .nav-label {
+    color: var(--bs-link-color) !important;
+    transition: color 0.25s ease;
+}
+
+#theme-toggle:hover .nav-label,
+#theme-toggle:focus .nav-label {
+    color: var(--bs-link-hover-color) !important;
+}
+
+/* ============================================
+   ССЫЛКИ В ПАНЕЛЯХ И КАРТОЧКАХ
+   ============================================ */
+
+.panel .btn-link,
+.card .btn-link,
+.well .btn-link {
+    color: var(--bs-link-color) !important;
+}
+
+.panel .btn-link:hover,
+.card .btn-link:hover,
+.well .btn-link:hover,
+.panel .btn-link:focus,
+.card .btn-link:focus,
+.well .btn-link:focus {
+    color: var(--bs-link-hover-color) !important;
+}
+
+/* ============================================
+   ССЫЛКИ В ХЛЕБНЫХ КРОШКАХ
+   ============================================ */
+
+.breadcrumb a {
+    color: var(--bs-link-color) !important;
+    transition: color 0.25s ease;
+}
+
+.breadcrumb a:hover,
+.breadcrumb a:focus {
+    color: var(--bs-link-hover-color) !important;
+}
+
+.breadcrumb .active {
+    color: var(--bs-link-color) !important;
+    opacity: 0.6;
+}
+
+/* ============================================
+   КНОПКИ В ПРОФИЛЕ
+   ============================================ */
+
+.profile-menu .btn {
+    color: var(--bs-link-color) !important;
+    background-color: transparent !important;
+    border: 1px solid var(--bs-link-color) !important;
+    transition: all 0.25s ease;
+}
+
+.profile-menu .btn:hover,
+.profile-menu .btn:focus {
+    color: var(--bs-link-hover-color) !important;
+    border-color: var(--bs-link-hover-color) !important;
+    background-color: transparent !important;
+}
+
+.profile-menu .btn svg {
+    color: inherit !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ============================================
+   ССЫЛКИ "ОТПИСАТЬСЯ", "СБРОСИТЬ" И Т.П.
+   ============================================ */
+
+.search-params-clear,
+.delete-subscription,
+.delete-image-btn {
+    color: var(--bs-link-color) !important;
+    text-decoration: none !important;
+    transition: color 0.25s ease;
+}
+
+.search-params-clear:hover,
+.search-params-clear:focus,
+.delete-subscription:hover,
+.delete-subscription:focus,
+.delete-image-btn:hover,
+.delete-image-btn:focus {
+    color: var(--bs-link-hover-color) !important;
+    text-decoration: none !important;
+}
+
+.search-params-clear svg,
+.delete-subscription svg,
+.delete-image-btn svg {
+    color: inherit !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ============================================
+   ССЫЛКИ "НАЗАД"
+   ============================================ */
+
+.back-link {
+    color: var(--bs-link-color) !important;
+    text-decoration: none !important;
+    transition: color 0.25s ease;
+}
+
+.back-link:hover,
+.back-link:focus {
+    color: var(--bs-link-hover-color) !important;
+    text-decoration: none !important;
+}
+
+.back-link svg {
+    color: inherit !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ============================================
+   ИКОНКИ В АВАТАРАХ И ЭМОДЗИ
+   ============================================ */
+
+.profile-avatar {
+    color: var(--bs-link-color) !important;
+    fill: var(--bs-link-color) !important;
+    stroke: var(--bs-link-color) !important;
+    filter: var(--icon-filter);
+    transition: color 0.3s ease, fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease, transform 0.3s ease;
+}
+
+.profile-header:hover .profile-avatar {
+    color: var(--bs-link-hover-color) !important;
+    fill: var(--bs-link-hover-color) !important;
+    stroke: var(--bs-link-hover-color) !important;
+    filter: var(--icon-filter-hover);
+    transform: scale(1.05);
+}
+
+.extension-icon {
+    color: var(--bs-link-color) !important;
+    fill: var(--bs-link-color) !important;
+    stroke: var(--bs-link-color) !important;
+    filter: var(--icon-filter);
+    transition: color 0.3s ease, fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease, transform 0.3s ease;
+}
+
+.extension-card:hover .extension-icon {
+    color: var(--bs-link-hover-color) !important;
+    fill: var(--bs-link-hover-color) !important;
+    stroke: var(--bs-link-hover-color) !important;
+    filter: var(--icon-filter-hover);
+    transform: scale(1.15);
+}
+
+/* ============================================
+   ПАГИНАЦИЯ
+   ============================================ */
+
+.pagination > li > a,
+.pagination > li > span {
+    color: var(--bs-link-color) !important;
+    background-color: transparent !important;
+    border-color: var(--bs-link-color) !important;
+    transition: all 0.25s ease;
+}
+
+.pagination > li > a:hover,
+.pagination > li > a:focus {
+    color: var(--bs-link-hover-color) !important;
+    background-color: transparent !important;
+    border-color: var(--bs-link-hover-color) !important;
+}
+
+.pagination > .active > a,
+.pagination > .active > span {
+    color: var(--bs-link-hover-color) !important;
+    background-color: transparent !important;
+    border-color: var(--bs-link-hover-color) !important;
+}
+
+.pagination > .active > a:hover,
+.pagination > .active > span:hover {
+    color: var(--bs-link-hover-color) !important;
+    background-color: transparent !important;
+    border-color: var(--bs-link-hover-color) !important;
+}
+
+/* ============================================
+   КНОПКИ В СООБЩЕНИЯХ (messages)
+   ============================================ */
+
+.message-input-container .btn-send {
+    color: var(--bs-link-hover-color) !important;
+    background-color: var(--bs-link-color) !important;
+    border: none;
+    transition: all 0.25s ease;
+}
+
+.message-input-container .btn-send:hover,
+.message-input-container .btn-send:focus {
+    background-color: var(--bs-link-hover-color) !important;
+    transform: scale(1.05);
+}
+
+.message-input-container .btn-send svg {
+    color: var(--bs-link-hover-color) !important;
+    fill: var(--bs-link-hover-color) !important;
+    stroke: var(--bs-link-hover-color) !important;
+}
+
+/* ============================================
+   КНОПКИ ПОДПИСКИ (subscribe)
+   ============================================ */
+
+.search-subscribe-btn,
+#subscribe-button,
+.subscribe-button {
+    color: var(--bs-link-hover-color) !important;
+    background-color: var(--bs-link-color) !important;
+    border: none;
+    transition: all 0.25s ease;
+}
+
+.search-subscribe-btn:hover,
+.search-subscribe-btn:focus,
+#subscribe-button:hover,
+#subscribe-button:focus,
+.subscribe-button:hover,
+.subscribe-button:focus {
+    background-color: var(--bs-link-hover-color) !important;
+    color: var(--bs-link-color) !important;
+}
+
+.search-subscribe-btn svg,
+#subscribe-button svg,
+.subscribe-button svg {
+    color: inherit !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ============================================
+   КНОПКИ В ФОРМАХ (основные)
+   ============================================ */
+
+/* Стандартные кнопки наследуют цвета темы */
+.btn-primary,
+.btn-success,
+.btn-danger,
+.btn-warning,
+.btn-info {
+    color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-success:hover,
+.btn-danger:hover,
+.btn-warning:hover,
+.btn-info:hover {
+    color: #fff !important;
+}
+
+/* Кнопки с прозрачным фоном */
+.btn-outline-primary,
+.btn-outline-success,
+.btn-outline-danger,
+.btn-outline-warning,
+.btn-outline-info {
+    color: var(--bs-link-color) !important;
+    border-color: var(--bs-link-color) !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-success:hover,
+.btn-outline-danger:hover,
+.btn-outline-warning:hover,
+.btn-outline-info:hover {
+    color: var(--bs-link-hover-color) !important;
+    background-color: transparent !important;
+    border-color: var(--bs-link-hover-color) !important;
+}
+
+/* ============================================
+   ПЛАВНЫЙ ПЕРЕХОД ПРИ СМЕНЕ ТЕМЫ
+   ============================================ */
+
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, 
+                box-shadow 0.3s ease, fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease;
+}
+
+/* ============================================
+   СТИЛИ ДЛЯ ОБЪЯВЛЕНИЙ (дополнительные)
+   ============================================ */
 
 thead, tbody, tfoot, tr, td, th {
     border-style: none;
@@ -25,8 +554,8 @@ thead, tbody, tfoot, tr, td, th {
 
 .container {
     padding: 1em 0px 0px 0px;
-        width: 1320px;
-        max-width: 1320px;
+    width: 1320px;
+    max-width: 1320px;
 }
 
 @media (max-width: 1330px) {
@@ -50,11 +579,17 @@ thead, tbody, tfoot, tr, td, th {
     }
 }
 
-/* Дополнительные стили для объявлений */
 .advertisement-meta {
     font-size: 16px;
-    color: #666;
     margin-top: 10px;
+}
+
+.advertisement-meta a {
+    color: var(--bs-link-color) !important;
+}
+
+.advertisement-meta a:hover {
+    color: var(--bs-link-hover-color) !important;
 }
 
 .advertisement-placeholder {
@@ -135,7 +670,6 @@ thead, tbody, tfoot, tr, td, th {
     color: red;
 }
 
-/* Кнопка выхода */
 .logout {
     color: rgba(255, 255, 255, 0.5);
 }
@@ -183,10 +717,9 @@ thead, tbody, tfoot, tr, td, th {
 }
 
 /* ============================================
-   Поддержка тем (дополнение)
+   ТЕМНЫЕ ТЕМЫ (дополнительные стили)
    ============================================ */
 
-/* Стили для navbar в темной теме */
 [data-bs-theme="dark"] .navbar-dark {
     background-color: #212529 !important;
 }
@@ -195,7 +728,6 @@ thead, tbody, tfoot, tr, td, th {
     background-color: #f8f9fa !important;
 }
 
-/* Стили для объявлений */
 [data-bs-theme="light"] .media:hover {
     background: #f5f5f5;
 }
@@ -212,7 +744,6 @@ thead, tbody, tfoot, tr, td, th {
     color: #aaa;
 }
 
-/* Стили для панелей */
 [data-bs-theme="light"] .panel-default {
     border-color: #ddd;
 }
@@ -222,7 +753,6 @@ thead, tbody, tfoot, tr, td, th {
     color: #eee;
 }
 
-/* Стили для форм */
 [data-bs-theme="dark"] .form-control,
 [data-bs-theme="dark"] .form-select {
     background-color: #333;
@@ -248,7 +778,6 @@ thead, tbody, tfoot, tr, td, th {
     color: #212529;
 }
 
-/* Стили для текста */
 [data-bs-theme="dark"] .text-muted {
     color: #888 !important;
 }
@@ -261,7 +790,6 @@ thead, tbody, tfoot, tr, td, th {
     color: #aaa !important;
 }
 
-/* Стили для кнопок */
 [data-bs-theme="dark"] .btn-default {
     background-color: #444;
     border-color: #555;
@@ -285,16 +813,14 @@ thead, tbody, tfoot, tr, td, th {
     color: #fff;
 }
 
-/* Стили для ссылок */
 [data-bs-theme="dark"] a:not(.btn):not(.nav-link) {
-    color: #6ea8fe;
+    color: var(--bs-dark-link-color) !important;
 }
 
 [data-bs-theme="dark"] a:not(.btn):not(.nav-link):hover {
-    color: #9ec5fe;
+    color: var(--bs-dark-link-color-hover) !important;
 }
 
-/* Стили для breadcrumbs */
 [data-bs-theme="dark"] .breadcrumb {
     background-color: #2a2a2a;
 }
@@ -303,7 +829,6 @@ thead, tbody, tfoot, tr, td, th {
     color: #aaa;
 }
 
-/* Стили для карточек */
 [data-bs-theme="dark"] .card {
     background-color: #2a2a2a;
     border-color: #444;
@@ -319,7 +844,6 @@ thead, tbody, tfoot, tr, td, th {
     color: #eee;
 }
 
-/* Стили для таблиц */
 [data-bs-theme="dark"] .table {
     color: #eee;
 }
@@ -337,14 +861,12 @@ thead, tbody, tfoot, tr, td, th {
     background-color: #333;
 }
 
-/* Стили для well */
 [data-bs-theme="dark"] .well {
     background-color: #2a2a2a;
     border-color: #444;
     color: #eee;
 }
 
-/* Стили для alert */
 [data-bs-theme="dark"] .alert-info {
     background-color: #1a2a3a;
     border-color: #2a4a6a;
@@ -369,7 +891,6 @@ thead, tbody, tfoot, tr, td, th {
     color: #e88e8e;
 }
 
-/* Стили для галереи */
 [data-bs-theme="dark"] .gallery-container {
     background: #2a2a2a;
 }
@@ -382,7 +903,6 @@ thead, tbody, tfoot, tr, td, th {
     background: #2a2a2a;
 }
 
-/* Стили для профиля */
 [data-bs-theme="dark"] .profile-header {
     border-bottom-color: #444;
 }
@@ -392,259 +912,42 @@ thead, tbody, tfoot, tr, td, th {
     border-bottom-color: #444;
 }
 
-/* Стили для нижнего меню */
+[data-bs-theme="dark"] .bottom-nav {
+    background: #212529;
+    border-top: 1px solid #343a40;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+}
+
 [data-bs-theme="light"] .bottom-nav {
     background: #f8f9fa;
     border-top: 1px solid #dee2e6;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link {
-    color: #6c757d;
-}
-
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link:hover,
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link.active {
-    color: #212529;
-}
-
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link .nav-label {
-    color: #6c757d;
-}
-
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link:hover .nav-label,
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-link.active .nav-label {
-    color: #212529;
-}
-
-[data-bs-theme="light"] .bottom-nav .navbar-nav .nav-item.active .nav-link::after {
-    background: #212529;
-}
-
-/* Плавный переход при смене темы */
-* {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
 /* ============================================
-   Монохромные иконки
+   АДАПТИВНОСТЬ
    ============================================ */
 
-/* Все иконки по умолчанию — серые */
-.glyphicon,
-.glyphicon-class,
-[class*="glyphicon-"],
-.nav-icon,
-.extension-icon,
-.profile-avatar,
-.footer-logo-light,
-.footer-logo-dark {
-    color: #6c757d !important;
-    transition: color 0.3s ease, fill 0.3s ease;
+@media (max-width: 768px) {
+    .bottom-nav .navbar-nav .nav-link .nav-label {
+        font-size: 8px;
+    }
+    
+    .bottom-nav .navbar-nav .nav-link .nav-icon {
+        font-size: 20px;
+    }
 }
 
-/* SVG иконки по умолчанию — серые */
-svg {
-    color: #cdcdcd;
-    stroke: #ffffff;
-    fill: #ffffff;
-    transition: color 0.3s ease, stroke 0.3s ease, fill 0.3s ease;
-}
-
-/* При наведении — синие */
-a:hover .glyphicon,
-a:hover .glyphicon-class,
-a:hover [class*="glyphicon-"],
-button:hover .glyphicon,
-button:hover .glyphicon-class,
-button:hover [class*="glyphicon-"],
-.nav-link:hover .nav-icon,
-.nav-link.active .nav-icon,
-a:hover .nav-icon,
-button:hover .nav-icon,
-.btn:hover .glyphicon,
-.btn-primary:hover .glyphicon,
-.btn-success:hover .glyphicon,
-.btn-info:hover .glyphicon,
-.btn-warning:hover .glyphicon,
-.btn-danger:hover .glyphicon {
-    color: #0d6efd !important;
-}
-
-/* Исключение для кнопок с белыми иконками (на тёмном фоне) */
-.btn-primary .glyphicon,
-.btn-success .glyphicon,
-.btn-danger .glyphicon,
-.btn-info .glyphicon,
-.btn-warning .glyphicon,
-.btn-dark .glyphicon,
-.btn-primary svg,
-.btn-success svg,
-.btn-danger svg,
-.btn-info svg,
-.btn-warning svg,
-.btn-dark svg,
-.btn-primary .nav-icon,
-.btn-success .nav-icon,
-.btn-danger .nav-icon,
-.btn-info .nav-icon,
-.btn-warning .nav-icon,
-.btn-dark .nav-icon {
-    color: #fff !important;
-    stroke: #fff !important;
-    fill: #fff !important;
-}
-
-/* При наведении на кнопки с тёмным фоном — иконки остаются белыми */
-.btn-primary:hover .glyphicon,
-.btn-success:hover .glyphicon,
-.btn-danger:hover .glyphicon,
-.btn-info:hover .glyphicon,
-.btn-warning:hover .glyphicon,
-.btn-dark:hover .glyphicon,
-.btn-primary:hover svg,
-.btn-success:hover svg,
-.btn-danger:hover svg,
-.btn-info:hover svg,
-.btn-warning:hover svg,
-.btn-dark:hover svg {
-    color: #fff !important;
-    stroke: #fff !important;
-    fill: #fff !important;
-}
-
-/* Для ссылок в навигации (нижнее меню) */
-.bottom-nav .navbar-nav .nav-link .nav-icon {
-    color: #8a8a8a !important;
-    transition: color 0.3s ease;
-}
-
-.bottom-nav .navbar-nav .nav-link:hover .nav-icon,
-.bottom-nav .navbar-nav .nav-link.active .nav-icon {
-    color: #0d6efd !important;
-}
-
-/* Для эмодзи в меню — превращаем их в монохромные с помощью фильтра */
-.bottom-nav .navbar-nav .nav-link .nav-icon {
-    filter: grayscale(1) brightness(0.5);
-    transition: filter 0.3s ease, transform 0.2s ease;
-}
-
-.bottom-nav .navbar-nav .nav-link:hover .nav-icon,
-.bottom-nav .navbar-nav .nav-link.active .nav-icon {
-    filter: grayscale(0) brightness(1);
-}
-
-/* Для темной темы — корректировка */
-[data-bs-theme="dark"] .glyphicon,
-[data-bs-theme="dark"] .glyphicon-class,
-[data-bs-theme="dark"] [class*="glyphicon-"],
-[data-bs-theme="dark"] .nav-icon {
-    color: #adb5bd !important;
-}
-
-[data-bs-theme="dark"] a:hover .glyphicon,
-[data-bs-theme="dark"] button:hover .glyphicon,
-[data-bs-theme="dark"] .nav-link:hover .nav-icon,
-[data-bs-theme="dark"] .nav-link.active .nav-icon {
-    color: #6ea8fe !important;
-}
-
-[data-bs-theme="dark"] .bottom-nav .navbar-nav .nav-link .nav-icon {
-    filter: grayscale(1) brightness(0.7);
-}
-
-[data-bs-theme="dark"] .bottom-nav .navbar-nav .nav-link:hover .nav-icon,
-[data-bs-theme="dark"] .bottom-nav .navbar-nav .nav-link.active .nav-icon {
-    filter: grayscale(0) brightness(1);
-    color: #6ea8fe !important;
-}
-
-/* Исключение для иконок с флагами и другими цветными элементами */
-.notification .glyphicon,
-.alert .glyphicon,
-.label .glyphicon {
-    color: inherit !important;
-}
-
-/* ============================================
-   Кнопка переключения темы
-   ============================================ */
-
-#theme-toggle .nav-icon {
-    font-size: 20px;
-    line-height: 1.2;
-    display: block;
-    margin-bottom: 1px;
-    filter: grayscale(1) brightness(0.5);
-    transition: filter 0.3s ease, transform 0.2s ease;
-}
-
-#theme-toggle:hover .nav-icon {
-    filter: grayscale(0) brightness(1);
-    transform: scale(1.1);
-}
-
-#theme-toggle .nav-label {
-    font-size: 9px;
-    line-height: 1.2;
-    display: block;
-    color: #8a8a8a;
-}
-
-#theme-toggle:hover .nav-label {
-    color: #ffffff;
-}
-
-[data-bs-theme="light"] #theme-toggle .nav-icon {
-    filter: grayscale(1) brightness(0.4);
-}
-
-[data-bs-theme="light"] #theme-toggle:hover .nav-icon {
-    filter: grayscale(0) brightness(1);
-}
-
-/* ============================================
-   Монохромные эмодзи (profile-avatar, extension-icon)
-   ============================================ */
-
-.profile-avatar {
-    display: block;
-    font-size: 80px;
-    line-height: 1;
-    filter: grayscale(1) brightness(0.5);
-    transition: filter 0.3s ease, transform 0.3s ease;
-}
-
-.profile-header:hover .profile-avatar {
-    filter: grayscale(0) brightness(1);
-    transform: scale(1.05);
-}
-
-[data-bs-theme="dark"] .profile-avatar {
-    filter: grayscale(1) brightness(0.7);
-}
-
-[data-bs-theme="dark"] .profile-header:hover .profile-avatar {
-    filter: grayscale(0) brightness(1);
-}
-
-.extension-icon {
-    font-size: 24px;
-    line-height: 1;
-    filter: grayscale(1) brightness(0.4);
-    transition: filter 0.3s ease, transform 0.3s ease;
-}
-
-.extension-card:hover .extension-icon {
-    filter: grayscale(0) brightness(1);
-    transform: scale(1.15);
-}
-
-[data-bs-theme="dark"] .extension-icon {
-    filter: grayscale(1) brightness(0.6);
-}
-
-[data-bs-theme="dark"] .extension-card:hover .extension-icon {
-    filter: grayscale(0) brightness(1);
+@media (max-width: 480px) {
+    .bottom-nav .navbar-nav .nav-link .nav-label {
+        font-size: 7px;
+    }
+    
+    .bottom-nav .navbar-nav .nav-link .nav-icon {
+        font-size: 18px;
+    }
+    
+    .bottom-nav .navbar-nav .nav-item {
+        padding: 4px 0 6px 0;
+    }
 }
