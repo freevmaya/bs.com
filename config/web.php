@@ -49,7 +49,7 @@ $config = [
                 'advertisements/buy' => 'advertisements/buy',
                 'advertisements/my' => 'advertisements/my',
                 'advertisement/<id:\d+>' => 'advertisements/view',
-    
+
                 // Правила для пользователя
                 'user/profile' => 'user/profile',
                 'user/edit' => 'user/edit',
@@ -58,11 +58,17 @@ $config = [
                 'notification' => 'notification/index',
                 'notification/subscribe' => 'notification/subscribe',
                 'notification/unsubscribe' => 'notification/unsubscribe',
-        
+
                 // Правила для подписок на поиск
                 'search-subscription' => 'search-subscription/index',
                 'search-subscription/create' => 'search-subscription/create',
                 'search-subscription/delete/<id:\d+>' => 'search-subscription/delete',
+                
+                // ✅ Правила для сообщений
+                'messages' => 'messages/index',
+                'messages/view/<id:\d+>' => 'messages/view',
+                'messages/start/<advertisementId:\d+>' => 'messages/start',
+                'messages/close/<id:\d+>' => 'messages/close',
             ],
         ],
         'tempAdStorage' => [

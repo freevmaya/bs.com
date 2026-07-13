@@ -142,6 +142,7 @@ $this->registerJsFile('@web/js/carousel.js', [
         </div>
         
         <div class="col-md-4">
+
             <div class="panel panel-info">
                 <div class="panel-heading">
                     <h3 class="panel-title">Контактная информация</h3>
@@ -157,6 +158,16 @@ $this->registerJsFile('@web/js/carousel.js', [
                     
                     <?php if ($model->email): ?>
                         <p><strong>Email:</strong> <?= Html::encode($model->email) ?></p>
+                    <?php endif; ?>
+                    
+                    <!-- Кнопка "Написать автору" -->
+                    <?php if (!Yii::$app->user->isGuest && Yii::$app->user->id != $model->user_id): ?>
+                        <hr>
+                        <?= Html::a(
+                            '<span class="glyphicon glyphicon-envelope"></span> Написать автору',
+                            ['/messages/start', 'advertisementId' => $model->id],
+                            ['class' => 'btn btn-primary btn-block']
+                        ) ?>
                     <?php endif; ?>
                 </div>
             </div>

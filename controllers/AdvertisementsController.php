@@ -121,14 +121,12 @@ class AdvertisementsController extends Controller
     {
         $model = new Advertisement();
         $model->user_id = Yii::$app->user->id;
-        // Меняем статус на ACTIVE при создании
         $model->status = Advertisement::STATUS_ACTIVE;
         
         if ($section && in_array($section, [Advertisement::SECTION_SELL, Advertisement::SECTION_BUY])) {
             $model->section = $section;
         }
         
-        // Генерируем временный ID для изображений
         $tempId = Yii::$app->session->get('temp_ad_id');
         if (!$tempId) {
             $tempId = $this->tempStorage->generateTempId();
@@ -137,20 +135,17 @@ class AdvertisementsController extends Controller
         
         $tempImages = $this->tempStorage->getTempImages($tempId);
         
-        // Создаем дополнительные модели
         $gliderModel = new AdvertisementGlider();
         $harnessModel = new AdvertisementHarness();
         $deviceModel = new AdvertisementDevice();
         
         if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
-                // Сохраняем дополнительные данные в зависимости от типа
                 if ($this->saveExtraFields($model, Yii::$app->request->post())) {
-                    // Переносим изображения
                     $migratedCount = $this->tempStorage->migrateImages($tempId, $model->id);
                     
-                    // Отправляем уведомления подписчикам
-                    $this->notifySubscribers($model);
+                    // Отправляем уведомления подписчикам (событие: создание)
+                    $this->notifySubscribers($model, 'create');
                     
                     Yii::$app->session->setFlash('success', 'Объявление создано. Загружено фотографий: ' . $migratedCount);
                     Yii::$app->session->remove('temp_ad_id');
@@ -177,12 +172,10 @@ class AdvertisementsController extends Controller
             throw new ForbiddenHttpException('У вас нет прав для редактирования этого объявления');
         }
         
-        // Загружаем дополнительные модели
         $gliderModel = $model->glider ?: new AdvertisementGlider();
         $harnessModel = $model->harness ?: new AdvertisementHarness();
         $deviceModel = $model->device ?: new AdvertisementDevice();
         
-        // Если есть дополнительные данные, заполняем их
         if ($gliderModel->advertisement_id === null) {
             $gliderModel->advertisement_id = $model->id;
         }
@@ -196,12 +189,13 @@ class AdvertisementsController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::info('Main model saved: ' . json_encode($model->attributes));
             
-            // Получаем данные из POST для дополнительных полей
             $postData = Yii::$app->request->post();
             Yii::info('POST data for extra fields: ' . json_encode($postData));
             
-            // Сохраняем дополнительные поля
             if ($this->saveExtraFields($model, $postData)) {
+                // Отправляем уведомления подписчикам (событие: обновление)
+                $this->notifySubscribers($model, 'update');
+                
                 Yii::$app->session->setFlash('success', 'Объявление обновлено');
                 return $this->redirect(['view', 'id' => $model->id]);
             } else {
@@ -350,9 +344,6 @@ class AdvertisementsController extends Controller
         ]);
     }
     
-    /**
-     * Переключение статуса объявления (активный/неактивный)
-     */
     public function actionToggleStatus()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -537,9 +528,6 @@ class AdvertisementsController extends Controller
         return ['success' => false, 'error' => 'Изображение не найдено'];
     }
 
-    /**
-     * AJAX валидация формы
-     */
     public function beforeAction($action)
     {
         $isAjaxValidate = Yii::$app->request->isAjax && Yii::$app->request->get('validate');
@@ -613,9 +601,6 @@ class AdvertisementsController extends Controller
         return parent::beforeAction($action);
     }
 
-    /**
-     * Сортировка временных изображений
-     */
     public function actionReorderTempImages($tempId)
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -659,9 +644,6 @@ class AdvertisementsController extends Controller
         return ['success' => false, 'error' => 'Неверный метод запроса'];
     }
 
-    /**
-     * Сортировка постоянных изображений
-     */
     public function actionReorderImages()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -702,8 +684,13 @@ class AdvertisementsController extends Controller
 
     /**
      * Отправка уведомлений подписчикам
+     * 
+     * @param Advertisement $advertisement Объявление
+     * @param string $eventType Тип события: 'create' или 'update'
+     * @param bool $force Принудительная отправка (игнорирует ограничение по времени)
+     * @return int Количество отправленных уведомлений
      */
-    protected function notifySubscribers($advertisement)
+    protected function notifySubscribers($advertisement, $eventType = 'create', $force = false)
     {
         // Получаем все активные подписки для данного раздела
         $subscriptions = SearchSubscription::find()
@@ -720,34 +707,50 @@ class AdvertisementsController extends Controller
             if ($subscription->matchesAdvertisement($advertisement)) {
                 // Проверяем, не отправляли ли уже уведомление об этом объявлении
                 $lastNotified = $subscription->last_notified_at;
-                if ($lastNotified && $lastNotified > $advertisement->created_at - 3600) {
-                    continue; // Не отправляем повторно в течение часа
+                
+                // Для события 'update' проверяем, было ли изменение существенным
+                if ($eventType === 'update') {
+                    // Если объявление обновлено менее чем 5 минут назад и уже было уведомление - пропускаем
+                    if (!$force && $lastNotified && $lastNotified > $advertisement->updated_at - 300) {
+                        Yii::info("Skipping duplicate notification for subscription {$subscription->id} (update within 5 min)", 'search_subscription');
+                        continue;
+                    }
+                } else {
+                    // Для создания: если уведомление уже отправлено в течение 1 часа - пропускаем
+                    if (!$force && $lastNotified && $lastNotified > $advertisement->created_at - 3600) {
+                        Yii::info("Skipping duplicate notification for subscription {$subscription->id}, last notified at " . date('Y-m-d H:i:s', $lastNotified), 'search_subscription');
+                        continue;
+                    }
                 }
                 
                 // Отправляем уведомление и получаем результат
-                $result = $this->sendSubscriptionNotification($advertisement, $subscription);
+                $result = $this->sendSubscriptionNotification($advertisement, $subscription, $eventType);
                 
                 // Обновляем время последнего уведомления ТОЛЬКО если отправка успешна
                 if ($result) {
                     $subscription->last_notified_at = time();
                     $subscription->save(false);
                     $notified++;
-                    Yii::info("Subscription notification sent successfully to user {$subscription->user_id}", 'search_subscription');
+                    Yii::info("Subscription notification sent successfully to user {$subscription->user_id} (event: {$eventType})", 'search_subscription');
                 } else {
-                    Yii::warning("Subscription notification FAILED for user {$subscription->user_id}", 'search_subscription');
+                    Yii::warning("Subscription notification FAILED for user {$subscription->user_id} (event: {$eventType})", 'search_subscription');
                 }
             }
         }
         
-        Yii::info("Notified {$notified} subscribers about new advertisement #{$advertisement->id}", 'search_subscription');
+        Yii::info("Notified {$notified} subscribers about advertisement #{$advertisement->id} (event: {$eventType})", 'search_subscription');
         return $notified;
     }
 
     /**
      * Отправка уведомления подписчику
+     * 
+     * @param Advertisement $advertisement Объявление
+     * @param SearchSubscription $subscription Подписка
+     * @param string $eventType Тип события: 'create' или 'update'
      * @return bool true если уведомление успешно отправлено хотя бы по одному каналу
      */
-    protected function sendSubscriptionNotification($advertisement, $subscription)
+    protected function sendSubscriptionNotification($advertisement, $subscription, $eventType = 'create')
     {
         $user = $subscription->user;
         if (!$user) {
@@ -755,8 +758,16 @@ class AdvertisementsController extends Controller
             return false;
         }
         
-        $subject = "Новое объявление по вашей подписке: {$advertisement->title}";
-        $message = $this->buildSubscriptionMessage($advertisement, $subscription);
+        // Разные заголовки и тексты в зависимости от типа события
+        if ($eventType === 'update') {
+            $subject = "Обновление объявления по вашей подписке: {$advertisement->title}";
+            $message = $this->buildSubscriptionMessage($advertisement, $subscription, 'update');
+            $htmlMessage = $this->buildSubscriptionHtmlMessage($advertisement, $subscription, 'update');
+        } else {
+            $subject = "Новое объявление по вашей подписке: {$advertisement->title}";
+            $message = $this->buildSubscriptionMessage($advertisement, $subscription, 'create');
+            $htmlMessage = $this->buildSubscriptionHtmlMessage($advertisement, $subscription, 'create');
+        }
         
         try {
             $manager = Yii::$app->notificationManager;
@@ -765,15 +776,14 @@ class AdvertisementsController extends Controller
                 'search_subscription',
                 $subject,
                 $message,
-                ['html_body' => $this->buildSubscriptionHtmlMessage($advertisement, $subscription)]
+                ['html_body' => $htmlMessage]
             );
             
-            // Проверяем, было ли успешно отправлено хотя бы по одному каналу
             if ($result && is_array($result) && in_array(true, $result)) {
-                Yii::info("Subscription notification sent to user {$user->id}", 'search_subscription');
+                Yii::info("Subscription notification sent to user {$user->id} (event: {$eventType})", 'search_subscription');
                 return true;
             } else {
-                Yii::error("Subscription notification failed for user {$user->id}", 'search_subscription');
+                Yii::error("Subscription notification failed for user {$user->id} (event: {$eventType})", 'search_subscription');
                 return false;
             }
         } catch (\Exception $e) {
@@ -784,11 +794,18 @@ class AdvertisementsController extends Controller
 
     /**
      * Сборка текстового сообщения для подписчика
+     * 
+     * @param Advertisement $advertisement Объявление
+     * @param SearchSubscription $subscription Подписка
+     * @param string $eventType Тип события: 'create' или 'update'
+     * @return string Текст сообщения
      */
-    protected function buildSubscriptionMessage($advertisement, $subscription)
+    protected function buildSubscriptionMessage($advertisement, $subscription, $eventType = 'create')
     {
+        $eventText = ($eventType === 'update') ? 'изменилось' : 'появилось';
+        
         $parts = [
-            "По вашей подписке появилось новое объявление!",
+            "По вашей подписке {$eventText} объявление!",
             "",
             "Заголовок: {$advertisement->title}",
             "Раздел: " . $advertisement->getSectionLabel(),
@@ -806,31 +823,54 @@ class AdvertisementsController extends Controller
 
     /**
      * Сборка HTML сообщения для подписчика
+     * 
+     * @param Advertisement $advertisement Объявление
+     * @param SearchSubscription $subscription Подписка
+     * @param string $eventType Тип события: 'create' или 'update'
+     * @return string HTML сообщения
      */
-    protected function buildSubscriptionHtmlMessage($advertisement, $subscription)
+    protected function buildSubscriptionHtmlMessage($advertisement, $subscription, $eventType = 'create')
     {
         $price = $advertisement->price ? number_format($advertisement->price, 0, '.', ' ') . ' ₽' : 'не указана';
         $link = Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]);
         $description = $subscription->getDescription();
+        
+        $headerIcon = ($eventType === 'update') ? '📝' : '📢';
+        $eventText = ($eventType === 'update') ? 'обновлено' : 'появилось';
+        $headerTitle = ($eventType === 'update') ? 'Объявление обновлено!' : 'Новое объявление!';
+        $headerColor = ($eventType === 'update') ? '#ff9800' : '#28a745';
+        $eventDescription = ($eventType === 'update') 
+            ? 'Объявление, на которое вы подписаны, было обновлено!' 
+            : 'По вашей подписке появилось новое объявление!';
         
         return "
             <html>
             <head><style>
                 body { font-family: Arial, sans-serif; color: #333; }
                 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: #28a745; color: white; padding: 15px; text-align: center; }
+                .header { background: {$headerColor}; color: white; padding: 15px; text-align: center; }
                 .content { padding: 20px; background: #f8f9fa; }
                 .price { font-size: 24px; color: #d9534f; font-weight: bold; }
                 .params { background: #e9ecef; padding: 15px; border-radius: 5px; margin: 15px 0; }
                 .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
                 .footer { text-align: center; padding: 15px; color: #6c757d; font-size: 12px; }
+                .event-badge { 
+                    display: inline-block; 
+                    padding: 4px 12px; 
+                    border-radius: 4px; 
+                    font-size: 12px; 
+                    font-weight: bold;
+                    background: rgba(255,255,255,0.2);
+                    margin-left: 10px;
+                }
             </style></head>
             <body>
                 <div class='container'>
                     <div class='header'>
-                        <h2>📢 Новое объявление!</h2>
+                        <h2>{$headerIcon} {$headerTitle} <span class='event-badge'>" . ($eventType === 'update' ? 'ОБНОВЛЕНО' : 'НОВОЕ') . "</span></h2>
                     </div>
                     <div class='content'>
+                        <p>{$eventDescription}</p>
                         <h3>{$advertisement->title}</h3>
                         <p><strong>Раздел:</strong> {$advertisement->getSectionLabel()}</p>
                         <p class='price'>{$price}</p>

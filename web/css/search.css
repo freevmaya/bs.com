@@ -108,8 +108,8 @@
 .search-subscribe-btn {
     display: inline-flex;
     align-items: center;
+    background: none;
     gap: 6px;
-    background-color: #ffc1072e;
     border: none;
     color: #fff;
     padding: 4px 14px;
@@ -121,6 +121,10 @@
     margin-left: 8px;
     white-space: nowrap;
     cursor: pointer;
+}
+
+.search-subscribe-btn:hover svg {
+    transform: rotate(15deg) scale(1.1);
 }
 
 .search-subscribe-btn:hover {
@@ -144,18 +148,6 @@
 
 .search-subscribe-btn .btn-text {
     display: inline;
-}
-
-@media (max-width: 576px) {
-    .search-subscribe-btn .btn-text {
-        display: none;
-    }
-    
-    .search-subscribe-btn {
-        padding: 4px 10px;
-        font-size: 0.8rem;
-        margin-left: 4px;
-    }
 }
 
 /* ============================================

@@ -19,8 +19,35 @@
     --bs-link-color-rgb: #EEE;
 }
 
+thead, tbody, tfoot, tr, td, th {
+    border-style: none;
+}
+
 .container {
-    padding-top: 1em;
+    padding: 1em 0px 0px 0px;
+        width: 1320px;
+        max-width: 1320px;
+}
+
+@media (max-width: 1330px) {
+    .container {
+        width: 990px;
+        max-width: 990px;
+    }
+}
+
+@media (max-width: 1000px) {
+    .container {
+        width: 660px;
+        max-width: 660px;
+    }
+}
+
+@media (max-width: 680px) {
+    .container {
+        width: 330px;
+        max-width: 330px;
+    }
 }
 
 /* Дополнительные стили для объявлений */
@@ -418,9 +445,9 @@
 
 /* SVG иконки по умолчанию — серые */
 svg {
-    color: #6c757d;
-    stroke: #6c757d;
-    fill: #6c757d;
+    color: #cdcdcd;
+    stroke: #ffffff;
+    fill: #ffffff;
     transition: color 0.3s ease, stroke 0.3s ease, fill 0.3s ease;
 }
 
@@ -442,15 +469,6 @@ button:hover .nav-icon,
 .btn-warning:hover .glyphicon,
 .btn-danger:hover .glyphicon {
     color: #0d6efd !important;
-}
-
-/* SVG при наведении на ссылку или кнопку */
-a:hover svg,
-button:hover svg,
-.btn:hover svg {
-    color: #0d6efd !important;
-    stroke: #0d6efd !important;
-    fill: #0d6efd !important;
 }
 
 /* Исключение для кнопок с белыми иконками (на тёмном фоне) */

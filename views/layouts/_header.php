@@ -54,5 +54,19 @@ use yii\helpers\Html;
                 ],
             ) ?>
         </li>
+
+        <?php if (!Yii::$app->user->isGuest): ?>
+            <li class="nav-item">
+                <?= Html::a(
+                    '<span class="nav-icon" style="position: relative;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <span id="messages-unread-badge" style="display: none; position: absolute; top: -6px; right: -8px; background: #dc3545; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; min-width: 18px; text-align: center;"></span>
+                    </span>
+                    <span class="nav-label">Сообщения</span>',
+                    ['/messages/index'],
+                    ['class' => 'nav-link']
+                ) ?>
+            </li>
+        <?php endif; ?>
     </ul>
 </nav>
