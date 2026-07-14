@@ -4,7 +4,7 @@
 $smtp_server = "smtp.yandex.ru";
 $smtp_port = 587;
 $username = "freevmaya@yandex.ru";
-$password = "ПАРОЛЬ_ПРИЛОЖЕНИЯ"; // Замените на реальный пароль
+$password = "bcqvhueipdxzebeb"; // Замените на реальный пароль
 
 echo "=== SMTP TEST VIA CURL ===\n";
 echo "Server: {$smtp_server}:{$smtp_port}\n";
