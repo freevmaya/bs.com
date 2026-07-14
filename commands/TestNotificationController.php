@@ -607,32 +607,51 @@ class TestNotificationController extends Controller
         $this->stdout("Получатель: {$to}\n");
         
         try {
-            // Проверяем, что mailer зарегистрирован
             if (!Yii::$app->has('mailer')) {
                 $this->stderr("❌ Mailer не зарегистрирован в консольном приложении\n", Console::FG_RED);
-                $this->stdout("Добавьте mailer в config/console.php\n", Console::FG_YELLOW);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
             
-            // Проверяем, что указан отправитель
-            $senderEmail = Yii::$app->params['senderEmail'] ?? 'noreply@bs.com';
-            $senderName = Yii::$app->params['senderName'] ?? 'BS.com';
+            $senderEmail = Yii::$app->params['senderEmail'] ?? 'freevmaya@yandex.ru';
+            $senderName = Yii::$app->params['senderName'] ?? 'parasell.vmaya.ru';
             
             $this->stdout("Отправитель: {$senderEmail} ({$senderName})\n", Console::FG_CYAN);
             
-            // Пробуем отправить через mailer с указанием From
-            $message = Yii::$app->mailer->compose()
+            // Проверяем, что пароль установлен
+            $smtpPassword = Yii::$app->params['smtp_password'] ?? '';
+            if (empty($smtpPassword)) {
+                $this->stderr("❌ Пароль SMTP не установлен в config/params.php\n", Console::FG_RED);
+                $this->stdout("   Добавьте 'smtp_password' => 'ПАРОЛЬ_ПРИЛОЖЕНИЯ' в config/params.php\n", Console::FG_YELLOW);
+                return ExitCode::UNSPECIFIED_ERROR;
+            }
+            $this->stdout("Пароль SMTP: " . str_repeat('*', strlen($smtpPassword)) . " (длина: " . strlen($smtpPassword) . ")\n", Console::FG_CYAN);
+            
+            // Проверяем настройки mailer
+            $mailer = Yii::$app->mailer;
+            $this->stdout("UseFileTransport: " . ($mailer->useFileTransport ? 'true' : 'false') . "\n", Console::FG_CYAN);
+            
+            // Проверяем транспорт
+            if (method_exists($mailer, 'getTransport')) {
+                $transport = $mailer->getTransport();
+                $this->stdout("Transport class: " . get_class($transport) . "\n", Console::FG_CYAN);
+            }
+            
+            // Создаем сообщение
+            $this->stdout("\nСоздание сообщения...\n", Console::FG_CYAN);
+            $message = $mailer->compose()
                 ->setFrom([$senderEmail => $senderName])
                 ->setTo($to)
-                ->setSubject('Test email from console')
-                ->setTextBody('This is a test email body');
+                ->setSubject('Test email from console - ' . date('Y-m-d H:i:s'))
+                ->setTextBody('This is a test email body. Sent at ' . date('Y-m-d H:i:s'));
             
-            // Проверяем, что сообщение создано
             if (!$message) {
                 $this->stderr("❌ Не удалось создать сообщение\n", Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
+            $this->stdout("✅ Сообщение создано\n", Console::FG_GREEN);
             
+            // Отправляем
+            $this->stdout("Отправка...\n", Console::FG_CYAN);
             $result = $message->send();
             
             if ($result) {
@@ -642,29 +661,24 @@ class TestNotificationController extends Controller
             }
             
             // Проверяем fileTransport
-            if (Yii::$app->mailer->useFileTransport) {
-                $this->stdout("\nFile transport включен. Проверьте runtime/mail/\n", Console::FG_YELLOW);
+            if ($mailer->useFileTransport) {
                 $mailPath = Yii::getAlias('@runtime/mail');
+                $this->stdout("\nFile transport включен. Проверьте {$mailPath}\n", Console::FG_YELLOW);
                 if (is_dir($mailPath)) {
                     $files = glob($mailPath . '/*.eml');
                     $this->stdout("Найдено " . count($files) . " email файлов\n", Console::FG_CYAN);
                     if (!empty($files)) {
                         $lastFile = end($files);
                         $this->stdout("Последний файл: " . basename($lastFile) . "\n", Console::FG_CYAN);
-                        $this->stdout("Содержимое:\n", Console::FG_YELLOW);
-                        $this->stdout(str_repeat('-', 50) . "\n");
-                        $this->stdout(file_get_contents($lastFile) . "\n");
-                        $this->stdout(str_repeat('-', 50) . "\n");
                     }
-                } else {
-                    $this->stdout("Папка runtime/mail не существует\n", Console::FG_YELLOW);
-                    mkdir($mailPath, 0777, true);
-                    $this->stdout("Папка создана\n", Console::FG_GREEN);
                 }
             }
+            
         } catch (\Exception $e) {
             $this->stderr("❌ Ошибка: " . $e->getMessage() . "\n", Console::FG_RED);
-            $this->stderr($e->getTraceAsString() . "\n", Console::FG_RED);
+            $this->stderr("Тип ошибки: " . get_class($e) . "\n", Console::FG_RED);
+            $this->stderr("Файл: " . $e->getFile() . ":" . $e->getLine() . "\n", Console::FG_RED);
+            $this->stderr("\nStack trace:\n" . $e->getTraceAsString() . "\n", Console::FG_RED);
         }
         
         return ExitCode::OK;
