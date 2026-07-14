@@ -614,8 +614,6 @@ class TestNotificationController extends Controller
                 return ExitCode::UNSPECIFIED_ERROR;
             }
 
-            print_r(Yii::$app->getComponents()['mailer']);
-
             $senderEmail = Yii::$app->params['senderEmail'] ?? 'freevmaya@yandex.ru';
             $senderName = Yii::$app->params['senderName'] ?? 'parasell.vmaya.ru';
             
