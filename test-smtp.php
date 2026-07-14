@@ -36,7 +36,7 @@ try {
         ->setFrom([$username => $senderName])  // Оба параметра должны быть заполнены
         ->setTo('fwadim@mail.ru')
         ->setSubject('SMTP Test - ' . date('Y-m-d H:i:s'))
-        ->setTextBody('This is a test email from SMTP. Sent at ' . date('Y-m-d H:i:s));
+        ->setTextBody('This is a test email from SMTP. Sent at ' . date('Y-m-d H:i:s'));
     
     $result = $message->send();
     
