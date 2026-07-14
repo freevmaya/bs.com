@@ -617,20 +617,16 @@ class TestNotificationController extends Controller
             
             $this->stdout("Отправитель: {$senderEmail} ({$senderName})\n", Console::FG_CYAN);
             
-            // Проверяем, что пароль установлен
             $smtpPassword = Yii::$app->params['smtp_password'] ?? '';
             if (empty($smtpPassword)) {
                 $this->stderr("❌ Пароль SMTP не установлен в config/params.php\n", Console::FG_RED);
-                $this->stdout("   Добавьте 'smtp_password' => 'ПАРОЛЬ_ПРИЛОЖЕНИЯ' в config/params.php\n", Console::FG_YELLOW);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
             $this->stdout("Пароль SMTP: " . str_repeat('*', strlen($smtpPassword)) . " (длина: " . strlen($smtpPassword) . ")\n", Console::FG_CYAN);
             
-            // Проверяем настройки mailer
             $mailer = Yii::$app->mailer;
             $this->stdout("UseFileTransport: " . ($mailer->useFileTransport ? 'true' : 'false') . "\n", Console::FG_CYAN);
             
-            // Проверяем транспорт
             if (method_exists($mailer, 'getTransport')) {
                 $transport = $mailer->getTransport();
                 $this->stdout("Transport class: " . get_class($transport) . "\n", Console::FG_CYAN);
@@ -638,11 +634,13 @@ class TestNotificationController extends Controller
             
             $this->stdout("\nПроверка конфигурации mailer...\n", Console::FG_CYAN);
             
-            // Создаем сообщение - ИСПРАВЛЯЕМ ФОРМАТ to
+            // !!! ПРОБЛЕМА ЗДЕСЬ: setTo получает массив или строку
             $this->stdout("Создание сообщения...\n", Console::FG_CYAN);
+            
+            // Явно передаем строку получателя
             $message = $mailer->compose()
                 ->setFrom([$senderEmail => $senderName])
-                ->setTo($to)  // Просто строка, без массива
+                ->setTo((string)$to)  // Приводим к строке
                 ->setSubject('Test email from console - ' . date('Y-m-d H:i:s'))
                 ->setTextBody('This is a test email body. Sent at ' . date('Y-m-d H:i:s'));
             
@@ -653,11 +651,17 @@ class TestNotificationController extends Controller
             
             // Получаем информацию о сообщении
             $this->stdout("   From: " . json_encode($message->getFrom()) . "\n", Console::FG_CYAN);
-            $this->stdout("   To: " . json_encode($message->getTo()) . "\n", Console::FG_CYAN);
+            
+            // Безопасно получаем To
+            $toAddresses = $message->getTo();
+            $toStr = 'null';
+            if ($toAddresses !== null) {
+                $toStr = json_encode($toAddresses);
+            }
+            $this->stdout("   To: " . $toStr . "\n", Console::FG_CYAN);
             $this->stdout("   Subject: " . $message->getSubject() . "\n", Console::FG_CYAN);
             $this->stdout("✅ Сообщение создано\n", Console::FG_GREEN);
             
-            // Отправляем с перехватом ошибок
             $this->stdout("Отправка...\n", Console::FG_CYAN);
             
             try {
@@ -666,7 +670,6 @@ class TestNotificationController extends Controller
                     $this->stdout("✅ Email отправлен успешно на {$to}\n", Console::FG_GREEN);
                 } else {
                     $this->stderr("❌ Не удалось отправить email (send вернул false)\n", Console::FG_RED);
-                    
                     $error = error_get_last();
                     if ($error) {
                         $this->stdout("   Последняя ошибка PHP: " . $error['message'] . "\n", Console::FG_YELLOW);
@@ -676,27 +679,6 @@ class TestNotificationController extends Controller
                 $this->stderr("❌ Ошибка при отправке: " . $e->getMessage() . "\n", Console::FG_RED);
                 $this->stderr("   Тип: " . get_class($e) . "\n", Console::FG_RED);
                 $this->stderr("   Файл: " . $e->getFile() . ":" . $e->getLine() . "\n", Console::FG_RED);
-                
-                if (strpos($e->getMessage(), '535') !== false) {
-                    $this->stdout("\n   🔍 Ошибка 535: Неверный пароль или доступ запрещен.\n", Console::FG_YELLOW);
-                    $this->stdout("   Проверьте:\n", Console::FG_YELLOW);
-                    $this->stdout("   1. Используете ли вы пароль приложения (не основной пароль)\n", Console::FG_YELLOW);
-                    $this->stdout("   2. Правильно ли скопирован пароль (без пробелов)\n", Console::FG_YELLOW);
-                    $this->stdout("   3. Включен ли доступ к внешним приложениям в настройках Яндекс\n", Console::FG_YELLOW);
-                }
-            }
-            
-            if ($mailer->useFileTransport) {
-                $mailPath = Yii::getAlias('@runtime/mail');
-                $this->stdout("\nFile transport включен. Проверьте {$mailPath}\n", Console::FG_YELLOW);
-                if (is_dir($mailPath)) {
-                    $files = glob($mailPath . '/*.eml');
-                    $this->stdout("Найдено " . count($files) . " email файлов\n", Console::FG_CYAN);
-                    if (!empty($files)) {
-                        $lastFile = end($files);
-                        $this->stdout("Последний файл: " . basename($lastFile) . "\n", Console::FG_CYAN);
-                    }
-                }
             }
             
         } catch (\Exception $e) {
