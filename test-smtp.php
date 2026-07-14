@@ -52,7 +52,7 @@ try {
         ->setFrom(['freevmaya@yandex.ru' => 'parasell.vmaya.ru'])
         ->setTo('fwadim@mail.ru')
         ->setSubject('Yii Mailer Test - ' . date('Y-m-d H:i:s'))
-        ->setTextBody('This is a test email from Yii mailer. Sent at ' . date('Y-m-d H:i:s));
+        ->setTextBody('This is a test email from Yii mailer. Sent at ' . date('Y-m-d H:i:s'));
     
     echo "Message created. Sending...\n";
     
