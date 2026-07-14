@@ -619,7 +619,7 @@ class TestNotificationController extends Controller
             
             // Проверяем, что пароль установлен
             $smtpPassword = Yii::$app->params['smtp_password'] ?? '';
-            if (empty($smtpPassword) || $smtpPassword === 'ЗАМЕНИТЕ_НА_ПАРОЛЬ_ПРИЛОЖЕНИЯ') {
+            if (empty($smtpPassword)) {
                 $this->stderr("❌ Пароль SMTP не установлен в config/params.php\n", Console::FG_RED);
                 $this->stdout("   Добавьте 'smtp_password' => 'ПАРОЛЬ_ПРИЛОЖЕНИЯ' в config/params.php\n", Console::FG_YELLOW);
                 return ExitCode::UNSPECIFIED_ERROR;
@@ -636,14 +636,13 @@ class TestNotificationController extends Controller
                 $this->stdout("Transport class: " . get_class($transport) . "\n", Console::FG_CYAN);
             }
             
-            // Проверяем, что mailer настроен правильно
             $this->stdout("\nПроверка конфигурации mailer...\n", Console::FG_CYAN);
             
-            // Создаем сообщение
+            // Создаем сообщение - ИСПРАВЛЯЕМ ФОРМАТ to
             $this->stdout("Создание сообщения...\n", Console::FG_CYAN);
             $message = $mailer->compose()
                 ->setFrom([$senderEmail => $senderName])
-                ->setTo($to)
+                ->setTo($to)  // Просто строка, без массива
                 ->setSubject('Test email from console - ' . date('Y-m-d H:i:s'))
                 ->setTextBody('This is a test email body. Sent at ' . date('Y-m-d H:i:s'));
             
@@ -661,7 +660,6 @@ class TestNotificationController extends Controller
             // Отправляем с перехватом ошибок
             $this->stdout("Отправка...\n", Console::FG_CYAN);
             
-            // Используем try-catch для перехвата ошибок
             try {
                 $result = $message->send();
                 if ($result) {
@@ -669,7 +667,6 @@ class TestNotificationController extends Controller
                 } else {
                     $this->stderr("❌ Не удалось отправить email (send вернул false)\n", Console::FG_RED);
                     
-                    // Пытаемся получить последнюю ошибку
                     $error = error_get_last();
                     if ($error) {
                         $this->stdout("   Последняя ошибка PHP: " . $error['message'] . "\n", Console::FG_YELLOW);
@@ -680,7 +677,6 @@ class TestNotificationController extends Controller
                 $this->stderr("   Тип: " . get_class($e) . "\n", Console::FG_RED);
                 $this->stderr("   Файл: " . $e->getFile() . ":" . $e->getLine() . "\n", Console::FG_RED);
                 
-                // Если ошибка связана с аутентификацией
                 if (strpos($e->getMessage(), '535') !== false) {
                     $this->stdout("\n   🔍 Ошибка 535: Неверный пароль или доступ запрещен.\n", Console::FG_YELLOW);
                     $this->stdout("   Проверьте:\n", Console::FG_YELLOW);
@@ -690,7 +686,6 @@ class TestNotificationController extends Controller
                 }
             }
             
-            // Проверяем fileTransport
             if ($mailer->useFileTransport) {
                 $mailPath = Yii::getAlias('@runtime/mail');
                 $this->stdout("\nFile transport включен. Проверьте {$mailPath}\n", Console::FG_YELLOW);
@@ -713,7 +708,7 @@ class TestNotificationController extends Controller
         
         return ExitCode::OK;
     }
-    
+
     /**
      * Тестовая отправка сообщения в VK
      * 
