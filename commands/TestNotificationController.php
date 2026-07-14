@@ -623,9 +623,10 @@ class TestNotificationController extends Controller
             // Пробуем отправить через mailer с указанием From
             $message = Yii::$app->mailer->compose()
                 ->setFrom([$senderEmail => $senderName])
-                ->setTo($to)
-                ->setSubject('Test email from console')
-                ->setTextBody('This is a test email body');
+                ->setTo('fwadim@mail.ru')
+                ->setSubject('Yii Mailer Test - ' . date('Y-m-d H:i:s'))
+                ->setTextBody('This is a test email from Yii mailer.' . "\n")
+                ->setTextBody('Sent at ' . date('Y-m-d H:i:s'));
             
             // Проверяем, что сообщение создано
             if (!$message) {
