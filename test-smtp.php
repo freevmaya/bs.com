@@ -5,38 +5,56 @@ require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/vendor/yiisoft/yii2/Yii.php';
 
 $config = require __DIR__ . '/config/console.php';
+
+// Исправляем конфигурацию mailer перед запуском
+$config['components']['mailer'] = [
+    'class' => 'yii\symfonymailer\Mailer',
+    'useFileTransport' => false,
+    'transport' => [
+        'class' => 'Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport',
+        'host' => 'smtp.yandex.ru',
+        'port' => 587,
+        'username' => 'freevmaya@yandex.ru',
+        'password' => 'bcqvhueipdxzebeb',
+        'encryption' => 'tls',
+        'timeout' => 30,
+    ],
+    'messageConfig' => [
+        'charset' => 'UTF-8',
+        'from' => ['freevmaya@yandex.ru' => 'parasell.vmaya.ru'],
+    ],
+];
+
 $app = new yii\console\Application($config);
 
-use yii\symfonymailer\Mailer;
-
-$params = Yii::$app->params;
-$username = $params['smtp_username'] ?? 'freevmaya@yandex.ru';
-$password = $params['smtp_password'] ?? '';
-$senderName = $params['senderName'] ?? 'parasell.vmaya.ru';
+$username = 'freevmaya@yandex.ru';
+$senderName = 'parasell.vmaya.ru';
 
 echo "=== SMTP TEST ===\n";
 echo "Username: {$username}\n";
-echo "Password: " . str_repeat('*', strlen($password)) . "\n";
-echo "Password length: " . strlen($password) . "\n";
 echo "Sender name: {$senderName}\n\n";
-
-if (empty($password) || $password === 'ЗАМЕНИТЕ_НА_ПАРОЛЬ_ПРИЛОЖЕНИЯ') {
-    echo "❌ Пароль не установлен! Используйте пароль приложения.\n";
-    echo "1. Перейдите на https://id.yandex.ru/security\n";
-    echo "2. Создайте пароль приложения для 'Почта'\n";
-    echo "3. Скопируйте пароль в config/params.php\n";
-    exit(1);
-}
 
 try {
     $mailer = Yii::$app->mailer;
     
-    // Правильное создание сообщения с указанием имени отправителя
+    echo "Mailer class: " . get_class($mailer) . "\n";
+    
+    // Проверяем конфигурацию
+    if (method_exists($mailer, 'getTransport')) {
+        $transport = $mailer->getTransport();
+        echo "Transport: " . get_class($transport) . "\n";
+    }
+    
+    echo "\nCreating message...\n";
+    
+    // Создание сообщения с явным указанием from
     $message = $mailer->compose()
-        ->setFrom([$username => $senderName])  // Оба параметра должны быть заполнены
+        ->setFrom(['freevmaya@yandex.ru' => 'parasell.vmaya.ru'])
         ->setTo('fwadim@mail.ru')
-        ->setSubject('SMTP Test - ' . date('Y-m-d H:i:s'))
-        ->setTextBody('This is a test email from SMTP. Sent at ' . date('Y-m-d H:i:s'));
+        ->setSubject('Yii Mailer Test - ' . date('Y-m-d H:i:s'))
+        ->setTextBody('This is a test email from Yii mailer. Sent at ' . date('Y-m-d H:i:s));
+    
+    echo "Message created. Sending...\n";
     
     $result = $message->send();
     
@@ -45,14 +63,8 @@ try {
     } else {
         echo "❌ Email sending failed.\n";
     }
-} catch (Exception $e) {
-    echo "❌ Error: " . $e->getMessage() . "\n";
     
-    if (strpos($e->getMessage(), '535') !== false) {
-        echo "\n🔍 Ошибка 535: Неверный пароль.\n";
-        echo "Проверьте:\n";
-        echo "1. Используете ли вы пароль приложения (не основной пароль)\n";
-        echo "2. Правильно ли скопирован пароль (без пробелов)\n";
-        echo "3. Не истек ли срок действия пароля приложения\n";
-    }
+} catch (\Exception $e) {
+    echo "❌ Error: " . $e->getMessage() . "\n";
+    echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
 }
