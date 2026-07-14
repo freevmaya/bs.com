@@ -519,6 +519,190 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/web.php",
+			"settings":
+			{
+				"buffer_size": 4417,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+				[
+					7,
+					1,
+					"paste",
+					null,
+					"AQAAAAoMAAAAAAAAABAAAAAAAAADAQAAJ21haWxlcicgPT4gWwogICAgICAgICAgICAnY2xhc3MnID0+ICd5aWlcc3ltZm9ueW1haWxlclxNYWlsZXInLAogICAgICAgICAgICAndXNlRmlsZVRyYW5zcG9ydCcgPT4gdHJ1ZSwKICAgICAgICAgICAgJ2ZpbGVUcmFuc3BvcnRQYXRoJyA9PiAnQHJ1bnRpbWUvbWFpbCcsCiAgICAgICAgICAgICd0cmFuc3BvcnQnID0+IFsKICAgICAgICAgICAgICAgICdkc24nID0+ICdzbXRwOi8vbG9jYWxob3N0OjI1JywKICAgICAgICAgICAgXSwKICAgICAgICBdLA",
+					"AQAAAAAAAAABAAAACgwAAAAAAAANDQAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					18,
+					1,
+					"paste",
+					null,
+					"AQAAAN0PAAAAAAAA7g8AAAAAAAAGAAAAQlMuY29t",
+					"AQAAAAAAAAABAAAA3Q8AAAAAAADjDwAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					24,
+					1,
+					"paste",
+					null,
+					"AQAAANEPAAAAAAAA2Q8AAAAAAAAGAAAAYnMuY29t",
+					"AQAAAAAAAAABAAAA0Q8AAAAAAADXDwAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/console.php",
+			"settings":
+			{
+				"buffer_size": 2827,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+				[
+					3,
+					1,
+					"paste",
+					null,
+					"AQAAALkDAAAAAAAAxQcAAAAAAADqAAAAJ21haWxlcicgPT4gWwogICAgICAgICAgICAnY2xhc3MnID0+ICd5aWlcc3ltZm9ueW1haWxlclxNYWlsZXInLAogICAgICAgICAgICAndXNlRmlsZVRyYW5zcG9ydCcgPT4gdHJ1ZSwgLy8g0JTQu9GPINGC0LXRgdGC0LjRgNC+0LLQsNC90LjRjyDRgdC+0YXRgNCw0L3Rj9C10Lwg0LIg0YTQsNC50LvRiwogICAgICAgICAgICAnZmlsZVRyYW5zcG9ydFBhdGgnID0+ICdAcnVudGltZS9tYWlsJywKICAgICAgICBd",
+					"AQAAAAAAAAABAAAAuQMAAAAAAACFBAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					6,
+					1,
+					"left_delete",
+					null,
+					"AQAAALADAAAAAAAAsAMAAAAAAAAKAAAACiAgICAgICAgLA",
+					"AQAAAAAAAAABAAAAsAMAAAAAAAC6AwAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "commands/TestNotificationController.php",
+			"settings":
+			{
+				"buffer_size": 38454,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+			]
+		},
+		{
+			"file": ".gitignore",
+			"settings":
+			{
+				"buffer_size": 530,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+				[
+					5,
+					1,
+					"paste",
+					null,
+					"AQAAAAkCAAAAAAAAEQIAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAACQIAAAAAAAAJAgAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					10,
+					1,
+					"paste",
+					null,
+					"AQAAAAsCAAAAAAAAEgIAAAAAAAAGAAAAY29uZmln",
+					"AQAAAAAAAAABAAAACwIAAAAAAAARAgAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/params.php",
+			"settings":
+			{
+				"buffer_size": 1353,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+				[
+					4,
+					1,
+					"insert",
+					{
+						"characters": "\n\n"
+					},
+					"AwAAAIcAAAAAAAAAjAAAAAAAAAAAAAAAjAAAAAAAAACRAAAAAAAAAAAAAACIAAAAAAAAAIgAAAAAAAAABAAAACAgICA",
+					"AQAAAAAAAAABAAAAhwAAAAAAAACHAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					5,
+					1,
+					"paste",
+					null,
+					"AQAAAI0AAAAAAAAAOQEAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAjQAAAAAAAACNAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					11,
+					1,
+					"paste",
+					null,
+					"AQAAACoBAAAAAAAAMgEAAAAAAAAGAAAAYnMuY29t",
+					"AQAAAAAAAAABAAAAKgEAAAAAAAAwAQAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					19,
+					1,
+					"paste",
+					null,
+					"AQAAAAMBAAAAAAAAFAEAAAAAAAAGAAAAQlMuY29t",
+					"AQAAAAAAAAABAAAAAwEAAAAAAAAJAQAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					25,
+					1,
+					"paste",
+					null,
+					"AQAAAOMAAAAAAAAA6wAAAAAAAAAGAAAAYnMuY29t",
+					"AQAAAAAAAAABAAAA4wAAAAAAAADpAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					34,
+					1,
+					"paste",
+					null,
+					"AQAAAJgDAAAAAAAA4wQAAAAAAABiAAAALy8g0J3QsNGB0YLRgNC+0LnQutC4INC00LvRjyBGRm1wZWcKICAgICdmZm1wZWdfcGF0aHMnID0+IFsKICAgICAgICAnZmZtcGVnJywKICAgICAgICAvLyAuLi4KICAgIF0",
+					"AQAAAAAAAAABAAAAmAMAAAAAAADuAwAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					37,
+					1,
+					"insert",
+					{
+						"characters": "\n\n"
+					},
+					"AwAAAI4DAAAAAAAAkwMAAAAAAAAAAAAAkwMAAAAAAACYAwAAAAAAAAAAAACPAwAAAAAAAI8DAAAAAAAABAAAACAgICA",
+					"AQAAAAAAAAABAAAAjgMAAAAAAACOAwAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					38,
+					1,
+					"paste",
+					null,
+					"AQAAAJQDAAAAAAAA8QMAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAlAMAAAAAAACUAwAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -600,21 +784,46 @@
 	},
 	"expanded_folders":
 	[
-		"/C/OpenServer/domains/bs.com"
+		"/C/OpenServer/domains/bs.com",
+		"/C/OpenServer/domains/bs.com/commands"
 	],
 	"file_history":
 	[
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/app.log",
+		"/C/OpenServer/domains/bs.com/controllers/AdvertisementsController.php",
+		"/C/OpenServer/domains/bs.com/config/web.php",
+		"/C/OpenServer/domains/bs.com/config/params.php",
+		"/C/OpenServer/domains/bs.com/models/NotificationSubscription.php",
+		"/C/OpenServer/domains/bs.com/public_html/css/site.css",
+		"/C/OpenServer/domains/bs.com/public_html/css/bottom-nav.css",
+		"/C/OpenServer/domains/bs.com/public_html/js/bottom-nav.js",
+		"/C/OpenServer/domains/bs.com/public_html/js/color-mode.js",
+		"/C/Users/fwadi/AppData/Local/Temp/Rar$DIa21924.1137/bs_com (2).sql",
+		"/C/OpenServer/domains/bs.com/widgets/views/search-bar.php",
+		"/C/OpenServer/domains/bs.com/components/notifications/channels/WhatsAppChannel.php",
+		"/C/OpenServer/domains/bs.com/components/notifications/channels/TelegramChannel.php",
+		"/C/OpenServer/domains/bs.com/.gitignore",
+		"/C/OpenServer/domains/bs.com/composer.json",
+		"/C/OpenServer/domains/bs.com/models/User.php",
+		"/C/OpenServer/domains/bs.com/views/site/register.php",
+		"/C/OpenServer/domains/bs.com/views/user/profile.php",
+		"/C/OpenServer/domains/bs.com/models/Advertisement.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/create.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/update.php",
+		"/C/OpenServer/domains/bs.com/components/notifications/NotificationManager.php",
+		"/C/OpenServer/domains/bs.com/views/user/edit.php",
+		"/C/OpenServer/domains/bs.com/migrations/m240000_000010_add_telegram_whatsapp_to_users.php",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/config.php",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/db 2.php",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/web.php",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/params.php",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/db.php",
 		"/C/OpenServer/domains/bs.com/views/messages/view.php",
 		"/C/OpenServer/domains/bs.com/web/css/messages.css",
 		"/C/OpenServer/domains/bs.com/web/css/site.css",
 		"/C/OpenServer/domains/bs.com/web/css/search.css",
 		"/C/OpenServer/domains/bs.com/models/AdvertisementSearch.php",
-		"/C/OpenServer/domains/bs.com/config/web.php",
-		"/C/OpenServer/domains/bs.com/widgets/views/search-bar.php",
-		"/C/OpenServer/domains/bs.com/.gitignore",
 		"/C/OpenServer/domains/bs.com/widgets/SearchBar.php",
-		"/C/OpenServer/domains/bs.com/controllers/AdvertisementsController.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000009_fix_conversations_unique_index.php",
 		"/C/OpenServer/domains/bs.com/web/js/messages.js",
 		"/C/OpenServer/domains/bs.com/views/messages/index.php",
@@ -623,28 +832,22 @@
 		"/C/OpenServer/domains/bs.com/models/Conversation.php",
 		"/C/OpenServer/domains/bs.com/controllers/MessagesController.php",
 		"/C/OpenServer/domains/bs.com/views/layouts/_header.php",
-		"/C/OpenServer/domains/bs.com/components/notifications/NotificationManager.php",
 		"/C/OpenServer/domains/bs.com/views/messages/_conversation_item.php",
 		"/C/OpenServer/domains/bs.com/models/Message.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000007_create_conversations_table.php",
-		"/C/OpenServer/domains/bs.com/config/params.php",
 		"/C/OpenServer/domains/bs.com/commands/TestNotificationController.php",
 		"/C/OpenServer/domains/bs.com/controllers/UserController.php",
 		"/C/OpenServer/domains/bs.com/components/notifications/channels/VkChannel.php",
 		"/C/OpenServer/domains/bs.com/controllers/SiteController.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000008_create_messages_table.php",
 		"/C/OpenServer/domains/bs.com/runtime/logs/app.log",
-		"/C/OpenServer/domains/bs.com/models/User.php",
-		"/C/OpenServer/domains/bs.com/views/user/edit.php",
 		"/C/OpenServer/domains/bs.com/web/js/vk-profile.js",
 		"/C/OpenServer/domains/bs.com/views/notification/index.php",
 		"/C/OpenServer/domains/bs.com/controllers/NotificationController.php",
-		"/C/OpenServer/domains/bs.com/models/NotificationSubscription.php",
 		"/C/OpenServer/domains/bs.com/web/get_vk_token.php",
 		"/C/OpenServer/domains/bs.com/web/css/notifications.css",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000005_add_vk_id_to_users.php",
 		"/C/OpenServer/domains/bs.com/web/js/toggle-subscription.js",
-		"/C/OpenServer/domains/bs.com/views/user/profile.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000006_add_vk_profile_url_to_users.php",
 		"/C/OpenServer/domains/bs.com/config/bootstrap.php",
 		"/C/OpenServer/domains/bs.com/config/console.php",
@@ -671,7 +874,6 @@
 		"/C/OpenServer/domains/bs.com/views/advertisements/_carousel.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/_images_block.php",
 		"/C/OpenServer/domains/bs.com/web/css/image-sortable.css",
-		"/C/OpenServer/domains/bs.com/models/Advertisement.php",
 		"/C/OpenServer/domains/bs.com/migrations/m241208_000003_change_status_to_enum.php",
 		"/C/OpenServer/domains/bs.com/web/js/notification.js",
 		"/C/OpenServer/domains/bs.com/web/css/notification.css",
@@ -682,8 +884,6 @@
 		"/C/OpenServer/domains/bs.com/web/css/subscribe-button.css",
 		"/C/OpenServer/domains/bs.com/web/js/image-grid-preview.js",
 		"/C/OpenServer/domains/bs.com/web/js/carousel.js",
-		"/C/OpenServer/domains/bs.com/views/advertisements/create.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/update.php",
 		"/C/OpenServer/domains/bs.com/web/css/advertisement-form.css",
 		"/C/OpenServer/domains/bs.com/web/js/image-sortable.js",
 		"/C/OpenServer/domains/bs.com/combine_run.py",
@@ -716,22 +916,7 @@
 		"/C/OpenServer/domains/wings-ural.com/assets/AppAsset.php",
 		"/C/OpenServer/domains/wings-ural.com/controllers/FlightController.php",
 		"/C/OpenServer/domains/wings-ural.com/vendor/yiisoft/yii2/base/Application.php",
-		"/C/OpenServer/domains/YiiTest/README.md",
-		"/C/Documents/Paragliding/КУРС ПЕРВОНАЧАЛЬНОГО ОБУЧЕНИЯ.txt",
-		"/C/OpenServer/domains/YiiTest/.gitignore",
-		"/C/OpenServer/domains/YiiTest/controllers/ReportController.php",
-		"/C/OpenServer/domains/YiiTest/controllers/SubscriptionController.php",
-		"/C/OpenServer/domains/YiiTest/controllers/BookController.php",
-		"/C/OpenServer/domains/YiiTest/components/SmsPilot.php",
-		"/C/OpenServer/domains/YiiTest/models/User.php",
-		"/C/OpenServer/domains/YiiTest/migrations/m000000_000003_create_book_author_table.php",
-		"/C/OpenServer/domains/YiiTest/migrations/m000000_000004_create_subscriptions_table.php",
-		"/C/OpenServer/domains/YiiTest/controllers/AuthorController.php",
-		"/C/OpenServer/domains/YiiTest/views/layouts/main.php",
-		"/C/OpenServer/domains/YiiTest/combine_run.py",
-		"/C/OpenServer/domains/YiiTest/views/report/index.php",
-		"/C/OpenServer/domains/YiiTest/migrations/m000000_000005_create_user_table.php",
-		"/C/OpenServer/domains/YiiTest/runtime/logs/sms.log"
+		"/C/OpenServer/domains/YiiTest/README.md"
 	],
 	"find":
 	{
@@ -742,6 +927,9 @@
 		"height": 143.0,
 		"where_history":
 		[
+			"C:\\OpenServer\\domains\\bs.com\\widgets,<project filters>",
+			"C:\\OpenServer\\domains\\bs.com\\views,<project filters>",
+			"C:\\OpenServer\\domains\\bs.com\\config,<project filters>",
 			"C:\\OpenServer\\domains\\bs.com\\views,<project filters>",
 			"C:\\OpenServer\\domains\\bs.com\\controllers,<project filters>",
 			"C:\\OpenServer\\domains\\bs.com\\components,<project filters>",
@@ -866,10 +1054,7 @@
 			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
 			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya,<project filters>",
 			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
-			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
-			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
-			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
-			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>"
+			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>"
 		]
 	},
 	"find_state":
@@ -877,6 +1062,17 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"mailer",
+			"actionResetFilters",
+			" Все иконки по умолчанию",
+			".glyphicon, .glyphicon-class, [class*=\"glyphicon-\"], .nav-icon, .extension-icon, .profile-avatar, .footer-logo-light, .footer-logo-dark, svg:not(.btn svg):not(.search-params-clear svg)",
+			"Фильтры активны",
+			"Фильтры активны ",
+			"svg",
+			"[data-bs-theme=\"light\"] #theme-toggle .nav-icon",
+			"Параметры",
+			"webroot",
+			"web",
 			"confi",
 			"SaveToSession",
 			"actionIndex",
@@ -993,18 +1189,7 @@
 			"Не указаны параметры поиска",
 			"hasExtraParams",
 			"Укажите дополнительные параметры для подписки",
-			".search-active-params",
-			".search-params-text",
-			"Укажите дополнительные параметры для подписки",
-			"css",
-			"Параметры",
-			"urlManager",
-			"Подписаться",
-			"Параметры",
-			"Gfhvtnhs",
-			"Применить",
-			".gallery-grid",
-			".video-item"
+			".search-active-params"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -1154,6 +1339,160 @@
 		{
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/web.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4417,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3072,
+								4108
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1266.4,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/console.php",
+					"selected": true,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2827,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								944,
+								944
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 433.6,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "commands/TestNotificationController.php",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 38454,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								929,
+								955
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": ".gitignore",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 530,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								530,
+								530
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Git Formats/Git Ignore.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 378.4,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/params.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1353,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1009,
+								1009
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"stack_multiselect": false,
+					"type": "text"
+				}
 			]
 		}
 	],
