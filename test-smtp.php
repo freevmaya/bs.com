@@ -11,13 +11,7 @@ $config['components']['mailer'] = [
     'class' => 'yii\symfonymailer\Mailer',
     'useFileTransport' => false,
     'transport' => [
-        'class' => 'Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport',
-        'host' => 'smtp.yandex.ru',
-        'port' => 587,
-        'username' => 'freevmaya@yandex.ru',
-        'password' => 'bcqvhueipdxzebeb',
-        'encryption' => 'tls',
-        'timeout' => 30,
+        'dsn' => 'smtp://freevmaya@yandex.ru:bcqvhueipdxzebeb@smtp.yandex.ru:587?encryption=tls',
     ],
     'messageConfig' => [
         'charset' => 'UTF-8',
@@ -39,7 +33,6 @@ try {
     
     echo "Mailer class: " . get_class($mailer) . "\n";
     
-    // Проверяем конфигурацию
     if (method_exists($mailer, 'getTransport')) {
         $transport = $mailer->getTransport();
         echo "Transport: " . get_class($transport) . "\n";
@@ -47,7 +40,6 @@ try {
     
     echo "\nCreating message...\n";
     
-    // Создание сообщения с явным указанием from
     $message = $mailer->compose()
         ->setFrom(['freevmaya@yandex.ru' => 'parasell.vmaya.ru'])
         ->setTo('fwadim@mail.ru')
