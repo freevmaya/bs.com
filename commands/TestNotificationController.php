@@ -619,7 +619,7 @@ class TestNotificationController extends Controller
             
             // Проверяем, что пароль установлен
             $smtpPassword = Yii::$app->params['smtp_password'] ?? '';
-            if (empty($smtpPassword)) {
+            if (empty($smtpPassword) || $smtpPassword === 'ЗАМЕНИТЕ_НА_ПАРОЛЬ_ПРИЛОЖЕНИЯ') {
                 $this->stderr("❌ Пароль SMTP не установлен в config/params.php\n", Console::FG_RED);
                 $this->stdout("   Добавьте 'smtp_password' => 'ПАРОЛЬ_ПРИЛОЖЕНИЯ' в config/params.php\n", Console::FG_YELLOW);
                 return ExitCode::UNSPECIFIED_ERROR;
@@ -636,8 +636,11 @@ class TestNotificationController extends Controller
                 $this->stdout("Transport class: " . get_class($transport) . "\n", Console::FG_CYAN);
             }
             
+            // Проверяем, что mailer настроен правильно
+            $this->stdout("\nПроверка конфигурации mailer...\n", Console::FG_CYAN);
+            
             // Создаем сообщение
-            $this->stdout("\nСоздание сообщения...\n", Console::FG_CYAN);
+            $this->stdout("Создание сообщения...\n", Console::FG_CYAN);
             $message = $mailer->compose()
                 ->setFrom([$senderEmail => $senderName])
                 ->setTo($to)
@@ -648,16 +651,43 @@ class TestNotificationController extends Controller
                 $this->stderr("❌ Не удалось создать сообщение\n", Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
+            
+            // Получаем информацию о сообщении
+            $this->stdout("   From: " . json_encode($message->getFrom()) . "\n", Console::FG_CYAN);
+            $this->stdout("   To: " . json_encode($message->getTo()) . "\n", Console::FG_CYAN);
+            $this->stdout("   Subject: " . $message->getSubject() . "\n", Console::FG_CYAN);
             $this->stdout("✅ Сообщение создано\n", Console::FG_GREEN);
             
-            // Отправляем
+            // Отправляем с перехватом ошибок
             $this->stdout("Отправка...\n", Console::FG_CYAN);
-            $result = $message->send();
             
-            if ($result) {
-                $this->stdout("✅ Email отправлен успешно на {$to}\n", Console::FG_GREEN);
-            } else {
-                $this->stderr("❌ Не удалось отправить email\n", Console::FG_RED);
+            // Используем try-catch для перехвата ошибок
+            try {
+                $result = $message->send();
+                if ($result) {
+                    $this->stdout("✅ Email отправлен успешно на {$to}\n", Console::FG_GREEN);
+                } else {
+                    $this->stderr("❌ Не удалось отправить email (send вернул false)\n", Console::FG_RED);
+                    
+                    // Пытаемся получить последнюю ошибку
+                    $error = error_get_last();
+                    if ($error) {
+                        $this->stdout("   Последняя ошибка PHP: " . $error['message'] . "\n", Console::FG_YELLOW);
+                    }
+                }
+            } catch (\Exception $e) {
+                $this->stderr("❌ Ошибка при отправке: " . $e->getMessage() . "\n", Console::FG_RED);
+                $this->stderr("   Тип: " . get_class($e) . "\n", Console::FG_RED);
+                $this->stderr("   Файл: " . $e->getFile() . ":" . $e->getLine() . "\n", Console::FG_RED);
+                
+                // Если ошибка связана с аутентификацией
+                if (strpos($e->getMessage(), '535') !== false) {
+                    $this->stdout("\n   🔍 Ошибка 535: Неверный пароль или доступ запрещен.\n", Console::FG_YELLOW);
+                    $this->stdout("   Проверьте:\n", Console::FG_YELLOW);
+                    $this->stdout("   1. Используете ли вы пароль приложения (не основной пароль)\n", Console::FG_YELLOW);
+                    $this->stdout("   2. Правильно ли скопирован пароль (без пробелов)\n", Console::FG_YELLOW);
+                    $this->stdout("   3. Включен ли доступ к внешним приложениям в настройках Яндекс\n", Console::FG_YELLOW);
+                }
             }
             
             // Проверяем fileTransport
@@ -675,15 +705,15 @@ class TestNotificationController extends Controller
             }
             
         } catch (\Exception $e) {
-            $this->stderr("❌ Ошибка: " . $e->getMessage() . "\n", Console::FG_RED);
-            $this->stderr("Тип ошибки: " . get_class($e) . "\n", Console::FG_RED);
-            $this->stderr("Файл: " . $e->getFile() . ":" . $e->getLine() . "\n", Console::FG_RED);
+            $this->stderr("❌ Общая ошибка: " . $e->getMessage() . "\n", Console::FG_RED);
+            $this->stderr("   Тип: " . get_class($e) . "\n", Console::FG_RED);
+            $this->stderr("   Файл: " . $e->getFile() . ":" . $e->getLine() . "\n", Console::FG_RED);
             $this->stderr("\nStack trace:\n" . $e->getTraceAsString() . "\n", Console::FG_RED);
         }
         
         return ExitCode::OK;
     }
-
+    
     /**
      * Тестовая отправка сообщения в VK
      * 
