@@ -615,8 +615,11 @@ class TestNotificationController extends Controller
             }
             
             // Проверяем, что указан отправитель
-            $senderEmail = Yii::$app->params['senderEmail'] ?? 'noreply@bs.com';
-            $senderName = Yii::$app->params['senderName'] ?? 'BS.com';
+            $senderEmail = Yii::$app->params['senderEmail'] ?? 'freevmaya@yandex.ru';
+            $senderName = Yii::$app->params['senderName'] ?? 'parasell.vmaya.ru';
+
+            //$senderEmail = Yii::$app->params['senderEmail'] ?? 'noreply@bs.com';
+            //$senderName = Yii::$app->params['senderName'] ?? 'BS.com';
             
             $this->stdout("Отправитель: {$senderEmail} ({$senderName})\n", Console::FG_CYAN);
             
