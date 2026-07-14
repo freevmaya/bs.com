@@ -614,18 +614,14 @@ class TestNotificationController extends Controller
                 return ExitCode::UNSPECIFIED_ERROR;
             }
             
-            // Проверяем, что указан отправитель
             $senderEmail = Yii::$app->params['senderEmail'] ?? 'freevmaya@yandex.ru';
             $senderName = Yii::$app->params['senderName'] ?? 'parasell.vmaya.ru';
-
-            //$senderEmail = Yii::$app->params['senderEmail'] ?? 'noreply@bs.com';
-            //$senderName = Yii::$app->params['senderName'] ?? 'BS.com';
             
             $this->stdout("Отправитель: {$senderEmail} ({$senderName})\n", Console::FG_CYAN);
             
             // Пробуем отправить через mailer с указанием From
             $message = Yii::$app->mailer->compose()
-                ->setFrom([$senderEmail => $senderName])
+                ->setFrom(['freevmaya@yandex.ru' => 'parasell.vmaya.ru'])
                 ->setTo('fwadim@mail.ru')
                 ->setSubject('Yii Mailer Test - ' . date('Y-m-d H:i:s'))
                 ->setTextBody('This is a test email from Yii mailer.' . "\n")
