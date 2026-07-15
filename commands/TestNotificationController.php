@@ -917,19 +917,13 @@ class TestNotificationController extends Controller
         $botToken = Yii::$app->params['telegram_bot_token'] ?? null;
         if (!$botToken || $botToken === '123456789:ABCdefGHIjklMNOpqrsTUVwxyz') {
             $this->stderr("❌ Telegram bot token не настроен в config/params.php\n", Console::FG_RED);
-            $this->stdout("\nКак получить токен:\n");
-            $this->stdout("  1. Найдите @BotFather в Telegram\n");
-            $this->stdout("  2. Отправьте команду /newbot\n");
-            $this->stdout("  3. Введите имя бота\n");
-            $this->stdout("  4. Введите username бота\n");
-            $this->stdout("  5. Скопируйте полученный токен в config/params.php\n");
             return ExitCode::UNSPECIFIED_ERROR;
         }
         
         $this->stdout("✅ Telegram bot token найден\n", Console::FG_GREEN);
         
         // Создаем канал
-        $channel = new TelegramChannel();
+        $channel = new \app\components\notifications\channels\TelegramChannel();
         
         // Получаем username бота
         $botInfo = $channel->getBotInfo();
@@ -938,54 +932,52 @@ class TestNotificationController extends Controller
         
         $chatId = ltrim($to, '@');
         
-        // Проверяем, не пытаемся ли отправить сообщение самому боту
-        if ($chatId === $botUsername) {
-            $this->stdout("\n⚠️ Вы пытаетесь отправить сообщение самому боту.\n", Console::FG_YELLOW);
-            $this->stdout("Бот не может отправлять сообщения сам себе.\n");
-            $this->stdout("Пожалуйста, укажите username реального пользователя.\n");
+        // ===== НОВАЯ ЛОГИКА: Ищем пользователя в БД =====
+        $user = \app\models\User::find()
+            ->where(['username' => $chatId])
+            ->orWhere(['telegram' => $chatId])
+            ->orWhere(['telegram' => '@' . $chatId])
+            ->one();
+        
+        if (!$user) {
+            $this->stderr("❌ Пользователь @{$chatId} не найден в базе данных\n", Console::FG_RED);
+            $this->stdout("\nУбедитесь, что пользователь зарегистрирован и указал Telegram в профиле.\n");
             return ExitCode::UNSPECIFIED_ERROR;
         }
         
-        // Проверяем подписку
-        $this->stdout("\nПроверка подписки пользователя @{$chatId}...\n", Console::FG_CYAN);
-        $checkResult = $channel->checkSubscription($chatId);
+        $this->stdout("✅ Пользователь найден в БД: {$user->username}\n", Console::FG_GREEN);
         
-        if (!$checkResult['success']) {
-            $this->stderr("❌ Ошибка проверки: " . ($checkResult['error'] ?? 'Неизвестная ошибка') . "\n", Console::FG_RED);
+        // Проверяем, есть ли chat_id
+        if (empty($user->telegram_chat_id)) {
+            $this->stderr("⚠️ У пользователя @{$chatId} нет сохраненного chat_id\n", Console::FG_YELLOW);
+            $this->stdout("\nЧтобы получить chat_id:\n");
+            $this->stdout("  1. Попросите пользователя отправить сообщение боту @" . $botUsername . "\n");
+            $this->stdout("  2. После этого chat_id будет сохранен автоматически\n");
             return ExitCode::UNSPECIFIED_ERROR;
         }
         
-        if (!$checkResult['is_subscribed']) {
-            $this->stderr("⚠️ Пользователь @{$chatId} НЕ ПОДПИСАН на бота @" . $botUsername . "\n", Console::FG_YELLOW);
-            $this->stdout("\nЧтобы подписаться:\n");
-            $this->stdout("  1. Перейдите по ссылке: https://t.me/" . $botUsername . "\n");
-            $this->stdout("  2. Нажмите кнопку 'Старт' или 'Start'\n");
-            $this->stdout("  3. Отправьте любое сообщение боту (например, 'Привет')\n");
-            $this->stdout("  4. После этого повторите команду\n");
-            return ExitCode::UNSPECIFIED_ERROR;
-        }
-        
-        $this->stdout("✅ Пользователь @{$chatId} ПОДПИСАН на бота\n", Console::FG_GREEN);
+        $this->stdout("✅ Найден chat_id: {$user->telegram_chat_id}\n", Console::FG_GREEN);
         
         // Отправляем сообщение
         $this->stdout("\nОтправка сообщения...\n", Console::FG_CYAN);
         
         $subject = 'Тест Telegram';
         $result = $channel->send(
-            $chatId,
+            $user->telegram_chat_id,  // Используем сохраненный chat_id
             $subject,
             $message . "\n\nОтправлено: " . date('Y-m-d H:i:s')
         );
         
         if ($result) {
             $this->stdout("✅ Сообщение успешно отправлено пользователю @{$chatId}\n", Console::FG_GREEN);
+            $this->stdout("   Chat ID: {$user->telegram_chat_id}\n");
         } else {
             $this->stderr("❌ Не удалось отправить сообщение\n", Console::FG_RED);
             $this->stdout("\nВозможные причины:\n");
             $this->stdout("  1. Пользователь не начал диалог с ботом\n");
             $this->stdout("  2. Пользователь заблокировал бота\n");
-            $this->stdout("  3. Превышен лимит запросов\n");
-            $this->stdout("  4. Ошибка API Telegram\n");
+            $this->stdout("  3. Неправильный chat_id\n");
+            $this->stdout("  4. Превышен лимит запросов\n");
         }
         
         return ExitCode::OK;
