@@ -1,5 +1,5 @@
 <?php
-// FILE: .\components\notifications\NotificationManager.php
+// components/notifications/NotificationManager.php
 
 namespace app\components\notifications;
 
@@ -25,7 +25,7 @@ class NotificationManager extends Component
         
         // Регистрируем каналы уведомлений
         $this->registerChannel(new \app\components\notifications\channels\EmailChannel(Yii::$app->mailer));
-        $this->registerChannel(new \app\components\notifications\channels\SmsChannel());
+        //$this->registerChannel(new \app\components\notifications\channels\SmsChannel());
         $this->registerChannel(new \app\components\notifications\channels\VkChannel());
         $this->registerChannel(new \app\components\notifications\channels\TelegramChannel());
         $this->registerChannel(new \app\components\notifications\channels\WhatsAppChannel());
@@ -199,7 +199,12 @@ class NotificationManager extends Component
             case 'vk':
                 return $user->vk_id ?? null;
             case 'telegram':
-                return $user->telegram;
+                // Сначала пробуем использовать chat_id, если есть
+                if (!empty($user->telegram_chat_id)) {
+                    return $user->telegram_chat_id;
+                }
+                // Иначе используем username
+                return $user->telegram ?? null;
             case 'whatsapp':
                 return $user->whatsapp;
             default:

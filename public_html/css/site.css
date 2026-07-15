@@ -951,3 +951,9 @@ thead, tbody, tfoot, tr, td, th {
         padding: 4px 0 6px 0;
     }
 }
+
+.form-group .hint-block {
+    color: #a57c00;
+    font-size: 0.8em;
+    padding-bottom: 1em;
+}

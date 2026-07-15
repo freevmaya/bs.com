@@ -1,4 +1,5 @@
 <?php
+// FILE: .\commands\TestNotificationController.php
 
 namespace app\commands;
 
@@ -9,6 +10,7 @@ use yii\helpers\Console;
 use app\models\Advertisement;
 use app\models\SearchSubscription;
 use app\components\notifications\channels\VkChannel;
+use app\components\notifications\channels\TelegramChannel;
 
 /**
  * Тестовый контроллер для отладки уведомлений и подписок
@@ -26,6 +28,11 @@ use app\components\notifications\channels\VkChannel;
  *   php yii test-notification/test-vk 123456789 "Привет!"
  *   php yii test-notification/check-vk-config
  *   php yii test-notification/test-email test@example.com
+ *   php yii test-notification/test-telegram @username "Тестовое сообщение"
+ *   php yii test-notification/check-telegram-user-raw FreeVmaya
+ *   php yii test-notification/check-telegram-chat-ids
+ *   php yii test-notification/diagnose-telegram
+ *   php yii test-notification/check-telegram-user-exists FreeVmaya
  */
 class TestNotificationController extends Controller
 {
@@ -588,10 +595,14 @@ class TestNotificationController extends Controller
         $usersWithEmail = \app\models\User::find()->where(['not', ['email' => null]])->andWhere(['!=', 'email', ''])->count();
         $usersWithPhone = \app\models\User::find()->where(['not', ['phone' => null]])->andWhere(['!=', 'phone', ''])->count();
         $usersWithVk = \app\models\User::find()->where(['not', ['vk_profile_url' => null]])->andWhere(['!=', 'vk_profile_url', ''])->count();
+        $usersWithTelegram = \app\models\User::find()->where(['not', ['telegram' => null]])->andWhere(['!=', 'telegram', ''])->count();
+        $usersWithTelegramChatId = \app\models\User::find()->where(['not', ['telegram_chat_id' => null]])->andWhere(['!=', 'telegram_chat_id', ''])->count();
         
         $this->stdout("Пользователей с email: {$usersWithEmail}\n");
         $this->stdout("Пользователей с телефоном: {$usersWithPhone}\n");
         $this->stdout("Пользователей с VK: {$usersWithVk}\n");
+        $this->stdout("Пользователей с Telegram: {$usersWithTelegram}\n");
+        $this->stdout("Пользователей с Telegram Chat ID: {$usersWithTelegramChatId}\n");
         
         return ExitCode::OK;
     }
@@ -884,5 +895,405 @@ class TestNotificationController extends Controller
         }
         
         return ExitCode::OK;
+    }
+
+    // ============================================================
+    // МЕТОДЫ ДЛЯ TELEGRAM
+    // ============================================================
+
+    /**
+     * Тестовая отправка в Telegram
+     * 
+     * @param string $to Username получателя (например: @username или просто username)
+     * @param string $message Текст сообщения
+     */
+    public function actionTestTelegram($to, $message = 'Тестовое сообщение от сайта BS.com')
+    {
+        $this->stdout("=== ТЕСТ ОТПРАВКИ В TELEGRAM ===\n", Console::FG_YELLOW);
+        $this->stdout("Получатель: {$to}\n");
+        $this->stdout("Сообщение: {$message}\n\n");
+        
+        // Проверяем настройки
+        $botToken = Yii::$app->params['telegram_bot_token'] ?? null;
+        if (!$botToken || $botToken === '123456789:ABCdefGHIjklMNOpqrsTUVwxyz') {
+            $this->stderr("❌ Telegram bot token не настроен в config/params.php\n", Console::FG_RED);
+            $this->stdout("\nКак получить токен:\n");
+            $this->stdout("  1. Найдите @BotFather в Telegram\n");
+            $this->stdout("  2. Отправьте команду /newbot\n");
+            $this->stdout("  3. Введите имя бота\n");
+            $this->stdout("  4. Введите username бота\n");
+            $this->stdout("  5. Скопируйте полученный токен в config/params.php\n");
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        
+        $this->stdout("✅ Telegram bot token найден\n", Console::FG_GREEN);
+        
+        // Создаем канал
+        $channel = new TelegramChannel();
+        
+        // Получаем username бота
+        $botInfo = $channel->getBotInfo();
+        $botUsername = $botInfo['username'] ?? 'неизвестно';
+        $this->stdout("Бот: @" . $botUsername . "\n", Console::FG_CYAN);
+        
+        $chatId = ltrim($to, '@');
+        
+        // Проверяем, не пытаемся ли отправить сообщение самому боту
+        if ($chatId === $botUsername) {
+            $this->stdout("\n⚠️ Вы пытаетесь отправить сообщение самому боту.\n", Console::FG_YELLOW);
+            $this->stdout("Бот не может отправлять сообщения сам себе.\n");
+            $this->stdout("Пожалуйста, укажите username реального пользователя.\n");
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        
+        // Проверяем подписку
+        $this->stdout("\nПроверка подписки пользователя @{$chatId}...\n", Console::FG_CYAN);
+        $checkResult = $channel->checkSubscription($chatId);
+        
+        if (!$checkResult['success']) {
+            $this->stderr("❌ Ошибка проверки: " . ($checkResult['error'] ?? 'Неизвестная ошибка') . "\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        
+        if (!$checkResult['is_subscribed']) {
+            $this->stderr("⚠️ Пользователь @{$chatId} НЕ ПОДПИСАН на бота @" . $botUsername . "\n", Console::FG_YELLOW);
+            $this->stdout("\nЧтобы подписаться:\n");
+            $this->stdout("  1. Перейдите по ссылке: https://t.me/" . $botUsername . "\n");
+            $this->stdout("  2. Нажмите кнопку 'Старт' или 'Start'\n");
+            $this->stdout("  3. Отправьте любое сообщение боту (например, 'Привет')\n");
+            $this->stdout("  4. После этого повторите команду\n");
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        
+        $this->stdout("✅ Пользователь @{$chatId} ПОДПИСАН на бота\n", Console::FG_GREEN);
+        
+        // Отправляем сообщение
+        $this->stdout("\nОтправка сообщения...\n", Console::FG_CYAN);
+        
+        $subject = 'Тест Telegram';
+        $result = $channel->send(
+            $chatId,
+            $subject,
+            $message . "\n\nОтправлено: " . date('Y-m-d H:i:s')
+        );
+        
+        if ($result) {
+            $this->stdout("✅ Сообщение успешно отправлено пользователю @{$chatId}\n", Console::FG_GREEN);
+        } else {
+            $this->stderr("❌ Не удалось отправить сообщение\n", Console::FG_RED);
+            $this->stdout("\nВозможные причины:\n");
+            $this->stdout("  1. Пользователь не начал диалог с ботом\n");
+            $this->stdout("  2. Пользователь заблокировал бота\n");
+            $this->stdout("  3. Превышен лимит запросов\n");
+            $this->stdout("  4. Ошибка API Telegram\n");
+        }
+        
+        return ExitCode::OK;
+    }
+
+    /**
+     * Прямая проверка пользователя через Telegram API
+     * 
+     * @param string $username Username пользователя
+     */
+    public function actionCheckTelegramUserRaw($username)
+    {
+        $this->stdout("=== ПРЯМАЯ ПРОВЕРКА ПОЛЬЗОВАТЕЛЯ В TELEGRAM ===\n", Console::FG_YELLOW);
+        $this->stdout("Пользователь: @{$username}\n\n");
+        
+        $botToken = Yii::$app->params['telegram_bot_token'] ?? null;
+        if (!$botToken) {
+            $this->stderr("❌ Telegram bot token не настроен\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        
+        $this->stdout("Токен бота: " . substr($botToken, 0, 15) . "...\n\n");
+        
+        $chatId = ltrim($username, '@');
+        
+        // 1. Проверяем через getChat
+        $this->stdout("1. Проверка через getChat...\n", Console::FG_CYAN);
+        try {
+            $client = new \yii\httpclient\Client(['transport' => 'yii\httpclient\CurlTransport']);
+            $response = $client->get(
+                'https://api.telegram.org/bot' . $botToken . '/getChat',
+                ['chat_id' => $chatId]
+            )->send();
+            
+            $this->stdout("   Статус: " . $response->statusCode . "\n");
+            if ($response->isOk && isset($response->data['ok']) && $response->data['ok'] === true) {
+                $chat = $response->data['result'];
+                $this->stdout("   ✅ Пользователь найден:\n", Console::FG_GREEN);
+                $this->stdout("      ID: {$chat['id']}\n");
+                $this->stdout("      Username: @" . ($chat['username'] ?? 'не указан') . "\n");
+                $this->stdout("      Имя: " . ($chat['first_name'] ?? '') . " " . ($chat['last_name'] ?? '') . "\n");
+                $this->stdout("      Тип: {$chat['type']}\n");
+            } else {
+                $error = isset($response->data['description']) ? $response->data['description'] : 'Unknown error';
+                $this->stdout("   ❌ Ошибка: {$error}\n", Console::FG_RED);
+            }
+        } catch (\Exception $e) {
+            $this->stdout("   ❌ Исключение: " . $e->getMessage() . "\n", Console::FG_RED);
+        }
+        
+        // 2. Проверяем через getChatMember (если пользователь подписан на бота)
+        $this->stdout("\n2. Проверка через getChatMember (только если пользователь подписан)...\n", Console::FG_CYAN);
+        try {
+            $client = new \yii\httpclient\Client(['transport' => 'yii\httpclient\CurlTransport']);
+            $response = $client->get(
+                'https://api.telegram.org/bot' . $botToken . '/getChatMember',
+                ['chat_id' => $chatId, 'user_id' => $chatId]
+            )->send();
+            
+            $this->stdout("   Статус: " . $response->statusCode . "\n");
+            if ($response->isOk && isset($response->data['ok']) && $response->data['ok'] === true) {
+                $member = $response->data['result'];
+                $this->stdout("   ✅ Пользователь является членом чата:\n", Console::FG_GREEN);
+                $this->stdout("      Статус: " . ($member['status'] ?? 'unknown') . "\n");
+            } else {
+                $error = isset($response->data['description']) ? $response->data['description'] : 'Unknown error';
+                $this->stdout("   ⚠️ " . ($error === 'Bad Request: user not found' ? 'Пользователь не является участником чата' : $error) . "\n", Console::FG_YELLOW);
+            }
+        } catch (\Exception $e) {
+            $this->stdout("   ❌ Исключение: " . $e->getMessage() . "\n", Console::FG_RED);
+        }
+        
+        // 3. Пробуем отправить сообщение через прямой API
+        $this->stdout("\n3. Попытка прямой отправки сообщения...\n", Console::FG_CYAN);
+        try {
+            $client = new \yii\httpclient\Client(['transport' => 'yii\httpclient\CurlTransport']);
+            $response = $client->post(
+                'https://api.telegram.org/bot' . $botToken . '/sendMessage',
+                [
+                    'chat_id' => $chatId,
+                    'text' => "🔍 Тестовое сообщение для диагностики\nОтправлено: " . date('Y-m-d H:i:s'),
+                ]
+            )->send();
+            
+            $this->stdout("   Статус: " . $response->statusCode . "\n");
+            if ($response->isOk && isset($response->data['ok']) && $response->data['ok'] === true) {
+                $this->stdout("   ✅ Сообщение отправлено успешно!\n", Console::FG_GREEN);
+            } else {
+                $error = isset($response->data['description']) ? $response->data['description'] : 'Unknown error';
+                $this->stdout("   ❌ Ошибка: {$error}\n", Console::FG_RED);
+                
+                // Расшифровка ошибок
+                if (strpos($error, 'chat not found') !== false) {
+                    $this->stdout("\n   📌 Расшифровка: Пользователь @{$chatId} не найден.\n", Console::FG_YELLOW);
+                    $this->stdout("   Возможные причины:\n");
+                    $this->stdout("   - Пользователь не существует\n");
+                    $this->stdout("   - Пользователь имеет приватный аккаунт\n");
+                    $this->stdout("   - Неправильно указан username\n");
+                    $this->stdout("   - Пользователь не начал диалог с ботом\n");
+                } elseif (strpos($error, 'bot was blocked') !== false) {
+                    $this->stdout("\n   📌 Расшифровка: Пользователь заблокировал бота.\n", Console::FG_YELLOW);
+                } elseif (strpos($error, 'user is deactivated') !== false) {
+                    $this->stdout("\n   📌 Расшифровка: Пользователь деактивирован.\n", Console::FG_YELLOW);
+                }
+            }
+        } catch (\Exception $e) {
+            $this->stdout("   ❌ Исключение: " . $e->getMessage() . "\n", Console::FG_RED);
+        }
+        
+        // 4. Рекомендации
+        $this->stdout("\n=== РЕКОМЕНДАЦИИ ===\n", Console::FG_YELLOW);
+        $this->stdout("1. Убедитесь, что пользователь @{$chatId} существует в Telegram\n");
+        $this->stdout("2. Попросите пользователя:\n");
+        $this->stdout("   - Найти бота @Parasell_Bot в Telegram\n");
+        $this->stdout("   - Нажать кнопку 'Старт'\n");
+        $this->stdout("   - Отправить любое сообщение боту\n");
+        $this->stdout("3. Если пользователь существует, используйте его числовой ID вместо username\n");
+        
+        return ExitCode::OK;
+    }
+
+    /**
+     * Проверка chat_id пользователей
+     */
+    public function actionCheckTelegramChatIds()
+    {
+        $this->stdout("=== ПРОВЕРКА TELEGRAM CHAT ID ===\n", Console::FG_YELLOW);
+        
+        $users = \app\models\User::find()
+            ->where(['not', ['telegram' => null]])
+            ->andWhere(['!=', 'telegram', ''])
+            ->all();
+        
+        if (empty($users)) {
+            $this->stdout("Нет пользователей с указанным Telegram\n", Console::FG_YELLOW);
+            return ExitCode::OK;
+        }
+        
+        $this->stdout("Найдено пользователей: " . count($users) . "\n\n");
+        
+        $hasChatId = 0;
+        $noChatId = 0;
+        
+        foreach ($users as $user) {
+            $status = !empty($user->telegram_chat_id) ? '✅' : '❌';
+            $chatIdDisplay = $user->telegram_chat_id ?? 'не установлен';
+            
+            $this->stdout("{$status} @{$user->telegram} ({$user->username}) - Chat ID: {$chatIdDisplay}\n");
+            
+            if (!empty($user->telegram_chat_id)) {
+                $hasChatId++;
+            } else {
+                $noChatId++;
+            }
+        }
+        
+        $this->stdout("\n=== ИТОГИ ===\n", Console::FG_YELLOW);
+        $this->stdout("С chat_id: {$hasChatId}\n");
+        $this->stdout("Без chat_id: {$noChatId}\n");
+        
+        if ($noChatId > 0) {
+            $this->stdout("\n⚠️ Пользователи без chat_id:\n");
+            $this->stdout("1. Попросите их отправить сообщение боту @Parasell_Bot\n");
+            $this->stdout("2. После этого chat_id будет сохранен автоматически\n");
+        }
+        
+        return ExitCode::OK;
+    }
+
+    /**
+     * Полная диагностика бота
+     */
+    public function actionDiagnoseTelegram()
+    {
+        $this->stdout("=== ДИАГНОСТИКА TELEGRAM БОТА ===\n", Console::FG_YELLOW);
+        
+        $botToken = Yii::$app->params['telegram_bot_token'] ?? null;
+        
+        if (!$botToken) {
+            $this->stderr("❌ Токен не настроен в config/params.php\n", Console::FG_RED);
+            $this->stdout("\nДобавьте в config/params.php:\n");
+            $this->stdout("'telegram_bot_token' => 'ваш_токен_от_BotFather',\n");
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        
+        $this->stdout("✅ Токен найден: " . substr($botToken, 0, 15) . "...\n\n");
+        
+        // 1. Проверка бота через getMe
+        $this->stdout("1. Проверка бота (getMe)...\n", Console::FG_CYAN);
+        try {
+            $client = new \yii\httpclient\Client(['transport' => 'yii\httpclient\CurlTransport']);
+            $response = $client->get(
+                'https://api.telegram.org/bot' . $botToken . '/getMe'
+            )->send();
+            
+            if ($response->isOk && isset($response->data['ok']) && $response->data['ok'] === true) {
+                $bot = $response->data['result'];
+                $this->stdout("   ✅ Бот активен:\n", Console::FG_GREEN);
+                $this->stdout("      ID: {$bot['id']}\n");
+                $this->stdout("      Username: @{$bot['username']}\n");
+                $this->stdout("      Имя: {$bot['first_name']}\n");
+                $this->stdout("      Может ли бот получать сообщения: " . ($bot['can_join_groups'] ? 'Да' : 'Нет') . "\n");
+            } else {
+                $this->stderr("   ❌ Бот не активен: " . ($response->data['description'] ?? 'Unknown error') . "\n", Console::FG_RED);
+                return ExitCode::UNSPECIFIED_ERROR;
+            }
+        } catch (\Exception $e) {
+            $this->stderr("   ❌ Ошибка: " . $e->getMessage() . "\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        
+        // 2. Проверка прав бота
+        $this->stdout("\n2. Проверка прав бота (getMyCommands)...\n", Console::FG_CYAN);
+        try {
+            $client = new \yii\httpclient\Client(['transport' => 'yii\httpclient\CurlTransport']);
+            $response = $client->get(
+                'https://api.telegram.org/bot' . $botToken . '/getMyCommands'
+            )->send();
+            
+            if ($response->isOk && isset($response->data['ok']) && $response->data['ok'] === true) {
+                $commands = $response->data['result'] ?? [];
+                $this->stdout("   ✅ Команды бота (" . count($commands) . "):\n", Console::FG_GREEN);
+                foreach ($commands as $cmd) {
+                    $this->stdout("      /{$cmd['command']} - {$cmd['description']}\n");
+                }
+            } else {
+                $this->stdout("   ⚠️ Не удалось получить команды: " . ($response->data['description'] ?? 'Unknown') . "\n", Console::FG_YELLOW);
+            }
+        } catch (\Exception $e) {
+            $this->stdout("   ⚠️ Ошибка: " . $e->getMessage() . "\n", Console::FG_YELLOW);
+        }
+        
+        // 3. Проверка пользователей с Telegram в БД
+        $this->stdout("\n3. Пользователи с Telegram в базе данных...\n", Console::FG_CYAN);
+        $users = \app\models\User::find()
+            ->where(['not', ['telegram' => null]])
+            ->andWhere(['!=', 'telegram', ''])
+            ->all();
+        
+        if (empty($users)) {
+            $this->stdout("   Нет пользователей с указанным Telegram\n", Console::FG_YELLOW);
+        } else {
+            $this->stdout("   Найдено пользователей: " . count($users) . "\n", Console::FG_GREEN);
+            foreach ($users as $user) {
+                $hasChatId = !empty($user->telegram_chat_id) ? '✅' : '❌';
+                $this->stdout("      {$hasChatId} @{$user->telegram} ({$user->username})\n");
+            }
+        }
+        
+        // 4. Рекомендации
+        $this->stdout("\n=== РЕКОМЕНДАЦИИ ===\n", Console::FG_YELLOW);
+        $this->stdout("1. Убедитесь, что бот @Parasell_Bot активен\n");
+        $this->stdout("2. Убедитесь, что пользователи подписались на бота\n");
+        $this->stdout("3. Для отправки сообщений используйте:\n");
+        $this->stdout("   - Username: @username (если пользователь публичный)\n");
+        $this->stdout("   - Chat ID: число (если пользователь приватный)\n");
+        $this->stdout("4. Проверьте, что пользователи отправили сообщение боту\n");
+        
+        return ExitCode::OK;
+    }
+
+    /**
+     * Проверка существования пользователя в Telegram
+     * 
+     * @param string $username Username пользователя
+     */
+    public function actionCheckTelegramUserExists($username)
+    {
+        $this->stdout("=== ПРОВЕРКА ПОЛЬЗОВАТЕЛЯ В TELEGRAM ===\n", Console::FG_YELLOW);
+        $this->stdout("Пользователь: @{$username}\n\n");
+        
+        $botToken = Yii::$app->params['telegram_bot_token'] ?? null;
+        if (!$botToken) {
+            $this->stderr("❌ Telegram bot token не настроен\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        
+        $channel = new TelegramChannel();
+        $chatId = ltrim($username, '@');
+        
+        // Пробуем получить информацию о чате
+        try {
+            $client = new \yii\httpclient\Client(['transport' => 'yii\httpclient\CurlTransport']);
+            $response = $client->get(
+                'https://api.telegram.org/bot' . $botToken . '/getChat',
+                ['chat_id' => $chatId]
+            )->send();
+            
+            if ($response->isOk && isset($response->data['ok']) && $response->data['ok'] === true) {
+                $chat = $response->data['result'];
+                $this->stdout("✅ Пользователь найден:\n", Console::FG_GREEN);
+                $this->stdout("  ID: {$chat['id']}\n");
+                $this->stdout("  Username: @" . ($chat['username'] ?? 'не указан') . "\n");
+                $this->stdout("  Имя: " . ($chat['first_name'] ?? '') . " " . ($chat['last_name'] ?? '') . "\n");
+                $this->stdout("  Тип: {$chat['type']}\n");
+                return ExitCode::OK;
+            } else {
+                $error = isset($response->data['description']) ? $response->data['description'] : 'Unknown error';
+                $this->stderr("❌ Пользователь не найден: {$error}\n", Console::FG_RED);
+                $this->stdout("\nВозможные причины:\n");
+                $this->stdout("  1. Пользователь не существует\n");
+                $this->stdout("  2. Пользователь с таким username не найден\n");
+                $this->stdout("  3. Пользователь имеет приватный аккаунт\n");
+                return ExitCode::UNSPECIFIED_ERROR;
+            }
+        } catch (\Exception $e) {
+            $this->stderr("❌ Ошибка: " . $e->getMessage() . "\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
     }
 }

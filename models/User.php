@@ -34,7 +34,7 @@ class User extends ActiveRecord implements IdentityInterface
             [['username'], 'unique'],
             [['email'], 'email'],
             [['email'], 'unique'],
-            [['phone', 'city', 'vk_id', 'vk_profile_url', 'telegram', 'whatsapp'], 'string', 'max' => 255],
+            [['phone', 'city', 'vk_id', 'vk_profile_url', 'telegram', 'telegram_chat_id', 'whatsapp'], 'string', 'max' => 255],
             [['vk_id'], 'match', 'pattern' => '/^\d+$/', 'message' => 'ID в VK должен содержать только цифры'],
             [['vk_profile_url'], 'validateVkProfileUrl'],
             [['telegram'], 'match', 'pattern' => '/^@?[a-zA-Z0-9_]{5,32}$/', 'message' => 'Введите корректный username Telegram (например: @username или username)'],
@@ -80,6 +80,7 @@ class User extends ActiveRecord implements IdentityInterface
             'vk_id' => 'ID в VK',
             'vk_profile_url' => 'Ссылка на профиль VK',
             'telegram' => 'Telegram',
+            'telegram_chat_id' => 'Telegram Chat ID',
             'whatsapp' => 'WhatsApp',
             'created_at' => 'Дата регистрации',
         ];
