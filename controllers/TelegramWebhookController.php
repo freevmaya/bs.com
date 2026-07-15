@@ -14,73 +14,41 @@ class TelegramWebhookController extends Controller
     
     public function actionIndex()
     {
-        // Устанавливаем формат ответа как RAW
         Yii::$app->response->format = Response::FORMAT_RAW;
         
-        // Получаем входящие данные
         $input = file_get_contents('php://input');
-        
-        // Логируем входящий запрос для отладки
-        if (!empty($input)) {
-            Yii::info('Telegram webhook received', 'telegram');
-        }
         
         if (empty($input)) {
             Yii::warning('Empty input received in webhook', 'telegram');
             return 'OK';
         }
         
-        // Декодируем JSON
         $data = json_decode($input, true);
         if ($data === null) {
             Yii::error('Invalid JSON received: ' . substr($input, 0, 200), 'telegram');
             return 'OK';
         }
         
-        // Логируем полученные данные (без sensitive данных)
-        if (isset($data['message'])) {
-            $chatId = $data['message']['chat']['id'] ?? 'unknown';
-            $username = $data['message']['chat']['username'] ?? 'no_username';
-            Yii::info("Processing message from chat_id: {$chatId}, username: @{$username}", 'telegram');
-        }
-        
-        // Обрабатываем сообщение
         if (isset($data['message'])) {
             try {
                 $this->handleMessage($data['message']);
-                Yii::info('Message handled successfully', 'telegram');
             } catch (\Exception $e) {
                 Yii::error('Error handling message: ' . $e->getMessage() . "\n" . $e->getTraceAsString(), 'telegram');
-            }
-        }
-        
-        // Обрабатываем callback query (если есть кнопки)
-        if (isset($data['callback_query'])) {
-            try {
-                $this->handleCallbackQuery($data['callback_query']);
-            } catch (\Exception $e) {
-                Yii::error('Error handling callback query: ' . $e->getMessage(), 'telegram');
             }
         }
         
         return 'OK';
     }
     
-    /**
-     * Обработка входящего сообщения
-     * 
-     * @param array $message
-     */
     private function handleMessage($message)
     {
         $chatId = $message['chat']['id'];
-        $username = $message['chat']['username'] ?? null;
+        $username = $message['chat']['username'] ?? null; // Приходит без @
         $firstName = $message['chat']['first_name'] ?? '';
         $lastName = $message['chat']['last_name'] ?? '';
         $text = $message['text'] ?? '';
-        $userId = $message['from']['id'] ?? null;
         
-        // 1. Логируем полученный chat_id в файл
+        // Логируем
         $logMessage = date('Y-m-d H:i:s') . " | Chat ID: {$chatId}";
         if ($username) {
             $logMessage .= " | @{$username}";
@@ -99,136 +67,115 @@ class TelegramWebhookController extends Controller
         $logFile = Yii::getAlias('@runtime') . '/telegram_chat_ids.log';
         file_put_contents($logFile, $logMessage, FILE_APPEND);
         
-        // 2. Сохраняем chat_id в БД
-        $userSaved = false;
+        // ===== ПОИСК ПОЛЬЗОВАТЕЛЯ С УЧЕТОМ @ =====
         $user = null;
+        $foundBy = null;
         
-        // 2.1 Ищем пользователя по username
         if ($username) {
+            // 1. Ищем по полю telegram (хранится с @ или без)
+            // Пробуем найти как есть (без @)
             $user = User::find()->where(['telegram' => $username])->one();
             if ($user) {
-                $user->telegram_chat_id = (string)$chatId;
-                if ($user->save()) {
-                    $userSaved = true;
-                    Yii::info("Saved chat_id {$chatId} for user @{$username} (ID: {$user->id})", 'telegram');
-                } else {
-                    Yii::error("Failed to save chat_id for user @{$username}: " . json_encode($user->errors), 'telegram');
+                $foundBy = 'telegram_without_at';
+                Yii::info("User found by telegram (without @): {$username}", 'telegram');
+            }
+            
+            // 2. Если не нашли, пробуем с @
+            if (!$user) {
+                $user = User::find()->where(['telegram' => '@' . $username])->one();
+                if ($user) {
+                    $foundBy = 'telegram_with_at';
+                    Yii::info("User found by telegram (with @): @{$username}", 'telegram');
+                }
+            }
+            
+            // 3. Если все еще не нашли, пробуем по username в системе
+            if (!$user) {
+                $user = User::find()->where(['username' => $username])->one();
+                if ($user) {
+                    $foundBy = 'system_username';
+                    Yii::info("User found by system username: {$username}", 'telegram');
+                }
+            }
+            
+            // 4. И по username с @
+            if (!$user) {
+                $user = User::find()->where(['username' => '@' . $username])->one();
+                if ($user) {
+                    $foundBy = 'system_username_with_at';
+                    Yii::info("User found by system username (with @): @{$username}", 'telegram');
                 }
             }
         }
         
-        // 2.2 Если пользователь не найден по username, ищем по ID телеграм-пользователя
-        if (!$userSaved && $userId) {
-            // Ищем пользователя по telegram_id (если у вас есть такое поле)
-            // или создаем временную запись для последующей привязки
-            Yii::info("User @{$username} not found in database, will try to find by Telegram ID", 'telegram');
+        // Сохраняем chat_id
+        if ($user) {
+            $oldChatId = $user->telegram_chat_id;
             
-            // Если у вас есть поле telegram_id в таблице users, добавьте его
-            // $user = User::find()->where(['telegram_id' => $userId])->one();
+            // Сохраняем chat_id
+            $user->telegram_chat_id = (string)$chatId;
             
-            // Если пользователь все еще не найден, создаем запись в отдельной таблице
-            // для последующей ручной привязки
-            $this->saveUnregisteredUser($chatId, $username, $firstName, $lastName, $userId);
-        }
-        
-        // 2.3 Если пользователь найден и сохранен, обновляем его контактные данные
-        if ($userSaved && $user) {
-            // Обновляем имя пользователя, если оно изменилось
-            $needUpdate = false;
-            if ($firstName && $user->username !== $username) {
-                // Можно обновить поле username в БД, если оно отличается
-                // $user->username = $username;
-                // $needUpdate = true;
+            // Если поле telegram пустое или не соответствует, нормализуем
+            // Рекомендуется хранить без @ для единообразия
+            if (empty($user->telegram) || $user->telegram === '@' . $username) {
+                $user->telegram = $username; // Сохраняем без @
             }
-            if ($needUpdate) {
-                $user->save();
+            
+            if ($user->save()) {
+                $message = "Saved chat_id {$chatId} for user {$user->username} (ID: {$user->id})";
+                $message .= " | Found by: {$foundBy}";
+                if ($oldChatId) {
+                    $message .= " | Old chat_id: {$oldChatId}";
+                }
+                Yii::info($message, 'telegram');
+                
+                // Отправляем успешное сообщение
+                $this->sendTelegramMessage($chatId, 
+                    "✅ Ваш аккаунт <b>{$user->username}</b> успешно привязан!\n" .
+                    "Chat ID: <code>{$chatId}</code>\n" .
+                    "Telegram: @{$user->telegram}\n\n" .
+                    "Теперь вы будете получать уведомления! 🎉"
+                );
+                return;
+            } else {
+                Yii::error("Failed to save chat_id: " . json_encode($user->errors), 'telegram');
+                $this->sendTelegramMessage($chatId, "❌ Ошибка сохранения. Пожалуйста, свяжитесь с администратором.");
+                return;
             }
         }
         
-        // 3. Отвечаем пользователю
-        $this->sendResponse($chatId, $username, $firstName, $userSaved);
+        // Пользователь не найден
+        $this->sendTelegramMessage($chatId, 
+            "⚠️ Ваш аккаунт не найден на сайте.\n\n" .
+            "Чтобы получать уведомления:\n" .
+            "1. Зарегистрируйтесь на сайте " . Yii::$app->name . "\n" .
+            "2. В профиле укажите Telegram: @{$username}\n" .
+            "3. После этого уведомления будут приходить сюда\n\n" .
+            "Ваш Chat ID: <code>{$chatId}</code>\n" .
+            "Username: @{$username}"
+        );
         
-        // 4. Если это команда /start - отправляем приветственное сообщение
-        if (strpos($text, '/start') === 0) {
-            $this->sendWelcomeMessage($chatId, $username);
-        }
+        // Сохраняем в отдельный лог для ручной обработки
+        $this->saveUnregisteredUser($chatId, $username, $firstName, $lastName);
     }
     
-    /**
-     * Сохранение незарегистрированного пользователя
-     * 
-     * @param int $chatId
-     * @param string|null $username
-     * @param string $firstName
-     * @param string $lastName
-     * @param int $userId
-     */
-    private function saveUnregisteredUser($chatId, $username, $firstName, $lastName, $userId)
-    {
-        // Создаем запись в отдельной таблице unregistered_telegram_users
-        // или сохраняем в лог для ручной обработки
-        
-        $logData = [
-            'chat_id' => $chatId,
-            'username' => $username,
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'telegram_user_id' => $userId,
-            'date' => date('Y-m-d H:i:s'),
-        ];
-        
-        $logFile = Yii::getAlias('@runtime') . '/telegram_unregistered_users.log';
-        file_put_contents($logFile, json_encode($logData) . "\n", FILE_APPEND);
-        
-        Yii::info("Unregistered user: @{$username} (chat_id: {$chatId})", 'telegram');
-    }
-    
-    /**
-     * Отправка ответа пользователю
-     * 
-     * @param int $chatId
-     * @param string|null $username
-     * @param string $firstName
-     * @param bool $userSaved
-     */
-    private function sendResponse($chatId, $username, $firstName, $userSaved)
+    private function sendTelegramMessage($chatId, $text)
     {
         $botToken = Yii::$app->params['telegram_bot_token'] ?? null;
         if (!$botToken) {
-            Yii::error('Bot token not configured', 'telegram');
             return;
         }
         
-        $responseText = "✅ Бот активен!\n\n";
-        $responseText .= "Ваш Chat ID: <code>{$chatId}</code>\n\n";
-        
-        if ($userSaved) {
-            $responseText .= "✅ Ваш аккаунт привязан к сайту!\n";
-            if ($username) {
-                $responseText .= "Username: @{$username}\n";
-            }
-        } else {
-            $responseText .= "⚠️ Ваш аккаунт НЕ привязан к сайту.\n\n";
-            $responseText .= "Чтобы получать уведомления:\n";
-            $responseText .= "1. Зарегистрируйтесь на сайте \n";
-            $responseText .= "2. В профиле укажите Telegram: @{$username}\n";
-            $responseText .= "3. После этого уведомления будут приходить сюда\n";
-        }
-        
-        $responseText .= "\nИспользуйте этот ID для получения уведомлений.";
-        if ($username) {
-            $responseText .= "\nВаш username: @{$username}";
-        }
-        
-        $apiUrl = "https://api.telegram.org/bot{$botToken}/sendMessage";
-        
         try {
             $client = new \yii\httpclient\Client(['transport' => 'yii\httpclient\CurlTransport']);
-            $response = $client->post($apiUrl, [
-                'chat_id' => $chatId,
-                'text' => $responseText,
-                'parse_mode' => 'HTML',
-            ])->send();
+            $response = $client->post(
+                'https://api.telegram.org/bot' . $botToken . '/sendMessage',
+                [
+                    'chat_id' => $chatId,
+                    'text' => $text,
+                    'parse_mode' => 'HTML',
+                ]
+            )->send();
             
             if ($response->isOk) {
                 Yii::info("Response sent to chat_id: {$chatId}", 'telegram');
@@ -240,94 +187,19 @@ class TelegramWebhookController extends Controller
         }
     }
     
-    /**
-     * Отправка приветственного сообщения
-     * 
-     * @param int $chatId
-     * @param string|null $username
-     */
-    private function sendWelcomeMessage($chatId, $username)
+    private function saveUnregisteredUser($chatId, $username, $firstName, $lastName)
     {
-        $botToken = Yii::$app->params['telegram_bot_token'] ?? null;
-        if (!$botToken) {
-            return;
-        }
+        $logData = [
+            'chat_id' => $chatId,
+            'username' => $username,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'date' => date('Y-m-d H:i:s'),
+        ];
         
-        $responseText = "👋 Привет!\n\n";
-        $responseText .= "Я бот сайта " . Yii::$app->name . "\n\n";
-        $responseText .= "Я буду присылать тебе уведомления:\n";
-        $responseText .= "🔔 О новых объявлениях по твоей подписке\n";
-        $responseText .= "💬 О новых сообщениях в диалогах\n";
-        $responseText .= "📢 О новых объявлениях на сайте\n\n";
+        $logFile = Yii::getAlias('@runtime') . '/telegram_unregistered_users.log';
+        file_put_contents($logFile, json_encode($logData, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND);
         
-        if ($username) {
-            $user = User::find()->where(['telegram' => $username])->one();
-            if ($user) {
-                $responseText .= "✅ Твой аккаунт уже привязан!\n";
-                $responseText .= "Ты будешь получать уведомления автоматически.\n";
-            } else {
-                $responseText .= "⚠️ Чтобы получать уведомления:\n";
-                $responseText .= "1. Зарегистрируйся на сайте\n";
-                $responseText .= "2. В профиле укажи Telegram: @{$username}\n";
-                $responseText .= "3. После этого уведомления будут приходить сюда\n";
-            }
-        }
-        
-        $apiUrl = "https://api.telegram.org/bot{$botToken}/sendMessage";
-        
-        try {
-            $client = new \yii\httpclient\Client(['transport' => 'yii\httpclient\CurlTransport']);
-            $client->post($apiUrl, [
-                'chat_id' => $chatId,
-                'text' => $responseText,
-                'parse_mode' => 'HTML',
-            ])->send();
-        } catch (\Exception $e) {
-            Yii::error('Failed to send welcome message: ' . $e->getMessage(), 'telegram');
-        }
-    }
-    
-    /**
-     * Обработка callback query (нажатие на кнопку)
-     * 
-     * @param array $callbackQuery
-     */
-    private function handleCallbackQuery($callbackQuery)
-    {
-        $chatId = $callbackQuery['message']['chat']['id'] ?? null;
-        $data = $callbackQuery['data'] ?? '';
-        
-        if ($chatId && $data) {
-            Yii::info("Callback query: {$data} from chat_id: {$chatId}", 'telegram');
-            
-            // Здесь можно обрабатывать нажатия на кнопки
-            // Например, подписка/отписка от уведомлений
-            
-            // Отвечаем на callback
-            $this->answerCallbackQuery($callbackQuery['id']);
-        }
-    }
-    
-    /**
-     * Ответ на callback query
-     * 
-     * @param string $callbackId
-     */
-    private function answerCallbackQuery($callbackId)
-    {
-        $botToken = Yii::$app->params['telegram_bot_token'] ?? null;
-        if (!$botToken) {
-            return;
-        }
-        
-        try {
-            $client = new \yii\httpclient\Client(['transport' => 'yii\httpclient\CurlTransport']);
-            $client->post(
-                'https://api.telegram.org/bot' . $botToken . '/answerCallbackQuery',
-                ['callback_query_id' => $callbackId]
-            )->send();
-        } catch (\Exception $e) {
-            Yii::error('Failed to answer callback query: ' . $e->getMessage(), 'telegram');
-        }
+        Yii::info("Unregistered user: @{$username} (chat_id: {$chatId})", 'telegram');
     }
 }
