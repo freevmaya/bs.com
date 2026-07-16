@@ -20,6 +20,8 @@ use app\models\AdvertisementDevice;
 use app\models\Producer;
 use app\models\Certification;
 use app\models\SearchSubscription;
+use app\models\NotificationSubscription;
+use app\models\NotificationLog;
 use app\components\TempAdStorage;
 
 class AdvertisementsController extends Controller
@@ -683,14 +685,13 @@ class AdvertisementsController extends Controller
     }
 
     /**
-     * Отправка уведомлений подписчикам
+     * Отправка уведомлений подписчикам (теперь только ставит в очередь)
      * 
      * @param Advertisement $advertisement Объявление
      * @param string $eventType Тип события: 'create' или 'update'
-     * @param bool $force Принудительная отправка (игнорирует ограничение по времени)
-     * @return int Количество отправленных уведомлений
+     * @return int Количество добавленных в очередь уведомлений
      */
-    protected function notifySubscribers($advertisement, $eventType = 'create', $force = false)
+    protected function notifySubscribers($advertisement, $eventType = 'create')
     {
         // Получаем все активные подписки для данного раздела
         $subscriptions = SearchSubscription::find()
@@ -700,7 +701,7 @@ class AdvertisementsController extends Controller
             ])
             ->all();
         
-        $notified = 0;
+        $queued = 0;
         
         foreach ($subscriptions as $subscription) {
             // Проверяем соответствие объявления параметрам подписки
@@ -708,38 +709,143 @@ class AdvertisementsController extends Controller
                 // Проверяем, не отправляли ли уже уведомление об этом объявлении
                 $lastNotified = $subscription->last_notified_at;
                 
-                // Для события 'update' проверяем, было ли изменение существенным
                 if ($eventType === 'update') {
                     // Если объявление обновлено менее чем 5 минут назад и уже было уведомление - пропускаем
-                    if (!$force && $lastNotified && $lastNotified > $advertisement->updated_at - 300) {
+                    if ($lastNotified && $lastNotified > $advertisement->updated_at - 300) {
                         Yii::info("Skipping duplicate notification for subscription {$subscription->id} (update within 5 min)", 'search_subscription');
                         continue;
                     }
                 } else {
                     // Для создания: если уведомление уже отправлено в течение 1 часа - пропускаем
-                    if (!$force && $lastNotified && $lastNotified > $advertisement->created_at - 3600) {
+                    if ($lastNotified && $lastNotified > $advertisement->created_at - 3600) {
                         Yii::info("Skipping duplicate notification for subscription {$subscription->id}, last notified at " . date('Y-m-d H:i:s', $lastNotified), 'search_subscription');
                         continue;
                     }
                 }
                 
-                // Отправляем уведомление и получаем результат
-                $result = $this->sendSubscriptionNotification($advertisement, $subscription, $eventType);
+                // Добавляем уведомление в очередь
+                $result = $this->queueSubscriptionNotification($advertisement, $subscription, $eventType);
                 
-                // Обновляем время последнего уведомления ТОЛЬКО если отправка успешна
                 if ($result) {
+                    // Обновляем время последнего уведомления, чтобы не дублировать
                     $subscription->last_notified_at = time();
                     $subscription->save(false);
-                    $notified++;
-                    Yii::info("Subscription notification sent successfully to user {$subscription->user_id} (event: {$eventType})", 'search_subscription');
+                    $queued++;
+                    Yii::info("Subscription notification queued for user {$subscription->user_id} (event: {$eventType})", 'search_subscription');
                 } else {
-                    Yii::warning("Subscription notification FAILED for user {$subscription->user_id} (event: {$eventType})", 'search_subscription');
+                    Yii::warning("Failed to queue subscription notification for user {$subscription->user_id} (event: {$eventType})", 'search_subscription');
                 }
             }
         }
         
-        Yii::info("Notified {$notified} subscribers about advertisement #{$advertisement->id} (event: {$eventType})", 'search_subscription');
-        return $notified;
+        Yii::info("Queued {$queued} notifications for advertisement #{$advertisement->id} (event: {$eventType})", 'search_subscription');
+        return $queued;
+    }
+
+    /**
+     * Добавить уведомление в очередь (вместо немедленной отправки)
+     */
+    protected function queueSubscriptionNotification($advertisement, $subscription, $eventType = 'create')
+    {
+        $user = $subscription->user;
+        if (!$user) {
+            Yii::warning("User not found for subscription {$subscription->id}", 'search_subscription');
+            return false;
+        }
+        
+        if ($eventType === 'update') {
+            $subject = "Обновление объявления по вашей подписке: {$advertisement->title}";
+            $message = $this->buildSubscriptionMessage($advertisement, $subscription, 'update');
+            $htmlMessage = $this->buildSubscriptionHtmlMessage($advertisement, $subscription, 'update');
+        } else {
+            $subject = "Новое объявление по вашей подписке: {$advertisement->title}";
+            $message = $this->buildSubscriptionMessage($advertisement, $subscription, 'create');
+            $htmlMessage = $this->buildSubscriptionHtmlMessage($advertisement, $subscription, 'create');
+        }
+        
+        try {
+            $userSubscriptions = NotificationSubscription::getActiveSubscriptions($user->id, 'search_subscription');
+            
+            if (empty($userSubscriptions)) {
+                Yii::info("User {$user->id} has no active subscriptions for event 'search_subscription'", 'notification');
+                return false;
+            }
+            
+            $queued = 0;
+            foreach ($userSubscriptions as $userSubscription) {
+                $channelName = $userSubscription->channel;
+                $channel = Yii::$app->notificationManager->getChannel($channelName);
+                
+                if (!$channel) {
+                    Yii::warning("Channel '{$channelName}' not found", 'notification');
+                    continue;
+                }
+                
+                if (!$channel->isAvailable()) {
+                    Yii::warning("Channel '{$channelName}' is not available", 'notification');
+                    continue;
+                }
+                
+                $to = $this->getRecipient($user, $channelName);
+                if (!$to) {
+                    Yii::warning("No recipient found for channel '{$channelName}'", 'notification');
+                    continue;
+                }
+                
+                // Просто удаляем эмодзи из сообщений
+                $cleanMessage = $this->cleanHtmlFromEmoji($message);
+                $cleanSubject = $this->cleanHtmlFromEmoji($subject);
+                $cleanHtml = $this->cleanHtmlFromEmoji($htmlMessage);
+                
+                $log = new NotificationLog();
+                $log->user_id = $user->id;
+                $log->channel = $channelName;
+                $log->event = 'search_subscription';
+                $log->subject = $cleanSubject;
+                $log->message = $cleanMessage;
+                $log->html_body = $cleanHtml;
+                $log->status = NotificationLog::STATUS_QUEUED;
+                $log->queued_at = time();
+                $log->retry_count = 0;
+                
+                if ($log->save()) {
+                    $queued++;
+                    Yii::info("Notification queued for user {$user->id} via '{$channelName}' (log_id: {$log->id})", 'notification');
+                } else {
+                    Yii::error("Failed to queue notification: " . json_encode($log->errors), 'notification');
+                }
+            }
+            
+            return $queued > 0;
+            
+        } catch (\Exception $e) {
+            Yii::error("Failed to queue subscription notification: " . $e->getMessage() . "\n" . $e->getTraceAsString(), 'search_subscription');
+            return false;
+        }
+    }
+
+    /**
+     * Получить получателя для канала
+     */
+    protected function getRecipient($user, $channelName)
+    {
+        switch ($channelName) {
+            case 'email':
+                return $user->email;
+            case 'sms':
+                return $user->phone;
+            case 'vk':
+                return $user->vk_id ?? null;
+            case 'telegram':
+                if (!empty($user->telegram_chat_id)) {
+                    return $user->telegram_chat_id;
+                }
+                return $user->telegram ?? null;
+            case 'whatsapp':
+                return $user->whatsapp;
+            default:
+                return null;
+        }
     }
 
     /**
@@ -815,7 +921,7 @@ class AdvertisementsController extends Controller
             "Ваши параметры подписки:",
             $subscription->getDescription(),
             "",
-            "Ссылка: " . Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]),
+            "ID объявления: #{$advertisement->id}",
         ];
         
         return implode("\n", $parts);
@@ -832,13 +938,11 @@ class AdvertisementsController extends Controller
     protected function buildSubscriptionHtmlMessage($advertisement, $subscription, $eventType = 'create')
     {
         $price = $advertisement->price ? number_format($advertisement->price, 0, '.', ' ') . ' ₽' : 'не указана';
-        $link = Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]);
         $description = $subscription->getDescription();
         
-        $headerIcon = ($eventType === 'update') ? '📝' : '📢';
-        $eventText = ($eventType === 'update') ? 'обновлено' : 'появилось';
         $headerTitle = ($eventType === 'update') ? 'Объявление обновлено!' : 'Новое объявление!';
         $headerColor = ($eventType === 'update') ? '#ff9800' : '#28a745';
+        $eventBadge = ($eventType === 'update') ? 'ОБНОВЛЕНО' : 'НОВОЕ';
         $eventDescription = ($eventType === 'update') 
             ? 'Объявление, на которое вы подписаны, было обновлено!' 
             : 'По вашей подписке появилось новое объявление!';
@@ -867,7 +971,7 @@ class AdvertisementsController extends Controller
             <body>
                 <div class='container'>
                     <div class='header'>
-                        <h2>{$headerIcon} {$headerTitle} <span class='event-badge'>" . ($eventType === 'update' ? 'ОБНОВЛЕНО' : 'НОВОЕ') . "</span></h2>
+                        <h2>{$headerTitle} <span class='event-badge'>{$eventBadge}</span></h2>
                     </div>
                     <div class='content'>
                         <p>{$eventDescription}</p>
@@ -882,7 +986,7 @@ class AdvertisementsController extends Controller
                             {$description}
                         </div>
                         <p style='margin-top: 20px;'>
-                            <a href='{$link}' class='btn'>Посмотреть объявление</a>
+                            <a href='" . Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]) . "' class='btn'>Посмотреть объявление</a>
                         </p>
                         <p style='margin-top: 10px; font-size: 12px; color: #6c757d;'>
                             Вы получили это уведомление, так как подписаны на параметры поиска.
@@ -924,5 +1028,18 @@ class AdvertisementsController extends Controller
         
         // Иначе на главную страницу объявлений
         return $this->redirect(['/advertisements/index']);
+    }
+
+    /**
+     * Очистка HTML от эмодзи и 4-байтовых символов (просто удаляем)
+     */
+    protected function cleanHtmlFromEmoji($html)
+    {
+        if ($html === null || $html === '') {
+            return $html;
+        }
+        
+        // Удаляем 4-байтовые символы (эмодзи)
+        return preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $html);
     }
 }
