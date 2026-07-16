@@ -71,6 +71,12 @@ class WhatsAppChannel implements NotificationChannelInterface
     
     public function isAvailable()
     {
-        return !empty($this->apiKey) && !empty($this->apiUrl);
+        // Проверяем, что ключи не пустые и не являются значениями по умолчанию
+        $apiKey = $this->apiKey ?? Yii::$app->params['whatsapp_api_key'] ?? null;
+        $apiUrl = $this->apiUrl ?? Yii::$app->params['whatsapp_api_url'] ?? null;
+        
+        return !empty($apiKey) && !empty($apiUrl) && 
+               $apiKey !== 'ВАШ_WHATSAAP_API_KEY' && 
+               $apiUrl !== 'https://whatsapp-api.example.com/send';
     }
 }

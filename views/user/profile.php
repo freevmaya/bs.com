@@ -9,6 +9,12 @@ use app\models\Advertisement;
 $this->title = 'Профиль: ' . Html::encode($user->username);
 $this->params['breadcrumbs'][] = $this->title;
 
+// Проверяем, настроен ли WhatsApp
+$whatsappConfigured = !empty(Yii::$app->params['whatsapp_api_key']) && 
+                      !empty(Yii::$app->params['whatsapp_api_url']) &&
+                      Yii::$app->params['whatsapp_api_key'] !== 'ВАШ_WHATSAAP_API_KEY' &&
+                      Yii::$app->params['whatsapp_api_url'] !== 'https://whatsapp-api.example.com/send';
+
 // Регистрируем CSS для профиля
 $this->registerCssFile('@web/css/user-profile.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 ?>
@@ -56,7 +62,7 @@ $this->registerCssFile('@web/css/user-profile.css', ['depends' => [\yii\bootstra
                     </a>
                 </span>
             <?php endif; ?>
-            <?php if ($user->whatsapp): ?>
+            <?php if ($whatsappConfigured && $user->whatsapp): ?>
                 <span class="label label-default" style="margin: 3px;">
                     <span class="glyphicon glyphicon-phone"></span> 
                     <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $user->whatsapp) ?>" target="_blank" style="color: inherit;">

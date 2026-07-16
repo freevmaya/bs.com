@@ -44,27 +44,28 @@ class NotificationController extends Controller
         
         // Получаем доступные события и каналы из менеджера
         $events = Yii::$app->notificationManager->getEvents();
-        $channels = Yii::$app->notificationManager->getChannels();
+        $allChannels = Yii::$app->notificationManager->getChannels();
         
-        // Формируем данные для представления
-        $channelData = [];
-        foreach ($channels as $channelKey => $channel) {
-            // Проверяем, подписан ли пользователь хотя бы на одно событие через этот канал
-            $isActive = NotificationSubscription::getChannelStatus($userId, $channelKey);
-            $isAvailable = NotificationSubscription::isChannelAvailableForUser($user, $channelKey);
-            
-            $channelData[$channelKey] = [
-                'label' => $channel->getDescription(),
-                'description' => $channel->getDescription(),
-                'isActive' => $isActive,
-                'isAvailable' => $isAvailable,
-                'contactInfo' => $this->getContactInfo($user, $channelKey),
-            ];
+        // Фильтруем только доступные каналы (где isAvailable() === true)
+        $channels = [];
+        foreach ($allChannels as $channelKey => $channel) {
+            if ($channel->isAvailable()) {
+                $isActive = NotificationSubscription::getChannelStatus($userId, $channelKey);
+                $isAvailable = NotificationSubscription::isChannelAvailableForUser($user, $channelKey);
+                
+                $channels[$channelKey] = [
+                    'label' => $channel->getDescription(),
+                    'description' => $channel->getDescription(),
+                    'isActive' => $isActive,
+                    'isAvailable' => $isAvailable,
+                    'contactInfo' => $this->getContactInfo($user, $channelKey),
+                ];
+            }
         }
         
         return $this->render('index', [
             'user' => $user,
-            'channels' => $channelData,
+            'channels' => $channels,
             'events' => $events,
         ]);
     }
@@ -80,8 +81,9 @@ class NotificationController extends Controller
             case NotificationSubscription::CHANNEL_SMS:
                 return $user->phone ?: 'не указан';
             case NotificationSubscription::CHANNEL_VK:
-                // Теперь используем vk_profile_url
                 return $user->vk_profile_url ?: 'не указан';
+            case NotificationSubscription::CHANNEL_WHATSAPP:
+                return $user->whatsapp ?: 'не указан';
             default:
                 return null;
         }

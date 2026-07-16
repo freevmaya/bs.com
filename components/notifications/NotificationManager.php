@@ -28,12 +28,43 @@ class NotificationManager extends Component
         //$this->registerChannel(new \app\components\notifications\channels\SmsChannel());
         $this->registerChannel(new \app\components\notifications\channels\VkChannel());
         $this->registerChannel(new \app\components\notifications\channels\TelegramChannel());
-        $this->registerChannel(new \app\components\notifications\channels\WhatsAppChannel());
+        
+        // Регистрируем WhatsApp только если настроен API ключ
+        if ($this->isWhatsAppConfigured()) {
+            $this->registerChannel(new \app\components\notifications\channels\WhatsAppChannel());
+        }
         
         // Регистрируем все события
         $this->registerEvent('search_subscription', 'Новое объявление по критериям подписки');
         $this->registerEvent('new_advertisement', 'Новое объявление на сайте');
         $this->registerEvent('new_message', 'Новое сообщение в диалоге');
+    }
+    
+    /**
+     * Проверяет, настроен ли WhatsApp
+     */
+    public function isWhatsAppConfigured()
+    {
+        $apiKey = Yii::$app->params['whatsapp_api_key'] ?? null;
+        $apiUrl = Yii::$app->params['whatsapp_api_url'] ?? null;
+        
+        return !empty($apiKey) && !empty($apiUrl) && 
+               $apiKey !== 'ВАШ_WHATSAAP_API_KEY' && 
+               $apiUrl !== 'https://whatsapp-api.example.com/send';
+    }
+    
+    /**
+     * Получить только доступные каналы (без неактивных)
+     */
+    public function getAvailableChannels()
+    {
+        $channels = [];
+        foreach ($this->channels as $key => $channel) {
+            if ($channel->isAvailable()) {
+                $channels[$key] = $channel;
+            }
+        }
+        return $channels;
     }
     
     /**
@@ -54,7 +85,7 @@ class NotificationManager extends Component
     }
     
     /**
-     * Получить все доступные каналы
+     * Получить все зарегистрированные каналы
      */
     public function getChannels()
     {
