@@ -99,7 +99,6 @@ class AdvertisementSearch extends Advertisement
     
     public function search($params, $section = null)
     {
-
         $query = Advertisement::find()->where(['status' => Advertisement::STATUS_ACTIVE]);
         
         $query->with(['images', 'glider', 'harness', 'device']);
@@ -112,7 +111,7 @@ class AdvertisementSearch extends Advertisement
             'query' => $query,
             'sort' => [
                 'defaultOrder' => [
-                    'created_at' => SORT_DESC,
+                    'updated_at' => SORT_DESC,  // Изменено с created_at на updated_at
                 ],
             ],
             'pagination' => [

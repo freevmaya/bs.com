@@ -371,7 +371,7 @@ class AdvertisementsController extends Controller
     {
         $dataProvider = new ActiveDataProvider([
             'query' => Advertisement::find()->where(['user_id' => Yii::$app->user->id]),
-            'sort' => ['defaultOrder' => ['created_at' => SORT_DESC]],
+            'sort' => ['defaultOrder' => ['updated_at' => SORT_DESC]],  // Изменено с created_at на updated_at
             'pagination' => ['pageSize' => 20],
         ]);
         
