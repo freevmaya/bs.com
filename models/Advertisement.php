@@ -227,14 +227,6 @@ class Advertisement extends ActiveRecord
             return $this->title;
         }
 
-        $typeLabels = [
-            self::TYPE_GLIDER => 'Параплан',
-            self::TYPE_HARNESS => 'Подвеска',
-            self::TYPE_DEVICE => 'Прибор',
-        ];
-
-        $typeLabel = $typeLabels[$this->type] ?? 'Объявление';
-
         $modelName = '';
         $producerName = '';
 
@@ -254,16 +246,13 @@ class Advertisement extends ActiveRecord
                 $producerName = $this->device->producer->short ?? $this->device->producer->name;
             }
         }
-
-        $parts = [$typeLabel];
+        
         if ($producerName) {
-            $parts[] = $producerName;
+            $title = $producerName;
         }
         if ($modelName) {
-            $parts[] = $modelName;
+            $title = $modelName;
         }
-
-        $title = implode(' ', $parts);
         
         // Если заголовок все еще пустой, используем стандартный
         if (empty(trim($title))) {
