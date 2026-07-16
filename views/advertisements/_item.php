@@ -82,16 +82,6 @@ $shortInfoString = implode(' | ', $shortInfo);
         <a href="<?= $link ?>" style="text-decoration: none; color: inherit;">
             <h4 class="media-heading" style="margin-top: 0;">
                 <?= Html::encode($model->title) ?>
-                <small>
-                    <span class="label <?= $model->section === 'sell' ? 'label-danger' : 'label-info' ?>">
-                        <?= $model->getSectionLabel() ?>
-                    </span>
-                    <?php if ($model->type !== 'normal'): ?>
-                        <span class="label label-default">
-                            <?= $model->getTypeLabel() ?>
-                        </span>
-                    <?php endif; ?>
-                </small>
             </h4>
             
             <p style="margin-bottom: 8px;"><?= Html::encode(StringHelper::truncate($model->description, 120)) ?></p>
