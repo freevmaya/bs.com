@@ -957,3 +957,7 @@ thead, tbody, tfoot, tr, td, th {
     font-size: 0.8em;
     padding-bottom: 1em;
 }
+
+.sort-options {
+    max-width: 160px;
+}
