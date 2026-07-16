@@ -1,0 +1,10 @@
+
+# Обработка очереди уведомлений - каждые 5 минут
+*/5 * * * * cd ~/parasell.vmaya.ru && /usr/local/bin/php8.5 yii notification-queue/process 100 >> ~/parasell.vmaya.ru/runtime/logs/notification_queue.log 2>&1
+
+# Очистка старых записей - каждый день в 3:00
+0 3 * * * cd ~/parasell.vmaya.ru && /usr/local/bin/php8.5 yii notification-queue/cleanup 30 >> ~/parasell.vmaya.ru/runtime/logs/notification_queue.log 2>&1
+
+
+# Статистика - раз в час в отдельный лог
+0 * * * * cd ~/parasell.vmaya.ru && /usr/local/bin/php8.5 yii notification-queue/stats >> ~/parasell.vmaya.ru/runtime/logs/notification_queue_stats.log 2>&1

@@ -85,50 +85,119 @@ class Message extends ActiveRecord
     {
         $receiver = $this->receiver;
         $sender = $this->sender;
-        
+
         if (!$receiver || !$sender) {
             return;
         }
-        
+
         try {
             $manager = Yii::$app->notificationManager;
-            
+            $advertisement = $this->conversation->advertisement;
+
+            // Формируем тему и текст сообщения
             $subject = "Новое сообщение от {$sender->username}";
-            $message = $this->buildNotificationMessage($sender, $this->conversation->advertisement, $this->message);
-            
-            // Отправляем уведомление через все доступные каналы
-            $manager->sendToUser(
-                $receiver->id,
+            $message = $this->buildNotificationMessage($sender, $advertisement);
+            $htmlMessage = $this->buildHtmlNotificationMessage($sender, $advertisement);
+
+            // Ставим уведомление в очередь через NotificationLog
+            $this->queueNotification($receiver->id, $subject, $message, $htmlMessage);
+
+        } catch (\Exception $e) {
+            Yii::error('Failed to queue message notification: ' . $e->getMessage(), 'messages');
+        }
+    }
+
+    /**
+     * Добавляет уведомление о сообщении в очередь.
+     *
+     * @param int $userId ID получателя
+     * @param string $subject Тема
+     * @param string $message Текст сообщения
+     * @param string $htmlMessage HTML версия
+     */
+    protected function queueNotification($userId, $subject, $message, $htmlMessage)
+    {
+        // Получаем активные подписки пользователя на событие 'new_message'
+        $subscriptions = NotificationSubscription::getActiveSubscriptions($userId, 'new_message');
+
+        if (empty($subscriptions)) {
+            Yii::info("User {$userId} has no active subscriptions for event 'new_message'", 'messages');
+            return;
+        }
+
+        $queued = 0;
+        foreach ($subscriptions as $subscription) {
+            $channelName = $subscription->channel;
+            $channel = Yii::$app->notificationManager->getChannel($channelName);
+
+            if (!$channel || !$channel->isAvailable()) {
+                continue;
+            }
+
+            // Создаем запись в очереди
+            $log = NotificationLog::createQueued(
+                $userId,
+                $channelName,
                 'new_message',
                 $subject,
                 $message,
-                ['html_body' => $this->buildHtmlNotificationMessage($sender, $this->conversation->advertisement, $this->message)]
+                ['html_body' => $htmlMessage]
             );
-        } catch (\Exception $e) {
-            Yii::error('Failed to send message notification: ' . $e->getMessage(), 'messages');
+
+            if ($log->save()) {
+                $queued++;
+                Yii::info("Message notification queued for user {$userId} via '{$channelName}' (log_id: {$log->id})", 'messages');
+            } else {
+                Yii::error("Failed to queue message notification: " . json_encode($log->errors), 'messages');
+            }
+        }
+
+        if ($queued === 0) {
+            Yii::warning("No active channels found to queue message notification for user {$userId}", 'messages');
         }
     }
     
-    protected function buildNotificationMessage($sender, $advertisement, $message)
+    /**
+     * Сборка текстового сообщения для уведомления.
+     *
+     * @param User $sender Отправитель
+     * @param Advertisement|null $advertisement Объявление
+     * @return string
+     */
+    protected function buildNotificationMessage($sender, $advertisement)
     {
+        $link = Yii::$app->urlManager->createAbsoluteUrl(['messages/view', 'id' => $this->conversation_id]);
+        $adTitle = $advertisement ? $advertisement->title : 'не указано';
+        $adLink = $advertisement ? Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]) : null;
+
         $parts = [
             "Новое сообщение от {$sender->username}",
             "",
-            "Объявление: " . ($advertisement ? $advertisement->title : 'не указано'),
+            "Объявление: {$adTitle}",
+            ($adLink ? "Ссылка на объявление: {$adLink}" : ""),
             "",
             "Сообщение:",
-            $message,
+            $this->message,
             "",
-            "Перейти в диалог: " . Yii::$app->urlManager->createAbsoluteUrl(['messages/view', 'id' => $this->conversation_id]),
+            "Перейти в диалог: {$link}",
         ];
-        
-        return implode("\n", $parts);
+
+        return implode("\n", array_filter($parts));
     }
     
-    protected function buildHtmlNotificationMessage($sender, $advertisement, $message)
+    /**
+     * Сборка HTML сообщения для уведомления.
+     *
+     * @param User $sender Отправитель
+     * @param Advertisement|null $advertisement Объявление
+     * @return string
+     */
+    protected function buildHtmlNotificationMessage($sender, $advertisement)
     {
         $link = Yii::$app->urlManager->createAbsoluteUrl(['messages/view', 'id' => $this->conversation_id]);
-        
+        $adLink = $advertisement ? Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]) : null;
+        $adTitle = $advertisement ? $advertisement->title : 'не указано';
+
         return "
             <html>
             <head><style>
@@ -137,7 +206,7 @@ class Message extends ActiveRecord
                 .header { background: #007bff; color: white; padding: 15px; text-align: center; }
                 .content { padding: 20px; background: #f8f9fa; }
                 .message-box { background: #fff; padding: 15px; border-radius: 5px; border-left: 4px solid #007bff; margin: 10px 0; }
-                .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+                .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; margin: 5px 5px 5px 0; }
                 .footer { text-align: center; padding: 15px; color: #6c757d; font-size: 12px; }
             </style></head>
             <body>
@@ -147,13 +216,14 @@ class Message extends ActiveRecord
                     </div>
                     <div class='content'>
                         <p><strong>От:</strong> {$sender->username}</p>
-                        <p><strong>Объявление:</strong> " . ($advertisement ? $advertisement->title : 'не указано') . "</p>
+                        <p><strong>Объявление:</strong> <a href='{$adLink}'>{$adTitle}</a></p>
                         <div class='message-box'>
                             <strong>Сообщение:</strong><br>
-                            " . nl2br($message) . "
+                            " . nl2br($this->message) . "
                         </div>
                         <p style='margin-top: 20px;'>
                             <a href='{$link}' class='btn'>Перейти в диалог</a>
+                            " . ($adLink ? "<a href='{$adLink}' class='btn' style='background: #28a745;'>К объявлению</a>" : "") . "
                         </p>
                     </div>
                     <div class='footer'>
