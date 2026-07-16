@@ -949,6 +949,7 @@ class AdvertisementsController extends Controller
     protected function buildSubscriptionMessage($advertisement, $subscription, $eventType = 'create')
     {
         $eventText = ($eventType === 'update') ? 'изменилось' : 'появилось';
+        $url = Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]);
         
         $parts = [
             "По вашей подписке {$eventText} объявление!",
@@ -961,7 +962,7 @@ class AdvertisementsController extends Controller
             "Ваши параметры подписки:",
             $subscription->getDescription(),
             "",
-            "ID объявления: #{$advertisement->id}",
+            "Ссылка на объявление: {$url}",
         ];
         
         return implode("\n", $parts);
@@ -979,6 +980,7 @@ class AdvertisementsController extends Controller
     {
         $price = $advertisement->price ? number_format($advertisement->price, 0, '.', ' ') . ' ₽' : 'не указана';
         $description = $subscription->getDescription();
+        $url = Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]);
         
         $headerTitle = ($eventType === 'update') ? 'Объявление обновлено!' : 'Новое объявление!';
         $headerColor = ($eventType === 'update') ? '#ff9800' : '#28a745';
@@ -1026,7 +1028,7 @@ class AdvertisementsController extends Controller
                             {$description}
                         </div>
                         <p style='margin-top: 20px;'>
-                            <a href='" . Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]) . "' class='btn'>Посмотреть объявление</a>
+                            <a href='{$url}' class='btn'>Посмотреть объявление</a>
                         </p>
                         <p style='margin-top: 10px; font-size: 12px; color: #6c757d;'>
                             Вы получили это уведомление, так как подписаны на параметры поиска.

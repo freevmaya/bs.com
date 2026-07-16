@@ -174,13 +174,17 @@ class Message extends ActiveRecord
             "Новое сообщение от {$sender->username}",
             "",
             "Объявление: {$adTitle}",
-            ($adLink ? "Ссылка на объявление: {$adLink}" : ""),
             "",
             "Сообщение:",
             $this->message,
             "",
             "Перейти в диалог: {$link}",
         ];
+        
+        // Добавляем ссылку на объявление, если она есть
+        if ($adLink) {
+            $parts[] = "Ссылка на объявление: {$adLink}";
+        }
 
         return implode("\n", array_filter($parts));
     }
