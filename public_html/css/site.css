@@ -749,7 +749,6 @@ thead, tbody, tfoot, tr, td, th {
 }
 
 [data-bs-theme="dark"] .panel-default .panel-heading {
-    background-color: #333;
     color: #eee;
 }
 

@@ -125,6 +125,10 @@ class AdvertisementsController extends Controller
         $model->user_id = Yii::$app->user->id;
         $model->status = Advertisement::STATUS_ACTIVE;
         
+        // Заполняем контакты из профиля пользователя
+        $user = Yii::$app->user->identity;
+        $model->fillContactsFromUser($user);
+        
         if ($section && in_array($section, [Advertisement::SECTION_SELL, Advertisement::SECTION_BUY])) {
             $model->section = $section;
         }
@@ -169,9 +173,15 @@ class AdvertisementsController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        
+    
         if ($model->user_id !== Yii::$app->user->id && !Yii::$app->user->can('admin')) {
             throw new ForbiddenHttpException('У вас нет прав для редактирования этого объявления');
+        }
+        
+        // Если контакты пустые - заполняем из профиля
+        $user = Yii::$app->user->identity;
+        if (empty($model->phone) || empty($model->email) || empty($model->telegram) || empty($model->vk_profile_url) || empty($model->whatsapp)) {
+            $model->fillContactsFromUser($user);
         }
         
         $gliderModel = $model->glider ?: new AdvertisementGlider();

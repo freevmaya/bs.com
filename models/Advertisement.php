@@ -49,11 +49,27 @@ class Advertisement extends ActiveRecord
             [['section'], 'in', 'range' => [self::SECTION_SELL, self::SECTION_BUY]],
             [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_MODERATION, self::STATUS_CLOSED]],
             [['title'], 'string', 'max' => 200],
-            [['city', 'phone', 'email'], 'string', 'max' => 100],
+            [['city', 'phone', 'email', 'telegram', 'vk_profile_url', 'whatsapp'], 'string', 'max' => 255],
             [['email'], 'email'],
             [['phone'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]*$/', 'message' => 'Телефон может содержать только цифры, пробелы, +, (, ), -'],
-            // Поля city, phone, email теперь НЕ обязательные
+            [['telegram'], 'match', 'pattern' => '/^@?[a-zA-Z0-9_]{5,32}$/', 'message' => 'Введите корректный username Telegram (например: @username или username)'],
+            [['vk_profile_url'], 'validateVkProfileUrl'],
+            [['whatsapp'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]{5,20}$/', 'message' => 'Введите корректный номер WhatsApp'],
         ];
+    }
+    
+    /**
+     * Валидация ссылки на профиль VK
+     */
+    public function validateVkProfileUrl($attribute, $params)
+    {
+        if (empty($this->$attribute)) {
+            return;
+        }
+        
+        if (!preg_match('/^https?:\/\/(?:www\.)?vk\.com\/(?:id\d+|[\w\.]+)$/i', $this->$attribute)) {
+            $this->addError($attribute, 'Введите корректную ссылку на профиль VK (например: https://vk.com/durov)');
+        }
     }
     
     public function attributeLabels()
@@ -70,6 +86,9 @@ class Advertisement extends ActiveRecord
             'city' => 'Город',
             'phone' => 'Телефон',
             'email' => 'Email',
+            'telegram' => 'Telegram',
+            'vk_profile_url' => 'VK профиль',
+            'whatsapp' => 'WhatsApp',
             'status' => 'Статус',
             'views_count' => 'Просмотры',
             'created_at' => 'Создано',
@@ -125,6 +144,33 @@ class Advertisement extends ActiveRecord
     {
         $this->views_count++;
         return $this->save(false, ['views_count']);
+    }
+    
+    /**
+     * Заполняет контакты из профиля пользователя
+     */
+    public function fillContactsFromUser($user)
+    {
+        if (!$user) {
+            return;
+        }
+        
+        // Заполняем только если поля пустые
+        if (empty($this->phone) && !empty($user->phone)) {
+            $this->phone = $user->phone;
+        }
+        if (empty($this->email) && !empty($user->email)) {
+            $this->email = $user->email;
+        }
+        if (empty($this->telegram) && !empty($user->telegram)) {
+            $this->telegram = $user->telegram;
+        }
+        if (empty($this->vk_profile_url) && !empty($user->vk_profile_url)) {
+            $this->vk_profile_url = $user->vk_profile_url;
+        }
+        if (empty($this->whatsapp) && !empty($user->whatsapp)) {
+            $this->whatsapp = $user->whatsapp;
+        }
     }
     
     public function afterDelete()

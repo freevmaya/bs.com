@@ -56,13 +56,33 @@ $this->registerJsFile('@web/js/advertisement-form.js', [
                     </div>
                     
                     <hr>
-                    <p class="text-muted"><small>Контактная информация (необязательно)</small></p>
+                    <p class="text-muted"><small>Контактная информация</small></p>
                     
-                    <?= $form->field($model, 'city')->textInput(['maxlength' => true, 'placeholder' => 'Город (необязательно)']) ?>
+                    <?= $form->field($model, 'city')->textInput(['maxlength' => true, 'placeholder' => 'Город']) ?>
                     
-                    <?= $form->field($model, 'phone')->textInput(['maxlength' => true, 'placeholder' => 'Телефон (необязательно)']) ?>
+                    <?= $form->field($model, 'phone')->textInput(['maxlength' => true, 'placeholder' => '+7 (999) 123-45-67']) ?>
                     
-                    <?= $form->field($model, 'email')->textInput(['maxlength' => true, 'placeholder' => 'Email (необязательно)']) ?>
+                    <?= $form->field($model, 'email')->textInput(['maxlength' => true, 'placeholder' => 'email@example.com']) ?>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <?= $form->field($model, 'telegram')->textInput([
+                                'maxlength' => true,
+                                'placeholder' => '@username или username',
+                            ])->hint('Введите username в Telegram (без @ или с @)') ?>
+                        </div>
+                        <div class="col-md-6">
+                            <?= $form->field($model, 'whatsapp')->textInput([
+                                'maxlength' => true,
+                                'placeholder' => '+7 (999) 123-45-67',
+                            ])->hint('Введите номер WhatsApp в международном формате') ?>
+                        </div>
+                    </div>
+                    
+                    <?= $form->field($model, 'vk_profile_url')->textInput([
+                        'maxlength' => true,
+                        'placeholder' => 'https://vk.com/durov',
+                    ])->hint('Ссылка на профиль VK') ?>
                     
                     <!-- Динамические поля для разных типов -->
                     <div id="glider-fields" style="display: <?= $model->type === 'glider' ? 'block' : 'none' ?>;">

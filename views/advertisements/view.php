@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\helpers\SvgHelper;
 
 $this->title = $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Объявления', 'url' => ['index']];
@@ -18,6 +19,7 @@ $this->registerJsFile('@web/js/carousel.js', [
 <div class="advertisements-view">
     <div class="row">
         <div class="col-md-8">
+            <!-- Галерея изображений -->
             <?php if ($model->section === 'sell' && $model->getImageCount() > 0): ?>
                 <div class="panel panel-default">
                     <div class="panel-body">
@@ -62,6 +64,7 @@ $this->registerJsFile('@web/js/carousel.js', [
                 </div>
             <?php endif; ?>
             
+            <!-- Основная информация -->
             <div class="panel panel-default">
                 <div class="panel-body">
                     <h1><?= Html::encode($model->title) ?></h1>
@@ -76,6 +79,11 @@ $this->registerJsFile('@web/js/carousel.js', [
                         <span class="label label-default">
                             <span class="glyphicon glyphicon-time"></span> <?= Yii::$app->formatter->asDate($model->created_at) ?>
                         </span>
+                        <?php if ($model->user): ?>
+                            <span class="label label-default">
+                                <span class="glyphicon glyphicon-user"></span> <?= Html::encode($model->user->username) ?>
+                            </span>
+                        <?php endif; ?>
                     </div>
                     
                     <div class="price-large" style="font-size: 28px; color: #d9534f; margin: 20px 0;">
@@ -142,47 +150,218 @@ $this->registerJsFile('@web/js/carousel.js', [
         </div>
         
         <div class="col-md-4">
-
+            <!-- Контактная информация -->
             <div class="panel panel-info">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Контактная информация</h3>
+                    <h3 class="panel-title">
+                        <?= SvgHelper::render('email', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) ?>
+                        Контакты
+                    </h3>
                 </div>
                 <div class="panel-body">
                     <?php if ($model->city): ?>
-                        <p><strong>Город:</strong> <?= Html::encode($model->city) ?></p>
+                        <p>
+                            <strong>
+                                <?= SvgHelper::render('map-pin', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                Город:
+                            </strong>
+                            <?= Html::encode($model->city) ?>
+                        </p>
                     <?php endif; ?>
                     
                     <?php if ($model->phone): ?>
-                        <p><strong>Телефон:</strong> <?= Html::encode($model->phone) ?></p>
+                        <p>
+                            <strong>
+                                <?= SvgHelper::render('phone', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                Телефон:
+                            </strong>
+                            <a href="tel:<?= preg_replace('/[^0-9+]/', '', $model->phone) ?>" class="phone-link">
+                                <?= Html::encode($model->phone) ?>
+                            </a>
+                        </p>
                     <?php endif; ?>
                     
                     <?php if ($model->email): ?>
-                        <p><strong>Email:</strong> <?= Html::encode($model->email) ?></p>
+                        <p>
+                            <strong>
+                                <?= SvgHelper::render('email', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                Email:
+                            </strong>
+                            <a href="mailto:<?= Html::encode($model->email) ?>" style="word-break: break-all;">
+                                <?= Html::encode($model->email) ?>
+                            </a>
+                        </p>
                     <?php endif; ?>
                     
-                    <!-- Кнопка "Написать автору" -->
-                    <?php if (!Yii::$app->user->isGuest && Yii::$app->user->id != $model->user_id): ?>
-                        <hr>
-                        <?= Html::a(
-                            '<span class="glyphicon glyphicon-envelope"></span> Написать автору',
-                            ['/messages/start', 'advertisementId' => $model->id],
-                            ['class' => 'btn btn-primary btn-block']
-                        ) ?>
+                    <!-- Telegram - берем из объявления -->
+                    <?php if ($model->telegram): ?>
+                        <?php 
+                        $telegramUsername = ltrim($model->telegram, '@');
+                        $telegramLink = 'https://t.me/' . $telegramUsername;
+                        ?>
+                        <p>
+                            <strong>
+                                <?= SvgHelper::render('telegram', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                Telegram:
+                            </strong>
+                            <a href="<?= $telegramLink ?>" target="_blank" rel="noopener noreferrer">
+                                @<?= Html::encode($telegramUsername) ?>
+                            </a>
+                        </p>
+                    <?php endif; ?>
+                    
+                    <!-- VK - берем из объявления -->
+                    <?php if ($model->vk_profile_url): ?>
+                        <p>
+                            <strong>
+                                <?= SvgHelper::render('vk', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                VK:
+                            </strong>
+                            <a href="<?= Html::encode($model->vk_profile_url) ?>" target="_blank" rel="noopener noreferrer">
+                                <?php 
+                                $vkName = $model->vk_profile_url;
+                                if (preg_match('/vk\.com\/([^\?\/]+)/', $vkName, $matches)) {
+                                    $vkName = $matches[1];
+                                }
+                                echo Html::encode($vkName);
+                                ?>
+                            </a>
+                        </p>
+                    <?php endif; ?>
+                    
+                    <!-- WhatsApp - берем из объявления -->
+                    <?php 
+                    $whatsappConfigured = !empty(Yii::$app->params['whatsapp_api_key']) && 
+                                          !empty(Yii::$app->params['whatsapp_api_url']) &&
+                                          Yii::$app->params['whatsapp_api_key'] !== 'ВАШ_WHATSAAP_API_KEY';
+                    if ($whatsappConfigured && $model->whatsapp): 
+                    ?>
+                        <p>
+                            <strong>
+                                <?= SvgHelper::render('whatsapp', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                WhatsApp:
+                            </strong>
+                            <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $model->whatsapp) ?>" target="_blank" rel="noopener noreferrer">
+                                <?= Html::encode($model->whatsapp) ?>
+                            </a>
+                        </p>
+                    <?php endif; ?>
+                    
+                    <hr>
+                    
+                    <!-- Кнопки действий -->
+                    <?php if (!Yii::$app->user->isGuest): ?>
+                        <?php if (Yii::$app->user->id != $model->user_id): ?>
+                            <?php
+                            $telegramDialogUrl = $model->telegram ? 'https://t.me/' . ltrim($model->telegram, '@') : null;
+                            $vkDialogUrl = $model->vk_profile_url ? $model->vk_profile_url : null;
+                            ?>
+                            
+                            <div class="btn-group-vertical" style="width: 100%;">
+                                <!-- Написать автору (внутренний диалог) -->
+                                <?= Html::a(
+                                    SvgHelper::render('envelope', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать автору',
+                                    ['/messages/start', 'advertisementId' => $model->id],
+                                    ['class' => 'btn btn-primary btn-block']
+                                ) ?>
+                                
+                                <!-- Telegram (если есть в объявлении) -->
+                                <?php if ($telegramDialogUrl): ?>
+                                    <?= Html::a(
+                                        SvgHelper::render('telegram-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в Telegram',
+                                        $telegramDialogUrl,
+                                        [
+                                            'class' => 'btn btn-info btn-block',
+                                            'target' => '_blank',
+                                            'rel' => 'noopener noreferrer',
+                                        ]
+                                    ) ?>
+                                <?php endif; ?>
+                                
+                                <!-- VK (если есть в объявлении) -->
+                                <?php if ($vkDialogUrl): ?>
+                                    <?= Html::a(
+                                        SvgHelper::render('vk-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в VK',
+                                        $vkDialogUrl,
+                                        [
+                                            'class' => 'btn btn-primary btn-block',
+                                            'target' => '_blank',
+                                            'rel' => 'noopener noreferrer',
+                                            'style' => 'background: #4a76a8; border-color: #4a76a8;'
+                                        ]
+                                    ) ?>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <div class="alert alert-warning" style="margin-bottom: 0;">
+                            <?= SvgHelper::render('alert', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) ?>
+                            <?= Html::a('Войдите', ['/site/login']) ?> или 
+                            <?= Html::a('зарегистрируйтесь', ['/site/register']) ?>, 
+                            чтобы связаться с автором
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
             
+            <!-- Информация об авторе -->
+            <?php if ($model->user): ?>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <?= SvgHelper::render('user', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) ?>
+                            Об авторе
+                        </h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>
+                            <strong><?= Html::encode($model->user->username) ?></strong>
+                            <?php if ($model->user->city): ?>
+                                <span class="text-muted">, <?= Html::encode($model->user->city) ?></span>
+                            <?php endif; ?>
+                        </p>
+                        <?php if ($model->user->created_at): ?>
+                            <p class="text-muted small">
+                                <?= SvgHelper::render('clock', ['width' => 12, 'height' => 12, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                На сайте с <?= Yii::$app->formatter->asDate($model->user->created_at) ?>
+                            </p>
+                        <?php endif; ?>
+                        
+                        <?php
+                        $userAdsCount = \app\models\Advertisement::find()
+                            ->where(['user_id' => $model->user_id, 'status' => \app\models\Advertisement::STATUS_ACTIVE])
+                            ->count();
+                        ?>
+                        <p class="text-muted small">
+                            <?= SvgHelper::render('list', ['width' => 12, 'height' => 12, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                            Активных объявлений: <?= $userAdsCount ?>
+                        </p>
+                    </div>
+                </div>
+            <?php endif; ?>
+            
+            <!-- Действия для владельца -->
             <?php if (!Yii::$app->user->isGuest && Yii::$app->user->id == $model->user_id): ?>
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <?= Html::a('Редактировать', ['update', 'id' => $model->id], ['class' => 'btn btn-primary btn-block']) ?>
-                        <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
-                            'class' => 'btn btn-danger btn-block',
-                            'data' => [
-                                'confirm' => 'Вы уверены, что хотите удалить это объявление?',
-                                'method' => 'post',
-                            ],
-                        ]) ?>
+                        <div class="btn-group-vertical" style="width: 100%;">
+                            <?= Html::a(
+                                SvgHelper::render('edit', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Редактировать',
+                                ['update', 'id' => $model->id],
+                                ['class' => 'btn btn-primary btn-block']
+                            ) ?>
+                            <?= Html::a(
+                                SvgHelper::render('trash', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Удалить',
+                                ['delete', 'id' => $model->id],
+                                [
+                                    'class' => 'btn btn-danger btn-block',
+                                    'data' => [
+                                        'confirm' => 'Вы уверены, что хотите удалить это объявление?',
+                                        'method' => 'post',
+                                    ],
+                                ]
+                            ) ?>
+                        </div>
                     </div>
                 </div>
             <?php endif; ?>
