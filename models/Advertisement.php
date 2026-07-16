@@ -283,7 +283,9 @@ class Advertisement extends ActiveRecord
                 }
                 
                 $this->title = $this->generateTitle();
-            }
+            } else if ($this->type !== self::TYPE_NORMAL)
+                $this->title = $this->generateTitle();
+                
             return true;
         }
         return false;
