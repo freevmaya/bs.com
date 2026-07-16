@@ -17,7 +17,7 @@ class UserController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['profile', 'my-ads', 'subscriptions', 'notifications', 'edit', 'get-vk-id'],
+                'only' => ['profile', 'my-ads', 'subscriptions', 'notifications', 'edit', 'get-vk-id', 'change-password'],
                 'rules' => [
                     [
                         'allow' => true,
@@ -109,6 +109,72 @@ class UserController extends Controller
         return $this->render('edit', [
             'user' => $user,
         ]);
+    }
+
+    /**
+     * Смена пароля
+     */
+    public function actionChangePassword()
+    {
+        $user = Yii::$app->user->identity;
+        
+        if (Yii::$app->request->isPost) {
+            $oldPassword = Yii::$app->request->post('old_password');
+            $newPassword = Yii::$app->request->post('new_password');
+            $newPasswordRepeat = Yii::$app->request->post('new_password_repeat');
+            
+            // Проверяем старый пароль
+            if (!$user->validatePassword($oldPassword)) {
+                Yii::$app->session->setFlash('error', 'Неверный текущий пароль');
+                return $this->render('change-password');
+            }
+            
+            // Проверяем длину нового пароля
+            if (strlen($newPassword) < 6) {
+                Yii::$app->session->setFlash('error', 'Новый пароль должен содержать не менее 6 символов');
+                return $this->render('change-password');
+            }
+            
+            // Проверяем совпадение паролей
+            if ($newPassword !== $newPasswordRepeat) {
+                Yii::$app->session->setFlash('error', 'Пароли не совпадают');
+                return $this->render('change-password');
+            }
+            
+            // Устанавливаем новый пароль
+            $user->setPassword($newPassword);
+            $user->generateAuthKey();
+            
+            if ($user->save(false)) {
+                Yii::$app->session->setFlash('success', 'Пароль успешно изменен');
+                return $this->redirect(['profile']);
+            } else {
+                Yii::$app->session->setFlash('error', 'Ошибка при сохранении пароля');
+            }
+        }
+        
+        return $this->render('change-password');
+    }
+
+    /**
+     * AJAX проверка текущего пароля
+     */
+    public function actionCheckPassword()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        $password = Yii::$app->request->post('password');
+        $user = Yii::$app->user->identity;
+        
+        if (!$password) {
+            return ['valid' => false, 'message' => 'Введите пароль'];
+        }
+        
+        if ($user->validatePassword($password)) {
+            return ['valid' => true];
+        } else {
+            return ['valid' => false, 'message' => 'Неверный пароль'];
+        }
     }
 
     /**
