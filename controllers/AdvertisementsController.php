@@ -230,6 +230,8 @@ class AdvertisementsController extends Controller
         Yii::info('Saving extra fields for type: ' . $type);
         Yii::info('POST data: ' . json_encode($postData));
         
+        $saved = false;
+        
         switch ($type) {
             case Advertisement::TYPE_GLIDER:
                 if (isset($postData['AdvertisementGlider'])) {
@@ -252,7 +254,7 @@ class AdvertisementsController extends Controller
                     if ($extraModel->validate()) {
                         if ($extraModel->save()) {
                             Yii::info('Glider saved successfully');
-                            return true;
+                            $saved = true;
                         } else {
                             Yii::error('Failed to save glider: ' . json_encode($extraModel->errors));
                             return false;
@@ -265,6 +267,7 @@ class AdvertisementsController extends Controller
                     Yii::error('AdvertisementGlider not found in POST data');
                     return false;
                 }
+                break;
                 
             case Advertisement::TYPE_HARNESS:
                 if (isset($postData['AdvertisementHarness'])) {
@@ -281,7 +284,7 @@ class AdvertisementsController extends Controller
                     if ($extraModel->validate()) {
                         if ($extraModel->save()) {
                             Yii::info('Harness saved successfully');
-                            return true;
+                            $saved = true;
                         } else {
                             Yii::error('Failed to save harness: ' . json_encode($extraModel->errors));
                             return false;
@@ -294,6 +297,7 @@ class AdvertisementsController extends Controller
                     Yii::error('AdvertisementHarness not found in POST data');
                     return false;
                 }
+                break;
                 
             case Advertisement::TYPE_DEVICE:
                 if (isset($postData['AdvertisementDevice'])) {
@@ -310,7 +314,7 @@ class AdvertisementsController extends Controller
                     if ($extraModel->validate()) {
                         if ($extraModel->save()) {
                             Yii::info('Device saved successfully');
-                            return true;
+                            $saved = true;
                         } else {
                             Yii::error('Failed to save device: ' . json_encode($extraModel->errors));
                             return false;
@@ -323,10 +327,30 @@ class AdvertisementsController extends Controller
                     Yii::error('AdvertisementDevice not found in POST data');
                     return false;
                 }
+                break;
                 
             default:
                 return true;
         }
+        
+        // Если тип не normal и дополнительные поля сохранены - генерируем заголовок
+        if ($saved && $type !== Advertisement::TYPE_NORMAL) {
+            // Загружаем связанные модели
+            if ($type === Advertisement::TYPE_GLIDER) {
+                $advertisement->populateRelation('glider', $advertisement->getGlider()->one());
+            } elseif ($type === Advertisement::TYPE_HARNESS) {
+                $advertisement->populateRelation('harness', $advertisement->getHarness()->one());
+            } elseif ($type === Advertisement::TYPE_DEVICE) {
+                $advertisement->populateRelation('device', $advertisement->getDevice()->one());
+            }
+            
+            // Генерируем заголовок и сохраняем
+            $advertisement->title = $advertisement->generateTitle();
+            $advertisement->save(false, ['title']);
+            Yii::info('Generated title: ' . $advertisement->title);
+        }
+        
+        return true;
     }
     
     public function actionDelete($id)
@@ -561,8 +585,14 @@ class AdvertisementsController extends Controller
             $errors = [];
             $invalidFields = [];
             
+            // Валидируем только если title не пустой (для normal) или если тип не normal (пропускаем)
             if (!$model->validate()) {
+                // Фильтруем ошибки: пропускаем ошибку title, если тип не normal
                 foreach ($model->errors as $field => $fieldErrors) {
+                    // Если поле title и тип не normal - пропускаем
+                    if ($field === 'title' && $model->type !== Advertisement::TYPE_NORMAL) {
+                        continue;
+                    }
                     $errors[$field] = implode(', ', $fieldErrors);
                     $invalidFields[] = 'Advertisement[' . $field . ']';
                 }

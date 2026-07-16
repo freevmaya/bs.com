@@ -42,7 +42,10 @@ $this->registerJsFile('@web/js/advertisement-form.js', [
                         ['prompt' => 'Выберите тип снаряжения', 'id' => 'type-select']
                     ) ?>
                     
-                    <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
+                    <!-- Поле заголовка - показываем только для normal -->
+                    <div id="title-field" style="display: <?= $model->type === 'normal' ? 'block' : 'none' ?>;">
+                        <?= $form->field($model, 'title')->textInput(['maxlength' => true, 'placeholder' => 'Введите заголовок объявления'])->hint('Для парапланов, подвесок и приборов заголовок генерируется автоматически') ?>
+                    </div>
                     
                     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
                     
@@ -128,3 +131,20 @@ $this->registerJsFile('@web/js/advertisement-form.js', [
         <?php endif; ?>
     </div>
 </div>
+
+<?php
+// JavaScript для показа/скрытия поля заголовка в зависимости от типа
+$script = <<<JS
+document.getElementById('type-select').addEventListener('change', function() {
+    var titleField = document.getElementById('title-field');
+    if (this.value === 'normal') {
+        titleField.style.display = 'block';
+    } else {
+        titleField.style.display = 'none';
+        // Очищаем поле заголовка, чтобы он сгенерировался автоматически
+        document.querySelector('#title-field input').value = '';
+    }
+});
+JS;
+$this->registerJs($script);
+?>

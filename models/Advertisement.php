@@ -40,7 +40,9 @@ class Advertisement extends ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'section', 'title'], 'required'],
+            [['user_id', 'section'], 'required'],
+            // title - НЕ обязателен (будет генерироваться автоматически)
+            [['title'], 'string', 'max' => 200],
             [['user_id', 'views_count'], 'integer'],
             [['type'], 'in', 'range' => [self::TYPE_NORMAL, self::TYPE_GLIDER, self::TYPE_HARNESS, self::TYPE_DEVICE]],
             [['price'], 'number', 'min' => 0],
@@ -48,7 +50,6 @@ class Advertisement extends ActiveRecord
             [['description'], 'string'],
             [['section'], 'in', 'range' => [self::SECTION_SELL, self::SECTION_BUY]],
             [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_MODERATION, self::STATUS_CLOSED]],
-            [['title'], 'string', 'max' => 200],
             [['city', 'phone', 'email', 'telegram', 'vk_profile_url', 'whatsapp'], 'string', 'max' => 255],
             [['email'], 'email'],
             [['phone'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]*$/', 'message' => 'Телефон может содержать только цифры, пробелы, +, (, ), -'],
@@ -215,5 +216,84 @@ class Advertisement extends ActiveRecord
             self::TYPE_HARNESS => 'Подвесная система',
             self::TYPE_DEVICE => 'Прибор',
         ];
+    }
+
+    /**
+     * Генерирует заголовок на основе типа и данных из связанных моделей
+     */
+    public function generateTitle()
+    {
+        if (!empty($this->title)) {
+            return $this->title;
+        }
+
+        $typeLabels = [
+            self::TYPE_GLIDER => 'Параплан',
+            self::TYPE_HARNESS => 'Подвеска',
+            self::TYPE_DEVICE => 'Прибор',
+        ];
+
+        $typeLabel = $typeLabels[$this->type] ?? 'Объявление';
+
+        $modelName = '';
+        $producerName = '';
+
+        if ($this->type === self::TYPE_GLIDER && $this->glider) {
+            $modelName = $this->glider->model;
+            if ($this->glider->producer) {
+                $producerName = $this->glider->producer->short ?? $this->glider->producer->name;
+            }
+        } elseif ($this->type === self::TYPE_HARNESS && $this->harness) {
+            $modelName = $this->harness->model;
+            if ($this->harness->producer) {
+                $producerName = $this->harness->producer->short ?? $this->harness->producer->name;
+            }
+        } elseif ($this->type === self::TYPE_DEVICE && $this->device) {
+            $modelName = $this->device->model;
+            if ($this->device->producer) {
+                $producerName = $this->device->producer->short ?? $this->device->producer->name;
+            }
+        }
+
+        $parts = [$typeLabel];
+        if ($producerName) {
+            $parts[] = $producerName;
+        }
+        if ($modelName) {
+            $parts[] = $modelName;
+        }
+
+        $title = implode(' ', $parts);
+        
+        // Если заголовок все еще пустой, используем стандартный
+        if (empty(trim($title))) {
+            $sectionLabel = $this->section === self::SECTION_SELL ? 'Продам' : 'Куплю';
+            $title = $sectionLabel . ' ' . ($this->type ? $this->getTypeLabel() : 'объявление');
+        }
+        
+        return $title;
+    }
+
+    /**
+     * Генерирует заголовок перед сохранением, если он пустой
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if (empty($this->title)) {
+                // Загружаем связанные модели, если они еще не загружены
+                if ($this->type === self::TYPE_GLIDER && !$this->isRelationPopulated('glider')) {
+                    $this->populateRelation('glider', $this->getGlider()->one());
+                } elseif ($this->type === self::TYPE_HARNESS && !$this->isRelationPopulated('harness')) {
+                    $this->populateRelation('harness', $this->getHarness()->one());
+                } elseif ($this->type === self::TYPE_DEVICE && !$this->isRelationPopulated('device')) {
+                    $this->populateRelation('device', $this->getDevice()->one());
+                }
+                
+                $this->title = $this->generateTitle();
+            }
+            return true;
+        }
+        return false;
     }
 }
