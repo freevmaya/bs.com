@@ -246,13 +246,16 @@ class Advertisement extends ActiveRecord
                 $producerName = $this->device->producer->short ?? $this->device->producer->name;
             }
         }
-        
+
+        $parts = [];
         if ($producerName) {
-            $title = $producerName;
+            $parts[] = $producerName;
         }
         if ($modelName) {
-            $title = $modelName;
+            $parts[] = $modelName;
         }
+
+        $title = implode(' ', $parts);
         
         // Если заголовок все еще пустой, используем стандартный
         if (empty(trim($title))) {
