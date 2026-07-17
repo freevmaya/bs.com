@@ -62,11 +62,18 @@ $this->registerJs("
 ?>
 
 <div class="advertisements-my">
-    <h1><?= Html::encode($this->title) ?></h1>
-    
-    <p>
-        <?= Html::a('➕ Добавить объявление', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap" style="margin-bottom: 15px;">
+                <h1 style="margin: 0;"><?= Html::encode($this->title) ?></h1>
+                <?= Html::a(
+                    '<span class="glyphicon glyphicon-plus"></span> Разместить объявление',
+                    ['create'],
+                    ['class' => 'btn btn-success', 'style' => 'white-space: nowrap;']
+                ) ?>
+            </div>
+        </div>
+    </div>
     
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
