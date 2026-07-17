@@ -16,11 +16,18 @@ $this->params['breadcrumbs'][] = $this->title;
 // Базовый URL сайта
 $baseUrl = Yii::$app->urlManager->createAbsoluteUrl('/');
 
-// Получаем основное изображение
-$mainImage = $model->getMainImage()->one();
+// Получаем основное изображение - используем getImages() и берем первый
+$images = $model->getImages()->orderBy(['sort_order' => SORT_ASC])->limit(1)->all();
+$mainImage = !empty($images) ? $images[0] : null;
+
 $imageUrl = null;
 if ($mainImage) {
+    // Получаем полный URL изображения
     $imageUrl = $mainImage->getImageUrl();
+    // Убеждаемся, что URL начинается с /
+    if (strpos($imageUrl, '/') !== 0) {
+        $imageUrl = '/' . $imageUrl;
+    }
 }
 $imageFullUrl = $imageUrl ? $baseUrl . ltrim($imageUrl, '/') : null;
 
@@ -35,6 +42,10 @@ $adUrl = Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' =
 // Описание (обрезаем до 200 символов)
 $description = strip_tags($model->description);
 $description = mb_substr($description, 0, 200) . (mb_strlen($description) > 200 ? '...' : '');
+// Если описание пустое - используем заголовок
+if (empty($description)) {
+    $description = $model->title;
+}
 
 // Категория / тип
 $typeLabel = $model->getTypeLabel();
@@ -44,13 +55,16 @@ $sectionLabel = $model->getSectionLabel();
 $price = $model->price ? number_format($model->price, 0, '.', ' ') . ' ₽' : 'Цена не указана';
 
 // ============================================================
-// РЕГИСТРИРУЕМ МЕТА-ТЕГИ
+// РЕГИСТРИРУЕМ МЕТА-ТЕГИ (ВСЕ ТЕГИ ДОЛЖНЫ БЫТЬ В HEAD)
 // ============================================================
 
 // --- Open Graph (базовые) ---
 $this->registerMetaTag(['property' => 'og:title', 'content' => $this->title]);
 $this->registerMetaTag(['property' => 'og:description', 'content' => $description]);
 $this->registerMetaTag(['property' => 'og:image', 'content' => $imageFullUrl]);
+// Добавляем дополнительные размеры для VK
+$this->registerMetaTag(['property' => 'og:image:width', 'content' => '1200']);
+$this->registerMetaTag(['property' => 'og:image:height', 'content' => '630']);
 $this->registerMetaTag(['property' => 'og:url', 'content' => $adUrl]);
 $this->registerMetaTag(['property' => 'og:type', 'content' => 'product']);
 $this->registerMetaTag(['property' => 'og:site_name', 'content' => Yii::$app->name]);
@@ -67,10 +81,6 @@ $this->registerMetaTag(['name' => 'twitter:card', 'content' => 'summary_large_im
 $this->registerMetaTag(['name' => 'twitter:title', 'content' => $this->title]);
 $this->registerMetaTag(['name' => 'twitter:description', 'content' => $description]);
 $this->registerMetaTag(['name' => 'twitter:image', 'content' => $imageFullUrl]);
-$this->registerMetaTag(['name' => 'twitter:site', 'content' => '@' . Yii::$app->name]);
-
-// --- VK specific (для лучшего отображения) ---
-$this->registerMetaTag(['property' => 'vk:image', 'content' => $imageFullUrl]);
 
 // --- Дополнительные мета-теги для SEO и соцсетей ---
 $this->registerMetaTag(['name' => 'description', 'content' => $description]);
@@ -120,20 +130,19 @@ if ($model->city) {
 
 $jsonLdString = json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-// Регистрируем JSON-LD через registerJs с позицией POS_HEAD
+// Регистрируем JSON-LD через registerJs с использованием createElement
 $this->registerJs(
-    'document.write(\'<script type="application/ld+json">' . addslashes($jsonLdString) . '<\/script>\');',
+    'var script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = ' . json_encode($jsonLdString) . ';
+    document.head.appendChild(script);',
     \yii\web\View::POS_HEAD
 );
-
-// Альтернативный способ - через registerJs с использованием переменной
-// $this->registerJs("var jsonLd = " . json_encode($jsonLd) . ";", \yii\web\View::POS_HEAD);
 
 // ============================================================
 // РЕГИСТРИРУЕМ CSS И JS ДЛЯ КАРУСЕЛИ
 // ============================================================
 
-// Регистрируем CSS и JS для карусели
 $this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 $this->registerJsFile('@web/js/carousel.js', [
     'depends' => [\yii\web\JqueryAsset::class],
@@ -142,6 +151,32 @@ $this->registerJsFile('@web/js/carousel.js', [
 
 // Проверяем, является ли пользователь администратором
 $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
+
+// ============================================================
+// ВЫВОДИМ МЕТА-ТЕГИ В HTML (ДЛЯ ВЕРНОГО ОТОБРАЖЕНИЯ В VK)
+// ============================================================
+
+// Регистрируем мета-теги через registerMetaTag в POS_HEAD
+// Они уже зарегистрированы выше, но дополнительно выводим их в HTML
+$this->registerMetaTag(['property' => 'og:title', 'content' => $this->title], null, 'og_title');
+$this->registerMetaTag(['property' => 'og:description', 'content' => $description], null, 'og_description');
+$this->registerMetaTag(['property' => 'og:image', 'content' => $imageFullUrl], null, 'og_image');
+$this->registerMetaTag(['property' => 'og:image:width', 'content' => '1200'], null, 'og_image_width');
+$this->registerMetaTag(['property' => 'og:image:height', 'content' => '630'], null, 'og_image_height');
+$this->registerMetaTag(['property' => 'og:url', 'content' => $adUrl], null, 'og_url');
+$this->registerMetaTag(['property' => 'og:type', 'content' => 'product'], null, 'og_type');
+$this->registerMetaTag(['property' => 'og:site_name', 'content' => Yii::$app->name], null, 'og_site_name');
+$this->registerMetaTag(['property' => 'og:locale', 'content' => 'ru_RU'], null, 'og_locale');
+
+// ============================================================
+// ВСПОМОГАТЕЛЬНЫЙ КОД ДЛЯ ОТЛАДКИ (можно удалить после проверки)
+// ============================================================
+
+// Выводим информацию об изображении в комментарии для отладки
+if (YII_DEBUG) {
+    echo "<!-- IMAGE URL: {$imageFullUrl} -->\n";
+    echo "<!-- AD URL: {$adUrl} -->\n";
+}
 ?>
 
 <!-- ============================================================ -->
