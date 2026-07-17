@@ -225,10 +225,21 @@ class Advertisement extends ActiveRecord
      */
     public function generateTitle()
     {
-        if (!empty($this->title)) {
+        // Если заголовок уже не пустой - возвращаем его (для normal)
+        if (!empty($this->title) && $this->type === self::TYPE_NORMAL) {
             return $this->title;
         }
 
+        // Для типа normal используем переданный заголовок или генерируем
+        if ($this->type === self::TYPE_NORMAL) {
+            if (!empty($this->title)) {
+                return $this->title;
+            }
+            $sectionLabel = $this->section === self::SECTION_SELL ? 'Продам' : 'Куплю';
+            return $sectionLabel . ' ' . ($this->type ? $this->getTypeLabel() : 'объявление');
+        }
+
+        // Для типов glider/harness/device - генерируем из связанных моделей
         $modelName = '';
         $producerName = '';
 
@@ -274,18 +285,17 @@ class Advertisement extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            // Если это НЕ обычное объявление, ВСЕГДА генерируем заголовок
+            // Загружаем связанные модели, если они еще не загружены
+            if ($this->type === self::TYPE_GLIDER && !$this->isRelationPopulated('glider')) {
+                $this->populateRelation('glider', $this->getGlider()->one());
+            } elseif ($this->type === self::TYPE_HARNESS && !$this->isRelationPopulated('harness')) {
+                $this->populateRelation('harness', $this->getHarness()->one());
+            } elseif ($this->type === self::TYPE_DEVICE && !$this->isRelationPopulated('device')) {
+                $this->populateRelation('device', $this->getDevice()->one());
+            }
+            
+            // Если это НЕ обычное объявление, генерируем заголовок
             if ($this->type !== self::TYPE_NORMAL) {
-                // Загружаем связанные модели, если они еще не загружены
-                if ($this->type === self::TYPE_GLIDER && !$this->isRelationPopulated('glider')) {
-                    $this->populateRelation('glider', $this->getGlider()->one());
-                } elseif ($this->type === self::TYPE_HARNESS && !$this->isRelationPopulated('harness')) {
-                    $this->populateRelation('harness', $this->getHarness()->one());
-                } elseif ($this->type === self::TYPE_DEVICE && !$this->isRelationPopulated('device')) {
-                    $this->populateRelation('device', $this->getDevice()->one());
-                }
-                
-                // Генерируем заголовок, перезаписывая любое значение, введенное пользователем
                 $this->title = $this->generateTitle();
             } 
             // Для обычных объявлений генерируем только если поле пустое

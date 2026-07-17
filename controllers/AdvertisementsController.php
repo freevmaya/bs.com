@@ -146,8 +146,20 @@ class AdvertisementsController extends Controller
         $deviceModel = new AdvertisementDevice();
         
         if ($model->load(Yii::$app->request->post())) {
+            // Для типа не normal ПРИНУДИТЕЛЬНО очищаем title
+            if ($model->type !== Advertisement::TYPE_NORMAL) {
+                $model->title = '';
+            }
+            
+            // Сохраняем основную модель
             if ($model->save()) {
                 if ($this->saveExtraFields($model, Yii::$app->request->post())) {
+                    // ПЕРЕГЕНЕРИРУЕМ ЗАГОЛОВОК ПОСЛЕ СОХРАНЕНИЯ ДОПОЛНИТЕЛЬНЫХ ПОЛЕЙ
+                    if ($model->type !== Advertisement::TYPE_NORMAL) {
+                        $model->title = $model->generateTitle();
+                        $model->save(false, ['title']);
+                    }
+                    
                     $migratedCount = $this->tempStorage->migrateImages($tempId, $model->id);
                     
                     // Отправляем уведомления подписчикам (событие: создание)
@@ -198,20 +210,33 @@ class AdvertisementsController extends Controller
             $deviceModel->advertisement_id = $model->id;
         }
         
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::info('Main model saved: ' . json_encode($model->attributes));
+        if ($model->load(Yii::$app->request->post())) {
+            // Для типа не normal ПРИНУДИТЕЛЬНО очищаем title
+            if ($model->type !== Advertisement::TYPE_NORMAL) {
+                $model->title = '';
+            }
             
-            $postData = Yii::$app->request->post();
-            Yii::info('POST data for extra fields: ' . json_encode($postData));
-            
-            if ($this->saveExtraFields($model, $postData)) {
-                // Отправляем уведомления подписчикам (событие: обновление)
-                $this->notifySubscribers($model, 'update');
+            if ($model->save()) {
+                Yii::info('Main model saved: ' . json_encode($model->attributes));
                 
-                Yii::$app->session->setFlash('success', 'Объявление обновлено');
-                return $this->redirect(['view', 'id' => $model->id]);
-            } else {
-                Yii::$app->session->setFlash('error', 'Ошибка при сохранении дополнительных полей');
+                $postData = Yii::$app->request->post();
+                Yii::info('POST data for extra fields: ' . json_encode($postData));
+                
+                if ($this->saveExtraFields($model, $postData)) {
+                    // ПЕРЕГЕНЕРИРУЕМ ЗАГОЛОВОК ПОСЛЕ СОХРАНЕНИЯ ДОПОЛНИТЕЛЬНЫХ ПОЛЕЙ
+                    if ($model->type !== Advertisement::TYPE_NORMAL) {
+                        $model->title = $model->generateTitle();
+                        $model->save(false, ['title']);
+                    }
+                    
+                    // Отправляем уведомления подписчикам (событие: обновление)
+                    $this->notifySubscribers($model, 'update');
+                    
+                    Yii::$app->session->setFlash('success', 'Объявление обновлено');
+                    return $this->redirect(['view', 'id' => $model->id]);
+                } else {
+                    Yii::$app->session->setFlash('error', 'Ошибка при сохранении дополнительных полей');
+                }
             }
         }
         
@@ -371,7 +396,7 @@ class AdvertisementsController extends Controller
     {
         $dataProvider = new ActiveDataProvider([
             'query' => Advertisement::find()->where(['user_id' => Yii::$app->user->id]),
-            'sort' => ['defaultOrder' => ['updated_at' => SORT_DESC]],  // Изменено с created_at на updated_at
+            'sort' => ['defaultOrder' => ['updated_at' => SORT_DESC]],
             'pagination' => ['pageSize' => 20],
         ]);
         

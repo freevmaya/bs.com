@@ -156,13 +156,24 @@ document.getElementById('type-select').addEventListener('change', function() {
     var titleInput = document.querySelector('#title-field input');
     if (this.value === 'normal') {
         titleField.style.display = 'block';
+        if (titleInput) {
+            titleInput.disabled = false;
+        }
     } else {
         titleField.style.display = 'none';
-        // ПРИНУДИТЕЛЬНО ОЧИЩАЕМ ПОЛЕ ЗАГОЛОВКА, ЧТОБЫ ОН СГЕНЕРИРОВАЛСЯ АВТОМАТИЧЕСКИ
+        // ПРИНУДИТЕЛЬНО ОЧИЩАЕМ И ОТКЛЮЧАЕМ ПОЛЕ ЗАГОЛОВКА
         if (titleInput) {
             titleInput.value = '';
+            titleInput.disabled = true;
         }
     }
+});
+
+// При загрузке также применяем
+document.addEventListener('DOMContentLoaded', function() {
+    var typeSelect = document.getElementById('type-select');
+    var event = new Event('change');
+    typeSelect.dispatchEvent(event);
 });
 JS;
 $this->registerJs($script);
