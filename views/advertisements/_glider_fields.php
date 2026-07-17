@@ -7,7 +7,7 @@ use app\models\Certification;
 use app\models\AdvertisementGlider;
 
 $producers = Producer::find()->orderBy('name')->all();
-$certifications = Certification::getList(); // Используем новый метод с сортировкой
+$certifications = Certification::getList();
 $conditionList = AdvertisementGlider::getConditionList();
 ?>
 
@@ -22,7 +22,7 @@ $conditionList = AdvertisementGlider::getConditionList();
         <div class="col-md-6">
             <?= $form->field($gliderModel, 'producer_id')->dropDownList(
                 \yii\helpers\ArrayHelper::map($producers, 'id', 'fullName'),
-                ['prompt' => 'Выберите производителя']
+                ['prompt' => 'Выберите производителя (необязательно)'] // Добавлен prompt с пометкой "необязательно"
             ) ?>
         </div>
     </div>
@@ -30,7 +30,7 @@ $conditionList = AdvertisementGlider::getConditionList();
     <div class="row">
         <div class="col-md-6">
             <?= $form->field($gliderModel, 'certification_id')->dropDownList(
-                $certifications, // Используем отсортированный список
+                $certifications,
                 ['prompt' => 'Выберите сертификацию']
             ) ?>
         </div>
@@ -39,7 +39,6 @@ $conditionList = AdvertisementGlider::getConditionList();
         </div>
     </div>
     
-    <!-- остальные поля -->
     <div class="row">
         <div class="col-md-6">
             <?= $form->field($gliderModel, 'weight_min')->textInput(['type' => 'number', 'placeholder' => '65']) ?>

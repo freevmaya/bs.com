@@ -20,7 +20,7 @@ $conditionList = AdvertisementDevice::getConditionList();
         <div class="col-md-6">
             <?= $form->field($deviceModel, 'producer_id')->dropDownList(
                 \yii\helpers\ArrayHelper::map($producers, 'id', 'fullName'),
-                ['prompt' => 'Выберите производителя']
+                ['prompt' => 'Выберите производителя (необязательно)'] // Добавлен prompt с пометкой "необязательно"
             ) ?>
         </div>
     </div>

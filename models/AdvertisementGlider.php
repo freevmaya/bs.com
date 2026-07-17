@@ -28,7 +28,7 @@ class AdvertisementGlider extends ActiveRecord
     public function rules()
     {
         return [
-            [['advertisement_id', 'model', 'producer_id'], 'required'],
+            [['advertisement_id', 'model'], 'required'], // producer_id больше не required
             [['advertisement_id', 'producer_id', 'certification_id', 'weight_min', 'weight_max', 'flight_time'], 'integer'],
             [['model', 'date_release'], 'string', 'max' => 255],
             [['defects', 'cause'], 'string'],
@@ -37,8 +37,17 @@ class AdvertisementGlider extends ActiveRecord
                 self::CONDITION_NEW, self::CONDITION_EXCELLENT, 
                 self::CONDITION_GOOD, self::CONDITION_FAIR, self::CONDITION_BAD
             ]],
-            ['weight_min', 'compare', 'compareAttribute' => 'weight_max', 'operator' => '<', 'type' => 'number', 'message' => 'Минимальный вес должен быть меньше максимального', 'skipOnEmpty' => true],
+            // Валидация весовой вилки - только если оба поля заполнены
+            ['weight_min', 'compare', 
+                'compareAttribute' => 'weight_max', 
+                'operator' => '<', 
+                'type' => 'number', 
+                'message' => 'Минимальный вес должен быть меньше максимального',
+                'skipOnEmpty' => true, // Пропускаем, если одно из полей пустое
+            ],
             [['certification_id'], 'default', 'value' => null],
+            // Добавляем валидацию для producer_id - допускаем null
+            [['producer_id'], 'default', 'value' => null],
         ];
     }
     
@@ -95,6 +104,11 @@ class AdvertisementGlider extends ActiveRecord
             
             if ($this->certification_id === '') {
                 $this->certification_id = null;
+            }
+            
+            // Обрабатываем producer_id
+            if ($this->producer_id === '') {
+                $this->producer_id = null;
             }
             
             return true;

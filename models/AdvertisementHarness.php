@@ -39,7 +39,7 @@ class AdvertisementHarness extends ActiveRecord
     public function rules()
     {
         return [
-            [['advertisement_id', 'model', 'producer_id', 'size'], 'required'],
+            [['advertisement_id', 'model', 'size'], 'required'], // producer_id больше не required
             [['advertisement_id', 'producer_id'], 'integer'],
             [['model', 'date_release'], 'string', 'max' => 255],
             [['defects'], 'string'],
@@ -52,6 +52,8 @@ class AdvertisementHarness extends ActiveRecord
                 self::SIZE_XS, self::SIZE_S, self::SIZE_SM, self::SIZE_M, self::SIZE_ML,
                 self::SIZE_L, self::SIZE_XL, self::SIZE_XXL, self::SIZE_XXXL, self::SIZE_ONESIZE
             ]],
+            // Добавляем валидацию для producer_id - допускаем null
+            [['producer_id'], 'default', 'value' => null],
         ];
     }
     
@@ -106,13 +108,18 @@ class AdvertisementHarness extends ActiveRecord
         ];
     }
     
-    // Добавляем метод beforeSave для установки значения по умолчанию
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
             if (empty($this->condition)) {
                 $this->condition = self::CONDITION_GOOD;
             }
+            
+            // Обрабатываем producer_id
+            if ($this->producer_id === '') {
+                $this->producer_id = null;
+            }
+            
             return true;
         }
         return false;

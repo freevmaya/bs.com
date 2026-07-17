@@ -61,6 +61,33 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
                         </div>
                     </div>
                     
+                    <!-- ============================================ -->
+                    <!-- ДИНАМИЧЕСКИЕ ПОЛЯ ДЛЯ РАЗНЫХ ТИПОВ (ПЕРЕМЕЩЕНЫ ВЫШЕ) -->
+                    <!-- ============================================ -->
+                    <div id="glider-fields" style="display: <?= $model->type === 'glider' ? 'block' : 'none' ?>;">
+                        <?= $this->render('_glider_fields', [
+                            'form' => $form,
+                            'gliderModel' => $gliderModel,
+                        ]) ?>
+                    </div>
+
+                    <div id="harness-fields" style="display: <?= $model->type === 'harness' ? 'block' : 'none' ?>;">
+                        <?= $this->render('_harness_fields', [
+                            'form' => $form,
+                            'harnessModel' => $harnessModel,
+                        ]) ?>
+                    </div>
+
+                    <div id="device-fields" style="display: <?= $model->type === 'device' ? 'block' : 'none' ?>;">
+                        <?= $this->render('_device_fields', [
+                            'form' => $form,
+                            'deviceModel' => $deviceModel,
+                        ]) ?>
+                    </div>
+                    
+                    <!-- ============================================ -->
+                    <!-- КОНТАКТНАЯ ИНФОРМАЦИЯ (ПЕРЕМЕЩЕНА НИЖЕ) -->
+                    <!-- ============================================ -->
                     <hr>
                     <p class="text-muted"><small>Контактная информация</small></p>
                     
@@ -97,28 +124,6 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
                             'placeholder' => 'https://example.com/original',
                         ])->hint('Ссылка на источник объявления (доступно только администраторам)') ?>
                     <?php endif; ?>
-                    
-                    <!-- Динамические поля для разных типов -->
-                    <div id="glider-fields" style="display: <?= $model->type === 'glider' ? 'block' : 'none' ?>;">
-                        <?= $this->render('_glider_fields', [
-                            'form' => $form,
-                            'gliderModel' => $gliderModel,
-                        ]) ?>
-                    </div>
-
-                    <div id="harness-fields" style="display: <?= $model->type === 'harness' ? 'block' : 'none' ?>;">
-                        <?= $this->render('_harness_fields', [
-                            'form' => $form,
-                            'harnessModel' => $harnessModel,
-                        ]) ?>
-                    </div>
-
-                    <div id="device-fields" style="display: <?= $model->type === 'device' ? 'block' : 'none' ?>;">
-                        <?= $this->render('_device_fields', [
-                            'form' => $form,
-                            'deviceModel' => $deviceModel,
-                        ]) ?>
-                    </div>
                     
                     <div class="form-group">
                         <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary']) ?>

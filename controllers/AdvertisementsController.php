@@ -604,6 +604,10 @@ class AdvertisementsController extends Controller
                 $gliderModel->load(Yii::$app->request->post());
                 if (!$gliderModel->validate()) {
                     foreach ($gliderModel->errors as $field => $fieldErrors) {
+                        // Пропускаем ошибку producer_id (теперь необязательный)
+                        if ($field === 'producer_id') {
+                            continue;
+                        }
                         $errors['glider_' . $field] = 'Параплан: ' . implode(', ', $fieldErrors);
                         $invalidFields[] = 'AdvertisementGlider[' . $field . ']';
                     }
@@ -613,6 +617,10 @@ class AdvertisementsController extends Controller
                 $harnessModel->load(Yii::$app->request->post());
                 if (!$harnessModel->validate()) {
                     foreach ($harnessModel->errors as $field => $fieldErrors) {
+                        // Пропускаем ошибку producer_id (теперь необязательный)
+                        if ($field === 'producer_id') {
+                            continue;
+                        }
                         $errors['harness_' . $field] = 'Подвеска: ' . implode(', ', $fieldErrors);
                         $invalidFields[] = 'AdvertisementHarness[' . $field . ']';
                     }
@@ -622,6 +630,10 @@ class AdvertisementsController extends Controller
                 $deviceModel->load(Yii::$app->request->post());
                 if (!$deviceModel->validate()) {
                     foreach ($deviceModel->errors as $field => $fieldErrors) {
+                        // Пропускаем ошибку producer_id (теперь необязательный)
+                        if ($field === 'producer_id') {
+                            continue;
+                        }
                         $errors['device_' . $field] = 'Прибор: ' . implode(', ', $fieldErrors);
                         $invalidFields[] = 'AdvertisementDevice[' . $field . ']';
                     }

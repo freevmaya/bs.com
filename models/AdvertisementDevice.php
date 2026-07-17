@@ -28,7 +28,7 @@ class AdvertisementDevice extends ActiveRecord
     public function rules()
     {
         return [
-            [['advertisement_id', 'model', 'producer_id'], 'required'],
+            [['advertisement_id', 'model'], 'required'], // producer_id больше не required
             [['advertisement_id', 'producer_id'], 'integer'],
             [['model'], 'string', 'max' => 255],
             [['defects'], 'string'],
@@ -37,6 +37,8 @@ class AdvertisementDevice extends ActiveRecord
                 self::CONDITION_NEW, self::CONDITION_EXCELLENT, 
                 self::CONDITION_GOOD, self::CONDITION_FAIR, self::CONDITION_BAD
             ]],
+            // Добавляем валидацию для producer_id - допускаем null
+            [['producer_id'], 'default', 'value' => null],
         ];
     }
     
@@ -73,13 +75,18 @@ class AdvertisementDevice extends ActiveRecord
         ];
     }
     
-    // Добавляем метод beforeSave для установки значения по умолчанию
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
             if (empty($this->condition)) {
                 $this->condition = self::CONDITION_GOOD;
             }
+            
+            // Обрабатываем producer_id
+            if ($this->producer_id === '') {
+                $this->producer_id = null;
+            }
+            
             return true;
         }
         return false;
