@@ -26,9 +26,8 @@ $isGuest = Yii::$app->user->isGuest;
         'action' => ['index'],
     ]) ?>
     
-    <div class="d-flex justify-content-between align-items-center flex-wrap">
-        <!-- Сортировка -->
-        <div class="sort-options" style="margin-bottom: 15px;">
+    <div class="d-flex justify-content-between align-items-center search-ext-block">
+        <div class="sort-options">
             <form method="get" class="form-inline">
                 <div class="form-group">
                     <select name="sort" class="form-control" onchange="this.form.submit()">
@@ -45,7 +44,7 @@ $isGuest = Yii::$app->user->isGuest;
                 </div>
             </form>
         </div>
-        <div>
+        <div style="flex-shrink: 0;">
             <?= Html::a(
                 '<span class="glyphicon glyphicon-plus"></span> Разместить объявление',
                 $isGuest ? ['/site/login'] : ['create'],
