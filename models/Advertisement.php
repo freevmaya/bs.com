@@ -274,7 +274,8 @@ class Advertisement extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            if (empty($this->title)) {
+            // Если это НЕ обычное объявление, ВСЕГДА генерируем заголовок
+            if ($this->type !== self::TYPE_NORMAL) {
                 // Загружаем связанные модели, если они еще не загружены
                 if ($this->type === self::TYPE_GLIDER && !$this->isRelationPopulated('glider')) {
                     $this->populateRelation('glider', $this->getGlider()->one());
@@ -284,6 +285,11 @@ class Advertisement extends ActiveRecord
                     $this->populateRelation('device', $this->getDevice()->one());
                 }
                 
+                // Генерируем заголовок, перезаписывая любое значение, введенное пользователем
+                $this->title = $this->generateTitle();
+            } 
+            // Для обычных объявлений генерируем только если поле пустое
+            elseif (empty($this->title)) {
                 $this->title = $this->generateTitle();
             }
             return true;

@@ -153,12 +153,15 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
 $script = <<<JS
 document.getElementById('type-select').addEventListener('change', function() {
     var titleField = document.getElementById('title-field');
+    var titleInput = document.querySelector('#title-field input');
     if (this.value === 'normal') {
         titleField.style.display = 'block';
     } else {
         titleField.style.display = 'none';
-        // Очищаем поле заголовка, чтобы он сгенерировался автоматически
-        document.querySelector('#title-field input').value = '';
+        // ПРИНУДИТЕЛЬНО ОЧИЩАЕМ ПОЛЕ ЗАГОЛОВКА, ЧТОБЫ ОН СГЕНЕРИРОВАЛСЯ АВТОМАТИЧЕСКИ
+        if (titleInput) {
+            titleInput.value = '';
+        }
     }
 });
 JS;
