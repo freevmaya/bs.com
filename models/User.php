@@ -13,6 +13,10 @@ class User extends ActiveRecord implements IdentityInterface
     public $password;
     public $password_repeat;
     
+    // Константы для типа пользователя
+    const TYPE_USER = 'user';
+    const TYPE_ADMIN = 'admin';
+    
     public static function tableName()
     {
         return 'users';
@@ -37,6 +41,7 @@ class User extends ActiveRecord implements IdentityInterface
             [['phone', 'city', 'vk_id', 'vk_profile_url', 'telegram', 'telegram_chat_id', 'whatsapp'], 'string', 'max' => 255],
             // Новые поля для OAuth
             [['google_id', 'facebook_id', 'yandex_id', 'github_id', 'first_name', 'last_name', 'photo'], 'string', 'max' => 255],
+            // type - не редактируется с сайта, поэтому не включаем в rules
             [['vk_id'], 'match', 'pattern' => '/^\d+$/', 'message' => 'ID в VK должен содержать только цифры'],
             [['vk_profile_url'], 'validateVkProfileUrl'],
             [['telegram'], 'match', 'pattern' => '/^@?[a-zA-Z0-9_]{5,32}$/', 'message' => 'Введите корректный username Telegram (например: @username или username)'],
@@ -73,6 +78,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             'id' => 'ID',
+            'type' => 'Тип пользователя',
             'username' => 'Имя пользователя',
             'email' => 'Email',
             'password' => 'Пароль',
@@ -89,6 +95,14 @@ class User extends ActiveRecord implements IdentityInterface
             'photo' => 'Фото',
             'created_at' => 'Дата регистрации',
         ];
+    }
+    
+    /**
+     * Проверяет, является ли пользователь администратором
+     */
+    public function isAdmin()
+    {
+        return $this->type === self::TYPE_ADMIN;
     }
     
     // IdentityInterface methods

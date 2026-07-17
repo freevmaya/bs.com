@@ -16,6 +16,9 @@ $this->registerJsFile('@web/js/advertisement-form.js', [
     'depends' => [\yii\web\JqueryAsset::class, \yii\jui\JuiAsset::class],
     'position' => \yii\web\View::POS_END
 ]);
+
+// Проверяем, является ли пользователь администратором
+$isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
 ?>
 
 <div class="advertisements-update">
@@ -86,6 +89,14 @@ $this->registerJsFile('@web/js/advertisement-form.js', [
                         'maxlength' => true,
                         'placeholder' => 'https://vk.com/durov',
                     ])->hint('Ссылка на профиль VK') ?>
+                    
+                    <!-- Поле source_url - показываем только администраторам -->
+                    <?php if ($isAdmin): ?>
+                        <?= $form->field($model, 'source_url')->textInput([
+                            'maxlength' => true,
+                            'placeholder' => 'https://example.com/original',
+                        ])->hint('Ссылка на источник объявления (доступно только администраторам)') ?>
+                    <?php endif; ?>
                     
                     <!-- Динамические поля для разных типов -->
                     <div id="glider-fields" style="display: <?= $model->type === 'glider' ? 'block' : 'none' ?>;">

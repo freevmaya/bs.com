@@ -50,12 +50,13 @@ class Advertisement extends ActiveRecord
             [['description'], 'string'],
             [['section'], 'in', 'range' => [self::SECTION_SELL, self::SECTION_BUY]],
             [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_MODERATION, self::STATUS_CLOSED]],
-            [['city', 'phone', 'email', 'telegram', 'vk_profile_url', 'whatsapp'], 'string', 'max' => 255],
+            [['city', 'phone', 'email', 'telegram', 'vk_profile_url', 'whatsapp', 'source_url'], 'string', 'max' => 255],
             [['email'], 'email'],
             [['phone'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]*$/', 'message' => 'Телефон может содержать только цифры, пробелы, +, (, ), -'],
             [['telegram'], 'match', 'pattern' => '/^@?[a-zA-Z0-9_]{5,32}$/', 'message' => 'Введите корректный username Telegram (например: @username или username)'],
             [['vk_profile_url'], 'validateVkProfileUrl'],
             [['whatsapp'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]{5,20}$/', 'message' => 'Введите корректный номер WhatsApp'],
+            [['source_url'], 'url', 'message' => 'Введите корректный URL (например: https://example.com)'],
         ];
     }
     
@@ -90,6 +91,7 @@ class Advertisement extends ActiveRecord
             'telegram' => 'Telegram',
             'vk_profile_url' => 'VK профиль',
             'whatsapp' => 'WhatsApp',
+            'source_url' => 'Источник (URL)',
             'status' => 'Статус',
             'views_count' => 'Просмотры',
             'created_at' => 'Создано',
@@ -283,9 +285,7 @@ class Advertisement extends ActiveRecord
                 }
                 
                 $this->title = $this->generateTitle();
-            } else if ($this->type !== self::TYPE_NORMAL)
-                $this->title = $this->generateTitle();
-                
+            }
             return true;
         }
         return false;

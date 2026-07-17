@@ -1,6 +1,3 @@
-// FILE: .\views\advertisements\index.php
-// Изменяем сортировку в dataProvider
-
 <?php
 
 use yii\helpers\Html;

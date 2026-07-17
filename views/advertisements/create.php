@@ -26,6 +26,9 @@ $section = Yii::$app->request->get('section');
 if ($section) {
     $model->section = $section;
 }
+
+// Проверяем, является ли пользователь администратором
+$isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
 ?>
 
 <div class="advertisements-create">
@@ -97,6 +100,14 @@ if ($section) {
                         'maxlength' => true,
                         'placeholder' => 'https://vk.com/durov',
                     ])->hint('Ссылка на профиль VK') ?>
+                    
+                    <!-- Поле source_url - показываем только администраторам -->
+                    <?php if ($isAdmin): ?>
+                        <?= $form->field($model, 'source_url')->textInput([
+                            'maxlength' => true,
+                            'placeholder' => 'https://example.com/original',
+                        ])->hint('Ссылка на источник объявления (доступно только администраторам)') ?>
+                    <?php endif; ?>
                     
                     <!-- Динамические поля для разных типов -->
                     <div id="glider-fields" style="display: none;">
