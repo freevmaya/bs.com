@@ -1,4 +1,5 @@
 <?php
+// FILE: .\views\advertisements\view.php
 
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -7,6 +8,130 @@ use app\helpers\SvgHelper;
 $this->title = $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Объявления', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
+// ============================================================
+// МЕТА-ТЕГИ ДЛЯ СОЦИАЛЬНЫХ СЕТЕЙ (Open Graph + Twitter Cards)
+// ============================================================
+
+// Базовый URL сайта
+$baseUrl = Yii::$app->urlManager->createAbsoluteUrl('/');
+
+// Получаем основное изображение
+$mainImage = $model->getMainImage()->one();
+$imageUrl = null;
+if ($mainImage) {
+    $imageUrl = $mainImage->getImageUrl();
+}
+$imageFullUrl = $imageUrl ? $baseUrl . ltrim($imageUrl, '/') : null;
+
+// Если изображения нет, используем дефолтное
+if (!$imageFullUrl) {
+    $imageFullUrl = $baseUrl . 'images/og-default.jpg';
+}
+
+// URL объявления
+$adUrl = Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $model->id]);
+
+// Описание (обрезаем до 200 символов)
+$description = strip_tags($model->description);
+$description = mb_substr($description, 0, 200) . (mb_strlen($description) > 200 ? '...' : '');
+
+// Категория / тип
+$typeLabel = $model->getTypeLabel();
+$sectionLabel = $model->getSectionLabel();
+
+// Цена для meta
+$price = $model->price ? number_format($model->price, 0, '.', ' ') . ' ₽' : 'Цена не указана';
+
+// ============================================================
+// РЕГИСТРИРУЕМ МЕТА-ТЕГИ
+// ============================================================
+
+// --- Open Graph (базовые) ---
+$this->registerMetaTag(['property' => 'og:title', 'content' => $this->title]);
+$this->registerMetaTag(['property' => 'og:description', 'content' => $description]);
+$this->registerMetaTag(['property' => 'og:image', 'content' => $imageFullUrl]);
+$this->registerMetaTag(['property' => 'og:url', 'content' => $adUrl]);
+$this->registerMetaTag(['property' => 'og:type', 'content' => 'product']);
+$this->registerMetaTag(['property' => 'og:site_name', 'content' => Yii::$app->name]);
+$this->registerMetaTag(['property' => 'og:locale', 'content' => 'ru_RU']);
+
+// --- Open Graph (для товаров / объявлений) ---
+$this->registerMetaTag(['property' => 'product:price:amount', 'content' => $model->price ? (string)$model->price : '0']);
+$this->registerMetaTag(['property' => 'product:price:currency', 'content' => 'RUB']);
+$this->registerMetaTag(['property' => 'product:availability', 'content' => $model->status === 'active' ? 'in stock' : 'out of stock']);
+$this->registerMetaTag(['property' => 'product:category', 'content' => $typeLabel]);
+
+// --- Twitter Cards ---
+$this->registerMetaTag(['name' => 'twitter:card', 'content' => 'summary_large_image']);
+$this->registerMetaTag(['name' => 'twitter:title', 'content' => $this->title]);
+$this->registerMetaTag(['name' => 'twitter:description', 'content' => $description]);
+$this->registerMetaTag(['name' => 'twitter:image', 'content' => $imageFullUrl]);
+$this->registerMetaTag(['name' => 'twitter:site', 'content' => '@' . Yii::$app->name]);
+
+// --- VK specific (для лучшего отображения) ---
+$this->registerMetaTag(['property' => 'vk:image', 'content' => $imageFullUrl]);
+
+// --- Дополнительные мета-теги для SEO и соцсетей ---
+$this->registerMetaTag(['name' => 'description', 'content' => $description]);
+
+// Канонический URL
+$this->registerLinkTag(['rel' => 'canonical', 'href' => $adUrl]);
+
+// ============================================================
+// СТРУКТУРИРОВАННЫЕ ДАННЫЕ (JSON-LD для Schema.org)
+// ============================================================
+
+$jsonLd = [
+    '@context' => 'https://schema.org',
+    '@type' => 'Product',
+    'name' => $model->title,
+    'description' => $description,
+    'image' => $imageFullUrl,
+    'url' => $adUrl,
+    'offers' => [
+        '@type' => 'Offer',
+        'price' => $model->price ? (string)$model->price : '0',
+        'priceCurrency' => 'RUB',
+        'availability' => $model->status === 'active' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        'url' => $adUrl,
+    ],
+    'category' => $typeLabel,
+];
+
+// Добавляем информацию о продавце (авторе объявления)
+if ($model->user) {
+    $jsonLd['brand'] = [
+        '@type' => 'Brand',
+        'name' => $model->user->username,
+    ];
+}
+
+// Если есть город
+if ($model->city) {
+    $jsonLd['offers']['seller'] = [
+        '@type' => 'Person',
+        'address' => [
+            '@type' => 'PostalAddress',
+            'addressLocality' => $model->city,
+        ],
+    ];
+}
+
+$jsonLdString = json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+// Регистрируем JSON-LD через registerJs с позицией POS_HEAD
+$this->registerJs(
+    'document.write(\'<script type="application/ld+json">' . addslashes($jsonLdString) . '<\/script>\');',
+    \yii\web\View::POS_HEAD
+);
+
+// Альтернативный способ - через registerJs с использованием переменной
+// $this->registerJs("var jsonLd = " . json_encode($jsonLd) . ";", \yii\web\View::POS_HEAD);
+
+// ============================================================
+// РЕГИСТРИРУЕМ CSS И JS ДЛЯ КАРУСЕЛИ
+// ============================================================
 
 // Регистрируем CSS и JS для карусели
 $this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
@@ -18,6 +143,10 @@ $this->registerJsFile('@web/js/carousel.js', [
 // Проверяем, является ли пользователь администратором
 $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
 ?>
+
+<!-- ============================================================ -->
+<!-- ОСНОВНОЙ HTML КОД СТРАНИЦЫ -->
+<!-- ============================================================ -->
 
 <div class="advertisements-view">
     <div class="row">
