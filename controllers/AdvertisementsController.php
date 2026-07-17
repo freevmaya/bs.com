@@ -39,7 +39,7 @@ class AdvertisementsController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['create', 'update', 'delete', 'my', 'add-image', 'delete-image', 'reorder-images', 'add-temp-image', 'delete-temp-image', 'toggle-status'],
+                'only' => ['create', 'update', 'delete', 'my', 'add-image', 'delete-image', 'reorder-images', 'add-temp-image', 'delete-temp-image', 'toggle-status', 'bump'],
                 'rules' => [
                     [
                         'allow' => true,
@@ -55,6 +55,7 @@ class AdvertisementsController extends Controller
                     'delete-temp-image' => ['POST'],
                     'reorder-images' => ['POST'],
                     'toggle-status' => ['POST'],
+                    'bump' => ['POST'],
                 ],
             ],
         ];
@@ -125,9 +126,12 @@ class AdvertisementsController extends Controller
         $model->user_id = Yii::$app->user->id;
         $model->status = Advertisement::STATUS_ACTIVE;
         
-        // Заполняем контакты из профиля пользователя
+        // Заполняем контакты из профиля пользователя ТОЛЬКО если это НЕ админ
         $user = Yii::$app->user->identity;
-        $model->fillContactsFromUser($user);
+        $isAdmin = $user && $user->isAdmin();
+        if (!$isAdmin) {
+            $model->fillContactsFromUser($user);
+        }
         
         if ($section && in_array($section, [Advertisement::SECTION_SELL, Advertisement::SECTION_BUY])) {
             $model->section = $section;
@@ -190,10 +194,14 @@ class AdvertisementsController extends Controller
             throw new ForbiddenHttpException('У вас нет прав для редактирования этого объявления');
         }
         
-        // Если контакты пустые - заполняем из профиля
+        // Заполняем контакты из профиля пользователя ТОЛЬКО если это НЕ админ
         $user = Yii::$app->user->identity;
-        if (empty($model->phone) || empty($model->email) || empty($model->telegram) || empty($model->vk_profile_url) || empty($model->whatsapp)) {
-            $model->fillContactsFromUser($user);
+        $isAdmin = $user && $user->isAdmin();
+        if (!$isAdmin) {
+            // Если контакты пустые - заполняем из профиля
+            if (empty($model->phone) || empty($model->email) || empty($model->telegram) || empty($model->vk_profile_url) || empty($model->whatsapp)) {
+                $model->fillContactsFromUser($user);
+            }
         }
         
         $gliderModel = $model->glider ?: new AdvertisementGlider();
@@ -435,6 +443,40 @@ class AdvertisementsController extends Controller
         }
         
         return ['success' => false, 'error' => 'Ошибка при сохранении статуса'];
+    }
+
+    /**
+     * Поднятие объявления - обновляет updated_at на текущее время
+     */
+    public function actionBump()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        $id = Yii::$app->request->post('id');
+        
+        if (!$id) {
+            return ['success' => false, 'error' => 'Не указан ID объявления'];
+        }
+        
+        $model = $this->findModel($id);
+        
+        // Проверяем права: только админ или владелец
+        $user = Yii::$app->user->identity;
+        if ($model->user_id !== $user->id && !$user->isAdmin()) {
+            return ['success' => false, 'error' => 'У вас нет прав для поднятия этого объявления'];
+        }
+        
+        // Обновляем только updated_at
+        $model->updated_at = time();
+        if ($model->save(false, ['updated_at'])) {
+            return [
+                'success' => true, 
+                'message' => 'Объявление поднято!',
+                'updated_at' => Yii::$app->formatter->asDatetime($model->updated_at)
+            ];
+        }
+        
+        return ['success' => false, 'error' => 'Ошибка при поднятии объявления'];
     }
 
     public function actionAddImage($id)

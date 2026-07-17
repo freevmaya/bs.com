@@ -523,7 +523,6 @@ if (YII_DEBUG) {
                 </div>
             <?php endif; ?>
             
-            <!-- Действия для владельца -->
             <?php if (!Yii::$app->user->isGuest && Yii::$app->user->id == $model->user_id): ?>
                 <div class="panel panel-default">
                     <div class="panel-body">
@@ -544,6 +543,13 @@ if (YII_DEBUG) {
                                     ],
                                 ]
                             ) ?>
+                            <!-- Кнопка "Поднять" - доступна для всех владельцев -->
+                            <button type="button" class="btn btn-success btn-block bump-button" data-id="<?= $model->id ?>">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                                    <polyline points="18 15 12 9 6 15"/>
+                                </svg>
+                                Поднять
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -551,3 +557,57 @@ if (YII_DEBUG) {
         </div>
     </div>
 </div>
+
+<?php
+// Регистрируем JS для кнопки "Поднять"
+$this->registerJs("
+    $(document).on('click', '.bump-button', function() {
+        var button = $(this);
+        var id = button.data('id');
+        var originalText = button.html();
+        
+        button.prop('disabled', true).html('<span class=\"spinner-border spinner-border-sm\" role=\"status\"></span> Поднятие...');
+        
+        $.ajax({
+            url: '" . \yii\helpers\Url::to(['advertisements/bump']) . "',
+            type: 'POST',
+            data: {
+                id: id,
+                _csrf: '" . Yii::$app->request->csrfToken . "'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification(response.message, 'success');
+                    } else {
+                        alert(response.message);
+                    }
+                    // Обновляем время
+                    if (response.updated_at) {
+                        $('.advertisement-meta-info .label:contains(просмотров)').before(
+                            '<span class=\"label label-default\"><span class=\"glyphicon glyphicon-time\"></span> ' + response.updated_at + '</span> '
+                        );
+                    }
+                } else {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification(response.error || 'Ошибка при поднятии', 'danger');
+                    } else {
+                        alert(response.error || 'Ошибка при поднятии');
+                    }
+                }
+            },
+            error: function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification('Ошибка соединения с сервером', 'danger');
+                } else {
+                    alert('Ошибка соединения с сервером');
+                }
+            },
+            complete: function() {
+                button.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+", \yii\web\View::POS_READY);
+?>
