@@ -223,7 +223,7 @@ if (YII_DEBUG) {
                     <!-- ✅ Выводим краткую информацию -->
                     <?php $shortInfo = $model->getShortInfoString(' • '); ?>
                     <?php if (!empty($shortInfo)): ?>
-                        <div class="well well-sm" style="background: #f5f5f5; margin-bottom: 15px;">
+                        <div class="well well-sm" style="margin-bottom: 15px;">
                             <strong>Характеристики:</strong> <?= $shortInfo ?>
                         </div>
                     <?php endif; ?>
