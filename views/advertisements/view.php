@@ -220,14 +220,6 @@ if (YII_DEBUG) {
                 <div class="panel-body">
                     <h1><?= Html::encode($model->title) ?></h1>
                     
-                    <!-- ✅ Выводим краткую информацию -->
-                    <?php $shortInfo = $model->getShortInfoString(' • '); ?>
-                    <?php if (!empty($shortInfo)): ?>
-                        <div class="well well-sm" style="margin-bottom: 15px;">
-                            <strong>Характеристики:</strong> <?= $shortInfo ?>
-                        </div>
-                    <?php endif; ?>
-                    
                     <div class="advertisement-meta-info" style="margin-bottom: 20px;">
                         <span class="label <?= $model->section === 'sell' ? 'label-danger' : 'label-info' ?>" style="font-size: 14px;">
                             <?= $model->getSectionLabel() ?>
@@ -254,10 +246,6 @@ if (YII_DEBUG) {
                         <?php else: ?>
                             <span class="text-muted">Цена не указана</span>
                         <?php endif; ?>
-                    </div>
-                    
-                    <div class="well">
-                        <?= nl2br(Html::encode($model->description)) ?>
                     </div>
 
                     <!-- Дополнительные поля в зависимости от типа -->
@@ -306,7 +294,11 @@ if (YII_DEBUG) {
                                 <?php endif; ?>
                             </div>
                         </div>
-                    <?php endif; ?>
+                    <?php endif; ?>                    
+                    
+                    <div class="well">
+                        <?= nl2br(Html::encode($model->description)) ?>
+                    </div>
                 </div>
             </div>
         </div>

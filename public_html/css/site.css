@@ -971,3 +971,7 @@ thead, tbody, tfoot, tr, td, th {
     overflow: hidden; 
     max-width: 180px;
 }
+
+.panel-default td, .panel-default th {
+    padding: 0.1rem 0.5rem;
+}
