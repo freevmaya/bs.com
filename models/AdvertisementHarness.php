@@ -1,11 +1,12 @@
 <?php
+// FILE: .\models\AdvertisementHarness.php
 
 namespace app\models;
 
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 
-class AdvertisementHarness extends ActiveRecord
+class AdvertisementHarness extends BaseAdvertisementType
 {
     const CONDITION_NEW = 'new';
     const CONDITION_EXCELLENT = 'excellent';
@@ -39,7 +40,7 @@ class AdvertisementHarness extends ActiveRecord
     public function rules()
     {
         return [
-            [['advertisement_id', 'model', 'size'], 'required'], // producer_id больше не required
+            [['advertisement_id', 'model', 'size'], 'required'],
             [['advertisement_id', 'producer_id'], 'integer'],
             [['model', 'date_release'], 'string', 'max' => 255],
             [['defects'], 'string'],
@@ -52,7 +53,6 @@ class AdvertisementHarness extends ActiveRecord
                 self::SIZE_XS, self::SIZE_S, self::SIZE_SM, self::SIZE_M, self::SIZE_ML,
                 self::SIZE_L, self::SIZE_XL, self::SIZE_XXL, self::SIZE_XXXL, self::SIZE_ONESIZE
             ]],
-            // Добавляем валидацию для producer_id - допускаем null
             [['producer_id'], 'default', 'value' => null],
         ];
     }
@@ -108,6 +108,41 @@ class AdvertisementHarness extends ActiveRecord
         ];
     }
     
+    /**
+     * {@inheritdoc}
+     */
+    public function getTypeLabel()
+    {
+        return 'Подвесная система';
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getShortInfoString($separator = ' | ')
+    {
+        $parts = [];
+        
+        if (!empty($this->model)) {
+            $parts[] = $this->model;
+        }
+        
+        $producerName = $this->getProducerName();
+        if ($producerName) {
+            $parts[] = $producerName;
+        }
+        
+        if (!empty($this->size)) {
+            $parts[] = $this->size;
+        }
+        
+        if (!empty($this->date_release)) {
+            $parts[] = $this->date_release;
+        }
+        
+        return implode($separator, $parts);
+    }
+    
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
@@ -115,7 +150,6 @@ class AdvertisementHarness extends ActiveRecord
                 $this->condition = self::CONDITION_GOOD;
             }
             
-            // Обрабатываем producer_id
             if ($this->producer_id === '') {
                 $this->producer_id = null;
             }

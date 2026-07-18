@@ -5,6 +5,10 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use app\helpers\SvgHelper;
 
+// ✅ Формируем заголовок для OG на основе краткой информации
+$shortInfo = $model->getShortInfoString(' • ');
+$ogTitle = !empty($shortInfo) ? $shortInfo : $model->title;
+
 $this->title = $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Объявления', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
@@ -13,89 +17,81 @@ $this->params['breadcrumbs'][] = $this->title;
 // МЕТА-ТЕГИ ДЛЯ СОЦИАЛЬНЫХ СЕТЕЙ (Open Graph + Twitter Cards)
 // ============================================================
 
-// Базовый URL сайта
 $baseUrl = Yii::$app->urlManager->createAbsoluteUrl('/');
 
-// Получаем основное изображение - используем getImages() и берем первый
 $images = $model->getImages()->orderBy(['sort_order' => SORT_ASC])->limit(1)->all();
 $mainImage = !empty($images) ? $images[0] : null;
 
 $imageUrl = null;
 if ($mainImage) {
-    // Получаем полный URL изображения
     $imageUrl = $mainImage->getImageUrl();
-    // Убеждаемся, что URL начинается с /
     if (strpos($imageUrl, '/') !== 0) {
         $imageUrl = '/' . $imageUrl;
     }
 }
 $imageFullUrl = $imageUrl ? $baseUrl . ltrim($imageUrl, '/') : null;
 
-// Если изображения нет, используем дефолтное
 if (!$imageFullUrl) {
     $imageFullUrl = $baseUrl . 'images/og-default.jpg';
 }
 
-// URL объявления
 $adUrl = Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $model->id]);
 
-// Описание (обрезаем до 200 символов)
+$shortInfo = $model->getShortInfoString(' • ');
 $description = strip_tags($model->description);
 $description = mb_substr($description, 0, 200) . (mb_strlen($description) > 200 ? '...' : '');
-// Если описание пустое - используем заголовок
+
 if (empty($description)) {
-    $description = $model->title;
+    if (!empty($shortInfo)) {
+        $description = $shortInfo;
+    } else {
+        $description = $model->title;
+    }
+} elseif (!empty($shortInfo)) {
+    $description = $shortInfo . ' | ' . $description;
 }
 
-// Категория / тип
 $typeLabel = $model->getTypeLabel();
 $sectionLabel = $model->getSectionLabel();
-
-// Цена для meta
 $price = $model->price ? number_format($model->price, 0, '.', ' ') . ' ₽' : 'Цена не указана';
 
 // ============================================================
-// РЕГИСТРИРУЕМ МЕТА-ТЕГИ (ВСЕ ТЕГИ ДОЛЖНЫ БЫТЬ В HEAD)
+// РЕГИСТРИРУЕМ МЕТА-ТЕГИ
 // ============================================================
 
-// --- Open Graph (базовые) ---
-$this->registerMetaTag(['property' => 'og:title', 'content' => $this->title]);
+// ✅ Используем getShortInfoString() для og:title
+$this->registerMetaTag(['property' => 'og:title', 'content' => $ogTitle]);
 $this->registerMetaTag(['property' => 'og:description', 'content' => $description]);
 $this->registerMetaTag(['property' => 'og:image', 'content' => $imageFullUrl]);
-// Добавляем дополнительные размеры для VK
 $this->registerMetaTag(['property' => 'og:image:width', 'content' => '1200']);
 $this->registerMetaTag(['property' => 'og:image:height', 'content' => '630']);
 $this->registerMetaTag(['property' => 'og:url', 'content' => $adUrl]);
 $this->registerMetaTag(['property' => 'og:type', 'content' => 'product']);
 $this->registerMetaTag(['property' => 'og:site_name', 'content' => Yii::$app->name]);
 $this->registerMetaTag(['property' => 'og:locale', 'content' => 'ru_RU']);
-
-// --- Open Graph (для товаров / объявлений) ---
 $this->registerMetaTag(['property' => 'product:price:amount', 'content' => $model->price ? (string)$model->price : '0']);
 $this->registerMetaTag(['property' => 'product:price:currency', 'content' => 'RUB']);
 $this->registerMetaTag(['property' => 'product:availability', 'content' => $model->status === 'active' ? 'in stock' : 'out of stock']);
 $this->registerMetaTag(['property' => 'product:category', 'content' => $typeLabel]);
 
-// --- Twitter Cards ---
+// Twitter Cards
+// ✅ Используем getShortInfoString() для twitter:title
 $this->registerMetaTag(['name' => 'twitter:card', 'content' => 'summary_large_image']);
-$this->registerMetaTag(['name' => 'twitter:title', 'content' => $this->title]);
+$this->registerMetaTag(['name' => 'twitter:title', 'content' => $ogTitle]);
 $this->registerMetaTag(['name' => 'twitter:description', 'content' => $description]);
 $this->registerMetaTag(['name' => 'twitter:image', 'content' => $imageFullUrl]);
 
-// --- Дополнительные мета-теги для SEO и соцсетей ---
 $this->registerMetaTag(['name' => 'description', 'content' => $description]);
-
-// Канонический URL
 $this->registerLinkTag(['rel' => 'canonical', 'href' => $adUrl]);
 
 // ============================================================
-// СТРУКТУРИРОВАННЫЕ ДАННЫЕ (JSON-LD для Schema.org)
+// СТРУКТУРИРОВАННЫЕ ДАННЫЕ (JSON-LD)
 // ============================================================
 
 $jsonLd = [
     '@context' => 'https://schema.org',
     '@type' => 'Product',
-    'name' => $model->title,
+    'name' => $ogTitle, // ✅ Используем краткую информацию
     'description' => $description,
     'image' => $imageFullUrl,
     'url' => $adUrl,
@@ -109,7 +105,6 @@ $jsonLd = [
     'category' => $typeLabel,
 ];
 
-// Добавляем информацию о продавце (авторе объявления)
 if ($model->user) {
     $jsonLd['brand'] = [
         '@type' => 'Brand',
@@ -117,7 +112,6 @@ if ($model->user) {
     ];
 }
 
-// Если есть город
 if ($model->city) {
     $jsonLd['offers']['seller'] = [
         '@type' => 'Person',
@@ -130,7 +124,6 @@ if ($model->city) {
 
 $jsonLdString = json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-// Регистрируем JSON-LD через registerJs с использованием createElement
 $this->registerJs(
     'var script = document.createElement("script");
     script.type = "application/ld+json";
@@ -140,7 +133,7 @@ $this->registerJs(
 );
 
 // ============================================================
-// РЕГИСТРИРУЕМ CSS И JS ДЛЯ КАРУСЕЛИ
+// РЕГИСТРИРУЕМ CSS И JS
 // ============================================================
 
 $this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
@@ -149,16 +142,10 @@ $this->registerJsFile('@web/js/carousel.js', [
     'position' => \yii\web\View::POS_END
 ]);
 
-// Проверяем, является ли пользователь администратором
 $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
 
-// ============================================================
-// ВЫВОДИМ МЕТА-ТЕГИ В HTML (ДЛЯ ВЕРНОГО ОТОБРАЖЕНИЯ В VK)
-// ============================================================
-
-// Регистрируем мета-теги через registerMetaTag в POS_HEAD
-// Они уже зарегистрированы выше, но дополнительно выводим их в HTML
-$this->registerMetaTag(['property' => 'og:title', 'content' => $this->title], null, 'og_title');
+// Дублируем мета-теги для отладки
+$this->registerMetaTag(['property' => 'og:title', 'content' => $ogTitle], null, 'og_title');
 $this->registerMetaTag(['property' => 'og:description', 'content' => $description], null, 'og_description');
 $this->registerMetaTag(['property' => 'og:image', 'content' => $imageFullUrl], null, 'og_image');
 $this->registerMetaTag(['property' => 'og:image:width', 'content' => '1200'], null, 'og_image_width');
@@ -168,14 +155,11 @@ $this->registerMetaTag(['property' => 'og:type', 'content' => 'product'], null, 
 $this->registerMetaTag(['property' => 'og:site_name', 'content' => Yii::$app->name], null, 'og_site_name');
 $this->registerMetaTag(['property' => 'og:locale', 'content' => 'ru_RU'], null, 'og_locale');
 
-// ============================================================
-// ВСПОМОГАТЕЛЬНЫЙ КОД ДЛЯ ОТЛАДКИ (можно удалить после проверки)
-// ============================================================
-
-// Выводим информацию об изображении в комментарии для отладки
 if (YII_DEBUG) {
+    echo "<!-- OG TITLE: {$ogTitle} -->\n";
     echo "<!-- IMAGE URL: {$imageFullUrl} -->\n";
     echo "<!-- AD URL: {$adUrl} -->\n";
+    echo "<!-- DESCRIPTION: {$description} -->\n";
 }
 ?>
 
@@ -236,6 +220,14 @@ if (YII_DEBUG) {
                 <div class="panel-body">
                     <h1><?= Html::encode($model->title) ?></h1>
                     
+                    <!-- ✅ Выводим краткую информацию -->
+                    <?php $shortInfo = $model->getShortInfoString(' • '); ?>
+                    <?php if (!empty($shortInfo)): ?>
+                        <div class="well well-sm" style="background: #f5f5f5; margin-bottom: 15px;">
+                            <strong>Характеристики:</strong> <?= $shortInfo ?>
+                        </div>
+                    <?php endif; ?>
+                    
                     <div class="advertisement-meta-info" style="margin-bottom: 20px;">
                         <span class="label <?= $model->section === 'sell' ? 'label-danger' : 'label-info' ?>" style="font-size: 14px;">
                             <?= $model->getSectionLabel() ?>
@@ -269,11 +261,12 @@ if (YII_DEBUG) {
                     </div>
 
                     <!-- Дополнительные поля в зависимости от типа -->
-                    <?php if ($model->type !== 'normal'): ?>
+                    <?php if ($model->type !== 'normal' && $model->getTypeObject()): ?>
                         <div class="panel panel-default" style="margin-top: 20px;">
                             <div class="panel-body">
                                 <?php if ($model->type === 'glider' && $model->glider): ?>
                                     <table class="table">
+                                        <tr><th>Тип</th><td><?= $model->getTypeLabel() ?></td></tr>
                                         <tr><th>Модель</th><td><?= Html::encode($model->glider->model) ?></td></tr>
                                         <tr><th>Производитель</th><td><?= Html::encode($model->glider->producer->fullName ?? '') ?></td></tr>
                                         <tr><th>Сертификация</th><td><?= Html::encode($model->glider->certification->name ?? '') ?></td></tr>
@@ -290,6 +283,7 @@ if (YII_DEBUG) {
                                     </table>
                                 <?php elseif ($model->type === 'harness' && $model->harness): ?>
                                     <table class="table table-bordered">
+                                        <tr><th>Тип</th><td><?= $model->getTypeLabel() ?></td></tr>
                                         <tr><th>Модель</th><td><?= Html::encode($model->harness->model) ?></td></tr>
                                         <tr><th>Производитель</th><td><?= Html::encode($model->harness->producer->fullName ?? '') ?></td></tr>
                                         <tr><th>Размер</th><td><?= Html::encode($model->harness->size) ?></td></tr>
@@ -301,6 +295,7 @@ if (YII_DEBUG) {
                                     </table>
                                 <?php elseif ($model->type === 'device' && $model->device): ?>
                                     <table class="table table-bordered">
+                                        <tr><th>Тип</th><td><?= $model->getTypeLabel() ?></td></tr>
                                         <tr><th>Модель</th><td><?= Html::encode($model->device->model) ?></td></tr>
                                         <tr><th>Производитель</th><td><?= Html::encode($model->device->producer->fullName ?? '') ?></td></tr>
                                         <tr><th>Состояние</th><td><?= Html::encode(\app\models\AdvertisementDevice::getConditionList()[$model->device->condition] ?? '') ?></td></tr>
@@ -360,7 +355,6 @@ if (YII_DEBUG) {
                         </p>
                     <?php endif; ?>
                     
-                    <!-- Telegram - берем из объявления -->
                     <?php if ($model->telegram): ?>
                         <?php 
                         $telegramUsername = ltrim($model->telegram, '@');
@@ -377,7 +371,6 @@ if (YII_DEBUG) {
                         </p>
                     <?php endif; ?>
                     
-                    <!-- VK - берем из объявления -->
                     <?php if ($model->vk_profile_url): ?>
                         <p>
                             <strong>
@@ -396,7 +389,6 @@ if (YII_DEBUG) {
                         </p>
                     <?php endif; ?>
                     
-                    <!-- WhatsApp - берем из объявления -->
                     <?php 
                     $whatsappConfigured = !empty(Yii::$app->params['whatsapp_api_key']) && 
                                           !empty(Yii::$app->params['whatsapp_api_url']) &&
@@ -414,7 +406,6 @@ if (YII_DEBUG) {
                         </p>
                     <?php endif; ?>
                     
-                    <!-- Источник (показываем для всех, если заполнено) -->
                     <?php if (!empty($model->source_url)): ?>
                         <p>
                             <strong>
@@ -441,14 +432,12 @@ if (YII_DEBUG) {
                             ?>
                             
                             <div class="btn-group-vertical" style="width: 100%;">
-                                <!-- Написать автору (внутренний диалог) -->
                                 <?= Html::a(
                                     SvgHelper::render('envelope', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать автору',
                                     ['/messages/start', 'advertisementId' => $model->id],
                                     ['class' => 'btn btn-primary btn-block']
                                 ) ?>
                                 
-                                <!-- Telegram (если есть в объявлении) -->
                                 <?php if ($telegramDialogUrl): ?>
                                     <?= Html::a(
                                         SvgHelper::render('telegram-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в Telegram',
@@ -461,7 +450,6 @@ if (YII_DEBUG) {
                                     ) ?>
                                 <?php endif; ?>
                                 
-                                <!-- VK (если есть в объявлении) -->
                                 <?php if ($vkDialogUrl): ?>
                                     <?= Html::a(
                                         SvgHelper::render('vk-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в VK',
@@ -543,7 +531,6 @@ if (YII_DEBUG) {
                                     ],
                                 ]
                             ) ?>
-                            <!-- Кнопка "Поднять" - доступна для всех владельцев -->
                             <button type="button" class="btn btn-success btn-block bump-button" data-id="<?= $model->id ?>">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
                                     <polyline points="18 15 12 9 6 15"/>
@@ -583,7 +570,6 @@ $this->registerJs("
                     } else {
                         alert(response.message);
                     }
-                    // Обновляем время
                     if (response.updated_at) {
                         $('.advertisement-meta-info .label:contains(просмотров)').before(
                             '<span class=\"label label-default\"><span class=\"glyphicon glyphicon-time\"></span> ' + response.updated_at + '</span> '
@@ -610,4 +596,3 @@ $this->registerJs("
         });
     });
 ", \yii\web\View::POS_READY);
-?>

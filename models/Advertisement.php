@@ -41,7 +41,6 @@ class Advertisement extends ActiveRecord
     {
         return [
             [['user_id', 'section'], 'required'],
-            // title - НЕ обязателен (будет генерироваться автоматически)
             [['title'], 'string', 'max' => 200],
             [['user_id', 'views_count'], 'integer'],
             [['type'], 'in', 'range' => [self::TYPE_NORMAL, self::TYPE_GLIDER, self::TYPE_HARNESS, self::TYPE_DEVICE]],
@@ -60,9 +59,6 @@ class Advertisement extends ActiveRecord
         ];
     }
     
-    /**
-     * Валидация ссылки на профиль VK
-     */
     public function validateVkProfileUrl($attribute, $params)
     {
         if (empty($this->$attribute)) {
@@ -149,16 +145,12 @@ class Advertisement extends ActiveRecord
         return $this->save(false, ['views_count']);
     }
     
-    /**
-     * Заполняет контакты из профиля пользователя
-     */
     public function fillContactsFromUser($user)
     {
         if (!$user) {
             return;
         }
         
-        // Заполняем только если поля пустые
         if (empty($this->phone) && !empty($user->phone)) {
             $this->phone = $user->phone;
         }
@@ -199,17 +191,6 @@ class Advertisement extends ActiveRecord
         return $this->hasOne(AdvertisementDevice::class, ['advertisement_id' => 'id']);
     }
 
-    public function getTypeLabel()
-    {
-        $labels = [
-            self::TYPE_NORMAL => 'Обычное',
-            self::TYPE_GLIDER => 'Параплан',
-            self::TYPE_HARNESS => 'Подвесная система',
-            self::TYPE_DEVICE => 'Прибор',
-        ];
-        return $labels[$this->type] ?? $this->type;
-    }
-
     public static function getTypeList()
     {
         return [
@@ -220,17 +201,12 @@ class Advertisement extends ActiveRecord
         ];
     }
 
-    /**
-     * Генерирует заголовок на основе типа и данных из связанных моделей
-     */
     public function generateTitle()
     {
-        // Если заголовок уже не пустой - возвращаем его (для normal)
         if (!empty($this->title) && $this->type === self::TYPE_NORMAL) {
             return $this->title;
         }
 
-        // Для типа normal используем переданный заголовок или генерируем
         if ($this->type === self::TYPE_NORMAL) {
             if (!empty($this->title)) {
                 return $this->title;
@@ -239,7 +215,6 @@ class Advertisement extends ActiveRecord
             return $sectionLabel . ' ' . ($this->type ? $this->getTypeLabel() : 'объявление');
         }
 
-        // Для типов glider/harness/device - генерируем из связанных моделей
         $modelName = '';
         $producerName = '';
 
@@ -270,7 +245,6 @@ class Advertisement extends ActiveRecord
 
         $title = implode(' ', $parts);
         
-        // Если заголовок все еще пустой, используем стандартный
         if (empty(trim($title))) {
             $sectionLabel = $this->section === self::SECTION_SELL ? 'Продам' : 'Куплю';
             $title = $sectionLabel . ' ' . ($this->type ? $this->getTypeLabel() : 'объявление');
@@ -279,13 +253,9 @@ class Advertisement extends ActiveRecord
         return $title;
     }
 
-    /**
-     * Генерирует заголовок перед сохранением, если он пустой
-     */
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            // Загружаем связанные модели, если они еще не загружены
             if ($this->type === self::TYPE_GLIDER && !$this->isRelationPopulated('glider')) {
                 $this->populateRelation('glider', $this->getGlider()->one());
             } elseif ($this->type === self::TYPE_HARNESS && !$this->isRelationPopulated('harness')) {
@@ -294,16 +264,77 @@ class Advertisement extends ActiveRecord
                 $this->populateRelation('device', $this->getDevice()->one());
             }
             
-            // Если это НЕ обычное объявление, генерируем заголовок
             if ($this->type !== self::TYPE_NORMAL) {
                 $this->title = $this->generateTitle();
-            } 
-            // Для обычных объявлений генерируем только если поле пустое
-            elseif (empty($this->title)) {
+            } elseif (empty($this->title)) {
                 $this->title = $this->generateTitle();
             }
             return true;
         }
         return false;
+    }
+
+    // ============================================================
+    // НОВЫЕ МЕТОДЫ ДЛЯ РАБОТЫ С ТИПАМИ
+    // ============================================================
+
+    /**
+     * Возвращает объект типа (glider, harness, device) или null
+     * 
+     * @return BaseAdvertisementType|null
+     */
+    public function getTypeObject()
+    {
+        switch ($this->type) {
+            case self::TYPE_GLIDER:
+                return $this->glider;
+            case self::TYPE_HARNESS:
+                return $this->harness;
+            case self::TYPE_DEVICE:
+                return $this->device;
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Возвращает краткую строку с характеристиками объявления в зависимости от типа
+     * Делегирует вызов к соответствующему объекту типа
+     * 
+     * @param string $separator Разделитель между элементами (по умолчанию ' | ')
+     * @return string
+     */
+    public function getShortInfoString($separator = ' | ')
+    {
+        $typeObject = $this->getTypeObject();
+        if ($typeObject) {
+            return $typeObject->getShortInfoString($separator);
+        }
+        return '';
+    }
+
+    /**
+     * Возвращает название типа товара
+     * Делегирует вызов к соответствующему объекту типа
+     * 
+     * @return string
+     */
+    public function getTypeLabel()
+    {
+        $typeObject = $this->getTypeObject();
+        if ($typeObject) {
+            return $typeObject->getTypeLabel();
+        }
+        return 'Обычное объявление';
+    }
+
+    /**
+     * Проверяет, есть ли у объявления объект типа
+     * 
+     * @return bool
+     */
+    public function hasTypeObject()
+    {
+        return $this->getTypeObject() !== null;
     }
 }

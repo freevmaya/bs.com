@@ -1,11 +1,12 @@
 <?php
+// FILE: .\models\AdvertisementGlider.php
 
 namespace app\models;
 
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 
-class AdvertisementGlider extends ActiveRecord
+class AdvertisementGlider extends BaseAdvertisementType
 {
     const CONDITION_NEW = 'new';
     const CONDITION_EXCELLENT = 'excellent';
@@ -28,7 +29,7 @@ class AdvertisementGlider extends ActiveRecord
     public function rules()
     {
         return [
-            [['advertisement_id', 'model'], 'required'], // producer_id больше не required
+            [['advertisement_id', 'model'], 'required'],
             [['advertisement_id', 'producer_id', 'certification_id', 'weight_min', 'weight_max', 'flight_time'], 'integer'],
             [['model', 'date_release'], 'string', 'max' => 255],
             [['defects', 'cause'], 'string'],
@@ -37,16 +38,14 @@ class AdvertisementGlider extends ActiveRecord
                 self::CONDITION_NEW, self::CONDITION_EXCELLENT, 
                 self::CONDITION_GOOD, self::CONDITION_FAIR, self::CONDITION_BAD
             ]],
-            // Валидация весовой вилки - только если оба поля заполнены
             ['weight_min', 'compare', 
                 'compareAttribute' => 'weight_max', 
                 'operator' => '<', 
                 'type' => 'number', 
                 'message' => 'Минимальный вес должен быть меньше максимального',
-                'skipOnEmpty' => true, // Пропускаем, если одно из полей пустое
+                'skipOnEmpty' => true,
             ],
             [['certification_id'], 'default', 'value' => null],
-            // Добавляем валидацию для producer_id - допускаем null
             [['producer_id'], 'default', 'value' => null],
         ];
     }
@@ -95,6 +94,51 @@ class AdvertisementGlider extends ActiveRecord
         ];
     }
     
+    /**
+     * {@inheritdoc}
+     */
+    public function getTypeLabel()
+    {
+        return 'Параплан';
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getShortInfoString($separator = ' | ')
+    {
+        $parts = [];
+        
+        if (!empty($this->model)) {
+            $parts[] = $this->model;
+        }
+        
+        $producerName = $this->getProducerName();
+        if ($producerName) {
+            $parts[] = $producerName;
+        }
+        
+        if ($this->certification) {
+            $parts[] = $this->certification->name;
+        }
+        
+        if (!empty($this->weight_min) || !empty($this->weight_max)) {
+            $min = $this->weight_min ?? '?';
+            $max = $this->weight_max ?? '?';
+            $parts[] = $min . ' - ' . $max . ' кг';
+        }
+        
+        if (!empty($this->date_release)) {
+            $parts[] = $this->date_release;
+        }
+        
+        if (!empty($this->flight_time)) {
+            $parts[] = $this->flight_time . ' ч.';
+        }
+        
+        return implode($separator, $parts);
+    }
+    
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
@@ -106,7 +150,6 @@ class AdvertisementGlider extends ActiveRecord
                 $this->certification_id = null;
             }
             
-            // Обрабатываем producer_id
             if ($this->producer_id === '') {
                 $this->producer_id = null;
             }

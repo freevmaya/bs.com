@@ -1,11 +1,12 @@
 <?php
+// FILE: .\models\AdvertisementDevice.php
 
 namespace app\models;
 
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 
-class AdvertisementDevice extends ActiveRecord
+class AdvertisementDevice extends BaseAdvertisementType
 {
     const CONDITION_NEW = 'new';
     const CONDITION_EXCELLENT = 'excellent';
@@ -28,7 +29,7 @@ class AdvertisementDevice extends ActiveRecord
     public function rules()
     {
         return [
-            [['advertisement_id', 'model'], 'required'], // producer_id больше не required
+            [['advertisement_id', 'model'], 'required'],
             [['advertisement_id', 'producer_id'], 'integer'],
             [['model'], 'string', 'max' => 255],
             [['defects'], 'string'],
@@ -37,7 +38,6 @@ class AdvertisementDevice extends ActiveRecord
                 self::CONDITION_NEW, self::CONDITION_EXCELLENT, 
                 self::CONDITION_GOOD, self::CONDITION_FAIR, self::CONDITION_BAD
             ]],
-            // Добавляем валидацию для producer_id - допускаем null
             [['producer_id'], 'default', 'value' => null],
         ];
     }
@@ -75,6 +75,33 @@ class AdvertisementDevice extends ActiveRecord
         ];
     }
     
+    /**
+     * {@inheritdoc}
+     */
+    public function getTypeLabel()
+    {
+        return 'Прибор';
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getShortInfoString($separator = ' | ')
+    {
+        $parts = [];
+        
+        if (!empty($this->model)) {
+            $parts[] = $this->model;
+        }
+        
+        $producerName = $this->getProducerName();
+        if ($producerName) {
+            $parts[] = $producerName;
+        }
+        
+        return implode($separator, $parts);
+    }
+    
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
@@ -82,7 +109,6 @@ class AdvertisementDevice extends ActiveRecord
                 $this->condition = self::CONDITION_GOOD;
             }
             
-            // Обрабатываем producer_id
             if ($this->producer_id === '') {
                 $this->producer_id = null;
             }

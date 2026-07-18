@@ -10,9 +10,7 @@ if ($model->price_negotiable) {
     $priceText .= ' (договорная)';
 }
 
-// ✅ Используем уже загруженные изображения
 $images = $model->images;
-// Ограничиваем до 5 для отображения
 if (count($images) > 5) {
     $images = array_slice($images, 0, 5);
 }
@@ -20,49 +18,8 @@ $imagesCount = count($images);
 
 $link = Url::toRoute(['advertisements/view', 'id' => $model->id]);
 
-// Собираем краткую информацию в зависимости от типа
-$shortInfo = [];
-if ($model->type === 'glider' && $model->glider) {
-    if (!empty($model->glider->model)) {
-        $shortInfo[] = 'Модель: ' . Html::encode($model->glider->model);
-    }
-    if (!empty($model->glider->producer)) {
-        $shortInfo[] = 'Производитель: ' . Html::encode($model->glider->producer->short ?? $model->glider->producer->name);
-    }
-    if (!empty($model->glider->certification)) {
-        $shortInfo[] = 'Сертификация: ' . Html::encode($model->glider->certification->name);
-    }
-    if (!empty($model->glider->weight_min) || !empty($model->glider->weight_max)) {
-        $shortInfo[] = 'Вес: ' . ($model->glider->weight_min ?? '?') . ' - ' . ($model->glider->weight_max ?? '?') . ' кг';
-    }
-    if (!empty($model->glider->date_release)) {
-        $shortInfo[] = 'Год выпуска: ' . Html::encode($model->glider->date_release);
-    }
-    if (!empty($model->glider->flight_time)) {
-        $shortInfo[] = 'Налёт: ' . $model->glider->flight_time . ' ч.';
-    }
-} elseif ($model->type === 'harness' && $model->harness) {
-    if (!empty($model->harness->model)) {
-        $shortInfo[] = 'Модель: ' . Html::encode($model->harness->model);
-    }
-    if (!empty($model->harness->producer)) {
-        $shortInfo[] = 'Производитель: ' . Html::encode($model->harness->producer->short ?? $model->harness->producer->name);
-    }
-    if (!empty($model->harness->size)) {
-        $shortInfo[] = 'Размер: ' . Html::encode($model->harness->size);
-    }
-    if (!empty($model->harness->date_release)) {
-        $shortInfo[] = 'Год выпуска: ' . Html::encode($model->harness->date_release);
-    }
-} elseif ($model->type === 'device' && $model->device) {
-    if (!empty($model->device->model)) {
-        $shortInfo[] = 'Модель: ' . Html::encode($model->device->model);
-    }
-    if (!empty($model->device->producer)) {
-        $shortInfo[] = 'Производитель: ' . Html::encode($model->device->producer->short ?? $model->device->producer->name);
-    }
-}
-$shortInfoString = implode(' | ', $shortInfo);
+// ✅ Используем метод getShortInfoString() который делегирует к типу
+$shortInfoString = $model->getShortInfoString(' | ');
 ?>
 
 <div class="media advertisement-item" data-advertisement-id="<?= $model->id ?>">
