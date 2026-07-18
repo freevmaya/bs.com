@@ -529,6 +529,41 @@ if (YII_DEBUG) {
                                 </svg>
                                 Поднять
                             </button>
+                            
+                            <?php if ($isAdmin): ?>
+                                <hr>
+                                <!-- Кнопка "Сделать ссылку" (только для админов) -->
+                                <button type="button" class="btn btn-block generate-invitation-btn" data-id="<?= $model->id ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                    </svg>
+                                    Сделать ссылку
+                                </button>
+                                
+                                <!-- Блок для отображения ссылки -->
+                                <div id="invitation-link-container" style="display: none; margin-top: 10px;">
+                                    <div class="alert alert-success">
+                                        <strong>Ссылка для передачи объявления:</strong>
+                                        <div class="input-group" style="margin-top: 8px;">
+                                            <input type="text" id="invitation-link-input" class="form-control" readonly>
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-info" id="copy-invitation-link">
+                                                    <span class="glyphicon glyphicon-copy"></span> Копировать
+                                                </button>
+                                            </span>
+                                        </div>
+                                        <small class="text-muted" style="display: block; margin-top: 5px;">
+                                            <span class="glyphicon glyphicon-info-sign"></span>
+                                            Ссылка действительна 7 дней. После перехода по ссылке и регистрации, пользователь станет владельцем объявления.
+                                        </small>
+                                        <small class="text-muted" style="display: block; margin-top: 2px;">
+                                            <span class="glyphicon glyphicon-time"></span>
+                                            Действительна до: <span id="invitation-expires"></span>
+                                        </small>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -587,4 +622,83 @@ $this->registerJs("
             }
         });
     });
-", \yii\web\View::POS_READY);
+");
+
+// JS для кнопки "Сделать ссылку"
+if ($isAdmin):
+$this->registerJs("
+    $(document).on('click', '.generate-invitation-btn', function() {
+        var button = $(this);
+        var id = button.data('id');
+        var container = $('#invitation-link-container');
+        var input = $('#invitation-link-input');
+        var expires = $('#invitation-expires');
+        
+        button.prop('disabled', true).html('<span class=\"spinner-border spinner-border-sm\" role=\"status\"></span> Генерация...');
+        
+        $.ajax({
+            url: '" . \yii\helpers\Url::to(['advertisements/generate-invitation-link']) . "',
+            type: 'POST',
+            data: {
+                id: id,
+                _csrf: '" . Yii::$app->request->csrfToken . "'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    input.val(response.link);
+                    expires.text(response.expires_at);
+                    container.show();
+                    // Прокручиваем к контейнеру
+                    $('html, body').animate({
+                        scrollTop: container.offset().top - 20
+                    }, 300);
+                    
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification(response.message, 'success');
+                    } else {
+                        alert(response.message);
+                    }
+                } else {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification(response.error || 'Ошибка при создании ссылки', 'danger');
+                    } else {
+                        alert(response.error || 'Ошибка при создании ссылки');
+                    }
+                }
+            },
+            error: function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification('Ошибка соединения с сервером', 'danger');
+                } else {
+                    alert('Ошибка соединения с сервером');
+                }
+            },
+            complete: function() {
+                button.prop('disabled', false).html(
+                    '<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"margin-right: 6px;\"><path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"/><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"/></svg> Сделать ссылку'
+                );
+            }
+        });
+    });
+    
+    // Копирование ссылки
+    $(document).on('click', '#copy-invitation-link', function() {
+        var input = $('#invitation-link-input');
+        input.select();
+        document.execCommand('copy');
+        
+        var btn = $(this);
+        var originalText = btn.html();
+        btn.html('<span class=\"glyphicon glyphicon-ok\"></span> Скопировано!');
+        
+        setTimeout(function() {
+            btn.html(originalText);
+        }, 2000);
+        
+        if (typeof window.showNotification === 'function') {
+            window.showNotification('Ссылка скопирована в буфер обмена', 'success');
+        }
+    });
+");
+endif;

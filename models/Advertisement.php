@@ -42,32 +42,22 @@ class Advertisement extends ActiveRecord
         return [
             [['user_id', 'section'], 'required'],
             [['title'], 'string', 'max' => 200],
-            [['user_id', 'views_count'], 'integer'],
+            [['user_id', 'views_count', 'invitation_token_created_at'], 'integer'],
             [['type'], 'in', 'range' => [self::TYPE_NORMAL, self::TYPE_GLIDER, self::TYPE_HARNESS, self::TYPE_DEVICE]],
             [['price'], 'number', 'min' => 0],
             [['price_negotiable'], 'boolean'],
             [['description'], 'string'],
             [['section'], 'in', 'range' => [self::SECTION_SELL, self::SECTION_BUY]],
             [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_MODERATION, self::STATUS_CLOSED]],
-            [['city', 'phone', 'email', 'telegram', 'vk_profile_url', 'whatsapp', 'source_url'], 'string', 'max' => 255],
+            [['city', 'phone', 'email', 'telegram', 'vk_profile_url', 'whatsapp', 'source_url', 'invitation_token'], 'string', 'max' => 255],
             [['email'], 'email'],
             [['phone'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]*$/', 'message' => 'Телефон может содержать только цифры, пробелы, +, (, ), -'],
             [['telegram'], 'match', 'pattern' => '/^@?[a-zA-Z0-9_]{5,32}$/', 'message' => 'Введите корректный username Telegram (например: @username или username)'],
             [['vk_profile_url'], 'validateVkProfileUrl'],
             [['whatsapp'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]{5,20}$/', 'message' => 'Введите корректный номер WhatsApp'],
             [['source_url'], 'url', 'message' => 'Введите корректный URL (например: https://example.com)'],
+            [['invitation_token'], 'unique', 'message' => 'Этот токен уже используется'],
         ];
-    }
-    
-    public function validateVkProfileUrl($attribute, $params)
-    {
-        if (empty($this->$attribute)) {
-            return;
-        }
-        
-        if (!preg_match('/^https?:\/\/(?:www\.)?vk\.com\/(?:id\d+|[\w\.]+)$/i', $this->$attribute)) {
-            $this->addError($attribute, 'Введите корректную ссылку на профиль VK (например: https://vk.com/durov)');
-        }
     }
     
     public function attributeLabels()
@@ -92,6 +82,8 @@ class Advertisement extends ActiveRecord
             'views_count' => 'Просмотры',
             'created_at' => 'Создано',
             'updated_at' => 'Обновлено',
+            'invitation_token' => 'Токен приглашения',
+            'invitation_token_created_at' => 'Дата создания токена',
         ];
     }
     
@@ -336,5 +328,77 @@ class Advertisement extends ActiveRecord
     public function hasTypeObject()
     {
         return $this->getTypeObject() !== null;
+    }
+
+    // ============================================================
+    // МЕТОДЫ ДЛЯ РАБОТЫ С ПРИГЛАШЕНИЯМИ
+    // ============================================================
+
+    /**
+     * Генерирует новый токен приглашения
+     * 
+     * @return string Сгенерированный GUID
+     */
+    public function generateInvitationToken()
+    {
+        $this->invitation_token = $this->generateGUID();
+        $this->invitation_token_created_at = time();
+        return $this->invitation_token;
+    }
+
+    /**
+     * Генерирует GUID (UUID v4)
+     * 
+     * @return string
+     */
+    private function generateGUID()
+    {
+        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        );
+    }
+
+    /**
+     * Проверяет, действителен ли токен приглашения
+     * Токен действителен 7 дней (604800 секунд)
+     * 
+     * @return bool
+     */
+    public function isInvitationTokenValid()
+    {
+        if (empty($this->invitation_token) || empty($this->invitation_token_created_at)) {
+            return false;
+        }
+        // Токен действителен 7 дней
+        return (time() - $this->invitation_token_created_at) < 7 * 24 * 60 * 60;
+    }
+
+    /**
+     * Очищает токен приглашения
+     */
+    public function clearInvitationToken()
+    {
+        $this->invitation_token = null;
+        $this->invitation_token_created_at = null;
+    }
+
+    /**
+     * Получить ссылку-приглашение
+     * 
+     * @return string|null URL ссылки или null если токен не сгенерирован
+     */
+    public function getInvitationLink()
+    {
+        if (empty($this->invitation_token)) {
+            return null;
+        }
+        return Yii::$app->urlManager->createAbsoluteUrl([
+            'site/register-invitation',
+            'token' => $this->invitation_token
+        ]);
     }
 }

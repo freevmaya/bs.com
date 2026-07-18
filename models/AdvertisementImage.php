@@ -55,6 +55,8 @@ class AdvertisementImage extends ActiveRecord
                 'tooBig' => 'Размер файла не должен превышать '.self::MAX_VIDEO_SIZE_MGB.' MB',
                 'checkExtensionByMimeType' => false,
             ],
+            [['invitation_token'], 'string', 'max' => 36],
+            [['invitation_token_created_at'], 'integer'],
         ];
     }
     
@@ -69,6 +71,8 @@ class AdvertisementImage extends ActiveRecord
             'file_type' => 'Тип файла',
             'sort_order' => 'Порядок сортировки',
             'created_at' => 'Создано',
+            'invitation_token' => 'Токен приглашения',
+            'invitation_token_created_at' => 'Дата создания токена',
         ];
     }
     
@@ -526,5 +530,32 @@ class AdvertisementImage extends ActiveRecord
             return true;
         }
         return false;
+    }
+
+    public function generateInvitationToken()
+    {
+        $this->invitation_token = $this->generateGUID();
+        $this->invitation_token_created_at = time();
+        return $this->invitation_token;
+    }
+
+    private function generateGUID()
+    {
+        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        );
+    }
+
+    public function isInvitationTokenValid()
+    {
+        if (empty($this->invitation_token) || empty($this->invitation_token_created_at)) {
+            return false;
+        }
+        // Токен действителен 7 дней
+        return (time() - $this->invitation_token_created_at) < 7 * 24 * 60 * 60;
     }
 }

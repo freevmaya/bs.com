@@ -48,6 +48,7 @@ class User extends ActiveRecord implements IdentityInterface
             [['whatsapp'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]{5,20}$/', 'message' => 'Введите корректный номер WhatsApp'],
             [['password'], 'string', 'min' => 6, 'on' => 'register'],
             [['password_repeat'], 'compare', 'compareAttribute' => 'password', 'on' => 'register'],
+            [['invitation_token'], 'safe'],
         ];
     }
     

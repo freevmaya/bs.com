@@ -1163,4 +1163,52 @@ class AdvertisementsController extends Controller
         // Удаляем 4-байтовые символы (эмодзи)
         return preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $html);
     }
+
+    /**
+     * Создание ссылки-приглашения для передачи объявления
+     */
+    public function actionGenerateInvitationLink()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        // Проверяем права: только админ
+        $user = Yii::$app->user->identity;
+        if (!$user || !$user->isAdmin()) {
+            return ['success' => false, 'error' => 'У вас нет прав для этого действия'];
+        }
+
+        // Получаем ID из POST
+        $id = Yii::$app->request->post('id');
+        
+        if (!$id) {
+            return ['success' => false, 'error' => 'Не указан ID объявления'];
+        }
+        
+        $model = $this->findModel($id);
+        
+        // Проверяем, что объявление активно
+        if ($model->status !== Advertisement::STATUS_ACTIVE) {
+            return ['success' => false, 'error' => 'Объявление должно быть активным'];
+        }
+        
+        // Генерируем новый токен
+        $model->generateInvitationToken();
+        
+        if ($model->save(false, ['invitation_token', 'invitation_token_created_at'])) {
+            $link = Yii::$app->urlManager->createAbsoluteUrl([
+                'site/register-invitation',
+                'token' => $model->invitation_token
+            ]);
+            
+            return [
+                'success' => true,
+                'link' => $link,
+                'token' => $model->invitation_token,
+                'expires_at' => date('d.m.Y H:i', $model->invitation_token_created_at + 7 * 24 * 60 * 60),
+                'message' => 'Ссылка создана! Действительна 7 дней.'
+            ];
+        }
+        
+        return ['success' => false, 'error' => 'Ошибка при создании ссылки'];
+    }
 }
