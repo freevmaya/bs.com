@@ -13,8 +13,8 @@ class AdvertisementImage extends ActiveRecord
 {
     const IMAGE_WIDTH = 1200;
     const IMAGE_HEIGHT = 1200;
-    const THUMBNAIL_WIDTH = 200;
-    const THUMBNAIL_HEIGHT = 200;
+    const THUMBNAIL_WIDTH = 300;
+    const THUMBNAIL_HEIGHT = 300;
     const QUALITY = 85;
     const MAX_VIDEO_SIZE_MGB = 100;
     const MAX_VIDEO_SIZE = self::MAX_VIDEO_SIZE_MGB * 1024 * 1024; // 100 MB
