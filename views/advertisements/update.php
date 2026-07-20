@@ -123,12 +123,13 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
                             'maxlength' => true,
                             'placeholder' => 'https://example.com/original',
                         ])->hint('Ссылка на источник объявления (доступно только администраторам)') ?>
-                        
-                        <?= $form->field($model, 'item_info_link')->textInput([
-                            'maxlength' => true,
-                            'placeholder' => 'https://example.com/product-info',
-                        ])->hint('Ссылка на страницу с информацией о товаре от производителя (доступно только администраторам)') ?>
                     <?php endif; ?>
+                    
+                        
+                    <?= $form->field($model, 'item_info_link')->textInput([
+                        'maxlength' => true,
+                        'placeholder' => 'https://example.com/product-info',
+                    ])->hint('Ссылка на страницу с информацией о товаре от производителя') ?>
                     
                     <div class="form-group">
                         <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary']) ?>
