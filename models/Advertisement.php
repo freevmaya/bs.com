@@ -49,14 +49,13 @@ class Advertisement extends ActiveRecord
             [['description'], 'string'],
             [['section'], 'in', 'range' => [self::SECTION_SELL, self::SECTION_BUY]],
             [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_MODERATION, self::STATUS_CLOSED]],
-            [['city', 'phone', 'email', 'telegram', 'vk_profile_url', 'whatsapp', 'source_url', 'invitation_token'], 'string', 'max' => 255],
+            [['city', 'phone', 'email', 'telegram', 'vk_profile_url', 'whatsapp', 'source_url', 'invitation_token', 'item_info_link'], 'string', 'max' => 500],
             [['email'], 'email'],
             [['phone'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]*$/', 'message' => 'Телефон может содержать только цифры, пробелы, +, (, ), -'],
             [['telegram'], 'match', 'pattern' => '/^@?[a-zA-Z0-9_]{5,32}$/', 'message' => 'Введите корректный username Telegram (например: @username или username)'],
-            // ИСПРАВЛЕНО: добавляем skipOnEmpty => true и указываем, что это метод валидации
             [['vk_profile_url'], 'validateVkProfileUrl', 'skipOnEmpty' => true],
             [['whatsapp'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]{5,20}$/', 'message' => 'Введите корректный номер WhatsApp'],
-            [['source_url'], 'url', 'message' => 'Введите корректный URL (например: https://example.com)'],
+            [['source_url', 'item_info_link'], 'url', 'message' => 'Введите корректный URL (например: https://example.com)'],
             [['invitation_token'], 'unique', 'message' => 'Этот токен уже используется'],
         ];
     }
@@ -79,6 +78,7 @@ class Advertisement extends ActiveRecord
             'vk_profile_url' => 'VK профиль',
             'whatsapp' => 'WhatsApp',
             'source_url' => 'Источник (URL)',
+            'item_info_link' => 'Ссылка на информацию о товаре',
             'status' => 'Статус',
             'views_count' => 'Просмотры',
             'created_at' => 'Создано',
@@ -416,5 +416,15 @@ class Advertisement extends ActiveRecord
             'site/register-invitation',
             'token' => $this->invitation_token
         ]);
+    }
+
+    /**
+     * Получить ссылку на информацию о товаре
+     * 
+     * @return string|null
+     */
+    public function getItemInfoLink()
+    {
+        return $this->item_info_link;
     }
 }

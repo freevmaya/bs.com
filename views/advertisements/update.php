@@ -62,7 +62,7 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
                     </div>
                     
                     <!-- ============================================ -->
-                    <!-- ДИНАМИЧЕСКИЕ ПОЛЯ ДЛЯ РАЗНЫХ ТИПОВ (ПЕРЕМЕЩЕНЫ ВЫШЕ) -->
+                    <!-- ДИНАМИЧЕСКИЕ ПОЛЯ ДЛЯ РАЗНЫХ ТИПОВ -->
                     <!-- ============================================ -->
                     <div id="glider-fields" style="display: <?= $model->type === 'glider' ? 'block' : 'none' ?>;">
                         <?= $this->render('_glider_fields', [
@@ -86,7 +86,7 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
                     </div>
                     
                     <!-- ============================================ -->
-                    <!-- КОНТАКТНАЯ ИНФОРМАЦИЯ (ПЕРЕМЕЩЕНА НИЖЕ) -->
+                    <!-- КОНТАКТНАЯ ИНФОРМАЦИЯ -->
                     <!-- ============================================ -->
                     <hr>
                     <p class="text-muted"><small>Контактная информация</small></p>
@@ -117,12 +117,17 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
                         'placeholder' => 'https://vk.com/durov',
                     ])->hint('Ссылка на профиль VK') ?>
                     
-                    <!-- Поле source_url - показываем только администраторам -->
+                    <!-- Поля доступные только администраторам -->
                     <?php if ($isAdmin): ?>
                         <?= $form->field($model, 'source_url')->textInput([
                             'maxlength' => true,
                             'placeholder' => 'https://example.com/original',
                         ])->hint('Ссылка на источник объявления (доступно только администраторам)') ?>
+                        
+                        <?= $form->field($model, 'item_info_link')->textInput([
+                            'maxlength' => true,
+                            'placeholder' => 'https://example.com/product-info',
+                        ])->hint('Ссылка на страницу с информацией о товаре от производителя (доступно только администраторам)') ?>
                     <?php endif; ?>
                     
                     <div class="form-group">
