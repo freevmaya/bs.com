@@ -47,6 +47,7 @@ class AdvertisementImage extends ActiveRecord
             [['advertisement_id'], 'required'],
             [['advertisement_id', 'sort_order'], 'integer'],
             [['file_name', 'file_path', 'thumbnail_path', 'file_type'], 'string', 'max' => 500],
+            // УДАЛЕНЫ строки с invitation_token и invitation_token_created_at
             // imageFile валидируется отдельно, без обязательных полей
             [['imageFile'], 'file', 
                 'skipOnEmpty' => true, 
@@ -55,8 +56,6 @@ class AdvertisementImage extends ActiveRecord
                 'tooBig' => 'Размер файла не должен превышать '.self::MAX_VIDEO_SIZE_MGB.' MB',
                 'checkExtensionByMimeType' => false,
             ],
-            [['invitation_token'], 'string', 'max' => 36],
-            [['invitation_token_created_at'], 'integer'],
         ];
     }
     
@@ -71,8 +70,6 @@ class AdvertisementImage extends ActiveRecord
             'file_type' => 'Тип файла',
             'sort_order' => 'Порядок сортировки',
             'created_at' => 'Создано',
-            'invitation_token' => 'Токен приглашения',
-            'invitation_token_created_at' => 'Дата создания токена',
         ];
     }
     
@@ -315,24 +312,6 @@ class AdvertisementImage extends ActiveRecord
         // Пробуем создать миниатюру через FFmpeg
         $width = self::THUMBNAIL_WIDTH;  // 200
         $height = self::THUMBNAIL_HEIGHT; // 200
-        /*
-        
-        // Вариант 1: Сохранить пропорции, добавить черные полосы (letterbox)
-        $command = $ffmpegPath . ' -i ' . escapeshellarg($videoPath) .
-                   ' -ss 00:00:01 -vframes 1 ' .
-                   '-vf "scale=' . $width . ':' . $height . ':' .
-                   'force_original_aspect_ratio=decrease,' .
-                   'pad=' . $width . ':' . $height . ':(ow-iw)/2:(oh-ih)/2" ' .
-                   '-f image2 ' . escapeshellarg($thumbnailPath) . ' 2>&1';
-        
-        // Вариант 2: Обрезать до квадрата (cover) - БЕЗ ИСКАЖЕНИЙ
-        $command = $ffmpegPath . ' -i ' . escapeshellarg($videoPath) .
-                   ' -ss 00:00:01 -vframes 1 ' .
-                   '-vf "scale=' . $width . ':' . $height . ':' .
-                   'force_original_aspect_ratio=increase,' .
-                   'crop=' . $width . ':' . $height . '" ' .
-                   '-f image2 ' . escapeshellarg($thumbnailPath) . ' 2>&1';
-        */
         
         // Вариант 3: Простое масштабирование с сохранением пропорций
         $command = $ffmpegPath . ' -i ' . escapeshellarg($videoPath) .
@@ -531,31 +510,6 @@ class AdvertisementImage extends ActiveRecord
         }
         return false;
     }
-
-    public function generateInvitationToken()
-    {
-        $this->invitation_token = $this->generateGUID();
-        $this->invitation_token_created_at = time();
-        return $this->invitation_token;
-    }
-
-    private function generateGUID()
-    {
-        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-            mt_rand(0, 0xffff),
-            mt_rand(0, 0x0fff) | 0x4000,
-            mt_rand(0, 0x3fff) | 0x8000,
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
-        );
-    }
-
-    public function isInvitationTokenValid()
-    {
-        if (empty($this->invitation_token) || empty($this->invitation_token_created_at)) {
-            return false;
-        }
-        // Токен действителен 7 дней
-        return (time() - $this->invitation_token_created_at) < 7 * 24 * 60 * 60;
-    }
+    
+    // УДАЛЕНЫ МЕТОДЫ generateInvitationToken(), generateGUID(), isInvitationTokenValid()
 }
