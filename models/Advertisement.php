@@ -53,7 +53,8 @@ class Advertisement extends ActiveRecord
             [['email'], 'email'],
             [['phone'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]*$/', 'message' => 'Телефон может содержать только цифры, пробелы, +, (, ), -'],
             [['telegram'], 'match', 'pattern' => '/^@?[a-zA-Z0-9_]{5,32}$/', 'message' => 'Введите корректный username Telegram (например: @username или username)'],
-            [['vk_profile_url'], 'validateVkProfileUrl'],
+            // ИСПРАВЛЕНО: добавляем skipOnEmpty => true и указываем, что это метод валидации
+            [['vk_profile_url'], 'validateVkProfileUrl', 'skipOnEmpty' => true],
             [['whatsapp'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]{5,20}$/', 'message' => 'Введите корректный номер WhatsApp'],
             [['source_url'], 'url', 'message' => 'Введите корректный URL (например: https://example.com)'],
             [['invitation_token'], 'unique', 'message' => 'Этот токен уже используется'],
@@ -85,6 +86,21 @@ class Advertisement extends ActiveRecord
             'invitation_token' => 'Токен приглашения',
             'invitation_token_created_at' => 'Дата создания токена',
         ];
+    }
+    
+    /**
+     * Валидация ссылки на профиль VK
+     */
+    public function validateVkProfileUrl($attribute, $params)
+    {
+        if (empty($this->$attribute)) {
+            return;
+        }
+        
+        // Проверяем, что ссылка ведет на VK
+        if (!preg_match('/^https?:\/\/(?:www\.)?vk\.com\/(?:id\d+|[\w\.]+)$/i', $this->$attribute)) {
+            $this->addError($attribute, 'Введите корректную ссылку на профиль VK (например: https://vk.com/durov)');
+        }
     }
     
     public function getUser()
