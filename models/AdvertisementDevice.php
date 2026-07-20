@@ -86,7 +86,7 @@ class AdvertisementDevice extends BaseAdvertisementType
     /**
      * {@inheritdoc}
      */
-    public function getShortInfoString($separator = ' | ')
+    public function getShortInfoString($separator = ' | ', $baseInfo = true)
     {
         $parts = [];
         

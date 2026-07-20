@@ -19,7 +19,7 @@ $imagesCount = count($images);
 $link = Url::toRoute(['advertisements/view', 'id' => $model->id]);
 
 // ✅ Используем метод getShortInfoString() который делегирует к типу
-$shortInfoString = $model->getShortInfoString(' | ');
+$shortInfoString = $model->getShortInfoString(', ', false);
 ?>
 
 <div class="media advertisement-item" data-advertisement-id="<?= $model->id ?>">
@@ -41,7 +41,17 @@ $shortInfoString = $model->getShortInfoString(' | ');
                 <?= Html::encode($model->title) ?>
             </h4>
             
-            <p style="margin-bottom: 8px;"><?= Html::encode(StringHelper::truncate($model->description, 120)) ?></p>
+            <div class="advertisement-meta">
+                <span class="glyphicon glyphicon-tag"></span> <strong><?= $priceText ?></strong>
+                <?php if ($model->city): ?>
+                    , <span class="glyphicon glyphicon-map-marker"></span> <?= Html::encode($model->city) ?>
+                <?php endif; ?>
+                , <span class="glyphicon glyphicon-time"></span> <?= Yii::$app->formatter->asDate($model->created_at) ?>
+                , <span class="glyphicon glyphicon-eye-open"></span> <?= $model->views_count ?>
+                <?php if ($imagesCount > 0): ?>
+                    , <span class="glyphicon glyphicon-picture"></span> <?= $imagesCount ?>
+                <?php endif; ?>
+            </div>
             
             <?php if (!empty($shortInfoString)): ?>
                 <div class="preview">
@@ -49,17 +59,7 @@ $shortInfoString = $model->getShortInfoString(' | ');
                 </div>
             <?php endif; ?>
             
-            <div class="advertisement-meta">
-                <span class="glyphicon glyphicon-tag"></span> <strong><?= $priceText ?></strong>
-                <?php if ($model->city): ?>
-                    | <span class="glyphicon glyphicon-map-marker"></span> <?= Html::encode($model->city) ?>
-                <?php endif; ?>
-                | <span class="glyphicon glyphicon-time"></span> <?= Yii::$app->formatter->asDate($model->created_at) ?>
-                | <span class="glyphicon glyphicon-eye-open"></span> <?= $model->views_count ?>
-                <?php if ($imagesCount > 0): ?>
-                    | <span class="glyphicon glyphicon-picture"></span> <?= $imagesCount ?>
-                <?php endif; ?>
-            </div>
+            <p style="margin-bottom: 8px;"><?= Html::encode(StringHelper::truncate($model->description, 120)) ?></p>
         </a>
     </div>
 </div>
