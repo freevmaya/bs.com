@@ -37,7 +37,7 @@ $shortInfoString = $model->getShortInfoString(', ', false);
     <?php endif; ?>
     
     <div class="media-body" style="display: flex; flex-direction: column; height: 100%;">
-        <a href="<?= $link ?>" style="text-decoration: none; color: inherit; flex: 1; display: flex; flex-direction: column; width: 100%;">
+        <a href="<?= $link ?>" class="item-link">
             <div style="flex: 1;">
                 <h4 class="media-heading" style="margin-top: 0;">
                     <?= Html::encode($model->title) ?>

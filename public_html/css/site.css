@@ -639,6 +639,19 @@ thead, tbody, tfoot, tr, td, th {
     height: 100%;
 }
 
+.item-link {
+    text-decoration: none; 
+    color: inherit; 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    width: 100%;
+}
+
+.item-link:hover {
+    text-decoration: none !important;
+}
+
 .list-view .media:hover {
     background: #283939;
 }
