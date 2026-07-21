@@ -36,27 +36,31 @@ $shortInfoString = $model->getShortInfoString(', ', false);
     </div>
     <?php endif; ?>
     
-    <div class="media-body">
-        <a href="<?= $link ?>" style="text-decoration: none; color: inherit;">
-            <h4 class="media-heading" style="margin-top: 0;">
-                <?= Html::encode($model->title) ?>
-            </h4>
-            
-            <div class="advertisement-meta">
-                <span class="glyphicon glyphicon-tag"></span> <strong><?= $priceText ?></strong>
-                <?php if ($model->city): ?>, <?= Html::encode($model->city) ?>
-                <?php endif; ?>, <?= SvgHelper::render('eye', ['width' => 16, 'height' => 16, 'class' => 'svg-icon']) ?> <?= $model->views_count ?>
+    <div class="media-body" style="display: flex; flex-direction: column; height: 100%;">
+        <a href="<?= $link ?>" style="text-decoration: none; color: inherit; flex: 1; display: flex; flex-direction: column; width: 100%;">
+            <div style="flex: 1;">
+                <h4 class="media-heading" style="margin-top: 0;">
+                    <?= Html::encode($model->title) ?>
+                </h4>
+                
+                <div class="advertisement-meta">
+                    <span class="glyphicon glyphicon-tag"></span> <strong><?= $priceText ?></strong>
+                    <?php if ($model->city): ?>, <?= Html::encode($model->city) ?>
+                    <?php endif; ?>, <?= SvgHelper::render('eye', ['width' => 16, 'height' => 16, 'class' => 'svg-icon']) ?> <?= $model->views_count ?>
+                </div>
+                
+                <?php if (!empty($shortInfoString)): ?>
+                    <div class="preview">
+                        <?= $shortInfoString ?>
+                    </div>
+                <?php endif; ?>
+                
+                <p style="margin-bottom: 8px;"><?= Html::encode(StringHelper::truncate($model->description, 120)) ?></p>
             </div>
             
-            <?php if (!empty($shortInfoString)): ?>
-                <div class="preview">
-                    <?= $shortInfoString ?>
-                </div>
-            <?php endif; ?>
-            
-            <p style="margin-bottom: 8px;"><?= Html::encode(StringHelper::truncate($model->description, 120)) ?></p>              
+            <div style="margin-top: auto; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: #6c757d;">
+                <?= Yii::$app->formatter->asDate($model->created_at) ?>
+            </div>
         </a>
-    </div>
-    <div><?= Yii::$app->formatter->asDate($model->created_at) ?>
     </div>
 </div>
