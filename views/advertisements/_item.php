@@ -54,9 +54,9 @@ $shortInfoString = $model->getShortInfoString(', ', false);
                 </div>
             <?php endif; ?>
             
-            <p style="margin-bottom: 8px;"><?= Html::encode(StringHelper::truncate($model->description, 120)) ?></p>
-            <?= Yii::$app->formatter->asDate($model->created_at) ?>
-                
+            <p style="margin-bottom: 8px;"><?= Html::encode(StringHelper::truncate($model->description, 120)) ?></p>              
         </a>
+    </div>
+    <div><?= Yii::$app->formatter->asDate($model->created_at) ?>
     </div>
 </div>

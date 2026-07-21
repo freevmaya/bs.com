@@ -636,6 +636,7 @@ thead, tbody, tfoot, tr, td, th {
     padding: 1rem;
     text-decoration: none;
     margin-bottom: 20px;
+    height: 100%;
 }
 
 .list-view .media:hover {
