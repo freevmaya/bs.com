@@ -143,6 +143,7 @@ $this->registerJsFile('@web/js/carousel.js', [
 ]);
 
 $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
+$isAuthorAdmin = $model->user && $model->user->isAdmin();
 
 // Дублируем мета-теги для отладки
 $this->registerMetaTag(['property' => 'og:title', 'content' => $ogTitle], null, 'og_title');
@@ -483,7 +484,7 @@ if (YII_DEBUG) {
             </div>
             
             <!-- Информация об авторе -->
-            <?php if ($model->user): ?>
+            <?php if ($model->user && !$isAuthorAdmin): ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
