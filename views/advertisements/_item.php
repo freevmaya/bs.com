@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\StringHelper;
 use yii\helpers\Url;
+use app\helpers\SvgHelper;
 use app\widgets\ImageGridPreview;
 
 $priceText = $model->price ? number_format($model->price, 0, '.', ' ') . ' ₽' : 'Цена не указана';
@@ -43,14 +44,8 @@ $shortInfoString = $model->getShortInfoString(', ', false);
             
             <div class="advertisement-meta">
                 <span class="glyphicon glyphicon-tag"></span> <strong><?= $priceText ?></strong>
-                <?php if ($model->city): ?>
-                    , <span class="glyphicon glyphicon-map-marker"></span> <?= Html::encode($model->city) ?>
-                <?php endif; ?>
-                , <span class="glyphicon glyphicon-time"></span> <?= Yii::$app->formatter->asDate($model->created_at) ?>
-                , <span class="glyphicon glyphicon-eye-open"></span> <?= $model->views_count ?>
-                <?php if ($imagesCount > 0): ?>
-                    , <span class="glyphicon glyphicon-picture"></span> <?= $imagesCount ?>
-                <?php endif; ?>
+                <?php if ($model->city): ?>, <?= Html::encode($model->city) ?>
+                <?php endif; ?>, <?= SvgHelper::render('eye', ['width' => 16, 'height' => 16, 'class' => 'svg-icon']) ?> <?= $model->views_count ?>
             </div>
             
             <?php if (!empty($shortInfoString)): ?>
@@ -60,6 +55,8 @@ $shortInfoString = $model->getShortInfoString(', ', false);
             <?php endif; ?>
             
             <p style="margin-bottom: 8px;"><?= Html::encode(StringHelper::truncate($model->description, 120)) ?></p>
+            <?= Yii::$app->formatter->asDate($model->created_at) ?>
+                
         </a>
     </div>
 </div>
