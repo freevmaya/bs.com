@@ -61,7 +61,6 @@ $isGuest = Yii::$app->user->isGuest;
                     ] : [],
                 ]
             ) ?>
-
         </div>
     </div>
     
@@ -71,9 +70,27 @@ $isGuest = Yii::$app->user->isGuest;
             <?= ListView::widget([
                 'dataProvider' => $dataProvider,
                 'itemView' => '_item',
-                'layout' => "{items}\n{pager}",
+                'layout' => "{items}",
                 'emptyText' => 'Объявлений не найдено',
+                'itemOptions' => ['class' => 'item'],
             ]); ?>
+        </div>
+    </div>
+    
+    <!-- Пагинация отдельно, под всеми объявлениями -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="pagination-wrapper">
+                <?= \yii\widgets\LinkPager::widget([
+                    'pagination' => $dataProvider->getPagination(),
+                    'options' => ['class' => 'pagination justify-content-center'],
+                    'linkOptions' => ['class' => 'page-link'],
+                    'prevPageLabel' => '&laquo;',
+                    'nextPageLabel' => '&raquo;',
+                    'firstPageLabel' => 'Первая',
+                    'lastPageLabel' => 'Последняя',
+                ]) ?>
+            </div>
         </div>
     </div>
 </div>

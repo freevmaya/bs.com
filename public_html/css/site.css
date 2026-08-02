@@ -440,6 +440,126 @@ a:hover svg:not(.btn svg) {
     border-color: var(--bs-link-hover-color) !important;
 }
 
+.pagination-wrapper {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    clear: both;
+}
+
+.pagination-wrapper .pagination {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+}
+
+.pagination-wrapper .pagination > li {
+    display: inline-block;
+    margin: 0 2px;
+}
+
+.pagination-wrapper .pagination > li > a,
+.pagination-wrapper .pagination > li > span {
+    color: var(--bs-link-color, #8a8a8a);
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 8px 14px;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.pagination-wrapper .pagination > li > a:hover,
+.pagination-wrapper .pagination > li > a:focus {
+    color: var(--bs-link-hover-color, #ffffff);
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
+    text-decoration: none;
+}
+
+.pagination-wrapper .pagination > .active > a,
+.pagination-wrapper .pagination > .active > span {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.pagination-wrapper .pagination > .active > a:hover,
+.pagination-wrapper .pagination > .active > span:hover {
+    color: #fff;
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.pagination-wrapper .pagination > .disabled > span,
+.pagination-wrapper .pagination > .disabled > a,
+.pagination-wrapper .pagination > .disabled > a:hover {
+    color: #6c757d;
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, 0.05);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Светлая тема для пагинации */
+[data-bs-theme="light"] .pagination-wrapper {
+    border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .pagination-wrapper .pagination > li > a,
+[data-bs-theme="light"] .pagination-wrapper .pagination > li > span {
+    color: #495057;
+    border-color: #dee2e6;
+}
+
+[data-bs-theme="light"] .pagination-wrapper .pagination > li > a:hover,
+[data-bs-theme="light"] .pagination-wrapper .pagination > li > a:focus {
+    color: #000;
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+}
+
+[data-bs-theme="light"] .pagination-wrapper .pagination > .disabled > span,
+[data-bs-theme="light"] .pagination-wrapper .pagination > .disabled > a,
+[data-bs-theme="light"] .pagination-wrapper .pagination > .disabled > a:hover {
+    color: #adb5bd;
+    border-color: #dee2e6;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 576px) {
+    .pagination-wrapper .pagination > li > a,
+    .pagination-wrapper .pagination > li > span {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+    
+    .pagination-wrapper .pagination {
+        gap: 3px;
+    }
+    
+    .pagination-wrapper .pagination > li {
+        margin: 0 1px;
+    }
+}
+
+@media (max-width: 400px) {
+    .pagination-wrapper .pagination > li > a,
+    .pagination-wrapper .pagination > li > span {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    
+    /* Скрываем первую и последнюю страницу на очень маленьких экранах */
+    .pagination-wrapper .pagination > li:first-child,
+    .pagination-wrapper .pagination > li:last-child {
+        display: none;
+    }
+}
+
 /* ============================================
    КНОПКИ В СООБЩЕНИЯХ (messages)
    ============================================ */
