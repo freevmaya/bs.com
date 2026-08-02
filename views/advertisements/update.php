@@ -53,10 +53,13 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
                     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
                     
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <?= $form->field($model, 'price')->textInput(['placeholder' => '1000']) ?>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <?= $form->field($model, 'currency')->dropDownList(Advertisement::getCurrencyList(), ['prompt' => 'Выберите валюту']) ?>
+                        </div>
+                        <div class="col-md-3" style="padding-top: 32px;">
                             <?= $form->field($model, 'price_negotiable')->checkbox() ?>
                         </div>
                     </div>

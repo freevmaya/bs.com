@@ -6,7 +6,7 @@ use yii\helpers\Url;
 use app\helpers\SvgHelper;
 use app\widgets\ImageGridPreview;
 
-$priceText = $model->price ? number_format($model->price, 0, '.', ' ') . ' ₽' : 'Цена не указана';
+$priceText = $model->price ? number_format($model->price, 0, '.', ' ') . ' ' . \app\models\Advertisement::getCurrencySymbol($model->currency) : 'Цена не указана';
 if ($model->price_negotiable) {
     $priceText .= ' (договорная)';
 }

@@ -4,6 +4,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\helpers\SvgHelper;
+use app\models\Advertisement;
 
 // ✅ Формируем заголовок для OG на основе краткой информации
 $shortInfo = $model->getShortInfoString(' • ');
@@ -53,7 +54,7 @@ if (empty($description)) {
 
 $typeLabel = $model->getTypeLabel();
 $sectionLabel = $model->getSectionLabel();
-$price = $model->price ? number_format($model->price, 0, '.', ' ') . ' ₽' : 'Цена не указана';
+$price = $model->price ? number_format($model->price, 0, '.', ' ') . ' ' . Advertisement::getCurrencySymbol($model->currency) : 'Цена не указана';
 
 // ============================================================
 // РЕГИСТРИРУЕМ МЕТА-ТЕГИ
@@ -70,7 +71,7 @@ $this->registerMetaTag(['property' => 'og:type', 'content' => 'product']);
 $this->registerMetaTag(['property' => 'og:site_name', 'content' => Yii::$app->name]);
 $this->registerMetaTag(['property' => 'og:locale', 'content' => 'ru_RU']);
 $this->registerMetaTag(['property' => 'product:price:amount', 'content' => $model->price ? (string)$model->price : '0']);
-$this->registerMetaTag(['property' => 'product:price:currency', 'content' => 'RUB']);
+$this->registerMetaTag(['property' => 'product:price:currency', 'content' => $model->currency ?? 'RUB']);
 $this->registerMetaTag(['property' => 'product:availability', 'content' => $model->status === 'active' ? 'in stock' : 'out of stock']);
 $this->registerMetaTag(['property' => 'product:category', 'content' => $typeLabel]);
 
@@ -98,7 +99,7 @@ $jsonLd = [
     'offers' => [
         '@type' => 'Offer',
         'price' => $model->price ? (string)$model->price : '0',
-        'priceCurrency' => 'RUB',
+        'priceCurrency' => $model->currency ?? 'RUB',
         'availability' => $model->status === 'active' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
         'url' => $adUrl,
     ],
@@ -240,7 +241,7 @@ if (YII_DEBUG) {
                     
                     <div class="price-large" style="font-size: 28px; color: #d9534f; margin: 20px 0;">
                         <?php if ($model->price): ?>
-                            <?= number_format($model->price, 0, '.', ' ') ?> ₽
+                            <?= number_format($model->price, 0, '.', ' ') ?> <?= \app\models\Advertisement::getCurrencySymbol($model->currency) ?>
                             <?php if ($model->price_negotiable): ?>
                                 <small>(цена договорная)</small>
                             <?php endif; ?>

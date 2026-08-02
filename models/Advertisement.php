@@ -21,6 +21,11 @@ class Advertisement extends ActiveRecord
     const TYPE_HARNESS = 'harness';
     const TYPE_DEVICE = 'device';
     
+    // Валюты
+    const CURRENCY_RUB = 'RUB';
+    const CURRENCY_USD = 'USD';
+    const CURRENCY_EUR = 'EUR';
+    
     public static function tableName()
     {
         return 'advertisements';
@@ -50,6 +55,8 @@ class Advertisement extends ActiveRecord
             [['section'], 'in', 'range' => [self::SECTION_SELL, self::SECTION_BUY]],
             [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_MODERATION, self::STATUS_CLOSED]],
             [['city', 'phone', 'email', 'telegram', 'vk_profile_url', 'whatsapp', 'source_url', 'invitation_token', 'item_info_link'], 'string', 'max' => 500],
+            [['currency'], 'string', 'max' => 3],
+            [['currency'], 'in', 'range' => [self::CURRENCY_RUB, self::CURRENCY_USD, self::CURRENCY_EUR]],
             [['email'], 'email'],
             [['phone'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]*$/', 'message' => 'Телефон может содержать только цифры, пробелы, +, (, ), -'],
             [['telegram'], 'match', 'pattern' => '/^@?[a-zA-Z0-9_]{5,32}$/', 'message' => 'Введите корректный username Telegram (например: @username или username)'],
@@ -57,6 +64,7 @@ class Advertisement extends ActiveRecord
             [['whatsapp'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]{5,20}$/', 'message' => 'Введите корректный номер WhatsApp'],
             [['source_url', 'item_info_link'], 'url', 'message' => 'Введите корректный URL (например: https://example.com)'],
             [['invitation_token'], 'unique', 'message' => 'Этот токен уже используется'],
+            // Default для currency устанавливается через beforeSave
         ];
     }
     
@@ -71,6 +79,7 @@ class Advertisement extends ActiveRecord
             'description' => 'Описание',
             'price' => 'Цена',
             'price_negotiable' => 'Цена договорная',
+            'currency' => 'Валюта',
             'city' => 'Город',
             'phone' => 'Телефон',
             'email' => 'Email',
@@ -86,6 +95,44 @@ class Advertisement extends ActiveRecord
             'invitation_token' => 'Токен приглашения',
             'invitation_token_created_at' => 'Дата создания токена',
         ];
+    }
+    
+    /**
+     * Получить список валют
+     */
+    public static function getCurrencyList()
+    {
+        return [
+            self::CURRENCY_RUB => '₽ (RUB)',
+            self::CURRENCY_USD => '$ (USD)',
+            self::CURRENCY_EUR => '€ (EUR)',
+        ];
+    }
+    
+    /**
+     * Получить символ валюты
+     */
+    public static function getCurrencySymbol($currency)
+    {
+        $symbols = [
+            self::CURRENCY_RUB => '₽',
+            self::CURRENCY_USD => '$',
+            self::CURRENCY_EUR => '€',
+        ];
+        return $symbols[$currency] ?? '₽';
+    }
+    
+    /**
+     * Получить полное название валюты
+     */
+    public static function getCurrencyLabel($currency)
+    {
+        $labels = [
+            self::CURRENCY_RUB => 'RUB',
+            self::CURRENCY_USD => 'USD',
+            self::CURRENCY_EUR => 'EUR',
+        ];
+        return $labels[$currency] ?? 'RUB';
     }
     
     /**
@@ -145,6 +192,18 @@ class Advertisement extends ActiveRecord
             self::STATUS_CLOSED => 'Закрыто',
         ];
         return $labels[$this->status] ?? $this->status;
+    }
+    
+    /**
+     * Получить отформатированную цену с символом валюты
+     */
+    public function getFormattedPrice()
+    {
+        if ($this->price === null || $this->price === '') {
+            return 'Цена не указана';
+        }
+        $symbol = self::getCurrencySymbol($this->currency);
+        return number_format($this->price, 0, '.', ' ') . ' ' . $symbol;
     }
     
     public function incrementViews()
@@ -277,6 +336,12 @@ class Advertisement extends ActiveRecord
             } elseif (empty($this->title)) {
                 $this->title = $this->generateTitle();
             }
+            
+            // Устанавливаем валюту по умолчанию, если не установлена
+            if (empty($this->currency)) {
+                $this->currency = self::CURRENCY_RUB;
+            }
+            
             return true;
         }
         return false;
