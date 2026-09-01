@@ -519,368 +519,6 @@
 	},
 	"buffers":
 	[
-		{
-			"contents": "Основы аэродинамики параплана\n\n\n1. Распределение сил и характер обтекания крыла\n В нормальном, установившемся полете\n  Вектора и точки действия сил\n  Эпюра крыла\n  Поляра крыла\n  Особенности распределения сил и давления при\n   Различном удлинении\n   Профиле\n   Строплении\n При переменной нагрузке и/или наземной подготовке\n  Подъем крыла\n   Крен\n   Тангаж\n   Сложения, фронталки, срыв\n2. Тактика управления\n Предотвращения нежелательных режимов\n  Недовывод, выстреливание, крен и т.п. при выводе крыла\n  Компенсация крена\n  Компенсация раскачки по тангажу\n   Заброс\n   Клевок\n Подвороты с срывные режимы\n Отличия и особенности при различных конфигурациях\n  Крыла\n  Подвесной системы",
-			"file": "/C/Users/fwadi/Downloads/Новый документ.txt",
-			"file_size": 1412,
-			"file_write_time": 134292511412069692,
-			"settings":
-			{
-				"buffer_size": 682,
-				"line_ending": "Windows"
-			},
-			"undo_stack":
-			[
-				[
-					19,
-					1,
-					"",
-					null,
-					"LwAAADQDAAAAAAAANQMAAAAAAAADAAAAICAgMQMAAAAAAAAyAwAAAAAAAAMAAAAgICAlAwAAAAAAACYDAAAAAAAAAwAAACAgICIDAAAAAAAAIwMAAAAAAAADAAAAICAg6gIAAAAAAADrAgAAAAAAAAMAAAAgICDJAgAAAAAAAMoCAAAAAAAAAwAAACAgIMYCAAAAAAAAxwIAAAAAAAADAAAAICAguQIAAAAAAAC6AgAAAAAAAAMAAAAgICC2AgAAAAAAALcCAAAAAAAAAwAAACAgILMCAAAAAAAAtAIAAAAAAAADAAAAICAgpgIAAAAAAACnAgAAAAAAAAMAAAAgICCjAgAAAAAAAKQCAAAAAAAAAwAAACAgIKACAAAAAAAAoQIAAAAAAAADAAAAICAgegIAAAAAAAB7AgAAAAAAAAMAAAAgICB3AgAAAAAAAHgCAAAAAAAAAwAAACAgIF8CAAAAAAAAYAIAAAAAAAADAAAAICAgXAIAAAAAAABdAgAAAAAAAAMAAAAgICAfAgAAAAAAACACAAAAAAAAAwAAACAgIBwCAAAAAAAAHQIAAAAAAAADAAAAICAg8QEAAAAAAADyAQAAAAAAAAMAAAAgICC7AQAAAAAAALwBAAAAAAAAAwAAACAgILgBAAAAAAAAuQEAAAAAAAADAAAAICAgqwEAAAAAAACsAQAAAAAAAAMAAAAgICCoAQAAAAAAAKkBAAAAAAAAAwAAACAgIJ0BAAAAAAAAngEAAAAAAAADAAAAICAgmgEAAAAAAACbAQAAAAAAAAMAAAAgICCHAQAAAAAAAIgBAAAAAAAAAwAAACAgIIQBAAAAAAAAhQEAAAAAAAADAAAAICAgTAEAAAAAAABNAQAAAAAAAAMAAAAgICA7AQAAAAAAADwBAAAAAAAAAwAAACAgIDgBAAAAAAAAOQEAAAAAAAADAAAAICAgNQEAAAAAAAA2AQAAAAAAAAMAAAAgICAnAQAAAAAAACgBAAAAAAAAAwAAACAgICQBAAAAAAAAJQEAAAAAAAADAAAAICAgIQEAAAAAAAAiAQAAAAAAAAMAAAAgICAHAQAAAAAAAAgBAAAAAAAAAwAAACAgIAQBAAAAAAAABQEAAAAAAAADAAAAICAgAQEAAAAAAAACAQAAAAAAAAMAAAAgICDOAAAAAAAAAM8AAAAAAAAAAwAAACAgIMsAAAAAAAAAzAAAAAAAAAADAAAAICAguAAAAAAAAAC5AAAAAAAAAAMAAAAgICC1AAAAAAAAALYAAAAAAAAAAwAAACAgIKMAAAAAAAAApAAAAAAAAAADAAAAICAgoAAAAAAAAAChAAAAAAAAAAMAAAAgICB9AAAAAAAAAH4AAAAAAAAAAwAAACAgIHoAAAAAAAAAewAAAAAAAAADAAAAICAgUAAAAAAAAABRAAAAAAAAAAMAAAAgICA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAUwAAAAAAAABQAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					41,
-					1,
-					"insert",
-					{
-						"characters": "\t"
-					},
-					"AQAAAFAAAAAAAAAAUwAAAAAAAAAEAAAAIDEuIA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAVAAAAAAAAABQAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					44,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAHcAAAAAAAAAegAAAAAAAAAEAAAAICAxLnoAAAAAAAAAfQAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAewAAAAAAAAB3AAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					47,
-					1,
-					"left_delete",
-					null,
-					"AQAAAH0AAAAAAAAAfQAAAAAAAAABAAAAIA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAfgAAAAAAAAB+AAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					50,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAJoAAAAAAAAAnQAAAAAAAAAFAAAAICAyLiCdAAAAAAAAAKAAAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAnwAAAAAAAACaAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					53,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAKwAAAAAAAAArwAAAAAAAAAFAAAAICAzLiCvAAAAAAAAALIAAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAsQAAAAAAAACsAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					56,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAL8AAAAAAAAAwgAAAAAAAAAFAAAAICA0LiDCAAAAAAAAAMUAAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAxAAAAAAAAAC/AAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					59,
-					1,
-					"insert",
-					{
-						"characters": "\t\t\t"
-					},
-					"AwAAAPIAAAAAAAAA9QAAAAAAAAAGAAAAICAgMS4g9QAAAAAAAAD4AAAAAAAAAAAAAAD4AAAAAAAAAPsAAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAA+AAAAAAAAADyAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					62,
-					1,
-					"insert",
-					{
-						"characters": "\t\t\t"
-					},
-					"AwAAAA8BAAAAAAAAEgEAAAAAAAAGAAAAICAgMi4gEgEAAAAAAAAVAQAAAAAAAAAAAAAVAQAAAAAAABgBAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAFQEAAAAAAAAPAQAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					65,
-					1,
-					"insert",
-					{
-						"characters": "\t\t\t"
-					},
-					"AwAAACABAAAAAAAAIwEAAAAAAAAGAAAAICAgMy4gIwEAAAAAAAAmAQAAAAAAAAAAAAAmAQAAAAAAACkBAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAJgEAAAAAAAAgAQAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					68,
-					1,
-					"insert",
-					{
-						"characters": "\t"
-					},
-					"AQAAAGoBAAAAAAAAbQEAAAAAAAAFAAAAICAxLiA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAbwEAAAAAAABqAQAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					71,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAHoBAAAAAAAAfQEAAAAAAAAFAAAAICAyLiB9AQAAAAAAAIABAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAfwEAAAAAAAB6AQAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					74,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAIUBAAAAAAAAiAEAAAAAAAAFAAAAICAzLiCIAQAAAAAAAIsBAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAigEAAAAAAACFAQAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					77,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAJIBAAAAAAAAlQEAAAAAAAAFAAAAICA0LiCVAQAAAAAAAJgBAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAlwEAAAAAAACSAQAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					80,
-					1,
-					"insert",
-					{
-						"characters": "\t"
-					},
-					"AQAAADQBAAAAAAAANwEAAAAAAAAEAAAAIDIuIA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAOAEAAAAAAAA0AQAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					83,
-					1,
-					"indent",
-					null,
-					"BAAAAGkBAAAAAAAAbAEAAAAAAAAAAAAAfAEAAAAAAAB/AQAAAAAAAAAAAACKAQAAAAAAAI0BAAAAAAAAAAAAAJoBAAAAAAAAnQEAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAbAEAAAAAAACwAQAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					88,
-					1,
-					"insert",
-					{
-						"characters": "\t"
-					},
-					"AQAAANMBAAAAAAAA1gEAAAAAAAAEAAAAIDEuIA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAA1wEAAAAAAADTAQAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					91,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAPsBAAAAAAAA/gEAAAAAAAAFAAAAICAxLiD+AQAAAAAAAAECAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAAAIAAAAAAAD7AQAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					94,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAADgCAAAAAAAAOwIAAAAAAAAFAAAAICAyLiA7AgAAAAAAAD4CAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAPQIAAAAAAAA4AgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					97,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAFACAAAAAAAAUwIAAAAAAAAFAAAAICAzLiBTAgAAAAAAAFYCAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAVQIAAAAAAABQAgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					100,
-					1,
-					"insert",
-					{
-						"characters": "\t\t\t"
-					},
-					"AwAAAHYCAAAAAAAAeQIAAAAAAAAGAAAAICAgMS4geQIAAAAAAAB8AgAAAAAAAAAAAAB8AgAAAAAAAH8CAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAfAIAAAAAAAB2AgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					111,
-					1,
-					"insert",
-					{
-						"characters": "\t\t\t"
-					},
-					"AwAAAIYCAAAAAAAAiQIAAAAAAAAGAAAAICAgMi4giQIAAAAAAACMAgAAAAAAAAAAAACMAgAAAAAAAI8CAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAjAIAAAAAAACGAgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					114,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAJYCAAAAAAAAmQIAAAAAAAAFAAAAICA0LiCZAgAAAAAAAJwCAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAmwIAAAAAAACWAgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					115,
-					1,
-					"left_delete",
-					null,
-					"AQAAAJkCAAAAAAAAmQIAAAAAAAADAAAAICAg",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAnAIAAAAAAACcAgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					118,
-					1,
-					"insert",
-					{
-						"characters": "\t"
-					},
-					"AQAAALQCAAAAAAAAtwIAAAAAAAAEAAAAIDIuIA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAuAIAAAAAAAC0AgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					121,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAOkCAAAAAAAA7AIAAAAAAAAFAAAAICAxLiDsAgAAAAAAAO8CAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAA7gIAAAAAAADpAgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					124,
-					1,
-					"insert",
-					{
-						"characters": "\t\t"
-					},
-					"AgAAAPUCAAAAAAAA+AIAAAAAAAAFAAAAICAyLiD4AgAAAAAAAPsCAAAAAAAAAAAAAA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAA+gIAAAAAAAD1AgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					128,
-					1,
-					"",
-					null,
-					"MQAAAPgCAAAAAAAA+QIAAAAAAAADAAAAICAg9QIAAAAAAAD2AgAAAAAAAAMAAAAgICDsAgAAAAAAAO0CAAAAAAAAAwAAACAgIOkCAAAAAAAA6gIAAAAAAAADAAAAICAgtAIAAAAAAAC1AgAAAAAAAAMAAAAgICCWAgAAAAAAAJcCAAAAAAAAAwAAACAgIIwCAAAAAAAAjQIAAAAAAAADAAAAICAgiQIAAAAAAACKAgAAAAAAAAMAAAAgICCGAgAAAAAAAIcCAAAAAAAAAwAAACAgIHwCAAAAAAAAfQIAAAAAAAADAAAAICAgeQIAAAAAAAB6AgAAAAAAAAMAAAAgICB2AgAAAAAAAHcCAAAAAAAAAwAAACAgIFMCAAAAAAAAVAIAAAAAAAADAAAAICAgUAIAAAAAAABRAgAAAAAAAAMAAAAgICA7AgAAAAAAADwCAAAAAAAAAwAAACAgIDgCAAAAAAAAOQIAAAAAAAADAAAAICAg/gEAAAAAAAD/AQAAAAAAAAMAAAAgICD7AQAAAAAAAPwBAAAAAAAAAwAAACAgINMBAAAAAAAA1AEAAAAAAAADAAAAICAgoAEAAAAAAAChAQAAAAAAAAMAAAAgICCdAQAAAAAAAJ4BAAAAAAAAAwAAACAgIJoBAAAAAAAAmwEAAAAAAAADAAAAICAgkAEAAAAAAACRAQAAAAAAAAMAAAAgICCNAQAAAAAAAI4BAAAAAAAAAwAAACAgIIoBAAAAAAAAiwEAAAAAAAADAAAAICAgggEAAAAAAACDAQAAAAAAAAMAAAAgICB/AQAAAAAAAIABAAAAAAAAAwAAACAgIHwBAAAAAAAAfQEAAAAAAAADAAAAICAgbAEAAAAAAABtAQAAAAAAAAMAAAAgICBpAQAAAAAAAGoBAAAAAAAAAwAAACAgIDQBAAAAAAAANQEAAAAAAAADAAAAICAgJgEAAAAAAAAnAQAAAAAAAAMAAAAgICAjAQAAAAAAACQBAAAAAAAAAwAAACAgICABAAAAAAAAIQEAAAAAAAADAAAAICAgFQEAAAAAAAAWAQAAAAAAAAMAAAAgICASAQAAAAAAABMBAAAAAAAAAwAAACAgIA8BAAAAAAAAEAEAAAAAAAADAAAAICAg+AAAAAAAAAD5AAAAAAAAAAMAAAAgICD1AAAAAAAAAPYAAAAAAAAAAwAAACAgIPIAAAAAAAAA8wAAAAAAAAADAAAAICAgwgAAAAAAAADDAAAAAAAAAAMAAAAgICC/AAAAAAAAAMAAAAAAAAAAAwAAACAgIK8AAAAAAAAAsAAAAAAAAAADAAAAICAgrAAAAAAAAACtAAAAAAAAAAMAAAAgICCdAAAAAAAAAJ4AAAAAAAAAAwAAACAgIJoAAAAAAAAAmwAAAAAAAAADAAAAICAgegAAAAAAAAB7AAAAAAAAAAMAAAAgICB3AAAAAAAAAHgAAAAAAAAAAwAAACAgIFAAAAAAAAAAUQAAAAAAAAADAAAAICAg",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAxQAAAAAAAADFAAAAAAAAAAAAAAAAAPC/"
-				]
-			]
-		},
-		{
-			"contents": "Ряд,Ном. стропы,Расчет,Разница\nA,1,6206 - 6270,-64\nA,2,6166 - 6240,-74\nA,3,6131 - 6200,-69\nA,4,6079 - 6150,-71\nA,5,5994 - 6100,-106\nA,6,5875 - 5960,-85\nA,7,5794 - 5900,-106\n",
-			"file": "/C/Documents/Paragliding/Joy 2/Joy 2 XS_diff.csv",
-			"file_size": 244,
-			"file_write_time": 134291942750000000,
-			"settings":
-			{
-				"buffer_size": 173,
-				"line_ending": "Unix"
-			},
-			"undo_stack":
-			[
-				[
-					10,
-					1,
-					"left_delete",
-					null,
-					"AQAAAC4AAAAAAAAALgAAAAAAAAADAAAAMjQs",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAALgAAAAAAAAAxAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					13,
-					1,
-					"left_delete",
-					null,
-					"AQAAAEIAAAAAAAAAQgAAAAAAAAAEAAAAMTc0LA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAQgAAAAAAAABGAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					16,
-					1,
-					"left_delete",
-					null,
-					"AQAAAFYAAAAAAAAAVgAAAAAAAAAEAAAAMzMzLA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAVgAAAAAAAABaAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					19,
-					1,
-					"left_delete",
-					null,
-					"AQAAAGoAAAAAAAAAagAAAAAAAAAEAAAAMTY3LA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAagAAAAAAAABuAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					22,
-					1,
-					"left_delete",
-					null,
-					"AQAAAH4AAAAAAAAAfgAAAAAAAAAEAAAAMTUwLA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAfgAAAAAAAACCAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					25,
-					1,
-					"left_delete",
-					null,
-					"AQAAAJMAAAAAAAAAkwAAAAAAAAACAAAAMSw",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAkwAAAAAAAACVAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					28,
-					1,
-					"left_delete",
-					null,
-					"AQAAAKcAAAAAAAAApwAAAAAAAAAEAAAAMTEwLA",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAApwAAAAAAAACrAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					101,
-					2,
-					"left_delete",
-					null,
-					"AgAAABAAAAAAAAAAEAAAAAAAAAAUAAAA0J/RgNC10LLRi9GI0LXQvdC40LUPAAAAAAAAAA8AAAAAAAAAAQAAACw",
-					"BAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAEAAAAAAAAAAaAAAAAAAAAAAAAAAAAPC/"
-				]
-			]
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -962,19 +600,36 @@
 	},
 	"expanded_folders":
 	[
-		"/C/OpenServer/domains/bs.com"
 	],
 	"file_history":
 	[
+		"/C/Documents/Paragliding/UP Trango X/Measuring.csv",
+		"/C/Documents/Paragliding/UP Kibo 2/Mesuring.csv",
+		"/C/Users/fwadi/Downloads/Перепады.xlsx - UP Kibo2 M.csv",
+		"/C/Documents/Paragliding/UP Kibo 2/lines.csv",
+		"/C/Documents/Paragliding/UP Trango X/Lines.csv",
+		"/C/Documents/Paragliding/UP Trango X/Lines.cvs",
+		"/C/Documents/Paragliding/Joy/Joy 2 XS.csv",
+		"/C/Documents/Paragliding/Joy/joy_3m.cvs",
+		"/C/Documents/Paragliding/Joy/Joy3 M/Joy_3m_diff (1).csv",
+		"/C/OpenServer/domains/bs.com/models/Advertisement.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/update.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/section.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/index.php",
+		"/C/OpenServer/domains/bs.com/public_html/css/site.css",
+		"/C/OpenServer/domains/bs.com/config/web.php",
+		"/C/Users/fwadi/Downloads/Первоначальное обучение  (4).txt",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-3/web.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/create.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/_item.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/view.php",
+		"/C/OpenServer/domains/bs.com/migrations/m240000_000018_add_currency_to_advertisements.php",
+		"/C/OpenServer/domains/bs.com/combine_run.py",
+		"/C/Users/fwadi/Downloads/Новый документ.txt",
+		"/C/Documents/Paragliding/Joy 2/Joy 2 XS_diff.csv",
 		"/C/Documents/Paragliding/Joy 2 XS.csv",
 		"/C/Users/fwadi/Downloads/Новая таблица - Joy 2 XS (1).csv",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/app.log",
-		"/C/OpenServer/domains/bs.com/models/Advertisement.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/update.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/create.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/_item.php",
-		"/C/OpenServer/domains/bs.com/public_html/css/site.css",
 		"/C/OpenServer/domains/bs.com/helpers/SvgHelper.php",
 		"/C/OpenServer/domains/bs.com/models/AdvertisementHarness.php",
 		"/C/OpenServer/domains/bs.com/models/BaseAdvertisementType.php",
@@ -989,13 +644,9 @@
 		"/C/OpenServer/domains/bs.com/widgets/views/search-bar.php",
 		"/C/OpenServer/domains/bs.com/controllers/SiteController.php",
 		"/C/OpenServer/domains/bs.com/controllers/AdvertisementsController.php",
-		"/C/OpenServer/domains/bs.com/config/web.php",
 		"/C/OpenServer/domains/bs.com/models/User.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000017_add_invitation_token_to_advertisements.php",
 		"/C/Documents/Paragliding/Klimber P/Длины строп.cvs",
-		"/C/OpenServer/domains/bs.com/combine_run.py",
-		"/C/OpenServer/domains/bs.com/views/advertisements/section.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/index.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/my.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/_device_fields.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/_harness_fields.php",
@@ -1006,7 +657,6 @@
 		"/C/OpenServer/domains/bs.com/views/site/index.php",
 		"/C/OpenServer/domains/bs.com/views/layouts/main.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/_form.php",
-		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-3/web.php",
 		"/C/OpenServer/domains/bs.com/models/Message.php",
 		"/C/OpenServer/domains/bs.com/models/AdvertisementSearch.php",
 		"/C/OpenServer/domains/bs.com/public_html/css/gallery.css",
@@ -1080,20 +730,7 @@
 		"/C/OpenServer/domains/bs.com/widgets/SearchBar.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000009_fix_conversations_unique_index.php",
 		"/C/OpenServer/domains/bs.com/web/js/messages.js",
-		"/C/OpenServer/domains/bs.com/views/messages/index.php",
-		"/C/OpenServer/domains/bs.com/views/messages/_message.php",
-		"/C/OpenServer/domains/bs.com/models/Conversation.php",
-		"/C/OpenServer/domains/bs.com/controllers/MessagesController.php",
-		"/C/OpenServer/domains/bs.com/views/messages/_conversation_item.php",
-		"/C/OpenServer/domains/bs.com/migrations/m240000_000007_create_conversations_table.php",
-		"/C/OpenServer/domains/bs.com/components/notifications/channels/VkChannel.php",
-		"/C/OpenServer/domains/bs.com/migrations/m240000_000008_create_messages_table.php",
-		"/C/OpenServer/domains/bs.com/web/js/vk-profile.js",
-		"/C/OpenServer/domains/bs.com/web/get_vk_token.php",
-		"/C/OpenServer/domains/bs.com/web/css/notifications.css",
-		"/C/OpenServer/domains/bs.com/migrations/m240000_000005_add_vk_id_to_users.php",
-		"/C/OpenServer/domains/bs.com/web/js/toggle-subscription.js",
-		"/C/OpenServer/domains/bs.com/migrations/m240000_000006_add_vk_profile_url_to_users.php"
+		"/C/OpenServer/domains/bs.com/views/messages/index.php"
 	],
 	"find":
 	{
@@ -1239,6 +876,13 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"\t",
+			" ",
+			"\t",
+			"^t",
+			"assetManager",
+			"pagination-wrapper",
+			"Пагинация",
 			"   ",
 			"isAdmin",
 			"Об авторе",
@@ -1359,21 +1003,15 @@
 			"$to",
 			"testEmail",
 			"senderName",
-			"testEmail",
-			"mailer",
-			"actionResetFilters",
-			" Все иконки по умолчанию",
-			".glyphicon, .glyphicon-class, [class*=\"glyphicon-\"], .nav-icon, .extension-icon, .profile-avatar, .footer-logo-light, .footer-logo-dark, svg:not(.btn svg):not(.search-params-clear svg)",
-			"Фильтры активны",
-			"Фильтры активны ",
-			"svg"
+			"testEmail"
 		],
 		"highlight": false,
 		"in_selection": false,
 		"preserve_case": false,
-		"regex": false,
+		"regex": true,
 		"replace_history":
 		[
+			",",
 			" ",
 			"  ",
 			"v=28",
@@ -1500,8 +1138,7 @@
 			"bg-theme-gradient",
 			"bg-gradient",
 			"saveState",
-			"config.use_server",
-			"sendPhrase"
+			"config.use_server"
 		],
 		"reverse": false,
 		"scrollbar_highlights": true,
@@ -1516,67 +1153,6 @@
 		{
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "/C/Users/fwadi/Downloads/Новый документ.txt",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 682,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								682,
-								32
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 3,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"stack_multiselect": false,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "/C/Documents/Paragliding/Joy 2/Joy 2 XS_diff.csv",
-					"selected": true,
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 173,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								172,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"stack_multiselect": false,
-					"type": "text"
-				}
 			]
 		}
 	],
