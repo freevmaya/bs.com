@@ -108,49 +108,6 @@ class AdvertisementRating extends ActiveRecord
         $html = '';
 
         $html .= '<div class="rating-container">';
-        
-        // ============================================================
-        // ЦЕНОВОЙ БЛОК
-        // ============================================================
-        if (isset($data['fair_price']) && $data['fair_price'] > 0) {
-            $currency = $data['currency'] ?? 'RUB';
-            $symbol = $data['currency_symbol'] ?? $this->getCurrencySymbol($currency);
-            $fairPrice = $data['fair_price'];
-            
-            $html .= '<div class="rating-price-block" style="padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #007bff;">';
-            $html .= '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">';
-            
-            // Рекомендуемая цена
-            $html .= '<div>';
-            $html .= '<span style="font-size: 14px; color: #6c757d;">💰 Рекомендуемая цена:</span>';
-            $html .= '<div style="font-size: 28px; font-weight: 700; color: #28a745;">' . number_format($fairPrice, 0, '.', ' ') . ' ' . $symbol . '</div>';
-            $html .= '</div>';
-            
-            // Диапазон цен
-            if (isset($data['price_range'])) {
-                $minPrice = $data['price_range']['min'] ?? 0;
-                $maxPrice = $data['price_range']['max'] ?? 0;
-                
-                $html .= '<div style="text-align: right;">';
-                $html .= '<span style="font-size: 13px; color: #6c757d;">Диапазон цен на рынке:</span>';
-                $html .= '<div style="font-size: 16px; font-weight: 600;">' . 
-                         number_format($minPrice, 0, '.', ' ') . ' ' . $symbol . ' — ' . 
-                         number_format($maxPrice, 0, '.', ' ') . ' ' . $symbol . '</div>';
-                $html .= '</div>';
-            }
-            
-            // Уверенность
-            if (isset($data['confidence'])) {
-                $confidence = (int)$data['confidence'];
-                $html .= '<div style="text-align: center; min-width: 80px;">';
-                $html .= '<span style="font-size: 13px; color: #6c757d;">Уверенность:</span>';
-                $html .= '<div style="font-size: 18px; font-weight: 700; color: ' . $this->getScoreColor($confidence * 2) . ';">' . $confidence . '/10</div>';
-                $html .= '</div>';
-            }
-            
-            $html .= '</div>'; // flex
-            $html .= '</div>'; // rating-price-block
-        }
 
         // ============================================================
         // ОБЩАЯ ОЦЕНКА
