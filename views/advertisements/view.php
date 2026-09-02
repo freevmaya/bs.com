@@ -5,6 +5,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use app\helpers\SvgHelper;
 use app\models\Advertisement;
+use app\models\AdvertisementRating;
 
 // ✅ Формируем заголовок для OG на основе краткой информации
 $shortInfo = $model->getShortInfoString(' • ');
@@ -13,6 +14,11 @@ $ogTitle = !empty($shortInfo) ? $shortInfo : $model->title;
 $this->title = $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Объявления', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->registerJsFile('@web/js/rating.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
 
 // ============================================================
 // МЕТА-ТЕГИ ДЛЯ СОЦИАЛЬНЫХ СЕТЕЙ (Open Graph + Twitter Cards)
@@ -587,6 +593,46 @@ if (YII_DEBUG) {
             <?php endif; ?>
         </div>
     </div>
+    
+
+    <?php if ($model->section === Advertisement::SECTION_SELL): ?>
+    <!-- AI Оценка -->
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                🤖 Оценка AI
+                <span class="badge" style="font-size: 11px; background: #6c757d; margin-left: 8px;">Beta</span>
+            </h4>
+        </div>
+        <div class="panel-body" id="rating-container">
+            <?php 
+            $lastRating = AdvertisementRating::find()
+                ->where(['advertisement_id' => $model->id])
+                ->orderBy(['created_at' => SORT_DESC])
+                ->one();
+            ?>
+            
+            <?php if ($lastRating): ?>
+                <?= $lastRating->getRatingHtml() ?>
+                <button type="button" class="btn btn-outline-secondary btn-sm rate-button rate-refresh" data-id="<?= $model->id ?>" style="margin-top: 10px;">
+                    <span class="glyphicon glyphicon-refresh"></span> Обновить оценку
+                </button>
+            <?php else: ?>
+                <p class="text-muted" style="margin-bottom: 12px;">
+                    <span class="glyphicon glyphicon-info-sign"></span>
+                    Получите объективную оценку данного снаряжения от искусственного интеллекта 
+                    на основе анализа цены, состояния и сравнения с другими объявлениями.
+                </p>
+                <button type="button" class="btn btn-primary rate-button" data-id="<?= $model->id ?>">
+                    <span class="glyphicon glyphicon-stats"></span> Оценить
+                </button>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
 
 <?php

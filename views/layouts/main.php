@@ -37,6 +37,11 @@ $this->registerJsFile('@web/js/bootstrap.bundle.min.js', [
     'position' => \yii\web\View::POS_END
 ]);
 
+$this->registerJsFile('@web/js/rating.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
+
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>

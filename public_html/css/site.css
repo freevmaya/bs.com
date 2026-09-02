@@ -1109,3 +1109,216 @@ thead, tbody, tfoot, tr, td, th {
 .panel-default td, .panel-default th {
     padding: 0.1rem 0.5rem;
 }
+
+/* ============================================
+   Стили для AI оценки снаряжения
+   ============================================ */
+
+/* Контейнер оценки */
+.rating-container {
+    padding: 20px;
+    background: var(--bs-body-bg);
+    border-radius: 12px;
+    border: 1px solid var(--bs-border-color);
+    margin: 15px 0;
+}
+
+/* Загрузка */
+.rating-loading {
+    text-align: center;
+    padding: 30px 20px;
+}
+
+.spinner-large {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--bs-border-color);
+    border-top-color: var(--bs-primary);
+    border-radius: 50%;
+    animation: rating-spin 0.8s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes rating-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Общая оценка */
+.rating-overall {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.rating-score {
+    font-size: 28px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 8px;
+    min-width: 80px;
+    text-align: center;
+}
+
+.rating-score.score-excellent {
+    color: #28a745;
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.rating-score.score-good {
+    color: #ffc107;
+    background: rgba(255, 193, 7, 0.1);
+}
+
+.rating-score.score-average {
+    color: #fd7e14;
+    background: rgba(253, 126, 20, 0.1);
+}
+
+.rating-score.score-poor {
+    color: #dc3545;
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.rating-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--bs-tertiary-bg);
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 100px;
+}
+
+.rating-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+/* Резюме */
+.rating-summary {
+    padding: 12px 16px;
+    background: var(--bs-tertiary-bg);
+    border-radius: 8px;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+/* Плюсы и минусы */
+.rating-pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+    .rating-pros-cons {
+        grid-template-columns: 1fr;
+    }
+}
+
+.rating-pros, .rating-cons {
+    padding: 12px 16px;
+    border-radius: 8px;
+}
+
+.rating-pros {
+    background: rgba(40, 167, 69, 0.05);
+    border-left: 3px solid #28a745;
+}
+
+.rating-cons {
+    background: rgba(220, 53, 69, 0.05);
+    border-left: 3px solid #dc3545;
+}
+
+.rating-pros ul, .rating-cons ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+}
+
+.rating-pros li, .rating-cons li {
+    margin-bottom: 4px;
+    line-height: 1.5;
+}
+
+/* Рекомендация */
+.rating-recommendation {
+    padding: 12px 16px;
+    background: rgba(0, 123, 255, 0.05);
+    border-left: 3px solid #007bff;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+/* Детали */
+.rating-details {
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.rating-details summary {
+    color: var(--bs-link-color);
+    cursor: pointer;
+    padding: 4px 0;
+}
+
+.rating-details summary:hover {
+    color: var(--bs-link-hover-color);
+}
+
+.rating-details pre {
+    background: var(--bs-tertiary-bg);
+    padding: 12px;
+    border-radius: 6px;
+    margin: 8px 0 0 0;
+    font-size: 12px;
+    overflow-x: auto;
+    max-height: 300px;
+}
+
+/* Мета информация */
+.rating-meta {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--bs-border-color);
+    font-size: 12px;
+    color: var(--bs-secondary-color);
+}
+
+/* Кнопка оценки */
+.rate-button .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: rating-spin 0.8s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.rate-button .glyphicon {
+    margin-right: 4px;
+}
+
+/* Темная тема */
+[data-bs-theme="dark"] .rating-bar {
+    background: #444;
+}
+
+[data-bs-theme="dark"] .rating-pros {
+    background: rgba(40, 167, 69, 0.1);
+}
+
+[data-bs-theme="dark"] .rating-cons {
+    background: rgba(220, 53, 69, 0.1);
+}
+
+[data-bs-theme="dark"] .rating-recommendation {
+    background: rgba(0, 123, 255, 0.1);
+}

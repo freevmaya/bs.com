@@ -23,6 +23,7 @@ use app\models\SearchSubscription;
 use app\models\NotificationSubscription;
 use app\models\NotificationLog;
 use app\components\TempAdStorage;
+use app\models\AdvertisementRating;
 
 class AdvertisementsController extends Controller
 {
@@ -477,6 +478,133 @@ class AdvertisementsController extends Controller
         }
         
         return ['success' => false, 'error' => 'Ошибка при поднятии объявления'];
+    }
+
+    
+    /**
+     * Оценка объявления через AI
+     */
+    public function actionRate($id)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $model = $this->findModel($id);
+
+        // Проверяем права - только для продаж
+        if ($model->section !== Advertisement::SECTION_SELL) {
+            return ['success' => false, 'error' => 'Оценка доступна только для объявлений в разделе "Продам"'];
+        }
+
+        // Проверяем, не оценивали ли недавно
+        $lastRating = AdvertisementRating::find()
+            ->where(['advertisement_id' => $id])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->one();
+
+        if ($lastRating && (time() - $lastRating->created_at) < 60) {
+            return [
+                'success' => false,
+                'error' => 'Объявление уже оценивалось менее минуты назад. Подождите немного.',
+                'rating_id' => $lastRating->id,
+            ];
+        }
+
+        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $ratingService = Yii::$app->ratingService;
+
+        // ✅ ПРАВИЛЬНО: передаем ОБЪЕКТ модели, а не строку!
+        $ratingData = $ratingService->rateAdvertisement($model, 'парапланерное снаряжение');
+
+        if ($ratingData) {
+            // Создаем запись в БД
+            $rating = new AdvertisementRating();
+            $rating->advertisement_id = $model->id;
+            $rating->user_id = $userId;
+            $rating->ai_model = $ratingService->getModel() ?? 'unknown';
+            $rating->rating_data = json_encode($ratingData, JSON_UNESCAPED_UNICODE);
+            
+            // Вычисляем общую оценку
+            $overall = ($ratingData['appeal'] + $ratingData['clarity'] + $ratingData['relevance'] + $ratingData['call_to_action']) / 4;
+            $rating->overall_score = round($overall, 1);
+            
+            $rating->summary = $ratingData['market_analysis'] ?? $ratingData['recommendations'] ?? 'Анализ выполнен.';
+            $rating->pros = $ratingData['pros'] ?? null;
+            $rating->cons = $ratingData['cons'] ?? null;
+            $rating->recommendation = $ratingData['recommendations'] ?? null;
+
+            if ($rating->save()) {
+                // Получаем количество аналогов для сообщения
+                $similarCount = $this->getSimilarCount($model);
+                
+                return [
+                    'success' => true,
+                    'rating_id' => $rating->id,
+                    'html' => $rating->getRatingHtml(),
+                    'message' => 'Оценка успешно сгенерирована на основе ' . $similarCount . ' аналогов!',
+                ];
+            } else {
+                return ['success' => false, 'error' => 'Не удалось сохранить оценку: ' . json_encode($rating->errors)];
+            }
+        }
+
+        return ['success' => false, 'error' => 'Не удалось сгенерировать оценку. Попробуйте позже.'];
+    }
+
+    /**
+     * Получает количество аналогов для объявления
+     */
+    private function getSimilarCount($model)
+    {
+        $query = Advertisement::find()
+            ->where(['status' => Advertisement::STATUS_ACTIVE])
+            ->andWhere(['section' => Advertisement::SECTION_SELL])
+            ->andWhere(['type' => $model->type])
+            ->andWhere(['<>', 'advertisements.id', $model->id]); // ✅ Указываем полное имя таблицы
+        
+        if ($model->type === Advertisement::TYPE_GLIDER && $model->glider) {
+            $glider = $model->glider;
+            
+            $query->innerJoin('advertisement_glider', 'advertisement_glider.advertisement_id = advertisements.id');
+            
+            if ($glider->certification_id) {
+                $query->andWhere(['advertisement_glider.certification_id' => $glider->certification_id]);
+            }
+            if ($glider->date_release) {
+                $year = (int)$glider->date_release;
+                $query->andWhere(['between', 'advertisement_glider.date_release', $year - 3, $year + 3]);
+            }
+            if ($glider->producer_id) {
+                $query->andWhere(['advertisement_glider.producer_id' => $glider->producer_id]);
+            }
+            if ($glider->condition) {
+                $query->andWhere(['advertisement_glider.condition' => $glider->condition]);
+            }
+        }
+        
+        return $query->count();
+    }
+
+    /**
+     * Получить HTML оценки
+     */
+    public function actionGetRating($id)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $rating = AdvertisementRating::find()
+            ->where(['advertisement_id' => $id])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->one();
+
+        if ($rating) {
+            return [
+                'success' => true,
+                'html' => $rating->getRatingHtml(),
+                'rating_id' => $rating->id,
+            ];
+        }
+
+        return ['success' => false, 'error' => 'Оценка не найдена'];
     }
 
     public function actionAddImage($id)

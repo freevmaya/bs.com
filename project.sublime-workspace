@@ -519,6 +519,362 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "/C/Documents/Paragliding/Mesuring-test-defect.csv",
+			"settings":
+			{
+				"buffer_size": 104,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+				[
+					5,
+					1,
+					"insert",
+					{
+						"characters": "6504"
+					},
+					"BAAAAAAAAAAAAAAAAQAAAAAAAAAEAAAANjM0MAEAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAAAAAADAAAAAAAAAAQAAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					10,
+					1,
+					"insert",
+					{
+						"characters": "6423"
+					},
+					"BAAAABUAAAAAAAAAFgAAAAAAAAAEAAAANjMyMBYAAAAAAAAAFwAAAAAAAAAAAAAAFwAAAAAAAAAYAAAAAAAAAAAAAAAYAAAAAAAAABkAAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAFQAAAAAAAAAZAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					15,
+					1,
+					"insert",
+					{
+						"characters": "6374"
+					},
+					"BAAAACoAAAAAAAAAKwAAAAAAAAAEAAAANjMxMCsAAAAAAAAALAAAAAAAAAAAAAAALAAAAAAAAAAtAAAAAAAAAAAAAAAtAAAAAAAAAC4AAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAKgAAAAAAAAAuAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					26,
+					1,
+					"paste",
+					null,
+					"AQAAAD4AAAAAAAAAUwAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAPgAAAAAAAAA+AAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					31,
+					1,
+					"insert",
+					{
+						"characters": "6292"
+					},
+					"BAAAAD8AAAAAAAAAQAAAAAAAAAAEAAAANjM3NEAAAAAAAAAAQQAAAAAAAAAAAAAAQQAAAAAAAABCAAAAAAAAAAAAAABCAAAAAAAAAEMAAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAPwAAAAAAAABDAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					32,
+					1,
+					"left_delete",
+					null,
+					"AQAAAEIAAAAAAAAAQgAAAAAAAAABAAAAMg",
+					"AQAAAAAAAAABAAAAQwAAAAAAAABDAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					33,
+					1,
+					"insert",
+					{
+						"characters": "5"
+					},
+					"AQAAAEIAAAAAAAAAQwAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAQgAAAAAAAABCAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					36,
+					1,
+					"paste",
+					null,
+					"AQAAAFMAAAAAAAAAaAAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAUwAAAAAAAABTAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					41,
+					1,
+					"insert",
+					{
+						"characters": "623"
+					},
+					"AwAAAFQAAAAAAAAAVQAAAAAAAAAEAAAANjM3NFUAAAAAAAAAVgAAAAAAAAAAAAAAVgAAAAAAAABXAAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAVAAAAAAAAABYAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					42,
+					1,
+					"insert",
+					{
+						"characters": "6"
+					},
+					"AQAAAFcAAAAAAAAAWAAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAVwAAAAAAAABXAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					45,
+					1,
+					"paste",
+					null,
+					"AQAAAGgAAAAAAAAAfQAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAaAAAAAAAAABoAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					50,
+					1,
+					"insert",
+					{
+						"characters": "615"
+					},
+					"AwAAAGkAAAAAAAAAagAAAAAAAAAEAAAANjM3NGoAAAAAAAAAawAAAAAAAAAAAAAAawAAAAAAAABsAAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAaQAAAAAAAABtAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					51,
+					1,
+					"insert",
+					{
+						"characters": "1"
+					},
+					"AQAAAGwAAAAAAAAAbQAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAbAAAAAAAAABsAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					61,
+					1,
+					"paste",
+					null,
+					"AQAAAAcAAAAAAAAACwAAAAAAAAAEAAAANjM2MA",
+					"AQAAAAAAAAABAAAABwAAAAAAAAALAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					71,
+					1,
+					"paste",
+					null,
+					"AQAAABwAAAAAAAAAIAAAAAAAAAAEAAAANjM0MA",
+					"AQAAAAAAAAABAAAAHAAAAAAAAAAgAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					86,
+					1,
+					"paste",
+					null,
+					"AQAAADEAAAAAAAAANQAAAAAAAAAEAAAANjMyMA",
+					"AQAAAAAAAAABAAAAMQAAAAAAAAA1AAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					96,
+					1,
+					"paste",
+					null,
+					"AQAAAEYAAAAAAAAASgAAAAAAAAAEAAAANjMyMA",
+					"AQAAAAAAAAABAAAARgAAAAAAAABKAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					106,
+					1,
+					"paste",
+					null,
+					"AQAAAFsAAAAAAAAAXwAAAAAAAAAEAAAANjMyMA",
+					"AQAAAAAAAAABAAAAWwAAAAAAAABfAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					116,
+					1,
+					"paste",
+					null,
+					"AQAAAA4AAAAAAAAAEgAAAAAAAAAEAAAANjM4MA",
+					"AQAAAAAAAAABAAAADgAAAAAAAAASAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					126,
+					1,
+					"paste",
+					null,
+					"AQAAACMAAAAAAAAAJwAAAAAAAAAEAAAANjM2MA",
+					"AQAAAAAAAAABAAAAIwAAAAAAAAAnAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					136,
+					1,
+					"paste",
+					null,
+					"AQAAADgAAAAAAAAAPAAAAAAAAAAEAAAANjM0MA",
+					"AQAAAAAAAAABAAAAOAAAAAAAAAA8AAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					146,
+					1,
+					"paste",
+					null,
+					"AQAAAE0AAAAAAAAAUQAAAAAAAAAEAAAANjM0MA",
+					"AQAAAAAAAAABAAAATQAAAAAAAABRAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					149,
+					2,
+					"left_delete",
+					null,
+					"AgAAAGIAAAAAAAAAYgAAAAAAAAAGAAAANjM0MC8yYQAAAAAAAABhAAAAAAAAAAEAAAAJ",
+					"AQAAAAAAAAABAAAAYgAAAAAAAABoAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					155,
+					1,
+					"left_delete",
+					null,
+					"AQAAAGgAAAAAAAAAaAAAAAAAAAAOAAAACTYzMjAvMgk2MzQwLzI",
+					"AQAAAAAAAAABAAAAaAAAAAAAAAB2AAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					158,
+					1,
+					"insert",
+					{
+						"characters": "2"
+					},
+					"AQAAAEQAAAAAAAAARQAAAAAAAAABAAAAMQ",
+					"AQAAAAAAAAABAAAARAAAAAAAAABFAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					161,
+					1,
+					"insert",
+					{
+						"characters": "2"
+					},
+					"AQAAAFkAAAAAAAAAWgAAAAAAAAABAAAAMQ",
+					"AQAAAAAAAAABAAAAWQAAAAAAAABaAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					164,
+					1,
+					"insert",
+					{
+						"characters": "2"
+					},
+					"AQAAAGcAAAAAAAAAaAAAAAAAAAABAAAAMQ",
+					"AQAAAAAAAAABAAAAZwAAAAAAAABoAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					167,
+					1,
+					"insert",
+					{
+						"characters": "1"
+					},
+					"AQAAACEAAAAAAAAAIgAAAAAAAAABAAAAMg",
+					"AQAAAAAAAAABAAAAIQAAAAAAAAAiAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					170,
+					1,
+					"insert",
+					{
+						"characters": "1"
+					},
+					"AQAAADYAAAAAAAAANwAAAAAAAAABAAAAMg",
+					"AQAAAAAAAAABAAAANgAAAAAAAAA3AAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					175,
+					1,
+					"insert",
+					{
+						"characters": "1"
+					},
+					"AQAAAD0AAAAAAAAAPgAAAAAAAAABAAAAMg",
+					"AQAAAAAAAAABAAAAPQAAAAAAAAA+AAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					178,
+					1,
+					"insert",
+					{
+						"characters": "1"
+					},
+					"AQAAAFIAAAAAAAAAUwAAAAAAAAABAAAAMg",
+					"AQAAAAAAAAABAAAAUgAAAAAAAABTAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					183,
+					1,
+					"insert",
+					{
+						"characters": "2"
+					},
+					"AQAAAD0AAAAAAAAAPgAAAAAAAAABAAAAMQ",
+					"AQAAAAAAAAABAAAAPQAAAAAAAAA+AAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					186,
+					1,
+					"insert",
+					{
+						"characters": "2"
+					},
+					"AQAAAFIAAAAAAAAAUwAAAAAAAAABAAAAMQ",
+					"AQAAAAAAAAABAAAAUgAAAAAAAABTAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					239,
+					1,
+					"left_delete",
+					null,
+					"AQAAAEgAAAAAAAAASAAAAAAAAAABAAAAMw",
+					"AQAAAAAAAAABAAAASQAAAAAAAABJAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					240,
+					1,
+					"insert",
+					{
+						"characters": "5"
+					},
+					"AQAAAEgAAAAAAAAASQAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAASAAAAAAAAABIAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					242,
+					1,
+					"left_delete",
+					null,
+					"AQAAAF0AAAAAAAAAXQAAAAAAAAABAAAANQ",
+					"AQAAAAAAAAABAAAAXgAAAAAAAABeAAAAAAAAAAAAAAAAwFZA"
+				],
+				[
+					243,
+					1,
+					"insert",
+					{
+						"characters": "7"
+					},
+					"AQAAAF0AAAAAAAAAXgAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAXQAAAAAAAABdAAAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "/C/Documents/Paragliding/Mesuring-test.csv",
+			"settings":
+			{
+				"buffer_size": 104,
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -600,9 +956,14 @@
 	},
 	"expanded_folders":
 	[
+		"/C/OpenServer/domains/bs.com",
+		"/C/OpenServer/domains/bs.com/utils"
 	],
 	"file_history":
 	[
+		"/C/OpenServer/domains/bs.com/.gitignore",
+		"/C/OpenServer/domains/bs.com/views/advertisements/create.php",
+		"/C/OpenServer/domains/bs.com/utils/parse-advertisment-prompt.txt",
 		"/C/Documents/Paragliding/UP Trango X/Measuring.csv",
 		"/C/Documents/Paragliding/UP Kibo 2/Mesuring.csv",
 		"/C/Users/fwadi/Downloads/Перепады.xlsx - UP Kibo2 M.csv",
@@ -620,7 +981,6 @@
 		"/C/OpenServer/domains/bs.com/config/web.php",
 		"/C/Users/fwadi/Downloads/Первоначальное обучение  (4).txt",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-3/web.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/create.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/_item.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/view.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000018_add_currency_to_advertisements.php",
@@ -713,7 +1073,6 @@
 		"/C/OpenServer/domains/bs.com/test-yii-mailer.php",
 		"/C/OpenServer/domains/bs.com/test-curl.php",
 		"/C/OpenServer/domains/bs.com/test-smtp-full.php",
-		"/C/OpenServer/domains/bs.com/.gitignore",
 		"/C/OpenServer/domains/bs.com/public_html/css/bottom-nav.css",
 		"/C/OpenServer/domains/bs.com/public_html/js/bottom-nav.js",
 		"/C/OpenServer/domains/bs.com/public_html/js/color-mode.js",
@@ -729,8 +1088,7 @@
 		"/C/OpenServer/domains/bs.com/web/css/search.css",
 		"/C/OpenServer/domains/bs.com/widgets/SearchBar.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000009_fix_conversations_unique_index.php",
-		"/C/OpenServer/domains/bs.com/web/js/messages.js",
-		"/C/OpenServer/domains/bs.com/views/messages/index.php"
+		"/C/OpenServer/domains/bs.com/web/js/messages.js"
 	],
 	"find":
 	{
@@ -1153,6 +1511,65 @@
 		{
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "/C/Documents/Paragliding/Mesuring-test-defect.csv",
+					"selected": true,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 104,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								104,
+								104
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/C/Documents/Paragliding/Mesuring-test.csv",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 104,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"stack_multiselect": false,
+					"type": "text"
+				}
 			]
 		}
 	],
