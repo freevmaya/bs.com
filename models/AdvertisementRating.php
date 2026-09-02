@@ -218,25 +218,6 @@ class AdvertisementRating extends ActiveRecord
         }
 
         // ============================================================
-        // ДЕТАЛЬНЫЕ ДАННЫЕ (раскрывающийся блок)
-        // ============================================================
-        if (!empty($data)) {
-            $html .= '<details class="rating-details" style="margin-top: 10px; cursor: pointer;">';
-            $html .= '<summary style="color: var(--bs-link-color); cursor: pointer; padding: 4px 0;">';
-            $html .= '📊 Детальный разбор';
-            $html .= '</summary>';
-            
-            // Форматируем данные для отображения
-            $displayData = $data;
-            unset($displayData['raw_response']); // Убираем сырой ответ если есть
-            
-            $html .= '<pre style="background: var(--bs-tertiary-bg); padding: 12px; border-radius: 6px; margin: 8px 0 0 0; font-size: 12px; overflow-x: auto; max-height: 300px;">';
-            $html .= json_encode($displayData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-            $html .= '</pre>';
-            $html .= '</details>';
-        }
-
-        // ============================================================
         // МЕТА-ИНФОРМАЦИЯ
         // ============================================================
         $html .= '<div class="rating-meta" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--bs-border-color); font-size: 12px; color: var(--bs-secondary-color);">';
