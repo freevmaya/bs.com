@@ -142,14 +142,6 @@ class AdvertisementRating extends ActiveRecord
             $html .= '<div class="rating-recommendation"><strong>💡 Рекомендация:</strong> ' . nl2br($this->recommendation) . '</div>';
         }
 
-        // Детальные данные
-        if (!empty($data)) {
-            $html .= '<details class="rating-details">';
-            $html .= '<summary>📊 Детальный разбор</summary>';
-            $html .= '<pre>' . json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . '</pre>';
-            $html .= '</details>';
-        }
-
         $html .= '<div class="rating-meta">';
         $html .= 'Оценено с помощью: <strong>' . $this->ai_model . '</strong>';
         $html .= ' • ' . Yii::$app->formatter->asDatetime($this->created_at);
