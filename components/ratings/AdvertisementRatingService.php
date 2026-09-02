@@ -3,87 +3,18 @@
 
 namespace app\components\ratings;
 
-use yii\httpclient\Client;
 use Yii;
 use app\models\Advertisement;
 use app\models\AdvertisementGlider;
-use app\models\Producer;
-use app\models\Certification;
+use app\models\AdvertisementHarness;
+use app\models\AdvertisementDevice;
 
 class AdvertisementRatingService
 {
     /**
-     * @var string API ключ OpenRouter
-     */
-    private string $apiKey;
-    
-    /**
-     * @var string Базовый URL API
-     */
-    private string $baseUrl = 'https://openrouter.ai/api/v1';
-    
-    /**
-     * @var string Модель для использования
-     */
-    private string $model = 'openai/gpt-3.5-turbo';
-    
-    /**
-     * @var string Модель по умолчанию (для совместимости с конфигурацией)
-     */
-    public string $defaultModel = 'openai/gpt-3.5-turbo';
-    
-    /**
-     * @var array Доступные модели (для совместимости с конфигурацией)
-     */
-    public array $availableModels = [
-        'openai/gpt-3.5-turbo',
-        'openai/gpt-4',
-        'anthropic/claude-3-haiku',
-        'anthropic/claude-3-sonnet',
-        'google/gemini-pro',
-    ];
-    
-    /**
-     * @var string HTTP Referer для запросов
-     */
-    private string $referer = 'https://your-site.com';
-    
-    /**
-     * @var string Название приложения
-     */
-    private string $appTitle = 'Yii2 App';
-    
-    /**
-     * @var int Таймаут запроса в секундах
-     */
-    private int $timeout = 30;
-    
-    /**
      * @var array Кэш для объявлений из БД
      */
     private array $advertisementsCache = [];
-    
-    /**
-     * Конструктор
-     */
-    public function __construct()
-    {
-        $this->apiKey = Yii::$app->params['openrouter_api_key'] ?? '';
-        
-        if (empty($this->apiKey)) {
-            throw new \yii\base\InvalidConfigException(
-                'OpenRouter API key не настроен в параметрах приложения. ' .
-                'Добавьте параметр openrouter_api_key в config/params.php'
-            );
-        }
-        
-        $this->baseUrl = Yii::$app->params['openrouter_base_url'] ?? $this->baseUrl;
-        $this->model = Yii::$app->params['openrouter_default_model'] ?? $this->model;
-        $this->defaultModel = $this->model;
-        $this->referer = Yii::$app->params['openrouter_referer'] ?? $this->referer;
-        $this->appTitle = Yii::$app->params['openrouter_app_title'] ?? $this->appTitle;
-        $this->timeout = Yii::$app->params['openrouter_timeout'] ?? $this->timeout;
-    }
     
     /**
      * Получить похожие объявления из БД для сравнения
@@ -92,7 +23,7 @@ class AdvertisementRatingService
      * @param int $limit Максимальное количество аналогов
      * @return array Массив объявлений-аналогов
      */
-    private function getSimilarAdvertisements(Advertisement $advertisement, int $limit = 10): array
+    public function getSimilarAdvertisements(Advertisement $advertisement, int $limit = 20): array
     {
         $cacheKey = $advertisement->id . '_' . $limit;
         if (isset($this->advertisementsCache[$cacheKey])) {
@@ -103,43 +34,47 @@ class AdvertisementRatingService
             ->where(['status' => Advertisement::STATUS_ACTIVE])
             ->andWhere(['section' => Advertisement::SECTION_SELL])
             ->andWhere(['type' => $advertisement->type])
-            ->andWhere(['<>', 'advertisements.id', $advertisement->id]) // ✅ Указываем полное имя таблицы
+            ->andWhere(['<>', 'advertisements.id', $advertisement->id])
+            ->andWhere(['is not', 'price', null])
             ->with(['glider', 'harness', 'device', 'user'])
             ->limit($limit);
         
-        // Для glider добавляем дополнительные фильтры
+        // Для glider добавляем дополнительные фильтры (постепенное ослабление)
         if ($advertisement->type === Advertisement::TYPE_GLIDER && $advertisement->glider) {
             $glider = $advertisement->glider;
             
             $query->innerJoin('advertisement_glider', 'advertisement_glider.advertisement_id = advertisements.id');
             
-            // Приоритет 1: Сертификация
+            // Приоритет 1: Сертификация (обязательно)
             if ($glider->certification_id) {
                 $query->andWhere(['advertisement_glider.certification_id' => $glider->certification_id]);
             }
             
-            // Приоритет 2: Год выпуска (с разбросом +/- 3 года)
-            if ($glider->date_release) {
-                $year = (int)$glider->date_release;
-                $query->andWhere(['between', 'advertisement_glider.date_release', $year - 3, $year + 3]);
-            }
-            
-            // Приоритет 3: Производитель
+            // Приоритет 2: Производитель (обязательно)
             if ($glider->producer_id) {
                 $query->andWhere(['advertisement_glider.producer_id' => $glider->producer_id]);
             }
             
-            // Приоритет 4: Состояние
+            // Приоритет 3: Состояние (желательно)
             if ($glider->condition) {
                 $query->andWhere(['advertisement_glider.condition' => $glider->condition]);
             }
             
-            // Приоритет 5: Весовая вилка (с разбросом +/- 10 кг)
+            // Приоритет 4: Весовая вилка (с разбросом +/- 15 кг)
             if ($glider->weight_min && $glider->weight_max) {
-                $min = $glider->weight_min - 10;
-                $max = $glider->weight_max + 10;
-                $query->andWhere(['between', 'advertisement_glider.weight_min', $min, $max]);
-                $query->andWhere(['between', 'advertisement_glider.weight_max', $min, $max]);
+                $min = $glider->weight_min - 15;
+                $max = $glider->weight_max + 15;
+                $query->andWhere([
+                    'or',
+                    ['between', 'advertisement_glider.weight_min', $min, $max],
+                    ['between', 'advertisement_glider.weight_max', $min, $max],
+                ]);
+            }
+            
+            // Приоритет 5: Год выпуска (с разбросом +/- 5 лет)
+            if ($glider->date_release) {
+                $year = (int)$glider->date_release;
+                $query->andWhere(['between', 'advertisement_glider.date_release', $year - 5, $year + 5]);
             }
         }
         
@@ -153,17 +88,17 @@ class AdvertisementRatingService
                 $query->andWhere(['advertisement_harness.producer_id' => $harness->producer_id]);
             }
             
-            if ($harness->size) {
-                $query->andWhere(['advertisement_harness.size' => $harness->size]);
-            }
-            
             if ($harness->condition) {
                 $query->andWhere(['advertisement_harness.condition' => $harness->condition]);
             }
             
+            if ($harness->size) {
+                $query->andWhere(['advertisement_harness.size' => $harness->size]);
+            }
+            
             if ($harness->date_release) {
                 $year = (int)$harness->date_release;
-                $query->andWhere(['between', 'advertisement_harness.date_release', $year - 2, $year + 2]);
+                $query->andWhere(['between', 'advertisement_harness.date_release', $year - 3, $year + 3]);
             }
         }
         
@@ -185,16 +120,24 @@ class AdvertisementRatingService
         // Выполняем запрос
         $similar = $query->all();
         
-        // Если ничего не найдено, пробуем получить просто похожие по типу
+        // Если ничего не найдено, пробуем получить просто похожие по типу и производителю
         if (empty($similar)) {
-            // Fallback: просто объявления того же типа
             $query = Advertisement::find()
                 ->where(['status' => Advertisement::STATUS_ACTIVE])
                 ->andWhere(['section' => Advertisement::SECTION_SELL])
                 ->andWhere(['type' => $advertisement->type])
-                ->andWhere(['<>', 'advertisements.id', $advertisement->id]) // ✅ Указываем полное имя таблицы
+                ->andWhere(['<>', 'advertisements.id', $advertisement->id])
+                ->andWhere(['is not', 'price', null])
                 ->with(['glider', 'harness', 'device', 'user'])
                 ->limit($limit);
+            
+            if ($advertisement->type === Advertisement::TYPE_GLIDER && $advertisement->glider) {
+                $query->innerJoin('advertisement_glider', 'advertisement_glider.advertisement_id = advertisements.id');
+                
+                if ($advertisement->glider->producer_id) {
+                    $query->andWhere(['advertisement_glider.producer_id' => $advertisement->glider->producer_id]);
+                }
+            }
             
             $similar = $query->all();
         }
@@ -204,445 +147,621 @@ class AdvertisementRatingService
     }
     
     /**
-     * Формирует промпт для AI на основе объявления и аналогов
+     * Интерполяция цены на основе года выпуска
      * 
-     * @param Advertisement $advertisement Оцениваемое объявление
      * @param array $similar Аналоги из БД
-     * @param string $context Контекст/тема
-     * @return string Сформированный промпт
+     * @param int $targetYear Год выпуска оцениваемого крыла
+     * @param int $currentYear Текущий год
+     * @return float|null Интерполированная цена
      */
-    private function buildPrompt(Advertisement $advertisement, array $similar, string $context): string
+    private function interpolatePriceByYear(array $similar, int $targetYear, int $currentYear): ?float
     {
-        // 1. Информация об оцениваемом объявлении
-        $targetInfo = $this->formatAdvertisementInfo($advertisement);
-        
-        // 2. Информация об аналогах
-        $similarInfo = '';
-        if (!empty($similar)) {
-            $similarInfo = "\n\n--- АНАЛОГИЧНЫЕ ОБЪЯВЛЕНИЯ ИЗ БАЗЫ ДАННЫХ (для сравнения): ---\n";
-            foreach ($similar as $index => $similarAd) {
-                $similarInfo .= "\n" . ($index + 1) . ". " . $this->formatAdvertisementInfo($similarAd);
-            }
-        } else {
-            $similarInfo = "\n\n--- ВНИМАНИЕ: В БАЗЕ НЕТ АНАЛОГИЧНЫХ ОБЪЯВЛЕНИЙ. ---\nОценивайте на основе рыночной логики и здравого смысла.\n";
-        }
-        
-        // 3. Инструкции для оценки (с приоритетами)
-        $instructions = $this->getRatingInstructions($advertisement->type);
-        
-        // 4. Собираем полный промпт
-        $prompt = $instructions . "\n\n" .
-                  "--- ОЦЕНИВАЕМОЕ ОБЪЯВЛЕНИЕ: ---\n" .
-                  $targetInfo .
-                  $similarInfo . "\n\n" .
-                  "--- ТРЕБОВАНИЯ К ОТВЕТУ: ---\n" .
-                  "Верни ответ строго в формате JSON со следующей структурой:\n" .
-                  "{\n" .
-                  "    \"fair_price\": число (рекомендуемая справедливая цена в рублях),\n" .
-                  "    \"price_range\": {\n" .
-                  "        \"min\": число (минимальная цена),\n" .
-                  "        \"max\": число (максимальная цена)\n" .
-                  "    },\n" .
-                  "    \"confidence\": число от 1 до 10 (уверенность в оценке),\n" .
-                  "    \"appeal\": число от 1 до 10 (привлекательность объявления),\n" .
-                  "    \"clarity\": число от 1 до 10 (ясность описания),\n" .
-                  "    \"relevance\": число от 1 до 10 (соответствие рыночной ситуации),\n" .
-                  "    \"call_to_action\": число от 1 до 10 (призыв к действию),\n" .
-                  "    \"pros\": [\"плюс 1\", \"плюс 2\", ...],\n" .
-                  "    \"cons\": [\"минус 1\", \"минус 2\", ...],\n" .
-                  "    \"recommendations\": \"строка с рекомендациями по цене и улучшению объявления\",\n" .
-                  "    \"market_analysis\": \"строка с анализом рынка на основе аналогов\"\n" .
-                  "}\n\n" .
-                  "Важно: fair_price и price_range должны быть основаны на анализе аналогов из БД.\n" .
-                  "Если аналогов нет, используй рыночную логику и указывай это в market_analysis.";
-        
-        return $prompt;
-    }
-    
-    /**
-     * Форматирует информацию об объявлении для промпта
-     */
-    private function formatAdvertisementInfo(Advertisement $ad): string
-    {
-        $info = "ID: #{$ad->id}\n";
-        $info .= "Заголовок: {$ad->title}\n";
-        $info .= "Цена: " . ($ad->price ? number_format($ad->price, 0, '.', ' ') . ' ₽' : 'не указана') . "\n";
-        $info .= "Город: " . ($ad->city ?: 'не указан') . "\n";
-        $info .= "Описание: " . ($ad->description ?: 'не указано') . "\n";
-        
-        // Добавляем информацию о типе
-        $typeObject = $ad->getTypeObject();
-        if ($typeObject) {
-            $info .= "\n--- ХАРАКТЕРИСТИКИ ТОВАРА: ---\n";
+        // Фильтруем аналоги с указанным годом выпуска и ценой
+        $points = [];
+        foreach ($similar as $ad) {
+            $typeObject = $ad->getTypeObject();
+            if (!$typeObject) continue;
             
-            if ($typeObject instanceof AdvertisementGlider) {
-                $info .= "Тип: Параплан\n";
-                $info .= "Модель: " . ($typeObject->model ?: 'не указана') . "\n";
-                
-                $producer = $typeObject->producer;
-                $info .= "Производитель: " . ($producer ? $producer->name : 'не указан') . "\n";
-                
-                $cert = $typeObject->certification;
-                $info .= "Сертификация: " . ($cert ? $cert->name : 'не указана') . "\n";
-                
-                $info .= "Весовая вилка: " . 
-                    ($typeObject->weight_min && $typeObject->weight_max 
-                        ? "{$typeObject->weight_min} - {$typeObject->weight_max} кг" 
-                        : 'не указана') . "\n";
-                
-                $info .= "Год выпуска: " . ($typeObject->date_release ?: 'не указан') . "\n";
-                $info .= "Налёт: " . ($typeObject->flight_time ? $typeObject->flight_time . ' ч.' : 'не указан') . "\n";
-                $info .= "Состояние: " . $this->getConditionLabel($typeObject->condition) . "\n";
-                $info .= "Дефекты: " . ($typeObject->defects ?: 'не указаны') . "\n";
-                if ($typeObject->cause) {
-                    $info .= "Причина продажи: {$typeObject->cause}\n";
-                }
-            } elseif ($typeObject instanceof AdvertisementHarness) {
-                $info .= "Тип: Подвесная система\n";
-                $info .= "Модель: " . ($typeObject->model ?: 'не указана') . "\n";
-                
-                $producer = $typeObject->producer;
-                $info .= "Производитель: " . ($producer ? $producer->name : 'не указан') . "\n";
-                
-                $info .= "Размер: " . ($typeObject->size ?: 'не указан') . "\n";
-                $info .= "Год выпуска: " . ($typeObject->date_release ?: 'не указан') . "\n";
-                $info .= "Состояние: " . $this->getConditionLabel($typeObject->condition) . "\n";
-                $info .= "Дефекты: " . ($typeObject->defects ?: 'не указаны') . "\n";
-            } elseif ($typeObject instanceof AdvertisementDevice) {
-                $info .= "Тип: Прибор\n";
-                $info .= "Модель: " . ($typeObject->model ?: 'не указана') . "\n";
-                
-                $producer = $typeObject->producer;
-                $info .= "Производитель: " . ($producer ? $producer->name : 'не указан') . "\n";
-                
-                $info .= "Состояние: " . $this->getConditionLabel($typeObject->condition) . "\n";
-                $info .= "Дефекты: " . ($typeObject->defects ?: 'не указаны') . "\n";
+            $year = $typeObject->date_release;
+            $price = $ad->price;
+            
+            if ($year && $price && $year > 1990 && $year <= $currentYear) {
+                $points[] = [
+                    'year' => (int)$year,
+                    'price' => (float)$price,
+                ];
             }
         }
         
-        return $info;
+        // Если меньше 2 точек - не можем интерполировать
+        if (count($points) < 2) {
+            return null;
+        }
+        
+        // Сортируем по году
+        usort($points, function($a, $b) {
+            return $a['year'] <=> $b['year'];
+        });
+        
+        // Если целевой год меньше минимального - экстраполяция назад
+        if ($targetYear < $points[0]['year']) {
+            // Используем линейную регрессию для экстраполяции
+            $slope = $this->calculateSlope($points);
+            return $points[0]['price'] - $slope * ($points[0]['year'] - $targetYear);
+        }
+        
+        // Если целевой год больше максимального - экстраполяция вперед
+        if ($targetYear > $points[count($points) - 1]['year']) {
+            $slope = $this->calculateSlope($points);
+            return $points[count($points) - 1]['price'] + $slope * ($targetYear - $points[count($points) - 1]['year']);
+        }
+        
+        // Находим две ближайшие точки для интерполяции
+        for ($i = 0; $i < count($points) - 1; $i++) {
+            if ($points[$i]['year'] <= $targetYear && $points[$i + 1]['year'] >= $targetYear) {
+                $x1 = $points[$i]['year'];
+                $y1 = $points[$i]['price'];
+                $x2 = $points[$i + 1]['year'];
+                $y2 = $points[$i + 1]['price'];
+                
+                // Линейная интерполяция
+                return $y1 + ($y2 - $y1) * ($targetYear - $x1) / ($x2 - $x1);
+            }
+        }
+        
+        // Если не нашли - используем медиану
+        return $this->calculateMedian($points);
     }
     
     /**
-     * Возвращает метку состояния на русском
+     * Вычисляет наклон (slope) для линейной регрессии
      */
-    private function getConditionLabel(?string $condition): string
+    private function calculateSlope(array $points): float
     {
-        if (!$condition) return 'не указано';
+        $n = count($points);
+        if ($n < 2) return 0;
         
-        $labels = [
-            'new' => 'Новый',
-            'excellent' => 'Отличное',
-            'good' => 'Хорошее',
-            'fair' => 'Удовлетворительное',
-            'bad' => 'Плохое',
+        $sumX = 0;
+        $sumY = 0;
+        $sumXY = 0;
+        $sumX2 = 0;
+        
+        foreach ($points as $p) {
+            $sumX += $p['year'];
+            $sumY += $p['price'];
+            $sumXY += $p['year'] * $p['price'];
+            $sumX2 += $p['year'] * $p['year'];
+        }
+        
+        $denominator = $n * $sumX2 - $sumX * $sumX;
+        if ($denominator == 0) return 0;
+        
+        return ($n * $sumXY - $sumX * $sumY) / $denominator;
+    }
+    
+    /**
+     * Вычисляет медиану цен
+     */
+    private function calculateMedian(array $points): float
+    {
+        $prices = array_column($points, 'price');
+        sort($prices);
+        $count = count($prices);
+        
+        if ($count == 0) return 0;
+        if ($count % 2 == 1) {
+            return $prices[($count - 1) / 2];
+        }
+        return ($prices[$count / 2 - 1] + $prices[$count / 2]) / 2;
+    }
+    
+    /**
+     * Рассчитывает коэффициент износа на основе состояния
+     */
+    private function getConditionMultiplier(string $condition): float
+    {
+        $multipliers = [
+            'new' => 1.0,
+            'excellent' => 0.90,
+            'good' => 0.80,
+            'fair' => 0.65,
+            'bad' => 0.45,
         ];
         
-        return $labels[$condition] ?? $condition;
+        return $multipliers[$condition] ?? 0.80;
     }
     
     /**
-     * Инструкции для оценки в зависимости от типа
+     * Рассчитывает коэффициент дефектов
      */
-    private function getRatingInstructions(string $type): string
+    private function getDefectsMultiplier(?string $defects): float
     {
-        $baseInstructions = "Ты - эксперт по оценке стоимости подержанного парапланерного снаряжения. " .
-                           "Твоя задача - оценить справедливую рыночную цену объявления на основе " .
-                           "реальных данных из базы данных аналогичных объявлений.\n\n" .
-                           "Учитывай следующие факторы при оценке:\n";
-        
-        if ($type === Advertisement::TYPE_GLIDER) {
-            $baseInstructions .= "1. Сертификация (EN A, EN B, EN C, EN D, CCC) - САМЫЙ ВАЖНЫЙ ФАКТОР!\n" .
-                                 "2. Год выпуска - чем новее, тем дороже (износ материалов)\n" .
-                                 "3. Производитель (бренд) - влияет на цену\n" .
-                                 "4. Состояние (новый, отличное, хорошее, удовлетворительное, плохое)\n" .
-                                 "5. Наличие/отсутствие дефектов (ремонты, повреждения)\n" .
-                                 "6. Весовая вилка - популярные веса ценятся выше\n" .
-                                 "7. Налёт (часы) - чем меньше, тем дороже\n" .
-                                 "8. Комплектация (чехол, ремкомплект, шнуровка и т.д.)\n";
-        } elseif ($type === Advertisement::TYPE_HARNESS) {
-            $baseInstructions .= "1. Производитель (бренд) - САМЫЙ ВАЖНЫЙ ФАКТОР!\n" .
-                                 "2. Состояние (новый, отличное, хорошее, удовлетворительное, плохое)\n" .
-                                 "3. Год выпуска - чем новее, тем дороже\n" .
-                                 "4. Размер - популярные размеры ценятся выше\n" .
-                                 "5. Наличие/отсутствие дефектов (износ, повреждения)\n" .
-                                 "6. Модель и её актуальность\n";
-        } elseif ($type === Advertisement::TYPE_DEVICE) {
-            $baseInstructions .= "1. Производитель (бренд) - САМЫЙ ВАЖНЫЙ ФАКТОР!\n" .
-                                 "2. Состояние (новый, отличное, хорошее, удовлетворительное, плохое)\n" .
-                                 "3. Модель и её актуальность (функционал)\n" .
-                                 "4. Наличие/отсутствие дефектов\n" .
-                                 "5. Полнота комплектации (кабель, датчики и т.д.)\n";
+        if (empty($defects)) {
+            return 1.0;
         }
         
-        $baseInstructions .= "\nСравни цену оцениваемого объявления с ценами аналогов из БД.\n" .
-                             "Если цена значительно выше/ниже рыночной - укажи это в рекомендациях.\n" .
-                             "Будь объективен и используй данные из БД для обоснования оценки.";
+        $defectsLower = mb_strtolower($defects);
+        $multiplier = 1.0;
         
-        return $baseInstructions;
-    }
-    
-    /**
-     * Отправляет запрос к OpenRouter API
-     * 
-     * @param array $messages Массив сообщений для чата
-     * @param array $options Дополнительные параметры
-     * @return array Ответ от API
-     * @throws \yii\web\ServerErrorHttpException При ошибке API
-     */
-    public function callOpenRouter(array $messages, array $options = []): array
-    {
-        $requestBody = array_merge([
-            'model' => $this->model,
-            'messages' => $messages,
-            'response_format' => ['type' => 'json_object'],
-        ], $options);
+        // Ключевые слова и их влияние на цену
+        $penalties = [
+            'ремонт' => 0.10,
+            'рипстоп' => 0.08,
+            'заклейк' => 0.07,
+            'поврежден' => 0.12,
+            'бандаж' => 0.05,
+            'дырк' => 0.10,
+            'потёртост' => 0.05,
+            'замен' => 0.03,
+        ];
         
-        Yii::info([
-            'url' => $this->baseUrl . '/chat/completions',
-            'method' => 'POST',
-            'body' => $requestBody,
-        ], 'openrouter.request');
-        
-        try {
-            $client = new Client([
-                'baseUrl' => $this->baseUrl,
-                'transport' => 'yii\httpclient\CurlTransport',
-                'requestConfig' => [
-                    'options' => [
-                        'timeout' => $this->timeout,
-                    ],
-                ],
-            ]);
-            
-            $request = $client->createRequest()
-                ->setMethod('POST')
-                ->setUrl('chat/completions')
-                ->setFormat(Client::FORMAT_JSON)
-                ->setData($requestBody)
-                ->setHeaders([
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                    'HTTP-Referer' => $this->referer,
-                    'X-Title' => $this->appTitle,
-                ]);
-            
-            Yii::info($request->getContent(), 'openrouter.raw_json');
-            
-            $response = $request->send();
-            
-            if (!$response->isOk) {
-                $errorBody = $response->getContent();
-                $errorData = json_decode($errorBody, true);
-                $errorMessage = $errorData['error']['message'] ?? $errorBody ?? 'Неизвестная ошибка';
-                
-                Yii::error([
-                    'status' => $response->getStatusCode(),
-                    'body' => $errorBody,
-                    'headers' => $response->getHeaders()->toArray(),
-                ], 'openrouter.error');
-                
-                throw new \yii\web\ServerErrorHttpException(
-                    'Ошибка OpenRouter API: ' . $errorMessage
-                );
+        foreach ($penalties as $keyword => $penalty) {
+            if (strpos($defectsLower, $keyword) !== false) {
+                $multiplier -= $penalty;
             }
-            
-            $data = $response->getData();
-            
-            Yii::info([
-                'model' => $data['model'] ?? 'unknown',
-                'usage' => $data['usage'] ?? null,
-            ], 'openrouter.success');
-            
-            return $data;
-            
-        } catch (\yii\httpclient\Exception $e) {
-            Yii::error('HTTP клиент ошибка: ' . $e->getMessage(), 'openrouter.http_error');
-            throw new \yii\web\ServerErrorHttpException('Ошибка соединения с OpenRouter API: ' . $e->getMessage());
-        } catch (\yii\base\Exception $e) {
-            Yii::error('Общая ошибка: ' . $e->getMessage(), 'openrouter.general_error');
-            throw $e;
+        }
+        
+        // Если есть несколько дефектов - дополнительный штраф
+        $defectCount = 0;
+        foreach ($penalties as $keyword => $penalty) {
+            if (strpos($defectsLower, $keyword) !== false) {
+                $defectCount++;
+            }
+        }
+        
+        if ($defectCount > 1) {
+            $multiplier -= 0.05 * ($defectCount - 1);
+        }
+        
+        return max(0.60, $multiplier);
+    }
+    
+    /**
+     * Рассчитывает коэффициент налета
+     */
+    private function getFlightTimeMultiplier(?int $flightTime): float
+    {
+        if ($flightTime === null || $flightTime <= 0) {
+            return 1.0;
+        }
+        
+        // Чем больше налет, тем ниже цена
+        // 0-50 часов: почти не влияет
+        // 50-100 часов: небольшое влияние
+        // 100-200 часов: среднее влияние
+        // 200+ часов: значительное влияние
+        if ($flightTime <= 50) {
+            return 1.0 - ($flightTime / 50) * 0.05;
+        } elseif ($flightTime <= 100) {
+            return 0.95 - (($flightTime - 50) / 50) * 0.10;
+        } elseif ($flightTime <= 200) {
+            return 0.85 - (($flightTime - 100) / 100) * 0.15;
+        } else {
+            return 0.70 - min(0.20, (($flightTime - 200) / 100) * 0.10);
         }
     }
     
     /**
-     * Оценивает рекламное объявление на основе БД
+     * Основной метод оценки стоимости
      * 
      * @param Advertisement $advertisement Объявление для оценки
-     * @param string $context Контекст/тема
-     * @return array|null Результат оценки или null при ошибке
+     * @param string $context Контекст (не используется, но оставлен для совместимости)
+     * @return array|null Результат оценки
      */
     public function rateAdvertisement(Advertisement $advertisement, string $context): ?array
     {
         try {
             // Получаем аналоги из БД
-            $similar = $this->getSimilarAdvertisements($advertisement, 10);
+            $similar = $this->getSimilarAdvertisements($advertisement, 20);
             
-            // Формируем промпт
-            $prompt = $this->buildPrompt($advertisement, $similar, $context);
-            
-            $messages = [
-                ['role' => 'system', 'content' => 'Ты - эксперт по оценке стоимости подержанного парапланерного снаряжения. Отвечай строго в формате JSON.'],
-                ['role' => 'user', 'content' => $prompt]
-            ];
-            
-            $response = $this->callOpenRouter($messages, [
-                'max_tokens' => 1500,
-                'temperature' => 0.3,
-            ]);
-            
-            $content = $response['choices'][0]['message']['content'] ?? null;
-            
-            if (!$content) {
-                Yii::error('Пустой ответ от OpenRouter', 'advertisement.empty_response');
-                return null;
+            // Если нет аналогов - возвращаем базовую оценку
+            if (empty($similar)) {
+                return $this->getBaseRating($advertisement);
             }
             
-            // Парсим JSON ответ
-            $result = json_decode($content, true);
-            
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                Yii::error('Ошибка парсинга JSON от AI: ' . json_last_error_msg(), 'advertisement.parse_error');
-                Yii::info('Raw ответ: ' . $content, 'advertisement.raw_response');
-                return $this->parseRatingResponse($content);
+            $typeObject = $advertisement->getTypeObject();
+            if (!$typeObject || !($typeObject instanceof AdvertisementGlider)) {
+                // Пока поддерживаем только парапланы
+                return $this->getBaseRating($advertisement);
             }
             
-            // Проверяем наличие всех полей
-            $requiredFields = ['fair_price', 'price_range', 'confidence', 'appeal', 'clarity', 'relevance', 'call_to_action'];
-            foreach ($requiredFields as $field) {
-                if (!isset($result[$field])) {
-                    Yii::error("Отсутствует поле '$field' в ответе", 'advertisement.missing_field');
-                    return $this->parseRatingResponse($content);
+            $currentYear = (int)date('Y');
+            $targetYear = (int)($typeObject->date_release ?? $currentYear);
+            
+            // 1. Интерполяция цены по году выпуска
+            $interpolatedPrice = $this->interpolatePriceByYear($similar, $targetYear, $currentYear);
+            
+            // 2. Корректировка на состояние
+            $conditionMultiplier = $this->getConditionMultiplier($typeObject->condition ?? 'good');
+            
+            // 3. Корректировка на дефекты
+            $defectsMultiplier = $this->getDefectsMultiplier($typeObject->defects);
+            
+            // 4. Корректировка на налет
+            $flightTimeMultiplier = $this->getFlightTimeMultiplier($typeObject->flight_time);
+            
+            // 5. Корректировка на цену в объявлении (если указана)
+            $adPrice = (float)($advertisement->price ?? 0);
+            
+            // Рассчитываем базовую цену
+            $basePrice = $interpolatedPrice ?? $this->calculateMedian($similar);
+            
+            // Применяем все коэффициенты
+            $estimatedPrice = $basePrice * $conditionMultiplier * $defectsMultiplier * $flightTimeMultiplier;
+            
+            // Округляем до тысяч
+            $estimatedPrice = round($estimatedPrice / 1000) * 1000;
+            
+            // Если цена указана в объявлении - сравниваем
+            $priceDiff = 0;
+            $priceAdvice = '';
+            if ($adPrice > 0 && $estimatedPrice > 0) {
+                $priceDiff = round(($adPrice - $estimatedPrice) / $estimatedPrice * 100);
+                if ($priceDiff > 20) {
+                    $priceAdvice = 'Цена завышена на ' . $priceDiff . '% относительно рыночной. Рекомендуется снизить цену.';
+                } elseif ($priceDiff < -20) {
+                    $priceAdvice = 'Цена занижена на ' . abs($priceDiff) . '% относительно рыночной. Отличное предложение!';
+                } else {
+                    $priceAdvice = 'Цена соответствует рыночной.';
                 }
             }
             
-            // Валидируем числовые значения
-            $result['fair_price'] = max(0, (int)$result['fair_price']);
-            $result['price_range']['min'] = max(0, (int)$result['price_range']['min']);
-            $result['price_range']['max'] = max(0, (int)$result['price_range']['max']);
-            
-            foreach (['appeal', 'clarity', 'relevance', 'call_to_action', 'confidence'] as $field) {
-                $result[$field] = min(10, max(1, (int)$result[$field]));
-            }
-            
-            // Преобразуем pros и cons в строки, если они массивы
-            if (isset($result['pros']) && is_array($result['pros'])) {
-                $result['pros'] = implode("\n", $result['pros']);
-            }
-            if (isset($result['cons']) && is_array($result['cons'])) {
-                $result['cons'] = implode("\n", $result['cons']);
-            }
+            // Формируем результат
+            $result = [
+                'fair_price' => (int)$estimatedPrice,
+                'price_range' => [
+                    'min' => (int)round($estimatedPrice * 0.75 / 1000) * 1000,
+                    'max' => (int)round($estimatedPrice * 1.25 / 1000) * 1000,
+                ],
+                'confidence' => $this->calculateConfidence($similar, $typeObject),
+                'appeal' => $this->calculateAppeal($advertisement),
+                'clarity' => $this->calculateClarity($advertisement),
+                'relevance' => $this->calculateRelevance($advertisement, $similar),
+                'call_to_action' => $this->calculateCallToAction($advertisement),
+                'pros' => $this->generatePros($advertisement, $similar, $estimatedPrice, $adPrice),
+                'cons' => $this->generateCons($advertisement, $similar, $estimatedPrice, $adPrice),
+                'recommendations' => $this->generateRecommendations($advertisement, $estimatedPrice, $adPrice, $priceAdvice),
+                'market_analysis' => $this->generateMarketAnalysis($similar, $targetYear, $estimatedPrice),
+            ];
             
             return $result;
             
-        } catch (\yii\web\ServerErrorHttpException $e) {
-            Yii::error('Ошибка оценки: ' . $e->getMessage(), 'advertisement.rating_error');
-            return null;
+        } catch (\Exception $e) {
+            Yii::error('Ошибка оценки: ' . $e->getMessage(), 'rating_service');
+            return $this->getBaseRating($advertisement);
         }
     }
     
     /**
-     * Парсит ответ от AI в структурированный массив (fallback)
+     * Базовый рейтинг (когда нет аналогов)
      */
-    private function parseRatingResponse(string $content): ?array
+    private function getBaseRating(Advertisement $advertisement): array
     {
-        $result = [
-            'fair_price' => 0,
-            'price_range' => ['min' => 0, 'max' => 0],
-            'confidence' => 5,
-            'appeal' => 5,
+        $price = (float)($advertisement->price ?? 50000);
+        $estimatedPrice = round($price / 1000) * 1000;
+        
+        return [
+            'fair_price' => (int)$estimatedPrice,
+            'price_range' => [
+                'min' => (int)round($estimatedPrice * 0.7 / 1000) * 1000,
+                'max' => (int)round($estimatedPrice * 1.3 / 1000) * 1000,
+            ],
+            'confidence' => 4,
+            'appeal' => 6,
             'clarity' => 5,
             'relevance' => 5,
             'call_to_action' => 5,
-            'pros' => '',
-            'cons' => '',
-            'recommendations' => '',
-            'market_analysis' => '',
-            'raw_response' => $content,
+            'pros' => 'Нет достаточных данных для полного анализа',
+            'cons' => 'Нет аналогов в базе данных',
+            'recommendations' => 'Добавьте больше деталей в объявление и фото для повышения привлекательности.',
+            'market_analysis' => 'Недостаточно данных для точного анализа рынка. Рекомендуется изучить аналогичные объявления.',
         ];
+    }
+    
+    /**
+     * Расчет уверенности на основе количества аналогов
+     */
+    private function calculateConfidence(array $similar, $typeObject): int
+    {
+        $count = count($similar);
+        if ($count >= 10) return 8;
+        if ($count >= 7) return 7;
+        if ($count >= 5) return 6;
+        if ($count >= 3) return 5;
+        return 4;
+    }
+    
+    /**
+     * Расчет привлекательности объявления
+     */
+    private function calculateAppeal(Advertisement $ad): int
+    {
+        $score = 5;
         
-        // Извлекаем цену
-        if (preg_match('/fair_price["\s:]+(\d+)/i', $content, $matches)) {
-            $result['fair_price'] = (int)$matches[1];
+        // Наличие цены
+        if ($ad->price && $ad->price > 0) $score += 1;
+        
+        // Наличие описания
+        if ($ad->description && strlen($ad->description) > 50) $score += 1;
+        
+        // Наличие города
+        if ($ad->city) $score += 0.5;
+        
+        // Наличие контактов
+        if ($ad->phone || $ad->email || $ad->telegram || $ad->vk_profile_url) $score += 0.5;
+        
+        // Наличие фото
+        $imageCount = $ad->getImages()->count();
+        if ($imageCount >= 5) $score += 1;
+        elseif ($imageCount >= 3) $score += 0.5;
+        
+        return min(10, (int)round($score));
+    }
+    
+    /**
+     * Расчет ясности описания
+     */
+    private function calculateClarity(Advertisement $ad): int
+    {
+        $score = 5;
+        
+        $desc = $ad->description ?? '';
+        $descLength = strlen($desc);
+        
+        if ($descLength > 500) $score += 2;
+        elseif ($descLength > 200) $score += 1;
+        elseif ($descLength > 50) $score += 0.5;
+        
+        // Наличие структуры (абзацев)
+        if (substr_count($desc, "\n") >= 3) $score += 1;
+        
+        // Наличие ключевых слов
+        $keywords = ['состояние', 'дефект', 'комплект', 'налёт', 'часов'];
+        foreach ($keywords as $keyword) {
+            if (stripos($desc, $keyword) !== false) $score += 0.3;
         }
         
-        // Извлекаем диапазон цен
-        if (preg_match('/price_range["\s:]+.*?min["\s:]+(\d+).*?max["\s:]+(\d+)/is', $content, $matches)) {
-            $result['price_range']['min'] = (int)$matches[1];
-            $result['price_range']['max'] = (int)$matches[2];
-        }
+        return min(10, (int)round($score));
+    }
+    
+    /**
+     * Расчет релевантности рыночной ситуации
+     */
+    private function calculateRelevance(Advertisement $ad, array $similar): int
+    {
+        $score = 5;
         
-        // Извлекаем оценки
-        $scorePatterns = [
-            'confidence' => '/confidence["\s:]+(\d+)/i',
-            'appeal' => '/appeal["\s:]+(\d+)/i',
-            'clarity' => '/clarity["\s:]+(\d+)/i',
-            'relevance' => '/relevance["\s:]+(\d+)/i',
-            'call_to_action' => '/call_to_action["\s:]+(\d+)/i',
-        ];
-        
-        foreach ($scorePatterns as $key => $pattern) {
-            if (preg_match($pattern, $content, $matches)) {
-                $result[$key] = min(10, max(1, (int)$matches[1]));
+        // Сравниваем цену с аналогами
+        if (!empty($similar)) {
+            $prices = array_column(array_map(function($a) {
+                return ['price' => (float)$a->price];
+            }, $similar), 'price');
+            
+            $avgPrice = array_sum($prices) / count($prices);
+            $adPrice = (float)($ad->price ?? 0);
+            
+            if ($adPrice > 0 && $avgPrice > 0) {
+                $diff = abs($adPrice - $avgPrice) / $avgPrice;
+                if ($diff < 0.1) $score += 2;
+                elseif ($diff < 0.2) $score += 1;
+                elseif ($diff < 0.3) $score += 0.5;
+                else $score -= 1;
             }
         }
         
-        // Извлекаем рекомендации
-        if (preg_match('/recommendations["\s:]+"(.+?)"/is', $content, $matches)) {
-            $result['recommendations'] = trim($matches[1]);
-        } elseif (preg_match('/рекомендации["\s:]+"(.+?)"/is', $content, $matches)) {
-            $result['recommendations'] = trim($matches[1]);
-        }
-        
-        // Извлекаем анализ рынка
-        if (preg_match('/market_analysis["\s:]+"(.+?)"/is', $content, $matches)) {
-            $result['market_analysis'] = trim($matches[1]);
-        }
-        
-        // Извлекаем плюсы и минусы
-        if (preg_match('/pros["\s:]+\[(.*?)\]/is', $content, $matches)) {
-            $items = array_map('trim', explode(',', $matches[1]));
-            $result['pros'] = implode("\n", array_filter($items));
-        }
-        if (preg_match('/cons["\s:]+\[(.*?)\]/is', $content, $matches)) {
-            $items = array_map('trim', explode(',', $matches[1]));
-            $result['cons'] = implode("\n", array_filter($items));
-        }
-        
-        // Валидируем
-        if ($result['fair_price'] > 0) {
-            return $result;
-        }
-        
-        return null;
+        return min(10, max(1, (int)round($score)));
     }
     
     /**
-     * Устанавливает модель для использования
+     * Расчет призыва к действию
      */
-    public function setModel(string $model): self
+    private function calculateCallToAction(Advertisement $ad): int
     {
-        if (in_array($model, $this->availableModels)) {
-            $this->model = $model;
-            $this->defaultModel = $model;
-        } else {
-            Yii::warning("Модель '$model' не найдена в списке доступных", 'openrouter.model_warning');
+        $score = 5;
+        $desc = $ad->description ?? '';
+        
+        // Ключевые слова призыва
+        $ctaWords = ['пишите', 'звоните', 'свяжитесь', 'телеграм', 'whatsapp', 'смотреть', 'вопрос'];
+        foreach ($ctaWords as $word) {
+            if (stripos($desc, $word) !== false) {
+                $score += 0.5;
+            }
         }
-        return $this;
+        
+        // Наличие контактов
+        if ($ad->phone || $ad->email || $ad->telegram || $ad->vk_profile_url) {
+            $score += 1;
+        }
+        
+        return min(10, (int)round($score));
     }
     
     /**
-     * Возвращает текущую модель
+     * Генерация плюсов
      */
-    public function getModel(): string
+    private function generatePros(Advertisement $ad, array $similar, float $estimatedPrice, float $adPrice): string
     {
-        return $this->model;
+        $pros = [];
+        $typeObject = $ad->getTypeObject();
+        
+        // Состояние
+        if ($typeObject) {
+            $condition = $typeObject->condition ?? 'good';
+            $conditionLabels = [
+                'new' => 'Новое состояние',
+                'excellent' => 'Отличное состояние',
+                'good' => 'Хорошее состояние',
+            ];
+            if (isset($conditionLabels[$condition])) {
+                $pros[] = $conditionLabels[$condition];
+            }
+        }
+        
+        // Цена
+        if ($adPrice > 0 && $estimatedPrice > 0) {
+            $diff = ($adPrice - $estimatedPrice) / $estimatedPrice;
+            if ($diff < -0.1) {
+                $pros[] = 'Цена ниже рыночной';
+            }
+        }
+        
+        // Наличие фото
+        $imageCount = $ad->getImages()->count();
+        if ($imageCount >= 5) {
+            $pros[] = 'Много качественных фото';
+        } elseif ($imageCount >= 3) {
+            $pros[] = 'Есть фото';
+        }
+        
+        // Контакты
+        if ($ad->phone && $ad->telegram) {
+            $pros[] = 'Указаны контакты для связи';
+        }
+        
+        // Описание
+        if ($ad->description && strlen($ad->description) > 100) {
+            $pros[] = 'Подробное описание';
+        }
+        
+        // Если плюсов мало - добавляем стандартные
+        if (count($pros) < 3) {
+            $defaultPros = ['Хороший производитель', 'Адекватная цена'];
+            foreach ($defaultPros as $default) {
+                if (!in_array($default, $pros)) {
+                    $pros[] = $default;
+                }
+            }
+        }
+        
+        return implode("\n", array_slice($pros, 0, 5));
     }
     
     /**
-     * Возвращает список доступных моделей
+     * Генерация минусов
      */
-    public function getAvailableModels(): array
+    private function generateCons(Advertisement $ad, array $similar, float $estimatedPrice, float $adPrice): string
     {
-        return $this->availableModels;
+        $cons = [];
+        $typeObject = $ad->getTypeObject();
+        
+        // Дефекты
+        if ($typeObject && $typeObject->defects) {
+            $cons[] = 'Есть дефекты: ' . $typeObject->defects;
+        }
+        
+        // Цена
+        if ($adPrice > 0 && $estimatedPrice > 0) {
+            $diff = ($adPrice - $estimatedPrice) / $estimatedPrice;
+            if ($diff > 0.2) {
+                $cons[] = 'Цена завышена';
+            }
+        }
+        
+        // Отсутствие описания
+        if (empty($ad->description) || strlen($ad->description) < 50) {
+            $cons[] = 'Краткое описание';
+        }
+        
+        // Отсутствие фото
+        $imageCount = $ad->getImages()->count();
+        if ($imageCount < 3) {
+            $cons[] = 'Мало фото';
+        }
+        
+        // Отсутствие города
+        if (empty($ad->city)) {
+            $cons[] = 'Не указан город';
+        }
+        
+        // Если минусов мало - добавляем стандартные
+        if (count($cons) < 2) {
+            $cons[] = 'Рекомендуется добавить больше информации';
+        }
+        
+        return implode("\n", array_slice($cons, 0, 4));
+    }
+    
+    /**
+     * Генерация рекомендаций
+     */
+    private function generateRecommendations(Advertisement $ad, float $estimatedPrice, float $adPrice, string $priceAdvice): string
+    {
+        $recommendations = [];
+        
+        // Рекомендации по цене
+        if ($priceAdvice) {
+            $recommendations[] = $priceAdvice;
+        }
+        
+        // Рекомендации по описанию
+        if (empty($ad->description) || strlen($ad->description) < 50) {
+            $recommendations[] = 'Добавьте подробное описание с указанием состояния, дефектов и комплектации.';
+        }
+        
+        // Рекомендации по фото
+        $imageCount = $ad->getImages()->count();
+        if ($imageCount < 5) {
+            $recommendations[] = 'Добавьте больше качественных фото (рекомендуется 5-10).';
+        }
+        
+        // Рекомендации по контактам
+        if (empty($ad->phone) && empty($ad->telegram) && empty($ad->email)) {
+            $recommendations[] = 'Укажите контактную информацию для связи.';
+        }
+        
+        if (empty($recommendations)) {
+            $recommendations[] = 'Объявление хорошо оформлено. Рекомендуется периодически обновлять его.';
+        }
+        
+        return implode(' ', $recommendations);
+    }
+    
+    /**
+     * Генерация анализа рынка
+     */
+    private function generateMarketAnalysis(array $similar, int $targetYear, float $estimatedPrice): string
+    {
+        if (empty($similar)) {
+            return 'Недостаточно данных для анализа рынка. Рекомендуется изучить аналогичные объявления.';
+        }
+        
+        $prices = [];
+        $years = [];
+        foreach ($similar as $ad) {
+            $typeObject = $ad->getTypeObject();
+            if (!$typeObject) continue;
+            
+            if ($ad->price) {
+                $prices[] = (float)$ad->price;
+            }
+            if ($typeObject->date_release) {
+                $years[] = (int)$typeObject->date_release;
+            }
+        }
+        
+        if (empty($prices)) {
+            return 'Нет данных о ценах аналогов.';
+        }
+        
+        $minPrice = min($prices);
+        $maxPrice = max($prices);
+        $avgPrice = array_sum($prices) / count($prices);
+        $medianPrice = $this->calculateMedian(array_map(function($p) { return ['price' => $p]; }, $prices));
+        
+        $yearRange = '';
+        if (!empty($years)) {
+            $minYear = min($years);
+            $maxYear = max($years);
+            $yearRange = "Диапазон годов выпуска: {$minYear} - {$maxYear}. ";
+        }
+        
+        $analysis = "На основе анализа " . count($similar) . " аналогичных объявлений:\n";
+        $analysis .= "- Средняя цена: " . number_format($avgPrice, 0, '.', ' ') . " ₽\n";
+        $analysis .= "- Медианная цена: " . number_format($medianPrice, 0, '.', ' ') . " ₽\n";
+        $analysis .= "- Диапазон цен: " . number_format($minPrice, 0, '.', ' ') . " - " . number_format($maxPrice, 0, '.', ' ') . " ₽\n";
+        $analysis .= $yearRange;
+        $analysis .= "Рекомендуемая цена: " . number_format($estimatedPrice, 0, '.', ' ') . " ₽";
+        
+        return $analysis;
     }
 }

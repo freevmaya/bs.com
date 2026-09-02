@@ -482,7 +482,7 @@ class AdvertisementsController extends Controller
 
     
     /**
-     * Оценка объявления через AI
+     * Оценка объявления через AI или внутренний алгоритм
      */
     public function actionRate($id)
     {
@@ -512,35 +512,30 @@ class AdvertisementsController extends Controller
         $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
         $ratingService = Yii::$app->ratingService;
 
-        // ✅ ПРАВИЛЬНО: передаем ОБЪЕКТ модели, а не строку!
+        // Используем внутренний алгоритм оценки (без AI)
         $ratingData = $ratingService->rateAdvertisement($model, 'парапланерное снаряжение');
 
         if ($ratingData) {
-            // Создаем запись в БД
             $rating = new AdvertisementRating();
             $rating->advertisement_id = $model->id;
             $rating->user_id = $userId;
-            $rating->ai_model = $ratingService->getModel() ?? 'unknown';
+            $rating->ai_model = 'internal_algorithm_v1'; // Отмечаем, что это внутренняя оценка
             $rating->rating_data = json_encode($ratingData, JSON_UNESCAPED_UNICODE);
             
-            // Вычисляем общую оценку
             $overall = ($ratingData['appeal'] + $ratingData['clarity'] + $ratingData['relevance'] + $ratingData['call_to_action']) / 4;
             $rating->overall_score = round($overall, 1);
             
-            $rating->summary = $ratingData['market_analysis'] ?? $ratingData['recommendations'] ?? 'Анализ выполнен.';
+            $rating->summary = $ratingData['market_analysis'] ?? 'Анализ выполнен на основе данных из БД.';
             $rating->pros = $ratingData['pros'] ?? null;
             $rating->cons = $ratingData['cons'] ?? null;
             $rating->recommendation = $ratingData['recommendations'] ?? null;
 
             if ($rating->save()) {
-                // Получаем количество аналогов для сообщения
-                $similarCount = $this->getSimilarCount($model);
-                
                 return [
                     'success' => true,
                     'rating_id' => $rating->id,
                     'html' => $rating->getRatingHtml(),
-                    'message' => 'Оценка успешно сгенерирована на основе ' . $similarCount . ' аналогов!',
+                    'message' => 'Оценка успешно сгенерирована на основе ' . count($ratingService->getSimilarAdvertisements($model, 20)) . ' аналогов!',
                 ];
             } else {
                 return ['success' => false, 'error' => 'Не удалось сохранить оценку: ' . json_encode($rating->errors)];
