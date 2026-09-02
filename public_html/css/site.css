@@ -1110,6 +1110,7 @@ thead, tbody, tfoot, tr, td, th {
     padding: 0.1rem 0.5rem;
 }
 
+
 /* ============================================
    Стили для AI оценки снаряжения
    ============================================ */
@@ -1321,4 +1322,29 @@ thead, tbody, tfoot, tr, td, th {
 
 [data-bs-theme="dark"] .rating-recommendation {
     background: rgba(0, 123, 255, 0.1);
+}
+
+/* Ценовой блок */
+.rating-price-block {
+    background: #f0f8ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 4px solid #007bff;
+    transition: background 0.3s ease;
+}
+
+[data-bs-theme="dark"] .rating-price-block {
+    background: #1a2a3a;
+    border-left-color: #4a8abf;
+}
+
+.rating-price-block .currency-symbol {
+    font-size: 22px;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+[data-bs-theme="dark"] .rating-price-block .currency-symbol {
+    color: #adb5bd;
 }

@@ -17,6 +17,94 @@ class AdvertisementRatingService
     private array $advertisementsCache = [];
     
     /**
+     * @var array Курсы валют
+     */
+    private array $currencyRates;
+    
+    /**
+     * @var string Базовая валюта для расчетов
+     */
+    private string $baseCurrency;
+    
+    /**
+     * Конструктор
+     */
+    public function __construct()
+    {
+        // Загружаем курсы валют из параметров
+        $this->currencyRates = Yii::$app->params['currency_rates'] ?? [
+            'RUB' => 1,
+            'USD' => 92.5,
+            'EUR' => 100.2,
+        ];
+        
+        $this->baseCurrency = Yii::$app->params['base_currency'] ?? 'RUB';
+    }
+    
+    /**
+     * Конвертирует цену в базовую валюту (RUB)
+     * 
+     * @param float $price Цена
+     * @param string $currency Валюта (RUB, USD, EUR)
+     * @return float Цена в базовой валюте
+     */
+    private function convertToBaseCurrency(float $price, string $currency): float
+    {
+        $currency = strtoupper($currency);
+        
+        if ($currency === $this->baseCurrency) {
+            return $price;
+        }
+        
+        $rate = $this->currencyRates[$currency] ?? null;
+        
+        if ($rate === null) {
+            Yii::warning("Currency rate not found for: {$currency}, using 1:1", 'rating_service');
+            return $price;
+        }
+        
+        return $price * $rate;
+    }
+    
+    /**
+     * Конвертирует цену из базовой валюты в указанную
+     * 
+     * @param float $price Цена в базовой валюте
+     * @param string $currency Целевая валюта
+     * @return float Цена в целевой валюте
+     */
+    private function convertFromBaseCurrency(float $price, string $currency): float
+    {
+        $currency = strtoupper($currency);
+        
+        if ($currency === $this->baseCurrency) {
+            return $price;
+        }
+        
+        $rate = $this->currencyRates[$currency] ?? null;
+        
+        if ($rate === null) {
+            return $price;
+        }
+        
+        return $price / $rate;
+    }
+    
+    /**
+     * Получить символ валюты
+     */
+    private function getCurrencySymbol(string $currency): string
+    {
+        $symbols = [
+            'RUB' => '₽',
+            'USD' => '$',
+            'EUR' => '€',
+        ];
+        
+        return $symbols[strtoupper($currency)] ?? $currency;
+    }
+    
+    /**
      * Получить похожие объявления из БД для сравнения
      * 
      * @param Advertisement $advertisement Объявление для поиска аналогов
@@ -39,7 +127,7 @@ class AdvertisementRatingService
             ->with(['glider', 'harness', 'device', 'user'])
             ->limit($limit);
         
-        // Для glider добавляем дополнительные фильтры (постепенное ослабление)
+        // Для glider добавляем дополнительные фильтры
         if ($advertisement->type === Advertisement::TYPE_GLIDER && $advertisement->glider) {
             $glider = $advertisement->glider;
             
@@ -147,16 +235,20 @@ class AdvertisementRatingService
     }
     
     /**
-     * Интерполяция цены на основе года выпуска
+     * Интерполяция цены на основе года выпуска (цены приведены к базовой валюте)
      * 
      * @param array $similar Аналоги из БД
-     * @param int $targetYear Год выпуска оцениваемого крыла
+     * @param int|null $targetYear Год выпуска оцениваемого крыла (может быть null)
      * @param int $currentYear Текущий год
-     * @return float|null Интерполированная цена
+     * @return float|null Интерполированная цена в базовой валюте
      */
-    private function interpolatePriceByYear(array $similar, int $targetYear, int $currentYear): ?float
+    private function interpolatePriceByYear(array $similar, ?int $targetYear, int $currentYear): ?float
     {
-        // Фильтруем аналоги с указанным годом выпуска и ценой
+        // Если год не указан - возвращаем null, будем использовать медиану
+        if ($targetYear === null || $targetYear <= 1990) {
+            return null;
+        }
+        
         $points = [];
         foreach ($similar as $ad) {
             $typeObject = $ad->getTypeObject();
@@ -164,17 +256,26 @@ class AdvertisementRatingService
             
             $year = $typeObject->date_release;
             $price = $ad->price;
+            $currency = $ad->currency ?? 'RUB';
             
-            if ($year && $price && $year > 1990 && $year <= $currentYear) {
-                $points[] = [
-                    'year' => (int)$year,
-                    'price' => (float)$price,
-                ];
+            // Пропускаем объявления без года или цены
+            if (!$year || !$price || $year <= 1990 || $year > $currentYear) {
+                continue;
             }
+            
+            $priceInBase = $this->convertToBaseCurrency((float)$price, $currency);
+            
+            $points[] = [
+                'year' => (int)$year,
+                'price' => $priceInBase,
+                'currency' => $currency,
+                'original_price' => $price,
+                'ad_id' => $ad->id,
+            ];
         }
         
-        // Если меньше 2 точек - не можем интерполировать
-        if (count($points) < 2) {
+        // Если меньше 3 точек - не интерполируем
+        if (count($points) < 3) {
             return null;
         }
         
@@ -183,17 +284,60 @@ class AdvertisementRatingService
             return $a['year'] <=> $b['year'];
         });
         
-        // Если целевой год меньше минимального - экстраполяция назад
-        if ($targetYear < $points[0]['year']) {
-            // Используем линейную регрессию для экстраполяции
-            $slope = $this->calculateSlope($points);
-            return $points[0]['price'] - $slope * ($points[0]['year'] - $targetYear);
+        // 1. Проверяем, есть ли точки с годом, близким к целевому (±3 года)
+        $nearbyPoints = [];
+        foreach ($points as $p) {
+            if (abs($p['year'] - $targetYear) <= 3) {
+                $nearbyPoints[] = $p;
+            }
         }
         
-        // Если целевой год больше максимального - экстраполяция вперед
+        // Если есть близкие точки (≥2) - используем их
+        if (count($nearbyPoints) >= 2) {
+            $points = $nearbyPoints;
+        }
+        
+        // 2. Удаляем выбросы (цены, которые сильно отличаются)
+        $prices = array_column($points, 'price');
+        $median = $this->calculateMedian($points);
+        $stdDev = $this->calculateStdDev($prices, $median);
+        
+        // Удаляем точки, которые отличаются более чем на 1.5 стандартных отклонения
+        $filteredPoints = [];
+        foreach ($points as $p) {
+            if (abs($p['price'] - $median) <= 1.5 * $stdDev) {
+                $filteredPoints[] = $p;
+            }
+        }
+        
+        // Если после фильтрации осталось меньше 2 точек - используем все
+        if (count($filteredPoints) >= 2) {
+            $points = $filteredPoints;
+        }
+        
+        // 3. Если осталось слишком мало точек - возвращаем null
+        if (count($points) < 2) {
+            return null;
+        }
+        
+        // 4. Интерполяция
+        // Если целевой год меньше минимального - экстраполяция с ограничением
+        if ($targetYear < $points[0]['year']) {
+            $slope = $this->calculateSlope($points);
+            $price = $points[0]['price'] - $slope * ($points[0]['year'] - $targetYear);
+            // Ограничиваем: цена не может быть ниже 30% от ближайшей точки
+            $minPrice = $points[0]['price'] * 0.3;
+            return max($minPrice, min($points[0]['price'] * 2, $price));
+        }
+        
+        // Если целевой год больше максимального - экстраполяция с ограничением
         if ($targetYear > $points[count($points) - 1]['year']) {
             $slope = $this->calculateSlope($points);
-            return $points[count($points) - 1]['price'] + $slope * ($targetYear - $points[count($points) - 1]['year']);
+            $price = $points[count($points) - 1]['price'] + $slope * ($targetYear - $points[count($points) - 1]['year']);
+            // Ограничиваем: цена не может быть выше 200% от ближайшей точки
+            $maxPrice = $points[count($points) - 1]['price'] * 2;
+            $minPrice = $points[count($points) - 1]['price'] * 0.3;
+            return max($minPrice, min($maxPrice, $price));
         }
         
         // Находим две ближайшие точки для интерполяции
@@ -204,13 +348,23 @@ class AdvertisementRatingService
                 $x2 = $points[$i + 1]['year'];
                 $y2 = $points[$i + 1]['price'];
                 
-                // Линейная интерполяция
-                return $y1 + ($y2 - $y1) * ($targetYear - $x1) / ($x2 - $x1);
+                // Если разница в годах большая (> 5 лет) - используем медиану
+                if (($x2 - $x1) > 5) {
+                    return $this->calculateMedian($points);
+                }
+                
+                $price = $y1 + ($y2 - $y1) * ($targetYear - $x1) / ($x2 - $x1);
+                
+                // Ограничиваем: цена должна быть между 30% и 200% от ближайших точек
+                $minPrice = min($y1, $y2) * 0.3;
+                $maxPrice = max($y1, $y2) * 2;
+                
+                return max($minPrice, min($maxPrice, $price));
             }
         }
         
-        // Если не нашли - используем медиану
-        return $this->calculateMedian($points);
+        // Если не нашли - возвращаем null
+        return null;
     }
     
     /**
@@ -256,6 +410,138 @@ class AdvertisementRatingService
     }
     
     /**
+     * Вычисляет стандартное отклонение
+     */
+    private function calculateStdDev(array $values, float $mean): float
+    {
+        $count = count($values);
+        if ($count < 2) return 0;
+        
+        $sum = 0;
+        foreach ($values as $value) {
+            $sum += pow($value - $mean, 2);
+        }
+        
+        return sqrt($sum / ($count - 1));
+    }
+    
+    /**
+     * Получить разумную цену с учетом приоритетов:
+     * 1. Интерполяция по году (если год указан и есть данные)
+     * 2. Корректировка по состоянию (если состояние известно)
+     * 3. Медианная цена аналогов (как fallback)
+     * 
+     * @param array $similar Аналоги
+     * @param Advertisement $advertisement Оцениваемое объявление
+     * @param float|null $interpolatedPrice Интерполированная цена
+     * @return float Разумная цена в базовой валюте
+     */
+    private function getReasonablePrice(array $similar, Advertisement $advertisement, ?float $interpolatedPrice): float
+    {
+        $typeObject = $advertisement->getTypeObject();
+        $condition = $typeObject->condition ?? null;
+        
+        // 1. Получаем все цены аналогов в базовой валюте
+        $prices = [];
+        $pricesByCondition = [];
+        $pricesByYear = [];
+        
+        foreach ($similar as $ad) {
+            $currency = $ad->currency ?? 'RUB';
+            $price = (float)$ad->price;
+            if ($price <= 0) continue;
+            
+            $priceInBase = $this->convertToBaseCurrency($price, $currency);
+            $prices[] = $priceInBase;
+            
+            // Группируем по состоянию
+            $adTypeObject = $ad->getTypeObject();
+            if ($adTypeObject && $adTypeObject->condition) {
+                $cond = $adTypeObject->condition;
+                if (!isset($pricesByCondition[$cond])) {
+                    $pricesByCondition[$cond] = [];
+                }
+                $pricesByCondition[$cond][] = $priceInBase;
+            }
+            
+            // Группируем по году (если есть)
+            if ($adTypeObject && $adTypeObject->date_release) {
+                $year = (int)$adTypeObject->date_release;
+                if ($year > 1990) {
+                    if (!isset($pricesByYear[$year])) {
+                        $pricesByYear[$year] = [];
+                    }
+                    $pricesByYear[$year][] = $priceInBase;
+                }
+            }
+        }
+        
+        if (empty($prices)) {
+            return 50000;
+        }
+        
+        // Сортируем и удаляем выбросы (верхние и нижние 15%)
+        sort($prices);
+        $count = count($prices);
+        $trimCount = max(1, (int)($count * 0.15));
+        $trimmedPrices = array_slice($prices, $trimCount, $count - 2 * $trimCount);
+        
+        if (empty($trimmedPrices)) {
+            $trimmedPrices = $prices;
+        }
+        
+        // ============================================================
+        // ПРИОРИТЕТ 1: Интерполяция по году (если есть)
+        // ============================================================
+        if ($interpolatedPrice !== null && $interpolatedPrice > 0) {
+            // Проверяем, что интерполированная цена в разумных пределах
+            $median = $this->calculateMedian(array_map(function($p) { return ['price' => $p]; }, $trimmedPrices));
+            $minReasonable = $median * 0.3;
+            $maxReasonable = $median * 2.5;
+            
+            if ($interpolatedPrice >= $minReasonable && $interpolatedPrice <= $maxReasonable) {
+                // Применяем корректировку по состоянию
+                if ($condition) {
+                    $conditionMultiplier = $this->getConditionMultiplier($condition);
+                    // Не применяем полный коэффициент, только часть (70%)
+                    $adjustedPrice = $interpolatedPrice * (0.7 + 0.3 * $conditionMultiplier);
+                    return $adjustedPrice;
+                }
+                return $interpolatedPrice;
+            }
+        }
+        
+        // ============================================================
+        // ПРИОРИТЕТ 2: Корректировка по состоянию (если известно)
+        // ============================================================
+        if ($condition && isset($pricesByCondition[$condition]) && count($pricesByCondition[$condition]) >= 2) {
+            $condPrices = $pricesByCondition[$condition];
+            sort($condPrices);
+            $condMedian = $this->calculateMedian(array_map(function($p) { return ['price' => $p]; }, $condPrices));
+            return $condMedian;
+        }
+        
+        // Если есть состояние, но мало аналогов - используем общую медиану с корректировкой
+        if ($condition) {
+            $median = $this->calculateMedian(array_map(function($p) { return ['price' => $p]; }, $trimmedPrices));
+            $conditionMultiplier = $this->getConditionMultiplier($condition);
+            return $median * $conditionMultiplier;
+        }
+        
+        // ============================================================
+        // ПРИОРИТЕТ 3: Медианная цена аналогов
+        // ============================================================
+        $median = $this->calculateMedian(array_map(function($p) { return ['price' => $p]; }, $trimmedPrices));
+        
+        // Если цена слишком низкая - используем среднюю
+        if ($median < 10000) {
+            return array_sum($trimmedPrices) / count($trimmedPrices);
+        }
+        
+        return $median;
+    }
+    
+    /**
      * Рассчитывает коэффициент износа на основе состояния
      */
     private function getConditionMultiplier(string $condition): float
@@ -283,7 +569,6 @@ class AdvertisementRatingService
         $defectsLower = mb_strtolower($defects);
         $multiplier = 1.0;
         
-        // Ключевые слова и их влияние на цену
         $penalties = [
             'ремонт' => 0.10,
             'рипстоп' => 0.08,
@@ -301,7 +586,6 @@ class AdvertisementRatingService
             }
         }
         
-        // Если есть несколько дефектов - дополнительный штраф
         $defectCount = 0;
         foreach ($penalties as $keyword => $penalty) {
             if (strpos($defectsLower, $keyword) !== false) {
@@ -325,11 +609,6 @@ class AdvertisementRatingService
             return 1.0;
         }
         
-        // Чем больше налет, тем ниже цена
-        // 0-50 часов: почти не влияет
-        // 50-100 часов: небольшое влияние
-        // 100-200 часов: среднее влияние
-        // 200+ часов: значительное влияние
         if ($flightTime <= 50) {
             return 1.0 - ($flightTime / 50) * 0.05;
         } elseif ($flightTime <= 100) {
@@ -343,66 +622,64 @@ class AdvertisementRatingService
     
     /**
      * Основной метод оценки стоимости
-     * 
-     * @param Advertisement $advertisement Объявление для оценки
-     * @param string $context Контекст (не используется, но оставлен для совместимости)
-     * @return array|null Результат оценки
      */
     public function rateAdvertisement(Advertisement $advertisement, string $context): ?array
     {
         try {
-            // Получаем аналоги из БД
             $similar = $this->getSimilarAdvertisements($advertisement, 20);
             
-            // Если нет аналогов - возвращаем базовую оценку
             if (empty($similar)) {
                 return $this->getBaseRating($advertisement);
             }
             
             $typeObject = $advertisement->getTypeObject();
             if (!$typeObject || !($typeObject instanceof AdvertisementGlider)) {
-                // Пока поддерживаем только парапланы
                 return $this->getBaseRating($advertisement);
             }
             
             $currentYear = (int)date('Y');
-            $targetYear = (int)($typeObject->date_release ?? $currentYear);
+            $targetYear = $typeObject->date_release ? (int)$typeObject->date_release : null;
             
-            // 1. Интерполяция цены по году выпуска
-            $interpolatedPrice = $this->interpolatePriceByYear($similar, $targetYear, $currentYear);
+            // 1. Интерполяция цены по году выпуска (если год указан)
+            $interpolatedPriceInBase = $this->interpolatePriceByYear($similar, $targetYear, $currentYear);
             
-            // 2. Корректировка на состояние
-            $conditionMultiplier = $this->getConditionMultiplier($typeObject->condition ?? 'good');
+            // 2. Получаем разумную цену с учетом всех факторов
+            $basePriceInBase = $this->getReasonablePrice($similar, $advertisement, $interpolatedPriceInBase);
             
-            // 3. Корректировка на дефекты
+            // 3. Дополнительная корректировка на дефекты
             $defectsMultiplier = $this->getDefectsMultiplier($typeObject->defects);
             
-            // 4. Корректировка на налет
+            // 4. Дополнительная корректировка на налет
             $flightTimeMultiplier = $this->getFlightTimeMultiplier($typeObject->flight_time);
             
-            // 5. Корректировка на цену в объявлении (если указана)
+            // Применяем дополнительные коэффициенты
+            $estimatedPriceInBase = $basePriceInBase * $defectsMultiplier * $flightTimeMultiplier;
+            
+            // ✅ Конвертируем в валюту объявления
+            $adCurrency = $advertisement->currency ?? 'RUB';
+            $estimatedPrice = $this->convertFromBaseCurrency($estimatedPriceInBase, $adCurrency);
+            
+            // Округляем до тысяч (но не меньше 1000)
+            $estimatedPrice = max(1000, round($estimatedPrice / 1000) * 1000);
+            
+            // Анализируем цену объявления
             $adPrice = (float)($advertisement->price ?? 0);
+            $adPriceInBase = $this->convertToBaseCurrency($adPrice, $adCurrency);
             
-            // Рассчитываем базовую цену
-            $basePrice = $interpolatedPrice ?? $this->calculateMedian($similar);
-            
-            // Применяем все коэффициенты
-            $estimatedPrice = $basePrice * $conditionMultiplier * $defectsMultiplier * $flightTimeMultiplier;
-            
-            // Округляем до тысяч
-            $estimatedPrice = round($estimatedPrice / 1000) * 1000;
-            
-            // Если цена указана в объявлении - сравниваем
             $priceDiff = 0;
             $priceAdvice = '';
-            if ($adPrice > 0 && $estimatedPrice > 0) {
-                $priceDiff = round(($adPrice - $estimatedPrice) / $estimatedPrice * 100);
-                if ($priceDiff > 20) {
+            if ($adPrice > 0 && $estimatedPriceInBase > 0) {
+                $priceDiff = round(($adPriceInBase - $estimatedPriceInBase) / $estimatedPriceInBase * 100);
+                if ($priceDiff > 30) {
+                    $priceAdvice = '⚠️ Цена ЗНАЧИТЕЛЬНО завышена на ' . $priceDiff . '% относительно рыночной. Рекомендуется снизить цену.';
+                } elseif ($priceDiff > 15) {
                     $priceAdvice = 'Цена завышена на ' . $priceDiff . '% относительно рыночной. Рекомендуется снизить цену.';
-                } elseif ($priceDiff < -20) {
-                    $priceAdvice = 'Цена занижена на ' . abs($priceDiff) . '% относительно рыночной. Отличное предложение!';
+                } elseif ($priceDiff < -30) {
+                    $priceAdvice = '🔥 Цена ЗНАЧИТЕЛЬНО занижена на ' . abs($priceDiff) . '% относительно рыночной. Отличное предложение!';
+                } elseif ($priceDiff < -15) {
+                    $priceAdvice = '💰 Цена занижена на ' . abs($priceDiff) . '% относительно рыночной. Хорошее предложение!';
                 } else {
-                    $priceAdvice = 'Цена соответствует рыночной.';
+                    $priceAdvice = '✅ Цена соответствует рыночной.';
                 }
             }
             
@@ -410,19 +687,34 @@ class AdvertisementRatingService
             $result = [
                 'fair_price' => (int)$estimatedPrice,
                 'price_range' => [
-                    'min' => (int)round($estimatedPrice * 0.75 / 1000) * 1000,
-                    'max' => (int)round($estimatedPrice * 1.25 / 1000) * 1000,
+                    'min' => (int)max(1000, round($this->convertFromBaseCurrency($estimatedPriceInBase * 0.7, $adCurrency) / 1000) * 1000),
+                    'max' => (int)round($this->convertFromBaseCurrency($estimatedPriceInBase * 1.3, $adCurrency) / 1000) * 1000,
                 ],
+                'currency' => $adCurrency,
+                'currency_symbol' => $this->getCurrencySymbol($adCurrency),
                 'confidence' => $this->calculateConfidence($similar, $typeObject),
                 'appeal' => $this->calculateAppeal($advertisement),
                 'clarity' => $this->calculateClarity($advertisement),
                 'relevance' => $this->calculateRelevance($advertisement, $similar),
                 'call_to_action' => $this->calculateCallToAction($advertisement),
-                'pros' => $this->generatePros($advertisement, $similar, $estimatedPrice, $adPrice),
-                'cons' => $this->generateCons($advertisement, $similar, $estimatedPrice, $adPrice),
-                'recommendations' => $this->generateRecommendations($advertisement, $estimatedPrice, $adPrice, $priceAdvice),
-                'market_analysis' => $this->generateMarketAnalysis($similar, $targetYear, $estimatedPrice),
+                'pros' => $this->generatePros($advertisement, $similar, $estimatedPriceInBase, $adPriceInBase),
+                'cons' => $this->generateCons($advertisement, $similar, $estimatedPriceInBase, $adPriceInBase),
+                'recommendations' => $this->generateRecommendations($advertisement, $estimatedPriceInBase, $adPriceInBase, $priceAdvice),
+                'market_analysis' => $this->generateMarketAnalysis($similar, $targetYear, $estimatedPriceInBase, $adCurrency),
             ];
+            
+            // Логируем результат для отладки
+            Yii::info([
+                'ad_id' => $advertisement->id,
+                'target_year' => $targetYear,
+                'interpolated_price' => $interpolatedPriceInBase,
+                'base_price' => $basePriceInBase,
+                'estimated_price' => $estimatedPriceInBase,
+                'final_price' => $estimatedPrice,
+                'similar_count' => count($similar),
+                'defects_multiplier' => $defectsMultiplier,
+                'flight_time_multiplier' => $flightTimeMultiplier,
+            ], 'rating_service.calculation');
             
             return $result;
             
@@ -437,6 +729,7 @@ class AdvertisementRatingService
      */
     private function getBaseRating(Advertisement $advertisement): array
     {
+        $adCurrency = $advertisement->currency ?? 'RUB';
         $price = (float)($advertisement->price ?? 50000);
         $estimatedPrice = round($price / 1000) * 1000;
         
@@ -446,6 +739,8 @@ class AdvertisementRatingService
                 'min' => (int)round($estimatedPrice * 0.7 / 1000) * 1000,
                 'max' => (int)round($estimatedPrice * 1.3 / 1000) * 1000,
             ],
+            'currency' => $adCurrency,
+            'currency_symbol' => $this->getCurrencySymbol($adCurrency),
             'confidence' => 4,
             'appeal' => 6,
             'clarity' => 5,
@@ -478,19 +773,11 @@ class AdvertisementRatingService
     {
         $score = 5;
         
-        // Наличие цены
         if ($ad->price && $ad->price > 0) $score += 1;
-        
-        // Наличие описания
         if ($ad->description && strlen($ad->description) > 50) $score += 1;
-        
-        // Наличие города
         if ($ad->city) $score += 0.5;
-        
-        // Наличие контактов
         if ($ad->phone || $ad->email || $ad->telegram || $ad->vk_profile_url) $score += 0.5;
         
-        // Наличие фото
         $imageCount = $ad->getImages()->count();
         if ($imageCount >= 5) $score += 1;
         elseif ($imageCount >= 3) $score += 0.5;
@@ -504,7 +791,6 @@ class AdvertisementRatingService
     private function calculateClarity(Advertisement $ad): int
     {
         $score = 5;
-        
         $desc = $ad->description ?? '';
         $descLength = strlen($desc);
         
@@ -512,10 +798,8 @@ class AdvertisementRatingService
         elseif ($descLength > 200) $score += 1;
         elseif ($descLength > 50) $score += 0.5;
         
-        // Наличие структуры (абзацев)
         if (substr_count($desc, "\n") >= 3) $score += 1;
         
-        // Наличие ключевых слов
         $keywords = ['состояние', 'дефект', 'комплект', 'налёт', 'часов'];
         foreach ($keywords as $keyword) {
             if (stripos($desc, $keyword) !== false) $score += 0.3;
@@ -531,17 +815,22 @@ class AdvertisementRatingService
     {
         $score = 5;
         
-        // Сравниваем цену с аналогами
         if (!empty($similar)) {
-            $prices = array_column(array_map(function($a) {
-                return ['price' => (float)$a->price];
-            }, $similar), 'price');
+            $adCurrency = $ad->currency ?? 'RUB';
+            $adPrice = (float)($ad->price ?? 0);
+            $adPriceInBase = $this->convertToBaseCurrency($adPrice, $adCurrency);
+            
+            $prices = [];
+            foreach ($similar as $s) {
+                $sCurrency = $s->currency ?? 'RUB';
+                $sPrice = (float)$s->price;
+                $prices[] = $this->convertToBaseCurrency($sPrice, $sCurrency);
+            }
             
             $avgPrice = array_sum($prices) / count($prices);
-            $adPrice = (float)($ad->price ?? 0);
             
-            if ($adPrice > 0 && $avgPrice > 0) {
-                $diff = abs($adPrice - $avgPrice) / $avgPrice;
+            if ($adPriceInBase > 0 && $avgPrice > 0) {
+                $diff = abs($adPriceInBase - $avgPrice) / $avgPrice;
                 if ($diff < 0.1) $score += 2;
                 elseif ($diff < 0.2) $score += 1;
                 elseif ($diff < 0.3) $score += 0.5;
@@ -560,7 +849,6 @@ class AdvertisementRatingService
         $score = 5;
         $desc = $ad->description ?? '';
         
-        // Ключевые слова призыва
         $ctaWords = ['пишите', 'звоните', 'свяжитесь', 'телеграм', 'whatsapp', 'смотреть', 'вопрос'];
         foreach ($ctaWords as $word) {
             if (stripos($desc, $word) !== false) {
@@ -568,7 +856,6 @@ class AdvertisementRatingService
             }
         }
         
-        // Наличие контактов
         if ($ad->phone || $ad->email || $ad->telegram || $ad->vk_profile_url) {
             $score += 1;
         }
@@ -579,12 +866,11 @@ class AdvertisementRatingService
     /**
      * Генерация плюсов
      */
-    private function generatePros(Advertisement $ad, array $similar, float $estimatedPrice, float $adPrice): string
+    private function generatePros(Advertisement $ad, array $similar, float $estimatedPriceInBase, float $adPriceInBase): string
     {
         $pros = [];
         $typeObject = $ad->getTypeObject();
         
-        // Состояние
         if ($typeObject) {
             $condition = $typeObject->condition ?? 'good';
             $conditionLabels = [
@@ -597,15 +883,13 @@ class AdvertisementRatingService
             }
         }
         
-        // Цена
-        if ($adPrice > 0 && $estimatedPrice > 0) {
-            $diff = ($adPrice - $estimatedPrice) / $estimatedPrice;
+        if ($adPriceInBase > 0 && $estimatedPriceInBase > 0) {
+            $diff = ($adPriceInBase - $estimatedPriceInBase) / $estimatedPriceInBase;
             if ($diff < -0.1) {
                 $pros[] = 'Цена ниже рыночной';
             }
         }
         
-        // Наличие фото
         $imageCount = $ad->getImages()->count();
         if ($imageCount >= 5) {
             $pros[] = 'Много качественных фото';
@@ -613,17 +897,14 @@ class AdvertisementRatingService
             $pros[] = 'Есть фото';
         }
         
-        // Контакты
         if ($ad->phone && $ad->telegram) {
             $pros[] = 'Указаны контакты для связи';
         }
         
-        // Описание
         if ($ad->description && strlen($ad->description) > 100) {
             $pros[] = 'Подробное описание';
         }
         
-        // Если плюсов мало - добавляем стандартные
         if (count($pros) < 3) {
             $defaultPros = ['Хороший производитель', 'Адекватная цена'];
             foreach ($defaultPros as $default) {
@@ -639,41 +920,35 @@ class AdvertisementRatingService
     /**
      * Генерация минусов
      */
-    private function generateCons(Advertisement $ad, array $similar, float $estimatedPrice, float $adPrice): string
+    private function generateCons(Advertisement $ad, array $similar, float $estimatedPriceInBase, float $adPriceInBase): string
     {
         $cons = [];
         $typeObject = $ad->getTypeObject();
         
-        // Дефекты
         if ($typeObject && $typeObject->defects) {
             $cons[] = 'Есть дефекты: ' . $typeObject->defects;
         }
         
-        // Цена
-        if ($adPrice > 0 && $estimatedPrice > 0) {
-            $diff = ($adPrice - $estimatedPrice) / $estimatedPrice;
+        if ($adPriceInBase > 0 && $estimatedPriceInBase > 0) {
+            $diff = ($adPriceInBase - $estimatedPriceInBase) / $estimatedPriceInBase;
             if ($diff > 0.2) {
                 $cons[] = 'Цена завышена';
             }
         }
         
-        // Отсутствие описания
         if (empty($ad->description) || strlen($ad->description) < 50) {
             $cons[] = 'Краткое описание';
         }
         
-        // Отсутствие фото
         $imageCount = $ad->getImages()->count();
         if ($imageCount < 3) {
             $cons[] = 'Мало фото';
         }
         
-        // Отсутствие города
         if (empty($ad->city)) {
             $cons[] = 'Не указан город';
         }
         
-        // Если минусов мало - добавляем стандартные
         if (count($cons) < 2) {
             $cons[] = 'Рекомендуется добавить больше информации';
         }
@@ -684,27 +959,23 @@ class AdvertisementRatingService
     /**
      * Генерация рекомендаций
      */
-    private function generateRecommendations(Advertisement $ad, float $estimatedPrice, float $adPrice, string $priceAdvice): string
+    private function generateRecommendations(Advertisement $ad, float $estimatedPriceInBase, float $adPriceInBase, string $priceAdvice): string
     {
         $recommendations = [];
         
-        // Рекомендации по цене
         if ($priceAdvice) {
             $recommendations[] = $priceAdvice;
         }
         
-        // Рекомендации по описанию
         if (empty($ad->description) || strlen($ad->description) < 50) {
             $recommendations[] = 'Добавьте подробное описание с указанием состояния, дефектов и комплектации.';
         }
         
-        // Рекомендации по фото
         $imageCount = $ad->getImages()->count();
         if ($imageCount < 5) {
             $recommendations[] = 'Добавьте больше качественных фото (рекомендуется 5-10).';
         }
         
-        // Рекомендации по контактам
         if (empty($ad->phone) && empty($ad->telegram) && empty($ad->email)) {
             $recommendations[] = 'Укажите контактную информацию для связи.';
         }
@@ -719,7 +990,7 @@ class AdvertisementRatingService
     /**
      * Генерация анализа рынка
      */
-    private function generateMarketAnalysis(array $similar, int $targetYear, float $estimatedPrice): string
+    private function generateMarketAnalysis(array $similar, ?int $targetYear, float $estimatedPriceInBase, string $targetCurrency): string
     {
         if (empty($similar)) {
             return 'Недостаточно данных для анализа рынка. Рекомендуется изучить аналогичные объявления.';
@@ -727,12 +998,15 @@ class AdvertisementRatingService
         
         $prices = [];
         $years = [];
+        
         foreach ($similar as $ad) {
             $typeObject = $ad->getTypeObject();
             if (!$typeObject) continue;
             
             if ($ad->price) {
-                $prices[] = (float)$ad->price;
+                $currency = $ad->currency ?? 'RUB';
+                $priceInBase = $this->convertToBaseCurrency((float)$ad->price, $currency);
+                $prices[] = $priceInBase;
             }
             if ($typeObject->date_release) {
                 $years[] = (int)$typeObject->date_release;
@@ -743,10 +1017,29 @@ class AdvertisementRatingService
             return 'Нет данных о ценах аналогов.';
         }
         
-        $minPrice = min($prices);
-        $maxPrice = max($prices);
-        $avgPrice = array_sum($prices) / count($prices);
-        $medianPrice = $this->calculateMedian(array_map(function($p) { return ['price' => $p]; }, $prices));
+        // Удаляем выбросы
+        sort($prices);
+        $count = count($prices);
+        $trimCount = max(1, (int)($count * 0.1));
+        $trimmedPrices = array_slice($prices, $trimCount, $count - 2 * $trimCount);
+        
+        if (empty($trimmedPrices)) {
+            $trimmedPrices = $prices;
+        }
+        
+        $minPrice = min($trimmedPrices);
+        $maxPrice = max($trimmedPrices);
+        $avgPrice = array_sum($trimmedPrices) / count($trimmedPrices);
+        $medianPrice = $this->calculateMedian(array_map(function($p) { return ['price' => $p]; }, $trimmedPrices));
+        
+        // Конвертируем в валюту объявления
+        $minPriceDisplay = $this->convertFromBaseCurrency($minPrice, $targetCurrency);
+        $maxPriceDisplay = $this->convertFromBaseCurrency($maxPrice, $targetCurrency);
+        $avgPriceDisplay = $this->convertFromBaseCurrency($avgPrice, $targetCurrency);
+        $medianPriceDisplay = $this->convertFromBaseCurrency($medianPrice, $targetCurrency);
+        $estimatedPriceDisplay = $this->convertFromBaseCurrency($estimatedPriceInBase, $targetCurrency);
+        
+        $symbol = $this->getCurrencySymbol($targetCurrency);
         
         $yearRange = '';
         if (!empty($years)) {
@@ -755,12 +1048,19 @@ class AdvertisementRatingService
             $yearRange = "Диапазон годов выпуска: {$minYear} - {$maxYear}. ";
         }
         
+        // Добавляем информацию о целевом годе
+        $targetYearInfo = '';
+        if ($targetYear !== null && $targetYear > 1990) {
+            $targetYearInfo = "Год выпуска оцениваемого крыла: {$targetYear}. ";
+        }
+        
         $analysis = "На основе анализа " . count($similar) . " аналогичных объявлений:\n";
-        $analysis .= "- Средняя цена: " . number_format($avgPrice, 0, '.', ' ') . " ₽\n";
-        $analysis .= "- Медианная цена: " . number_format($medianPrice, 0, '.', ' ') . " ₽\n";
-        $analysis .= "- Диапазон цен: " . number_format($minPrice, 0, '.', ' ') . " - " . number_format($maxPrice, 0, '.', ' ') . " ₽\n";
+        $analysis .= "- Средняя цена: " . number_format($avgPriceDisplay, 0, '.', ' ') . " {$symbol}\n";
+        $analysis .= "- Медианная цена: " . number_format($medianPriceDisplay, 0, '.', ' ') . " {$symbol}\n";
+        $analysis .= "- Диапазон цен: " . number_format($minPriceDisplay, 0, '.', ' ') . " - " . number_format($maxPriceDisplay, 0, '.', ' ') . " {$symbol}\n";
+        $analysis .= $targetYearInfo;
         $analysis .= $yearRange;
-        $analysis .= "Рекомендуемая цена: " . number_format($estimatedPrice, 0, '.', ' ') . " ₽";
+        $analysis .= "Рекомендуемая цена: " . number_format($estimatedPriceDisplay, 0, '.', ' ') . " {$symbol}";
         
         return $analysis;
     }

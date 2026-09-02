@@ -512,23 +512,25 @@ class AdvertisementsController extends Controller
         $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
         $ratingService = Yii::$app->ratingService;
 
-        // Используем внутренний алгоритм оценки (без AI)
         $ratingData = $ratingService->rateAdvertisement($model, 'парапланерное снаряжение');
 
         if ($ratingData) {
+            // ✅ Очищаем все текстовые поля от эмодзи и 4-байтовых символов
+            $ratingData = $this->cleanEmojiFromArray($ratingData);
+            
             $rating = new AdvertisementRating();
             $rating->advertisement_id = $model->id;
             $rating->user_id = $userId;
-            $rating->ai_model = 'internal_algorithm_v1'; // Отмечаем, что это внутренняя оценка
+            $rating->ai_model = 'internal_algorithm_v1';
             $rating->rating_data = json_encode($ratingData, JSON_UNESCAPED_UNICODE);
             
             $overall = ($ratingData['appeal'] + $ratingData['clarity'] + $ratingData['relevance'] + $ratingData['call_to_action']) / 4;
             $rating->overall_score = round($overall, 1);
             
-            $rating->summary = $ratingData['market_analysis'] ?? 'Анализ выполнен на основе данных из БД.';
-            $rating->pros = $ratingData['pros'] ?? null;
-            $rating->cons = $ratingData['cons'] ?? null;
-            $rating->recommendation = $ratingData['recommendations'] ?? null;
+            $rating->summary = $this->cleanEmoji($ratingData['market_analysis'] ?? 'Анализ выполнен на основе данных из БД.');
+            $rating->pros = $this->cleanEmoji($ratingData['pros'] ?? null);
+            $rating->cons = $this->cleanEmoji($ratingData['cons'] ?? null);
+            $rating->recommendation = $this->cleanEmoji($ratingData['recommendations'] ?? null);
 
             if ($rating->save()) {
                 return [
@@ -543,6 +545,43 @@ class AdvertisementsController extends Controller
         }
 
         return ['success' => false, 'error' => 'Не удалось сгенерировать оценку. Попробуйте позже.'];
+    }
+
+    /**
+     * Очищает строку от эмодзи и 4-байтовых символов
+     * 
+     * @param string|null $string
+     * @return string|null
+     */
+    private function cleanEmoji(?string $string): ?string
+    {
+        if ($string === null || $string === '') {
+            return $string;
+        }
+        
+        // Удаляем 4-байтовые символы (эмодзи)
+        return preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $string);
+    }
+
+    /**
+     * Рекурсивно очищает массив от эмодзи
+     * 
+     * @param array $array
+     * @return array
+     */
+    private function cleanEmojiFromArray(array $array): array
+    {
+        $result = [];
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $result[$key] = $this->cleanEmojiFromArray($value);
+            } elseif (is_string($value)) {
+                $result[$key] = $this->cleanEmoji($value);
+            } else {
+                $result[$key] = $value;
+            }
+        }
+        return $result;
     }
 
     /**
