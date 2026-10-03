@@ -520,360 +520,24 @@
 	"buffers":
 	[
 		{
-			"file": "/C/Documents/Paragliding/Mesuring-test-defect.csv",
+			"contents": "Устройство для измерения строп параплана\nПозволяет контролировать угол атаки крыла и арочность, на отклонение от заводских настроек.\n\nОписание частей устройства:\nУстройство состоит из стола на ножках, закрепленной на нем станины.\nКаретка измерителя. Устанавливается и свободно движется по станине.\nИзмеритель снабжен лазерным дальномером, датчиком усилия, контроллером с Bluetooth.\nКак дополнительная опция для длинного метода измерения, столик для фиксации свободных концов и установки лазерной мишени. \n\nПринцип работы:\nЛазерный дальномер измеряет расстояние до мишени. Мишень может быть установлена на начале стропной системы (мальи), либо на конце станины. Зависит от метода который вы выбрали для измерения.\nДатчик усилия измеряет усилие в граммах, с которым вы натягиваете стропу. Когда усилие будет превышать заданного в настройках значения (по умолчанию 5 кг.), измеренная на этот момент длина стропы попадет в таблицу измеренных данных.\nИзмеритель соединяется по Bluetooth с телефоном (android), на котором установлена специальная программа. Программа сохраняет измеренные значения, вычисляет перепады, отклонения от нормативных расстояний, дает рекомендации по укорачиванию или вытяжке строп, как на уровне верхнего так и по стропам нижнего яруса.\n\nРезультаты измерений:\n\t1. Общие, по всем ярусам, измеренные длины строп. От начала крепления к СК (к мальям) до петелек на нижней поверхности параплана. \n\t2. Отклонение фактических размеров строп от нормативных\n\t3. Перепады размеров строп по рядам\n4. Отклонения перепадов от нормативных\n\t5. Рекомендуемый размер укорачивание/удлинение стропы по нижнему ярусу\n\nМетоды измерения\nКороткий метод:\n\n\tВключается когда в настройках параметр “Коррекция расстояния” = 0 (авто)\nЭтот метод базируется на том принципе, что расстояние от мишени до начала строп величина постоянная и достаточно это значение прибавлять к расстоянию от конца измеряемой стропы до мишени, чтобы получить длину всей стропы. Эта добавочная поправка вычисляется методом MAD, из данных о заводских длинах строп и реальных, измеренных.\nИтак, при измерении расстояния от конца стропы (место крепления стропы к петле на нижней поверхности параплана) до мишени, установленной на станине, прибавляется поправка и таким образом приложение получает общую длину стропы.\nПреимущества:\n\t1. Быстрая подготовка устройства\n\t2. Не требуется предварительных корректировок и настроек\n\t3. Можно использовать в полевых условиях, использовать неровную поверхность для установки прибора.\n\t4. Свободные концы можно фиксировать любым удобным способом.\nНедостатки:\n1. Невысокая точность в измерении абсолютных длин строп.\nДлинный метод\n\tВ этом случае мишень устанавливается в начало измеряемых строп. \nПреимущества:\n\t1. Измеряется длина стропы целиком, а значит и более точно вычисляется отклонение от нормальной, заводской длины.\nНедостатки:\n1. Требуется точно знать место установки мишени\n2. Настройка и калибровка положения мишени\n3. Из за большего расстояния до мишени, требуется более точная настройка направления луча лазера\n4. Сложно использовать в полевых условиях\n5. Требуется жесткая фиксация СК по отношению к мишени\nФормат входных данных\n\tВходные данные приложение принимает в формате CSV. Таблица описывает длины строп одной консоли (другая измеряется симметрично). Где колонка данных соответствует ряду строп верхнего яруса, а строка номеру стропы в этом ряде. \nСама информация о стропе представляется строкой без пробелов вида: 6504/1, где первое число является общей длиной стропы от начала (мальи или СК) до конца крепления к параплану (петля вшитая в ниж. поверхность купола параплана). Вторая цифра обозначает номер стропы нижнего яруса, к которой крепится эта стропа. Таким образом приложение получает информацию о группировке строп верхнего яруса на стропы нижнего яруса. Эту информацию можно опускать, но тогда вы не сможете получить рекомендацию по корректировке длин строп по нижнему ярусу (на мальях).\n\nПример измерений:\nИсходные данные (текстовый файл в формате CSV)\n\t\n6504/1\t6423/1\t6374/1\n6423/1\t6374/1\t6295/1\n6374/1\t6295/1\t6236/2\n6295/2\t6256/2\t6151/2\n6236/2\t6171/2\n6151/2\n\nОписывает 3-х рядную стропной систему, с 6-тью стропами на A ряду по верхнему ярусу и 2-стропы по нижнему.\n\nВ этом примере, при замере фактических длин, стропы b4 и b5 намеренно были укорочены на 20 мм.\nНа фото вы можете наблюдать скриншоты программы, результат измерений с использование короткого метода. При замере длины строп одним измерением. Чтобы добиться меньшей погрешности стоит увеличить кол-во измерений на одну стропу (см. настройки). Рекомендуется использовать как минимум 2-е измерение на стропу.\n",
 			"settings":
 			{
-				"buffer_size": 104,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
+				"buffer_size": 4611,
+				"line_ending": "Windows",
+				"name": "Устройство для измерения строп параплана"
 			},
 			"undo_stack":
 			[
 				[
-					5,
-					1,
-					"insert",
-					{
-						"characters": "6504"
-					},
-					"BAAAAAAAAAAAAAAAAQAAAAAAAAAEAAAANjM0MAEAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAAAAAADAAAAAAAAAAQAAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					10,
-					1,
-					"insert",
-					{
-						"characters": "6423"
-					},
-					"BAAAABUAAAAAAAAAFgAAAAAAAAAEAAAANjMyMBYAAAAAAAAAFwAAAAAAAAAAAAAAFwAAAAAAAAAYAAAAAAAAAAAAAAAYAAAAAAAAABkAAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAFQAAAAAAAAAZAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					15,
-					1,
-					"insert",
-					{
-						"characters": "6374"
-					},
-					"BAAAACoAAAAAAAAAKwAAAAAAAAAEAAAANjMxMCsAAAAAAAAALAAAAAAAAAAAAAAALAAAAAAAAAAtAAAAAAAAAAAAAAAtAAAAAAAAAC4AAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAKgAAAAAAAAAuAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					26,
+					3,
 					1,
 					"paste",
 					null,
-					"AQAAAD4AAAAAAAAAUwAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAPgAAAAAAAAA+AAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					31,
-					1,
-					"insert",
-					{
-						"characters": "6292"
-					},
-					"BAAAAD8AAAAAAAAAQAAAAAAAAAAEAAAANjM3NEAAAAAAAAAAQQAAAAAAAAAAAAAAQQAAAAAAAABCAAAAAAAAAAAAAABCAAAAAAAAAEMAAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAPwAAAAAAAABDAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					32,
-					1,
-					"left_delete",
-					null,
-					"AQAAAEIAAAAAAAAAQgAAAAAAAAABAAAAMg",
-					"AQAAAAAAAAABAAAAQwAAAAAAAABDAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					33,
-					1,
-					"insert",
-					{
-						"characters": "5"
-					},
-					"AQAAAEIAAAAAAAAAQwAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAQgAAAAAAAABCAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					36,
-					1,
-					"paste",
-					null,
-					"AQAAAFMAAAAAAAAAaAAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAUwAAAAAAAABTAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					41,
-					1,
-					"insert",
-					{
-						"characters": "623"
-					},
-					"AwAAAFQAAAAAAAAAVQAAAAAAAAAEAAAANjM3NFUAAAAAAAAAVgAAAAAAAAAAAAAAVgAAAAAAAABXAAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAVAAAAAAAAABYAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					42,
-					1,
-					"insert",
-					{
-						"characters": "6"
-					},
-					"AQAAAFcAAAAAAAAAWAAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAVwAAAAAAAABXAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					45,
-					1,
-					"paste",
-					null,
-					"AQAAAGgAAAAAAAAAfQAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAaAAAAAAAAABoAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					50,
-					1,
-					"insert",
-					{
-						"characters": "615"
-					},
-					"AwAAAGkAAAAAAAAAagAAAAAAAAAEAAAANjM3NGoAAAAAAAAAawAAAAAAAAAAAAAAawAAAAAAAABsAAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAaQAAAAAAAABtAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					51,
-					1,
-					"insert",
-					{
-						"characters": "1"
-					},
-					"AQAAAGwAAAAAAAAAbQAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAbAAAAAAAAABsAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					61,
-					1,
-					"paste",
-					null,
-					"AQAAAAcAAAAAAAAACwAAAAAAAAAEAAAANjM2MA",
-					"AQAAAAAAAAABAAAABwAAAAAAAAALAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					71,
-					1,
-					"paste",
-					null,
-					"AQAAABwAAAAAAAAAIAAAAAAAAAAEAAAANjM0MA",
-					"AQAAAAAAAAABAAAAHAAAAAAAAAAgAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					86,
-					1,
-					"paste",
-					null,
-					"AQAAADEAAAAAAAAANQAAAAAAAAAEAAAANjMyMA",
-					"AQAAAAAAAAABAAAAMQAAAAAAAAA1AAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					96,
-					1,
-					"paste",
-					null,
-					"AQAAAEYAAAAAAAAASgAAAAAAAAAEAAAANjMyMA",
-					"AQAAAAAAAAABAAAARgAAAAAAAABKAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					106,
-					1,
-					"paste",
-					null,
-					"AQAAAFsAAAAAAAAAXwAAAAAAAAAEAAAANjMyMA",
-					"AQAAAAAAAAABAAAAWwAAAAAAAABfAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					116,
-					1,
-					"paste",
-					null,
-					"AQAAAA4AAAAAAAAAEgAAAAAAAAAEAAAANjM4MA",
-					"AQAAAAAAAAABAAAADgAAAAAAAAASAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					126,
-					1,
-					"paste",
-					null,
-					"AQAAACMAAAAAAAAAJwAAAAAAAAAEAAAANjM2MA",
-					"AQAAAAAAAAABAAAAIwAAAAAAAAAnAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					136,
-					1,
-					"paste",
-					null,
-					"AQAAADgAAAAAAAAAPAAAAAAAAAAEAAAANjM0MA",
-					"AQAAAAAAAAABAAAAOAAAAAAAAAA8AAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					146,
-					1,
-					"paste",
-					null,
-					"AQAAAE0AAAAAAAAAUQAAAAAAAAAEAAAANjM0MA",
-					"AQAAAAAAAAABAAAATQAAAAAAAABRAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					149,
-					2,
-					"left_delete",
-					null,
-					"AgAAAGIAAAAAAAAAYgAAAAAAAAAGAAAANjM0MC8yYQAAAAAAAABhAAAAAAAAAAEAAAAJ",
-					"AQAAAAAAAAABAAAAYgAAAAAAAABoAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					155,
-					1,
-					"left_delete",
-					null,
-					"AQAAAGgAAAAAAAAAaAAAAAAAAAAOAAAACTYzMjAvMgk2MzQwLzI",
-					"AQAAAAAAAAABAAAAaAAAAAAAAAB2AAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					158,
-					1,
-					"insert",
-					{
-						"characters": "2"
-					},
-					"AQAAAEQAAAAAAAAARQAAAAAAAAABAAAAMQ",
-					"AQAAAAAAAAABAAAARAAAAAAAAABFAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					161,
-					1,
-					"insert",
-					{
-						"characters": "2"
-					},
-					"AQAAAFkAAAAAAAAAWgAAAAAAAAABAAAAMQ",
-					"AQAAAAAAAAABAAAAWQAAAAAAAABaAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					164,
-					1,
-					"insert",
-					{
-						"characters": "2"
-					},
-					"AQAAAGcAAAAAAAAAaAAAAAAAAAABAAAAMQ",
-					"AQAAAAAAAAABAAAAZwAAAAAAAABoAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					167,
-					1,
-					"insert",
-					{
-						"characters": "1"
-					},
-					"AQAAACEAAAAAAAAAIgAAAAAAAAABAAAAMg",
-					"AQAAAAAAAAABAAAAIQAAAAAAAAAiAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					170,
-					1,
-					"insert",
-					{
-						"characters": "1"
-					},
-					"AQAAADYAAAAAAAAANwAAAAAAAAABAAAAMg",
-					"AQAAAAAAAAABAAAANgAAAAAAAAA3AAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					175,
-					1,
-					"insert",
-					{
-						"characters": "1"
-					},
-					"AQAAAD0AAAAAAAAAPgAAAAAAAAABAAAAMg",
-					"AQAAAAAAAAABAAAAPQAAAAAAAAA+AAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					178,
-					1,
-					"insert",
-					{
-						"characters": "1"
-					},
-					"AQAAAFIAAAAAAAAAUwAAAAAAAAABAAAAMg",
-					"AQAAAAAAAAABAAAAUgAAAAAAAABTAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					183,
-					1,
-					"insert",
-					{
-						"characters": "2"
-					},
-					"AQAAAD0AAAAAAAAAPgAAAAAAAAABAAAAMQ",
-					"AQAAAAAAAAABAAAAPQAAAAAAAAA+AAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					186,
-					1,
-					"insert",
-					{
-						"characters": "2"
-					},
-					"AQAAAFIAAAAAAAAAUwAAAAAAAAABAAAAMQ",
-					"AQAAAAAAAAABAAAAUgAAAAAAAABTAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					239,
-					1,
-					"left_delete",
-					null,
-					"AQAAAEgAAAAAAAAASAAAAAAAAAABAAAAMw",
-					"AQAAAAAAAAABAAAASQAAAAAAAABJAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					240,
-					1,
-					"insert",
-					{
-						"characters": "5"
-					},
-					"AQAAAEgAAAAAAAAASQAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAASAAAAAAAAABIAAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					242,
-					1,
-					"left_delete",
-					null,
-					"AQAAAF0AAAAAAAAAXQAAAAAAAAABAAAANQ",
-					"AQAAAAAAAAABAAAAXgAAAAAAAABeAAAAAAAAAAAAAAAAwFZA"
-				],
-				[
-					243,
-					1,
-					"insert",
-					{
-						"characters": "7"
-					},
-					"AQAAAF0AAAAAAAAAXgAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAXQAAAAAAAABdAAAAAAAAAAAAAAAAAPC/"
+					"AQAAAAAAAAAAAAAAAxIAAAAAAAAAAAAA",
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8"
 				]
 			]
-		},
-		{
-			"file": "/C/Documents/Paragliding/Mesuring-test.csv",
-			"settings":
-			{
-				"buffer_size": 104,
-				"line_ending": "Windows"
-			}
 		}
 	],
 	"build_system": "",
@@ -957,13 +621,50 @@
 	"expanded_folders":
 	[
 		"/C/OpenServer/domains/bs.com",
-		"/C/OpenServer/domains/bs.com/utils"
+		"/C/OpenServer/domains/bs.com/public_html",
+		"/C/OpenServer/domains/bs.com/public_html/js",
+		"/C/OpenServer/domains/bs.com/views",
+		"/C/OpenServer/domains/bs.com/views/advertisements",
+		"/C/OpenServer/domains/bs.com/views/layouts"
 	],
 	"file_history":
 	[
-		"/C/OpenServer/domains/bs.com/.gitignore",
-		"/C/OpenServer/domains/bs.com/views/advertisements/create.php",
+		"/D/Projects/Blender/Measuring lines.txt",
 		"/C/OpenServer/domains/bs.com/utils/parse-advertisment-prompt.txt",
+		"/C/Users/fwadi/Downloads/выезд Бир, Индия 2026 (1).txt",
+		"/C/Users/fwadi/Downloads/Первоначальное обучение  (5).txt",
+		"/C/Users/fwadi/Downloads/выезд Бир, Индия 2026.txt",
+		"/D/Install/3D Max 9/Crack/install.txt",
+		"/D/Images/3DMax/Print/Размеры SJCAM.txt",
+		"/C/Documents/Paragliding/test/Mesuring-test.csv",
+		"/C/Documents/Paragliding/NK Koyot 3p/Koyot 3p 28.csv",
+		"/C/Users/fwadi/Downloads/Выезды.txt",
+		"/D/AndroidProjects/MeasuringPSS/Описание.txt",
+		"/C/Documents/Paragliding/Swing Axis 4/Lines.csv",
+		"/C/Documents/Paragliding/Mesuring-test-2.csv",
+		"/C/OpenServer/domains/bs.com/public_html/css/site.css",
+		"/C/OpenServer/domains/bs.com/components/ratings/AdvertisementRatingService.php",
+		"/C/OpenServer/domains/bs.com/models/AdvertisementRating.php",
+		"/C/OpenServer/domains/bs.com/config/params.php",
+		"/C/OpenServer/domains/bs.com/controllers/AdvertisementsController.php",
+		"/C/OpenServer/domains/bs.com/public_html/js/rating.js",
+		"/C/OpenServer/domains/bs.com/models/Advertisement.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/create.php",
+		"/C/OpenServer/domains/bs.com/public_html/js/advertisement-form.js",
+		"/C/OpenServer/domains/bs.com/views/advertisements/view.php",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/web.php",
+		"/C/OpenServer/domains/bs.com/runtime/logs/app.log",
+		"/C/OpenServer/domains/bs.com/public_html/css/advertisement-form.css",
+		"/C/OpenServer/domains/bs.com/config/web.php",
+		"/C/OpenServer/domains/bs.com/views/layouts/main.php",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/params.php",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/app.log",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/console.php",
+		"/C/OpenServer/domains/bs.com/config/console.php",
+		"/C/OpenServer/domains/bs.com/migrations/m240000_000020_create_advertisement_ratings_table.php",
+		"/C/Documents/Paragliding/Mesuring-test.csv",
+		"/C/Documents/Paragliding/Mesuring-test-defect.csv",
+		"/C/OpenServer/domains/bs.com/.gitignore",
 		"/C/Documents/Paragliding/UP Trango X/Measuring.csv",
 		"/C/Documents/Paragliding/UP Kibo 2/Mesuring.csv",
 		"/C/Users/fwadi/Downloads/Перепады.xlsx - UP Kibo2 M.csv",
@@ -973,23 +674,18 @@
 		"/C/Documents/Paragliding/Joy/Joy 2 XS.csv",
 		"/C/Documents/Paragliding/Joy/joy_3m.cvs",
 		"/C/Documents/Paragliding/Joy/Joy3 M/Joy_3m_diff (1).csv",
-		"/C/OpenServer/domains/bs.com/models/Advertisement.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/update.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/section.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/index.php",
-		"/C/OpenServer/domains/bs.com/public_html/css/site.css",
-		"/C/OpenServer/domains/bs.com/config/web.php",
 		"/C/Users/fwadi/Downloads/Первоначальное обучение  (4).txt",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-3/web.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/_item.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/view.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000018_add_currency_to_advertisements.php",
 		"/C/OpenServer/domains/bs.com/combine_run.py",
 		"/C/Users/fwadi/Downloads/Новый документ.txt",
 		"/C/Documents/Paragliding/Joy 2/Joy 2 XS_diff.csv",
 		"/C/Documents/Paragliding/Joy 2 XS.csv",
 		"/C/Users/fwadi/Downloads/Новая таблица - Joy 2 XS (1).csv",
-		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/app.log",
 		"/C/OpenServer/domains/bs.com/helpers/SvgHelper.php",
 		"/C/OpenServer/domains/bs.com/models/AdvertisementHarness.php",
 		"/C/OpenServer/domains/bs.com/models/BaseAdvertisementType.php",
@@ -1003,7 +699,6 @@
 		"/C/OpenServer/domains/bs.com/views/site/register.php",
 		"/C/OpenServer/domains/bs.com/widgets/views/search-bar.php",
 		"/C/OpenServer/domains/bs.com/controllers/SiteController.php",
-		"/C/OpenServer/domains/bs.com/controllers/AdvertisementsController.php",
 		"/C/OpenServer/domains/bs.com/models/User.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000017_add_invitation_token_to_advertisements.php",
 		"/C/Documents/Paragliding/Klimber P/Длины строп.cvs",
@@ -1015,13 +710,10 @@
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000016_add_source_url_to_advertisements.php",
 		"/C/OpenServer/domains/bs.com/views/layouts/_header.php",
 		"/C/OpenServer/domains/bs.com/views/site/index.php",
-		"/C/OpenServer/domains/bs.com/views/layouts/main.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/_form.php",
 		"/C/OpenServer/domains/bs.com/models/Message.php",
 		"/C/OpenServer/domains/bs.com/models/AdvertisementSearch.php",
 		"/C/OpenServer/domains/bs.com/public_html/css/gallery.css",
-		"/C/OpenServer/domains/bs.com/config/params.php",
-		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/params.php",
 		"/C/OpenServer/domains/bs.com/models/NotificationSubscription.php",
 		"/C/OpenServer/domains/bs.com/views/user/profile.php",
 		"/C/OpenServer/domains/bs.com/public_html/css/search.css",
@@ -1035,8 +727,6 @@
 		"/C/OpenServer/domains/bs.com/views/layouts/miniapp.php",
 		"/C/OpenServer/domains/bs.com/controllers/UserController.php",
 		"/C/OpenServer/domains/bs.com/views/site/miniapp.php",
-		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/web.php",
-		"/C/OpenServer/domains/bs.com/config/console.php",
 		"/C/OpenServer/domains/bs.com/combined.txt",
 		"/C/OpenServer/domains/bs.com/widgets/SocialLogin.php",
 		"/C/OpenServer/domains/bs.com/widgets/views/social-login.php",
@@ -1055,12 +745,10 @@
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000012_add_queued_fields_to_notification_logs.php",
 		"/C/OpenServer/domains/bs.com/commands/NotificationQueueController.php",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/index.php",
-		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/console.php",
 		"/C/OpenServer/domains/bs.com/components/notifications/channels/TelegramChannel.php",
 		"/C/OpenServer/domains/bs.com/commands/TelegramController.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000011_add_telegram_chat_id_to_users.php",
 		"/C/OpenServer/domains/bs.com/components/TelegramWebhook.php",
-		"/C/OpenServer/domains/bs.com/runtime/logs/app.log",
 		"/C/OpenServer/domains/bs.com/views/user/edit.php",
 		"/C/OpenServer/domains/bs.com/views/notification/index.php",
 		"/D/AndroidProjects/MeasuringPSS/combine_run.py",
@@ -1068,27 +756,7 @@
 		"/D/AndroidProjects/MeasuringPSS/app/src/main/combine_run.py",
 		"/D/AndroidProjects/MeasuringPSS/app/src/main/combined.txt",
 		"/C/OpenServer/domains/bs.com/test-mailer-direct.php",
-		"/C/OpenServer/domains/bs.com/test-mailer.php",
-		"/C/OpenServer/domains/bs.com/test-smtp.php",
-		"/C/OpenServer/domains/bs.com/test-yii-mailer.php",
-		"/C/OpenServer/domains/bs.com/test-curl.php",
-		"/C/OpenServer/domains/bs.com/test-smtp-full.php",
-		"/C/OpenServer/domains/bs.com/public_html/css/bottom-nav.css",
-		"/C/OpenServer/domains/bs.com/public_html/js/bottom-nav.js",
-		"/C/OpenServer/domains/bs.com/public_html/js/color-mode.js",
-		"/C/Users/fwadi/AppData/Local/Temp/Rar$DIa21924.1137/bs_com (2).sql",
-		"/C/OpenServer/domains/bs.com/composer.json",
-		"/C/OpenServer/domains/bs.com/migrations/m240000_000010_add_telegram_whatsapp_to_users.php",
-		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/config.php",
-		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/db 2.php",
-		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/db.php",
-		"/C/OpenServer/domains/bs.com/views/messages/view.php",
-		"/C/OpenServer/domains/bs.com/web/css/messages.css",
-		"/C/OpenServer/domains/bs.com/web/css/site.css",
-		"/C/OpenServer/domains/bs.com/web/css/search.css",
-		"/C/OpenServer/domains/bs.com/widgets/SearchBar.php",
-		"/C/OpenServer/domains/bs.com/migrations/m240000_000009_fix_conversations_unique_index.php",
-		"/C/OpenServer/domains/bs.com/web/js/messages.js"
+		"/C/OpenServer/domains/bs.com/test-mailer.php"
 	],
 	"find":
 	{
@@ -1099,6 +767,12 @@
 		"height": 143.0,
 		"where_history":
 		[
+			"C:\\OpenServer\\domains\\bs.com\\public_html,<project filters>",
+			"C:\\OpenServer\\domains\\bs.com\\views,<project filters>",
+			"C:\\OpenServer\\domains\\bs.com\\components,<project filters>",
+			"C:\\OpenServer\\domains\\bs.com\\controllers,<project filters>",
+			"C:\\OpenServer\\domains\\bs.com\\views,<project filters>",
+			"C:\\OpenServer\\domains\\bs.com\\public_html,<project filters>",
 			"C:\\OpenServer\\domains\\bs.com\\views,<project filters>",
 			"C:\\OpenServer\\domains\\bs.com\\models,<project filters>",
 			"C:\\OpenServer\\domains\\bs.com\\controllers,<project filters>",
@@ -1220,13 +894,7 @@
 			"D:\\Projects\\tree-jump\\scripts\\models,<project filters>",
 			"D:\\Projects\\tree-jump\\scripts,<project filters>",
 			"D:\\Projects\\tree-jump\\scripts\\models,<project filters>",
-			"D:\\Projects\\tree-jump\\scripts,<project filters>",
-			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya,<project filters>",
-			"C:\\OpenServer\\domains\\eng_frases\\public,<project filters>",
-			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya,<project filters>",
-			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>",
-			"C:\\OpenServer\\domains\\eng_frases\\src\\Vmaya\\templates,<project filters>",
-			"C:\\OpenServer\\domains\\eng_frases\\public\\scripts,<project filters>"
+			"D:\\Projects\\tree-jump\\scripts,<project filters>"
 		]
 	},
 	"find_state":
@@ -1234,6 +902,51 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			" ",
+			"Детальный разбор",
+			"Диапазон годов выпуска",
+			"Рекомендуемая цена",
+			"rating-price-block",
+			"actionRate",
+			"getReasonablePrice",
+			"interpolatePriceByYear",
+			"AdvertisementRatingService",
+			"currency",
+			"Валюта",
+			"advertisement-currency",
+			"currency",
+			"rating-price-block",
+			"getSimilarAdvertisements",
+			"getRatingHtml",
+			"isAdmin",
+			"getSimilarAdvertisements",
+			"Rate",
+			"Детальный",
+			"Детальный разбор",
+			"Детальный",
+			"getSimilarAdvertisements",
+			"actionRate",
+			"Simila",
+			"defaultModel",
+			"default_ai_model",
+			"getSimilarCount",
+			"getSimilarAdvertisements",
+			"defaultModel",
+			"$defaultModel",
+			"defaultModel",
+			"$defaultModel",
+			"default",
+			"defaultModel",
+			"openrouter.api_key",
+			"callOpenRouter",
+			"openrouter_api_key",
+			"levels",
+			"callOpenRouter",
+			"callAI",
+			"Не удалось сгенерировать оценку. Попробуйте позже.",
+			"openai_api_key",
+			"col-md-4",
+			"actionBump",
 			"\t",
 			" ",
 			"\t",
@@ -1316,52 +1029,7 @@
 			"buildSubscriptionHtmlMessage",
 			"queueSubscriptionNotification",
 			"cleanHtmlFromEmoji",
-			"queueSubscriptionNotification",
-			"Failed to queue subscription",
-			"Yii::info",
-			"notifySubscribers",
-			"Yii::info",
-			"notifySubscribers",
-			"queueSubscriptionNotification",
-			"update",
-			"notifySubscribers",
-			"queueSubscriptionNotification",
-			"NotificationLog",
-			"NotificationSubscription",
-			"getRecipient",
-			"queueSubscriptionNotification",
-			"notifySubscribers",
-			"testTe",
-			"save(",
-			"User",
-			"webhook",
-			"Telegram webhook received",
-			"telegram",
-			"Тестовая отправка в Telegram",
-			"rule",
-			"Parasell_Bot",
-			"testTelegram",
-			"getBotUsername",
-			"actionTestTelegram",
-			"checkSubscription",
-			"actionCheckTelegramUserExists",
-			"actionTestTelegram",
-			"checkSubscription",
-			"sendMessage",
-			"telegram_bot_token",
-			"Parasell_Bot",
-			"actionCheckTelegramUser",
-			"testConnection",
-			"checkSubscription",
-			"testConnection",
-			"Telegram",
-			"attributeLabels",
-			"telegram",
-			"channels",
-			"$to",
-			"testEmail",
-			"senderName",
-			"testEmail"
+			"queueSubscriptionNotification"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -1369,6 +1037,8 @@
 		"regex": true,
 		"replace_history":
 		[
+			"\t",
+			"/t",
 			",",
 			" ",
 			"  ",
@@ -1494,9 +1164,7 @@
 			"text-target",
 			"playBackgrounAudio",
 			"bg-theme-gradient",
-			"bg-gradient",
-			"saveState",
-			"config.use_server"
+			"bg-gradient"
 		],
 		"reverse": false,
 		"scrollbar_highlights": true,
@@ -1513,41 +1181,11 @@
 			[
 				{
 					"buffer": 0,
-					"file": "/C/Documents/Paragliding/Mesuring-test-defect.csv",
 					"selected": true,
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 104,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								104,
-								104
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"stack_multiselect": false,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "/C/Documents/Paragliding/Mesuring-test.csv",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 104,
+						"buffer_size": 4611,
 						"regions":
 						{
 						},
@@ -1555,18 +1193,21 @@
 						[
 							[
 								0,
-								0
+								4611
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
+							"auto_name": "Устройство для измерения строп параплана",
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1134.4,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
 					"stack_multiselect": false,
 					"type": "text"
 				}
