@@ -283,13 +283,14 @@ $importScript = <<<JS
 (function() {
     'use strict';
     
-    // Маппинг производителей и сертификаций из БД
     var producerMap = {$producerMapJson};
     var certMap = {$certMapJson};
     
-    // Кэш для опций select
-    var producerOptions = null;
-    var certOptions = null;
+    var optionsCache = {
+        glider: { producer: null, cert: null },
+        harness: { producer: null },
+        device: { producer: null }
+    };
     
     var importBtn = document.getElementById('json-import-btn');
     var clearBtn = document.getElementById('json-import-clear');
@@ -297,55 +298,62 @@ $importScript = <<<JS
     var statusEl = document.getElementById('json-import-status');
     var errorsEl = document.getElementById('json-import-errors');
     
-    function getProducerSelect() {
-        return document.getElementById('advertisementglider-producer_id');
+    // ============================================================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+    // ============================================================
+    
+    function getProducerSelect(type) {
+        var selectId;
+        switch (type) {
+            case 'glider':  selectId = 'advertisementglider-producer_id'; break;
+            case 'harness': selectId = 'advertisementharness-producer_id'; break;
+            case 'device':  selectId = 'advertisementdevice-producer_id'; break;
+            default: return null;
+        }
+        return document.getElementById(selectId);
     }
     
     function getCertSelect() {
         return document.getElementById('advertisementglider-certification_id');
     }
     
-    function getProducerOptions() {
-        if (producerOptions !== null) return producerOptions;
-        var select = getProducerSelect();
+    function getProducerOptions(type) {
+        if (optionsCache[type] && optionsCache[type].producer !== null) {
+            return optionsCache[type].producer;
+        }
+        var select = getProducerSelect(type);
         if (!select) return [];
-        producerOptions = [];
+        var result = [];
         for (var i = 0; i < select.options.length; i++) {
-            var opt = select.options[i];
-            producerOptions.push({
-                value: opt.value,
-                text: opt.text.toLowerCase().trim()
+            result.push({
+                value: select.options[i].value,
+                text: select.options[i].text.toLowerCase().trim()
             });
         }
-        return producerOptions;
+        optionsCache[type].producer = result;
+        return result;
     }
     
     function getCertOptions() {
-        if (certOptions !== null) return certOptions;
+        if (optionsCache.glider.cert !== null) return optionsCache.glider.cert;
         var select = getCertSelect();
         if (!select) return [];
-        certOptions = [];
+        var result = [];
         for (var i = 0; i < select.options.length; i++) {
-            var opt = select.options[i];
-            certOptions.push({
-                value: opt.value,
-                text: opt.text.toLowerCase().trim()
+            result.push({
+                value: select.options[i].value,
+                text: select.options[i].text.toLowerCase().trim()
             });
         }
-        return certOptions;
+        optionsCache.glider.cert = result;
+        return result;
     }
     
-    function findProducerId(name) {
+    function findProducerId(name, type) {
         if (!name) return null;
-        
         var searchName = String(name).toLowerCase().trim();
+        if (producerMap[searchName]) return producerMap[searchName];
         
-        // 1. Проверяем по маппингу (точное совпадение)
-        if (producerMap[searchName]) {
-            return producerMap[searchName];
-        }
-        
-        // 2. Проверяем по частичному совпадению в маппинге
         var keys = Object.keys(producerMap);
         for (var i = 0; i < keys.length; i++) {
             if (searchName.indexOf(keys[i]) !== -1 || keys[i].indexOf(searchName) !== -1) {
@@ -353,34 +361,22 @@ $importScript = <<<JS
             }
         }
         
-        // 3. Проверяем по опциям select
-        var options = getProducerOptions();
+        var options = getProducerOptions(type);
         for (var i = 0; i < options.length; i++) {
             var opt = options[i];
-            // Точное совпадение
-            if (opt.text === searchName) {
-                return opt.value;
-            }
-            // Частичное совпадение
+            if (opt.text === searchName) return opt.value;
             if (opt.text.indexOf(searchName) !== -1 || searchName.indexOf(opt.text) !== -1) {
                 return opt.value;
             }
         }
-        
         return null;
     }
     
     function findCertId(name) {
         if (!name) return null;
-        
         var searchName = String(name).toLowerCase().trim();
+        if (certMap[searchName]) return certMap[searchName];
         
-        // 1. Проверяем по маппингу
-        if (certMap[searchName]) {
-            return certMap[searchName];
-        }
-        
-        // 2. Проверяем по частичному совпадению
         var keys = Object.keys(certMap);
         for (var i = 0; i < keys.length; i++) {
             if (searchName.indexOf(keys[i]) !== -1 || keys[i].indexOf(searchName) !== -1) {
@@ -388,7 +384,6 @@ $importScript = <<<JS
             }
         }
         
-        // 3. Проверяем по опциям select
         var options = getCertOptions();
         for (var i = 0; i < options.length; i++) {
             var opt = options[i];
@@ -398,13 +393,54 @@ $importScript = <<<JS
                 return opt.value;
             }
         }
-        
         return null;
     }
     
-    // Маппинг полей формы
-    var fieldMap = {
-        // Основные поля
+    function setFieldValue(fieldId, value) {
+        var el = document.getElementById(fieldId);
+        if (!el) return false;
+        
+        if (el.type === 'checkbox') {
+            el.checked = value === true || value === 'true' || value === 1 || value === '1';
+        } else if (el.tagName === 'SELECT') {
+            var found = false;
+            for (var i = 0; i < el.options.length; i++) {
+                if (el.options[i].value == value) {
+                    el.value = value;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found && value !== null && value !== undefined && value !== '') {
+                var searchText = String(value).toLowerCase().trim();
+                for (var i = 0; i < el.options.length; i++) {
+                    var optText = el.options[i].text.toLowerCase().trim();
+                    if (optText === searchText || optText.indexOf(searchText) !== -1) {
+                        el.value = el.options[i].value;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+        } else {
+            el.value = value;
+        }
+        
+        var event = new Event('change', { bubbles: true });
+        el.dispatchEvent(event);
+        return true;
+    }
+    
+    function setIfNotEmpty(fieldId, value) {
+        if (value === undefined || value === null || value === '') return false;
+        return setFieldValue(fieldId, value);
+    }
+    
+    // ============================================================
+    // МАППИНГ ПОЛЕЙ
+    // ============================================================
+    
+    var mainFieldMap = {
         'type': 'advertisement-type',
         'section': 'advertisement-section',
         'title': 'advertisement-title',
@@ -419,69 +455,192 @@ $importScript = <<<JS
         'vk_profile_url': 'advertisement-vk_profile_url',
         'whatsapp': 'advertisement-whatsapp',
         'source_url': 'advertisement-source_url',
-        'item_info_link': 'advertisement-item_info_link',
-        
-        // Поля glider (прямой маппинг)
-        'glider_model': 'advertisementglider-model',
-        'glider_producer_id': 'advertisementglider-producer_id',
-        'glider_certification_id': 'advertisementglider-certification_id',
-        'glider_weight_min': 'advertisementglider-weight_min',
-        'glider_weight_max': 'advertisementglider-weight_max',
-        'glider_date_release': 'advertisementglider-date_release',
-        'glider_flight_time': 'advertisementglider-flight_time',
-        'glider_condition': 'advertisementglider-condition',
-        'glider_defects': 'advertisementglider-defects',
-        'glider_cause': 'advertisementglider-cause',
+        'item_info_link': 'advertisement-item_info_link'
     };
     
-    function setFieldValue(fieldId, value) {
-        var el = document.getElementById(fieldId);
-        if (!el) return false;
+    var gliderFieldMap = {
+        'model': 'advertisementglider-model',
+        'producer_id': 'advertisementglider-producer_id',
+        'certification_id': 'advertisementglider-certification_id',
+        'weight_min': 'advertisementglider-weight_min',
+        'weight_max': 'advertisementglider-weight_max',
+        'date_release': 'advertisementglider-date_release',
+        'flight_time': 'advertisementglider-flight_time',
+        'condition': 'advertisementglider-condition',
+        'defects': 'advertisementglider-defects',
+        'cause': 'advertisementglider-cause'
+    };
+    
+    var harnessFieldMap = {
+        'model': 'advertisementharness-model',
+        'producer_id': 'advertisementharness-producer_id',
+        'size': 'advertisementharness-size',
+        'date_release': 'advertisementharness-date_release',
+        'condition': 'advertisementharness-condition',
+        'defects': 'advertisementharness-defects'
+    };
+    
+    var deviceFieldMap = {
+        'model': 'advertisementdevice-model',
+        'producer_id': 'advertisementdevice-producer_id',
+        'condition': 'advertisementdevice-condition',
+        'defects': 'advertisementdevice-defects'
+    };
+    
+    // Поля, которые есть в JSON, но НЕТ в форме.
+    // Для каждого типа перечисляем, что игнорируется.
+    var ignoredFieldsByType = {
+        glider: [],
+        harness: [
+            'certification_name', 'certification_id',
+            'pilot_height_min', 'pilot_height_max',
+            'weight', 'max_load', 'rucksack_volume',
+            'protection', 'cause'
+        ],
+        device: []
+    };
+    
+    // Человекочитаемые названия игнорируемых полей
+    var ignoredLabels = {
+        'certification_name': 'Сертификация',
+        'certification_id': 'ID сертификации',
+        'pilot_height_min': 'Рост пилота (мин)',
+        'pilot_height_max': 'Рост пилота (макс)',
+        'weight': 'Вес',
+        'max_load': 'Макс. нагрузка',
+        'rucksack_volume': 'Объём рюкзака',
+        'protection': 'Тип протектора',
+        'cause': 'Причина продажи'
+    };
+    
+    // ============================================================
+    // ФУНКЦИИ ЗАПОЛНЕНИЯ ПО ТИПАМ
+    // ============================================================
+    
+    function fillGliderFields(data) {
+        if (!data) return;
         
-        if (el.type === 'checkbox') {
-            el.checked = value === true || value === 'true' || value === 1 || value === '1';
-        } else if (el.tagName === 'SELECT') {
-            // Для select пробуем найти опцию с таким значением
-            var found = false;
-            for (var i = 0; i < el.options.length; i++) {
-                if (el.options[i].value == value) {
-                    el.value = value;
-                    found = true;
+        var directFields = ['model', 'weight_min', 'weight_max', 'date_release', 
+                           'flight_time', 'condition', 'defects', 'cause'];
+        for (var i = 0; i < directFields.length; i++) {
+            var key = directFields[i];
+            if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
+                setIfNotEmpty(gliderFieldMap[key], data[key]);
+            }
+        }
+        
+        var producerId = null;
+        if (data.producer_id) producerId = data.producer_id;
+        if (!producerId && data.producer_name) {
+            producerId = findProducerId(data.producer_name, 'glider');
+        }
+        if (!producerId && data.model) {
+            var modelLower = String(data.model).toLowerCase();
+            var producerKeys = Object.keys(producerMap);
+            for (var i = 0; i < producerKeys.length; i++) {
+                if (modelLower.indexOf(producerKeys[i]) !== -1) {
+                    producerId = producerMap[producerKeys[i]];
                     break;
                 }
             }
-            if (!found && value !== null && value !== undefined && value !== '') {
-                // Если значение не найдено, пробуем найти по тексту
-                var searchText = String(value).toLowerCase().trim();
-                for (var i = 0; i < el.options.length; i++) {
-                    var optText = el.options[i].text.toLowerCase().trim();
-                    if (optText === searchText || optText.indexOf(searchText) !== -1) {
-                        el.value = el.options[i].value;
-                        found = true;
-                        break;
-                    }
-                }
+        }
+        if (producerId) setFieldValue(gliderFieldMap.producer_id, producerId);
+        
+        var certId = null;
+        if (data.certification_id) certId = data.certification_id;
+        if (!certId && data.certification_name) {
+            certId = findCertId(data.certification_name);
+        }
+        if (certId) setFieldValue(gliderFieldMap.certification_id, certId);
+    }
+    
+    function fillHarnessFields(data) {
+        if (!data) return;
+        
+        var directFields = ['model', 'size', 'date_release', 'condition', 'defects'];
+        for (var i = 0; i < directFields.length; i++) {
+            var key = directFields[i];
+            if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
+                setIfNotEmpty(harnessFieldMap[key], data[key]);
             }
-            if (!found && value && el.options.length > 0) {
-                // Если все равно не найдено, пробуем числовое совпадение
-                for (var i = 0; i < el.options.length; i++) {
-                    if (el.options[i].value == value) {
-                        el.value = value;
-                        found = true;
-                        break;
-                    }
-                }
-            }
-        } else {
-            el.value = value;
         }
         
-        // Триггерим события для обновления зависимых полей
-        var event = new Event('change', { bubbles: true });
-        el.dispatchEvent(event);
-        
-        return true;
+        var producerId = null;
+        if (data.producer_id) producerId = data.producer_id;
+        if (!producerId && data.producer_name) {
+            producerId = findProducerId(data.producer_name, 'harness');
+        }
+        if (!producerId && data.model) {
+            var modelLower = String(data.model).toLowerCase();
+            var producerKeys = Object.keys(producerMap);
+            for (var i = 0; i < producerKeys.length; i++) {
+                if (modelLower.indexOf(producerKeys[i]) !== -1) {
+                    producerId = producerMap[producerKeys[i]];
+                    break;
+                }
+            }
+        }
+        if (producerId) setFieldValue(harnessFieldMap.producer_id, producerId);
     }
+    
+    function fillDeviceFields(data) {
+        if (!data) return;
+        
+        var directFields = ['model', 'condition', 'defects'];
+        for (var i = 0; i < directFields.length; i++) {
+            var key = directFields[i];
+            if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
+                setIfNotEmpty(deviceFieldMap[key], data[key]);
+            }
+        }
+        
+        var producerId = null;
+        if (data.producer_id) producerId = data.producer_id;
+        if (!producerId && data.producer_name) {
+            producerId = findProducerId(data.producer_name, 'device');
+        }
+        if (!producerId && data.model) {
+            var modelLower = String(data.model).toLowerCase();
+            var producerKeys = Object.keys(producerMap);
+            for (var i = 0; i < producerKeys.length; i++) {
+                if (modelLower.indexOf(producerKeys[i]) !== -1) {
+                    producerId = producerMap[producerKeys[i]];
+                    break;
+                }
+            }
+        }
+        if (producerId) setFieldValue(deviceFieldMap.producer_id, producerId);
+    }
+    
+    // ============================================================
+    // ПРОВЕРКА ИГНОРИРУЕМЫХ ПОЛЕЙ
+    // ============================================================
+    
+    /**
+     * Собирает список игнорируемых полей для указанного типа.
+     * Возвращает массив человекочитаемых названий.
+     */
+    function collectIgnoredFields(type, typeData) {
+        var ignored = [];
+        var ignoredList = ignoredFieldsByType[type] || [];
+        
+        if (!typeData) return ignored;
+        
+        for (var i = 0; i < ignoredList.length; i++) {
+            var key = ignoredList[i];
+            var value = typeData[key];
+            if (value !== undefined && value !== null && value !== '') {
+                var label = ignoredLabels[key] || key;
+                ignored.push(label + ' (' + key + ')');
+            }
+        }
+        
+        return ignored;
+    }
+    
+    // ============================================================
+    // ГЛАВНАЯ ФУНКЦИЯ ИМПОРТА
+    // ============================================================
     
     function fillFormFromJSON(jsonData) {
         var data;
@@ -492,138 +651,76 @@ $importScript = <<<JS
             return false;
         }
         
-        // Очищаем старые ошибки
         hideError();
         
-        // 1. Заполняем основные поля
-        var mainFields = ['type', 'section', 'title', 'description', 'price', 'currency', 
-                         'price_negotiable', 'city', 'phone', 'email', 'telegram', 
-                         'vk_profile_url', 'whatsapp', 'source_url', 'item_info_link'];
+        optionsCache = {
+            glider: { producer: null, cert: null },
+            harness: { producer: null },
+            device: { producer: null }
+        };
         
+        // 1. Основные поля
+        var mainFields = Object.keys(mainFieldMap);
         for (var i = 0; i < mainFields.length; i++) {
             var key = mainFields[i];
             if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
-                var fieldId = fieldMap[key];
-                if (fieldId) {
-                    setFieldValue(fieldId, data[key]);
-                    console.log('Set ' + key + ' = ' + data[key]);
-                }
+                setFieldValue(mainFieldMap[key], data[key]);
             }
         }
         
-        // 2. Заполняем поля glider
-        if (data.glider) {
-            var glider = data.glider;
-            
-            // Прямые поля
-            var directFields = ['model', 'weight_min', 'weight_max', 'date_release', 
-                               'flight_time', 'condition', 'defects', 'cause'];
-            
-            for (var i = 0; i < directFields.length; i++) {
-                var key = directFields[i];
-                if (glider[key] !== undefined && glider[key] !== null && glider[key] !== '') {
-                    var fieldKey = 'glider_' + key;
-                    var fieldId = fieldMap[fieldKey];
-                    if (fieldId) {
-                        setFieldValue(fieldId, glider[key]);
-                        console.log('Set glider.' + key + ' = ' + glider[key]);
-                    }
-                }
-            }
-            
-            // --- ПРОИЗВОДИТЕЛЬ (по названию) ---
-            var producerId = null;
-            
-            // 1. Если указан producer_id напрямую
-            if (glider.producer_id) {
-                producerId = glider.producer_id;
-                console.log('Using producer_id from JSON: ' + producerId);
-            }
-            
-            // 2. Если указан producer_name - ищем в БД
-            if (!producerId && glider.producer_name) {
-                producerId = findProducerId(glider.producer_name);
-                if (producerId) {
-                    console.log('Found producer by name "' + glider.producer_name + '" -> ID ' + producerId);
-                } else {
-                    console.warn('Producer not found: ' + glider.producer_name);
-                    showStatus('⚠️ Производитель "' + glider.producer_name + '" не найден в БД', 'warning');
-                }
-            }
-            
-            // 3. Если указан model - пробуем найти производителя по модели
-            if (!producerId && glider.model) {
-                // Пробуем найти по полному названию модели с производителем
-                var modelLower = String(glider.model).toLowerCase();
-                var producerKeys = Object.keys(producerMap);
-                for (var i = 0; i < producerKeys.length; i++) {
-                    if (modelLower.indexOf(producerKeys[i]) !== -1) {
-                        producerId = producerMap[producerKeys[i]];
-                        console.log('Found producer by model "' + glider.model + '" -> ' + producerKeys[i]);
-                        break;
-                    }
-                }
-            }
-            
-            // Устанавливаем производителя
-            if (producerId) {
-                var producerFieldId = fieldMap['glider_producer_id'];
-                if (producerFieldId) {
-                    setFieldValue(producerFieldId, producerId);
-                    console.log('Set producer_id = ' + producerId);
-                }
-            }
-            
-            // --- СЕРТИФИКАЦИЯ (по названию) ---
-            var certId = null;
-            
-            // 1. Если указан certification_id напрямую
-            if (glider.certification_id) {
-                certId = glider.certification_id;
-                console.log('Using certification_id from JSON: ' + certId);
-            }
-            
-            // 2. Если указан certification_name - ищем в БД
-            if (!certId && glider.certification_name) {
-                certId = findCertId(glider.certification_name);
-                if (certId) {
-                    console.log('Found certification by name "' + glider.certification_name + '" -> ID ' + certId);
-                } else {
-                    console.warn('Certification not found: ' + glider.certification_name);
-                    showStatus('⚠️ Сертификация "' + glider.certification_name + '" не найдена в БД', 'warning');
-                }
-            }
-            
-            // Устанавливаем сертификацию
-            if (certId) {
-                var certFieldId = fieldMap['glider_certification_id'];
-                if (certFieldId) {
-                    setFieldValue(certFieldId, certId);
-                    console.log('Set certification_id = ' + certId);
-                }
-            }
-        }
-        
-        // 3. Автоматически показываем нужные поля
+        // 2. Показываем нужные поля
         if (data.type) {
             var typeSelect = document.getElementById('type-select');
             if (typeSelect) {
+                typeSelect.value = data.type;
                 var event = new Event('change', { bubbles: true });
                 typeSelect.dispatchEvent(event);
             }
         }
         
-        // 4. Показываем блок изображений если раздел 'sell'
-        if (data.section === 'sell') {
-            var imagesBlock = document.getElementById('images-block');
-            if (imagesBlock) {
-                imagesBlock.style.display = 'block';
+        // 3. Заполняем поля типа (с задержкой, чтобы DOM обновился)
+        setTimeout(function() {
+            var type = data.type;
+            var ignoredFields = [];
+            
+            if (type === 'glider' && data.glider) {
+                fillGliderFields(data.glider);
+                ignoredFields = collectIgnoredFields('glider', data.glider);
+            } else if (type === 'harness' && data.harness) {
+                fillHarnessFields(data.harness);
+                ignoredFields = collectIgnoredFields('harness', data.harness);
+            } else if (type === 'device' && data.device) {
+                fillDeviceFields(data.device);
+                ignoredFields = collectIgnoredFields('device', data.device);
             }
-        }
+            
+            // 4. Показываем блок изображений
+            if (data.section === 'sell') {
+                var imagesBlock = document.getElementById('images-block');
+                if (imagesBlock) {
+                    imagesBlock.style.display = 'block';
+                }
+            }
+            
+            // 5. Формируем статус
+            if (ignoredFields.length > 0) {
+                showStatus(
+                    '⚠️ Форма заполнена, но следующие поля из JSON проигнорированы ' +
+                    '(их нет в форме подвески): ' + ignoredFields.join(', ') + '. ' +
+                    'Их можно добавить вручную в описание или в БД.',
+                    'warning'
+                );
+            } else {
+                showStatus('✅ Форма успешно заполнена!', 'success');
+            }
+        }, 100);
         
-        showStatus('✅ Форма успешно заполнена!', 'success');
         return true;
     }
+    
+    // ============================================================
+    // СТАТУСЫ И ОШИБКИ
+    // ============================================================
     
     function showStatus(message, type) {
         statusEl.innerHTML = message;
@@ -649,25 +746,25 @@ $importScript = <<<JS
         errorsEl.style.display = 'none';
     }
     
-    // Обработчик кнопки импорта
+    // ============================================================
+    // ОБРАБОТЧИКИ
+    // ============================================================
+    
     importBtn.addEventListener('click', function() {
         var jsonText = textarea.value.trim();
         if (!jsonText) {
             showError('Пожалуйста, вставьте JSON данные');
             return;
         }
-        
         fillFormFromJSON(jsonText);
     });
     
-    // Обработчик кнопки очистки
     clearBtn.addEventListener('click', function() {
         textarea.value = '';
         hideError();
         showStatus('', '');
     });
     
-    // Поддержка Ctrl+Enter для быстрого импорта
     textarea.addEventListener('keydown', function(e) {
         if (e.ctrlKey && e.key === 'Enter') {
             e.preventDefault();
@@ -675,9 +772,8 @@ $importScript = <<<JS
         }
     });
     
-    console.log('JSON Import initialized with ' + Object.keys(producerMap).length + ' producers and ' + Object.keys(certMap).length + ' certifications');
-    console.log('Producer map:', producerMap);
-    console.log('Cert map:', certMap);
+    console.log('JSON Import initialized. Producers: ' + Object.keys(producerMap).length + 
+                ', Certs: ' + Object.keys(certMap).length);
 })();
 JS;
 $this->registerJs($importScript);
