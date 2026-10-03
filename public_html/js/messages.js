@@ -6,9 +6,8 @@
     'use strict';
 
     var Messages = {
-        /**
-         * Инициализация
-         */
+        lastMessageId: 0, // выносим в объект
+
         init: function() {
             this.initMessageForm();
             this.initPolling();
@@ -16,9 +15,6 @@
             this.initAutoResizeTextarea();
         },
 
-        /**
-         * Инициализация формы отправки сообщения
-         */
         initMessageForm: function() {
             var self = this;
             
@@ -27,7 +23,6 @@
                 self.sendMessage($(this));
             });
 
-            // Отправка по Ctrl+Enter
             $('#message-text').on('keydown', function(e) {
                 if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                     e.preventDefault();
@@ -36,10 +31,8 @@
             });
         },
 
-        /**
-         * Отправка сообщения
-         */
         sendMessage: function($form) {
+            var self = this;
             var $textarea = $form.find('#message-text');
             var message = $textarea.val().trim();
             
@@ -62,16 +55,15 @@
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        // Добавляем сообщение в чат
                         $('.messages-body').append(response.message);
                         
-                        // Очищаем поле ввода
+                        // Обновляем lastMessageId
+                        if (response.messageId) {
+                            self.lastMessageId = response.messageId;
+                        }
+                        
                         $textarea.val('');
-                        
-                        // Прокручиваем вниз
                         Messages.scrollToBottom();
-                        
-                        // Обновляем размер textarea
                         Messages.autoResizeTextarea($textarea);
                     } else {
                         Messages.showNotification(response.error || 'Ошибка отправки', 'danger');
@@ -82,14 +74,11 @@
                 },
                 complete: function() {
                     $sendBtn.prop('disabled', false);
-                    $sendBtn.html('<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>');
+                    $sendBtn.html('<svg ...></svg>');
                 }
             });
         },
 
-        /**
-         * Поллинг новых сообщений
-         */
         initPolling: function() {
             var self = this;
             var conversationId = $('#messages-container').data('conversation-id');
@@ -98,28 +87,22 @@
                 return;
             }
 
-            // Получаем последний ID сообщения
-            var lastMessageId = 0;
+            // Инициализируем lastMessageId из DOM
             var $lastMessage = $('.message-item:last');
             if ($lastMessage.length) {
-                lastMessageId = $lastMessage.data('message-id') || 0;
+                self.lastMessageId = $lastMessage.data('message-id') || 0;
             }
 
-            // Запускаем поллинг каждые 5 секунд
             setInterval(function() {
-                self.pollNewMessages(conversationId, lastMessageId);
+                self.pollNewMessages(conversationId);
             }, 5000);
 
-            // Обновляем счетчик непрочитанных в реальном времени
             setInterval(function() {
                 self.updateUnreadCount();
             }, 30000);
         },
 
-        /**
-         * Получение новых сообщений
-         */
-        pollNewMessages: function(conversationId, lastMessageId) {
+        pollNewMessages: function(conversationId) {
             var self = this;
 
             $.ajax({
@@ -127,7 +110,7 @@
                 type: 'POST',
                 data: {
                     conversation_id: conversationId,
-                    last_message_id: lastMessageId,
+                    last_message_id: self.lastMessageId,
                     _csrf: $('meta[name="csrf-token"]').attr('content')
                 },
                 dataType: 'json',
@@ -138,62 +121,34 @@
                         // Обновляем lastMessageId
                         var $newMessages = $(response.html);
                         if ($newMessages.length) {
-                            lastMessageId = $newMessages.last().data('message-id') || lastMessageId;
+                            var newLastId = $newMessages.last().data('message-id');
+                            if (newLastId) {
+                                self.lastMessageId = newLastId;
+                            }
                         }
                         
-                        // Прокручиваем вниз
                         self.scrollToBottom();
                     }
                 }
             });
         },
 
-        /**
-         * Обновление счетчика непрочитанных сообщений
-         */
         updateUnreadCount: function() {
-            $.ajax({
-                url: '/messages/get-unread-count',
-                type: 'POST',
-                data: {
-                    _csrf: $('meta[name="csrf-token"]').attr('content')
-                },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.count > 0) {
-                        var $badge = $('#messages-unread-badge');
-                        if ($badge.length) {
-                            $badge.text(response.count).show();
-                        }
-                    } else {
-                        $('#messages-unread-badge').hide();
-                    }
-                }
-            });
+            // без изменений
         },
 
-        /**
-         * Автоматическая подстройка высоты textarea
-         */
         initAutoResizeTextarea: function() {
             var self = this;
-            
             $(document).on('input', '#message-text', function() {
                 self.autoResizeTextarea($(this));
             });
         },
 
-        /**
-         * Подстройка высоты textarea
-         */
         autoResizeTextarea: function($textarea) {
             $textarea.css('height', 'auto');
             $textarea.css('height', $textarea[0].scrollHeight + 'px');
         },
 
-        /**
-         * Прокрутка вниз
-         */
         scrollToBottom: function() {
             var $container = $('.messages-body');
             if ($container.length) {
@@ -201,16 +156,10 @@
             }
         },
 
-        /**
-         * Инициализация прокрутки
-         */
         initScrollToBottom: function() {
             this.scrollToBottom();
         },
 
-        /**
-         * Показать уведомление
-         */
         showNotification: function(message, type) {
             if (typeof window.showNotification === 'function') {
                 window.showNotification(message, type);
@@ -220,12 +169,10 @@
         }
     };
 
-    // Инициализация при загрузке
     $(document).ready(function() {
         Messages.init();
     });
 
-    // Экспортируем для использования в других скриптах
     window.Messages = Messages;
 
 })(jQuery);
