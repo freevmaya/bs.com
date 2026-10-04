@@ -31,13 +31,20 @@ class AdvertisementRatingService
      */
     public function __construct()
     {
-        // Загружаем курсы валют из параметров
-        $this->currencyRates = Yii::$app->params['currency_rates'] ?? [
-            'RUB' => 1,
-            'USD' => 92.5,
-            'EUR' => 100.2,
-        ];
-        
+        // Загружаем курсы валют из файла runtime/currency_rates.json
+        $storage = new \app\components\CurrencyRateStorage();
+        $rates = $storage->getRates();
+
+        // Fallback: если файл отсутствует или пуст — используем params.php
+        if (empty($rates) || !is_array($rates)) {
+            $rates = Yii::$app->params['currency_rates'] ?? [
+                'RUB' => 1,
+                'USD' => 85,
+                'EUR' => 95,
+            ];
+        }
+
+        $this->currencyRates = $rates;
         $this->baseCurrency = Yii::$app->params['base_currency'] ?? 'RUB';
     }
     
