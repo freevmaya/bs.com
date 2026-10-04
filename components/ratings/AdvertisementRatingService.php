@@ -701,6 +701,10 @@ class AdvertisementRatingService
                 'cons' => $this->generateCons($advertisement, $similar, $estimatedPriceInBase, $adPriceInBase),
                 'recommendations' => $this->generateRecommendations($advertisement, $estimatedPriceInBase, $adPriceInBase, $priceAdvice),
                 'market_analysis' => $this->generateMarketAnalysis($similar, $targetYear, $estimatedPriceInBase, $adCurrency),
+                // список ID аналогов
+                'similar_ids' => array_map(function ($ad) {
+                    return (int)$ad->id;
+                }, $similar),
             ];
             
             // Логируем результат для отладки

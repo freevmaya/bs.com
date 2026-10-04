@@ -20,6 +20,11 @@ $this->registerJsFile('@web/js/rating.js', [
     'position' => \yii\web\View::POS_END
 ]);
 
+$this->registerJsFile('@web/js/rating-similar-popup.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
+
 // ============================================================
 // МЕТА-ТЕГИ ДЛЯ СОЦИАЛЬНЫХ СЕТЕЙ (Open Graph + Twitter Cards)
 // ============================================================

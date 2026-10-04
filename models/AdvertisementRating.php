@@ -129,8 +129,25 @@ class AdvertisementRating extends ActiveRecord
         // РЕЗЮМЕ / АНАЛИЗ РЫНКА
         // ============================================================
         if ($this->summary) {
+            $similarAds = $this->getSimilarAdvertisements();
+            $similarCount = count($similarAds);
+            $similarIds = $this->getParsedRatingData()['similar_ids'] ?? [];
+            
             $html .= '<div class="rating-summary" style="padding: 12px 16px; background: var(--bs-tertiary-bg); border-radius: 8px; margin-bottom: 15px; line-height: 1.6;">';
-            $html .= '<strong>📊 Анализ рынка:</strong> ' . nl2br($this->summary);
+            $html .= '<strong>📊 Анализ рынка:</strong> ';
+            $html .= nl2br($this->summary);
+            
+            if ($similarCount > 0) {
+                $html .= '<div style="margin-top: 8px;">';
+                $html .= '<a href="#" class="rating-similar-link" '
+                      . 'data-rating-id="' . (int)$this->id . '" '
+                      . 'data-similar-ids="' . htmlspecialchars(json_encode($similarIds), ENT_QUOTES, 'UTF-8') . '" '
+                      . 'style="color: var(--bs-link-color); text-decoration: none; border-bottom: 1px dashed currentColor;">'
+                      . 'На основе анализа ' . $similarCount . ' аналогичных объявлений'
+                      . '</a>';
+                $html .= '</div>';
+            }
+            
             $html .= '</div>';
         }
 
@@ -189,6 +206,26 @@ class AdvertisementRating extends ActiveRecord
         $html .= ' • ' . Yii::$app->formatter->asDatetime($this->created_at);
         $html .= '</div>';
 
+        $similarAds = $this->getSimilarAdvertisements();
+        if (!empty($similarAds)) {
+            $html .= '<script type="application/json" class="rating-similar-data" '
+                   . 'data-rating-id="' . (int)$this->id . '">';
+            $html .= json_encode(array_map(function ($ad) {
+                return [
+                    'id' => $ad->id,
+                    'title' => $ad->title,
+                    'url' => \yii\helpers\Url::to(['/advertisements/view', 'id' => $ad->id]),
+                    'price' => $ad->price,
+                    'currency' => $ad->currency,
+                    'price_formatted' => $ad->getFormattedPrice(),
+                    'city' => $ad->city,
+                    'short_info' => $ad->getShortInfoString(', '),
+                    'year' => $ad->type === 'glider' && $ad->glider ? $ad->glider->date_release : null,
+                ];
+            }, $similarAds), JSON_UNESCAPED_UNICODE);
+            $html .= '</script>';
+        }
+
         $html .= '</div>'; // rating-container
 
         return $html;
@@ -214,5 +251,26 @@ class AdvertisementRating extends ActiveRecord
         if ($score >= 6) return 'score-good';
         if ($score >= 4) return 'score-average';
         return 'score-poor';
+    }
+
+    /**
+     * Получить список аналогичных объявлений, использованных для оценки
+     *
+     * @return Advertisement[]
+     */
+    public function getSimilarAdvertisements()
+    {
+        $data = $this->getParsedRatingData();
+        $ids = $data['similar_ids'] ?? [];
+        
+        if (empty($ids)) {
+            return [];
+        }
+        
+        return Advertisement::find()
+            ->where(['id' => $ids])
+            ->andWhere(['status' => Advertisement::STATUS_ACTIVE])
+            ->with(['images', 'glider', 'harness', 'device'])
+            ->all();
     }
 }
