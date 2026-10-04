@@ -37,9 +37,21 @@
     gap: 3px;
 }
 
+/* Верхняя строка и нижний элемент делят высоту пополам */
+.image-grid-preview .grid-three > .grid-row,
+.image-grid-preview .grid-three > .grid-item {
+    flex: 1 1 0%;
+    min-height: 0;
+}
+
 .image-grid-preview .grid-four {
     flex-direction: column;
     gap: 3px;
+}
+
+.image-grid-preview .grid-four > .grid-row {
+    flex: 1 1 0%;
+    min-height: 0;
 }
 
 .image-grid-preview .grid-five {
@@ -47,16 +59,31 @@
     gap: 3px;
 }
 
-.image-grid-preview .grid-five .grid-right {
+/* Левая часть (большой элемент) и правая часть делят ширину пополам */
+.image-grid-preview .grid-five > .grid-item-main {
+    flex: 1 1 0%;
+    min-width: 0;
+}
+
+.image-grid-preview .grid-five > .grid-right {
     display: flex;
     flex-direction: column;
     gap: 3px;
-    flex: 1;
+    flex: 1 1 0%;
+    min-width: 0;
 }
 
-.image-grid-preview .grid-five .grid-right .grid-row {
-    gap: 3px;
-    flex: 1;
+.image-grid-preview .grid-five .grid-right > .grid-row {
+    flex: 1 1 0%;
+    min-height: 0;
+}
+
+/* Внутри каждой строки все элементы делят ширину поровну */
+.image-grid-preview .grid-row > .grid-item {
+    flex: 1 1 0%;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
 }
 
 /* --- Элементы сетки --- */
@@ -64,7 +91,9 @@
     overflow: hidden;
     background: #f0f0f0;
     position: relative;
-    flex: 1;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
 }
 
 .image-grid-preview .grid-item img {
