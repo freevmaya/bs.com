@@ -40,7 +40,9 @@ class AdvertisementsController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['create', 'update', 'delete', 'my', 'add-image', 'delete-image', 'reorder-images', 'add-temp-image', 'delete-temp-image', 'toggle-status', 'bump'],
+                'only' => ['create', 'update', 'delete', 'my', 'add-image', 'delete-image',
+                           'reorder-images', 'add-temp-image', 'delete-temp-image',
+                           'toggle-status', 'bump', 'reset-rating'],
                 'rules' => [
                     [
                         'allow' => true,
@@ -1372,5 +1374,44 @@ class AdvertisementsController extends Controller
         }
         
         return ['success' => false, 'error' => 'Ошибка при создании ссылки'];
+    }
+
+    /**
+     * Сброс оценки AI для объявления
+     */
+    public function actionResetRating()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->validateCsrfToken()) {
+            return ['success' => false, 'error' => 'CSRF token validation failed'];
+        }
+
+        $id = (int)Yii::$app->request->post('id');
+
+        if (!$id) {
+            return ['success' => false, 'error' => 'Не указан ID объявления'];
+        }
+
+        $model = Advertisement::findOne($id);
+        if (!$model) {
+            return ['success' => false, 'error' => 'Объявление не найдено'];
+        }
+
+        // Проверка прав: только админ или владелец
+        $user = Yii::$app->user->identity;
+        if (!$user || ($model->user_id !== $user->id && !$user->isAdmin())) {
+            return ['success' => false, 'error' => 'У вас нет прав для этого действия'];
+        }
+
+        $deleted = AdvertisementRating::deleteAll(['advertisement_id' => $id]);
+
+        Yii::info("Rating reset for advertisement #{$id}, deleted rows: {$deleted}", 'rating');
+
+        return [
+            'success' => true,
+            'message' => 'Оценка сброшена',
+            'deleted' => $deleted,
+        ];
     }
 }

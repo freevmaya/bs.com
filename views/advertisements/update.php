@@ -155,6 +155,11 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
             </div>
         <?php endif; ?>
     </div>
+    
+    <!-- Поле для JSON-импорта (только для админов) -->
+    <?php if ($isAdmin): ?>
+        <?= $this->render('_json_import') ?>
+    <?php endif; ?>
 </div>
 
 <?php
@@ -170,7 +175,6 @@ document.getElementById('type-select').addEventListener('change', function() {
         }
     } else {
         titleField.style.display = 'none';
-        // ПРИНУДИТЕЛЬНО ОЧИЩАЕМ И ОТКЛЮЧАЕМ ПОЛЕ ЗАГОЛОВКА
         if (titleInput) {
             titleInput.value = '';
             titleInput.disabled = true;
@@ -178,7 +182,6 @@ document.getElementById('type-select').addEventListener('change', function() {
     }
 });
 
-// При загрузке также применяем
 document.addEventListener('DOMContentLoaded', function() {
     var typeSelect = document.getElementById('type-select');
     var event = new Event('change');
