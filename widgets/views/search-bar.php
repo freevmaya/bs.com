@@ -169,6 +169,8 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
         'action' => $action,
         'options' => ['class' => 'd-flex w-100', 'id' => 'main-search-form'],
     ]); ?>
+
+    <?= Html::hiddenInput('sort', Yii::$app->request->get('sort', '-updated_at')) ?>
     
     <div class="input-group">
         <?= Html::textInput('AdvertisementSearch[search_text]', $searchModel->search_text, [
@@ -240,14 +242,15 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
         </div>
         <div class="search-params-popup-body">
             <div class="search-params-panel">
-                <?php $form = ActiveForm::begin([
+               <?php $form = ActiveForm::begin([
                     'method' => 'get',
                     'action' => $action,
                     'options' => ['class' => 'row g-3', 'id' => 'search-params-form'],
                 ]); ?>
-                
+
                 <!-- Скрытые поля -->
                 <?= Html::hiddenInput('AdvertisementSearch[search_text]', $searchModel->search_text) ?>
+                <?= Html::hiddenInput('sort', Yii::$app->request->get('sort', '-updated_at')) ?>
                 <?php if ($section): ?>
                     <?= Html::hiddenInput('AdvertisementSearch[section]', $section) ?>
                 <?php endif; ?>

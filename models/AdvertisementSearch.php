@@ -107,17 +107,34 @@ class AdvertisementSearch extends Advertisement
             $query->andWhere(['section' => $section]);
         }
         
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-            'sort' => [
-                'defaultOrder' => [
-                    'updated_at' => SORT_DESC,  // Изменено с created_at на updated_at
+        $sortParam = Yii::$app->request->get('sort');
+        $isPriceSort = in_array($sortParam, ['price', '-price'], true);
+
+        if ($isPriceSort) {
+            // Применяем кастомную сортировку по цене с учётом валюты
+            $this->applyPriceSort($query, $sortParam === '-price' ? SORT_DESC : SORT_ASC);
+
+            // Отключаем стандартный sort у dataProvider, чтобы Yii не добавлял свой ORDER BY
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'sort' => false,
+                'pagination' => [
+                    'pageSize' => 20,
                 ],
-            ],
-            'pagination' => [
-                'pageSize' => 20,
-            ],
-        ]);
+            ]);
+        } else {
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'sort' => [
+                    'defaultOrder' => [
+                        'updated_at' => SORT_DESC,
+                    ],
+                ],
+                'pagination' => [
+                    'pageSize' => 20,
+                ],
+            ]);
+        }
         
         $this->load($params);
         
@@ -328,5 +345,72 @@ class AdvertisementSearch extends Advertisement
         if (!empty($this->device_condition)) {
             $query->andWhere(['advertisement_device.condition' => $this->device_condition]);
         }
+    }
+
+    /**
+     * Применить сортировку по цене с учётом валюты
+     *
+     * Сортирует объявления по цене, приведённой к базовой валюте (RUB).
+     * Объявления без цены отправляются в конец.
+     *
+     * @param \yii\db\ActiveQuery $query
+     * @param int $direction SORT_ASC или SORT_DESC
+     */
+    protected function applyPriceSort($query, $direction)
+    {
+        $rates = \app\helpers\CurrencyRate::getRates();
+        $baseCurrency = \app\helpers\CurrencyRate::getBaseCurrency();
+
+        // Строим SQL-выражение CASE WHEN для приведения к базовой валюте
+        $cases = [];
+        $params = [];
+
+        $paramIndex = 0;
+        foreach ($rates as $currency => $rate) {
+            $currency = strtoupper($currency);
+
+            // Пропускаем базовую валюту — для неё курс 1
+            if ($currency === $baseCurrency) {
+                continue;
+            }
+
+            $rate = (float)$rate;
+            if ($rate <= 0) {
+                continue;
+            }
+
+            $paramName = ':rate_' . strtolower($currency) . '_' . $paramIndex;
+            $cases[] = "WHEN advertisements.currency = '{$currency}' THEN advertisements.price * {$paramName}";
+            $params[$paramName] = $rate;
+            $paramIndex++;
+        }
+
+        // Формируем выражение:
+        // - для базовой валюты: price
+        // - для известных валют: price * rate
+        // - для неизвестных: price
+        $caseExpression = '';
+        if (!empty($cases)) {
+            $caseExpression = 'CASE ' . implode(' ', $cases) . ' ELSE advertisements.price END';
+        } else {
+            $caseExpression = 'advertisements.price';
+        }
+
+        // Сортировка: объявления без цены — в конец
+        // В MySQL NULL сортируется первым при ASC и последним при DESC,
+        // поэтому используем IS NULL для явного контроля.
+        $directionSql = $direction === SORT_DESC ? 'DESC' : 'ASC';
+
+        // IS NULL: 0 для NOT NULL (в начало), 1 для NULL (в конец) — при ASC
+        // При DESC инвертируем: NULL тоже в конец
+        if ($direction === SORT_DESC) {
+            $nullOrder = 'ISNULL(advertisements.price) ASC';
+        } else {
+            $nullOrder = 'ISNULL(advertisements.price) ASC';
+        }
+
+        $orderBySql = "{$nullOrder}, ({$caseExpression}) {$directionSql}";
+
+        $query->addOrderBy(new \yii\db\Expression($orderBySql, $params));
     }
 }

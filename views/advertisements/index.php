@@ -29,6 +29,10 @@ $isGuest = Yii::$app->user->isGuest;
     <div class="d-flex justify-content-between align-items-center search-ext-block">
         <div class="sort-options">
             <form method="get" class="form-inline">
+                <?= Yii::$app->view->render('@app/widgets/views/_hidden_params', [
+                    'params' => Yii::$app->request->get(),
+                    'exclude' => ['sort'],
+                ]) ?>
                 <div class="form-group">
                     <select name="sort" class="form-control" onchange="this.form.submit()">
                         <option value="-updated_at" <?= Yii::$app->request->get('sort') == '-updated_at' ? 'selected' : '' ?>>
