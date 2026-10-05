@@ -730,6 +730,12 @@ class AdvertisementRatingService
         $adCurrency = $advertisement->currency ?? 'RUB';
         $price = (float)($advertisement->price ?? 50000);
         $estimatedPrice = round($price / 1000) * 1000;
+
+        $consText = 'Нет аналогов в базе данных';
+        $typeObject = $advertisement->getTypeObject();
+        if ($typeObject && $typeObject->hasAttribute('date_release') && empty($typeObject->date_release)) {
+            $consText .= '. Также не указан год выпуска, что дополнительно снижает точность расчёта';
+        }
         
         return [
             'fair_price' => (int)$estimatedPrice,
@@ -745,7 +751,7 @@ class AdvertisementRatingService
             'relevance' => 5,
             'call_to_action' => 5,
             'pros' => 'Нет достаточных данных для полного анализа',
-            'cons' => 'Нет аналогов в базе данных',
+            'cons' => $consText,
             'recommendations' => 'Добавьте больше деталей в объявление и фото для повышения привлекательности.',
             'market_analysis' => 'Недостаточно данных для точного анализа рынка. Рекомендуется изучить аналогичные объявления.',
         ];
@@ -922,36 +928,42 @@ class AdvertisementRatingService
     {
         $cons = [];
         $typeObject = $ad->getTypeObject();
-        
+
+        // Проверяем год выпуска (для типов, где он важен)
+        $yearMissing = false;
+        if ($typeObject && $typeObject->hasAttribute('date_release') && empty($typeObject->date_release)) {
+            $cons[] = 'Не указан год выпуска — это снижает точность расчёта рекомендуемой цены';
+        }
+
         if ($typeObject && $typeObject->defects) {
             $cons[] = 'Есть дефекты: ' . $typeObject->defects;
         }
-        
+
         if ($adPriceInBase > 0 && $estimatedPriceInBase > 0) {
             $diff = ($adPriceInBase - $estimatedPriceInBase) / $estimatedPriceInBase;
             if ($diff > 0.2) {
                 $cons[] = 'Цена завышена';
             }
         }
-        
+
         if (empty($ad->description) || strlen($ad->description) < 50) {
             $cons[] = 'Краткое описание';
         }
-        
+
         $imageCount = $ad->getImages()->count();
         if ($imageCount < 3) {
             $cons[] = 'Мало фото';
         }
-        
+
         if (empty($ad->city)) {
             $cons[] = 'Не указан город';
         }
-        
+
         if (count($cons) < 2) {
             $cons[] = 'Рекомендуется добавить больше информации';
         }
-        
-        return implode("\n", array_slice($cons, 0, 4));
+
+        return implode("\n", array_slice($cons, 0, 5));
     }
     
     /**
@@ -960,28 +972,34 @@ class AdvertisementRatingService
     private function generateRecommendations(Advertisement $ad, float $estimatedPriceInBase, float $adPriceInBase, string $priceAdvice): string
     {
         $recommendations = [];
-        
+
+        // Проверяем год выпуска
+        $typeObject = $ad->getTypeObject();
+        if ($typeObject && $typeObject->hasAttribute('date_release') && empty($typeObject->date_release)) {
+            $recommendations[] = 'Укажите год выпуска снаряжения — это позволит точнее рассчитать рекомендуемую цену и повысит доверие покупателей.';
+        }
+
         if ($priceAdvice) {
             $recommendations[] = $priceAdvice;
         }
-        
+
         if (empty($ad->description) || strlen($ad->description) < 50) {
             $recommendations[] = 'Добавьте подробное описание с указанием состояния, дефектов и комплектации.';
         }
-        
+
         $imageCount = $ad->getImages()->count();
         if ($imageCount < 5) {
             $recommendations[] = 'Добавьте больше качественных фото (рекомендуется 5-10).';
         }
-        
+
         if (empty($ad->phone) && empty($ad->telegram) && empty($ad->email)) {
             $recommendations[] = 'Укажите контактную информацию для связи.';
         }
-        
+
         if (empty($recommendations)) {
             $recommendations[] = 'Объявление хорошо оформлено. Рекомендуется периодически обновлять его.';
         }
-        
+
         return implode(' ', $recommendations);
     }
     
