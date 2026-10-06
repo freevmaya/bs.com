@@ -270,16 +270,13 @@ class Advertisement extends ActiveRecord
 
     public function generateTitle()
     {
-        if (!empty($this->title) && $this->type === self::TYPE_NORMAL) {
-            return $this->title;
-        }
 
         if ($this->type === self::TYPE_NORMAL) {
             if (!empty($this->title)) {
                 return $this->title;
             }
             $sectionLabel = $this->section === self::SECTION_SELL ? 'Продам' : 'Куплю';
-            return $sectionLabel . ' ' . ($this->type ? $this->getTypeLabel() : 'объявление');
+            return $sectionLabel;
         }
 
         $modelName = '';
@@ -331,9 +328,7 @@ class Advertisement extends ActiveRecord
                 $this->populateRelation('device', $this->getDevice()->one());
             }
             
-            if ($this->type !== self::TYPE_NORMAL) {
-                $this->title = $this->generateTitle();
-            } elseif (empty($this->title)) {
+            if ($this->type !== self::TYPE_NORMAL || empty($this->title)) {
                 $this->title = $this->generateTitle();
             }
             
