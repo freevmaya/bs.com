@@ -844,6 +844,7 @@ thead, tbody, tfoot, tr, td, th {
 .advertisement-item .media-body {
     display: flex;
     align-items: center;
+    overflow: hidden;
 }
 
 .pagination li {
@@ -1463,11 +1464,16 @@ thead, tbody, tfoot, tr, td, th {
     font-weight: 600;
 }
 
-/* Сохранение форматирования в описании объявления */
+/* Описание объявления */
 .advertisement-description {
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: break-word;
     font-family: inherit;
     line-height: 1.6;
+}
+
+/* Ссылки внутри описания */
+.advertisement-description a {
+    word-break: break-all;
 }

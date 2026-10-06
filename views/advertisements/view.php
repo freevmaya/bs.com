@@ -325,7 +325,7 @@ if (YII_DEBUG) {
                     <?php endif; ?>                    
                     
                     <div class="well advertisement-description">
-                        <?= Html::encode($model->description) ?>
+                        <?= \app\helpers\TextHelper::linkify($model->description) ?>
                     </div>
                 </div>
             </div>
