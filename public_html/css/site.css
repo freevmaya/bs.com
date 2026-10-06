@@ -1462,3 +1462,12 @@ thead, tbody, tfoot, tr, td, th {
     color: #d9534f;
     font-weight: 600;
 }
+
+/* Сохранение форматирования в описании объявления */
+.advertisement-description {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-family: inherit;
+    line-height: 1.6;
+}

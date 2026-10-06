@@ -324,8 +324,8 @@ if (YII_DEBUG) {
                         </div>
                     <?php endif; ?>                    
                     
-                    <div class="well">
-                        <?= nl2br(Html::encode($model->description)) ?>
+                    <div class="well advertisement-description">
+                        <?= Html::encode($model->description) ?>
                     </div>
                 </div>
             </div>
