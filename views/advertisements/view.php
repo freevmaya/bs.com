@@ -530,6 +530,14 @@ if (YII_DEBUG) {
                     </div>
                 </div>
             <?php endif; ?>
+
+            <!-- Похожие объявления -->
+            <?= \app\widgets\SimilarAdvertisements::widget([
+                'advertisement' => $model,
+                'limit' => 4,
+                'minResults' => 2,
+                'useCache' => true,
+            ]) ?>
             
             <?php if (!Yii::$app->user->isGuest && Yii::$app->user->id == $model->user_id): ?>
                 <div class="panel panel-default">
