@@ -23,12 +23,7 @@ class SimilarAdvertisements extends Widget
     /**
      * @var int Минимум для показа блока
      */
-    public $minResults = 2;
-
-    /**
-     * @var bool Использовать кэш
-     */
-    public $useCache = true;
+    public $minResults = 1;
 
     public function run()
     {
@@ -38,8 +33,6 @@ class SimilarAdvertisements extends Widget
 
         $service = new SimilarAdvertisementService();
         $service->limit = $this->limit;
-        $service->minResults = $this->minResults;
-        $service->useCache = $this->useCache;
 
         $similar = $service->findSimilar($this->advertisement);
 

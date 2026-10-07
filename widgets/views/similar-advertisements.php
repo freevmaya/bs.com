@@ -20,8 +20,11 @@ use yii\helpers\Html;
         </h4>
     </div>
     <div class="panel-body similar-advertisements-list">
-        <?php foreach ($advertisements as $ad): ?>
-            <?= $this->render('_similar_item', ['ad' => $ad]) ?>
+        <?php foreach ($advertisements as $item): ?>
+            <?= $this->render('_similar_item', [
+                'ad' => $item['ad'],
+                'reason' => $item['reason'],
+            ]) ?>
         <?php endforeach; ?>
     </div>
 </div>

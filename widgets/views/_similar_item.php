@@ -8,6 +8,7 @@ use app\models\Advertisement;
 
 /**
  * @var \app\models\Advertisement $ad
+ * @var string|null $reason
  */
 
 $url = Url::to(['/advertisements/view', 'id' => $ad->id]);
@@ -15,7 +16,6 @@ $image = $ad->mainImage;
 $thumbUrl = $image ? $image->getThumbnailUrl() : null;
 $isVideo = $image ? $image->isVideo() : false;
 
-// Год выпуска (для glider/harness)
 $year = null;
 $typeObject = $ad->getTypeObject();
 if ($typeObject && $typeObject->hasAttribute('date_release') && !empty($typeObject->date_release)) {
@@ -38,8 +38,8 @@ if ($typeObject && $typeObject->hasAttribute('date_release') && !empty($typeObje
             </div>
         <?php endif; ?>
 
-        <?php if (!empty($ad->match_reason)): ?>
-            <span class="similar-item-badge"><?= Html::encode($ad->match_reason) ?></span>
+        <?php if (!empty($reason)): ?>
+            <span class="similar-item-badge"><?= Html::encode($reason) ?></span>
         <?php endif; ?>
     </div>
     <div class="similar-item-body">
