@@ -16,10 +16,17 @@ $image = $ad->mainImage;
 $thumbUrl = $image ? $image->getThumbnailUrl() : null;
 $isVideo = $image ? $image->isVideo() : false;
 
+// Год выпуска (для glider/harness)
 $year = null;
 $typeObject = $ad->getTypeObject();
 if ($typeObject && $typeObject->hasAttribute('date_release') && !empty($typeObject->date_release)) {
     $year = $typeObject->date_release;
+}
+
+// Сертификация (только для парапланов)
+$certification = null;
+if ($ad->type === Advertisement::TYPE_GLIDER && $ad->glider && $ad->glider->certification) {
+    $certification = $ad->glider->certification->name;
 }
 ?>
 
@@ -52,6 +59,9 @@ if ($typeObject && $typeObject->hasAttribute('date_release') && !empty($typeObje
             <?php endif; ?>
         </div>
         <div class="similar-item-meta">
+            <?php if ($certification): ?>
+                <span>🪂 <?= Html::encode($certification) ?></span>
+            <?php endif; ?>
             <?php if ($year): ?>
                 <span>📅 <?= Html::encode($year) ?></span>
             <?php endif; ?>
