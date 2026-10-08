@@ -622,9 +622,6 @@ if (YII_DEBUG) {
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="request-access-modal-label">Получить доступ к редактированию</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
                             </div>
                             <div class="modal-body">
                                 <p style="margin-bottom: 15px; color: #6c757d; font-size: 14px;">
@@ -642,7 +639,7 @@ if (YII_DEBUG) {
                                 <div id="request-access-error" class="alert alert-danger" style="display: none; margin-top: 10px;"></div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                                <button type="button" class="btn btn-default" data-bs-dismiss="modal">Отмена</button>
                                 <button type="button" class="btn btn-primary" id="request-access-submit">
                                     <span class="glyphicon glyphicon-send"></span> Отправить запрос
                                 </button>
