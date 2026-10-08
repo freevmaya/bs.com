@@ -38,6 +38,7 @@ class NotificationManager extends Component
         $this->registerEvent('search_subscription', 'Новое объявление по критериям подписки');
         $this->registerEvent('new_advertisement', 'Новое объявление на сайте');
         $this->registerEvent('new_message', 'Новое сообщение в диалоге');
+        $this->registerEvent('access_request', 'Запрос доступа к редактированию объявления');
     }
     
     /**

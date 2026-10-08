@@ -40,9 +40,7 @@ class AdvertisementsController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['create', 'update', 'delete', 'my', 'add-image', 'delete-image',
-                           'reorder-images', 'add-temp-image', 'delete-temp-image',
-                           'toggle-status', 'bump', 'reset-rating'],
+                'only' => ['create', 'update', 'delete', 'my', 'add-image', 'delete-image', 'reorder-images', 'add-temp-image', 'delete-temp-image', 'toggle-status', 'bump', 'reset-rating'],
                 'rules' => [
                     [
                         'allow' => true,
@@ -1377,9 +1375,19 @@ class AdvertisementsController extends Controller
     }
 
     /**
-     * Сброс оценки AI для объявления
+     * Запрос доступа к редактированию объявления
+     *
+     * Логика:
+     *   1. Если гость — требует email и/или telegram в POST.
+     *   2. Если авторизован — берёт email/telegram из профиля, но может дополнить из POST.
+     *   3. Генерирует (или переиспользует валидный) invitation_token.
+     *   4. Отправляет уведомление всем админам через NotificationManager.
+     *   5. Возвращает JSON с результатом.
+     *
+     * @param int $id ID объявления
+     * @return array JSON
      */
-    public function actionResetRating()
+    public function actionRequestAccess($id)
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
@@ -1387,31 +1395,293 @@ class AdvertisementsController extends Controller
             return ['success' => false, 'error' => 'CSRF token validation failed'];
         }
 
-        $id = (int)Yii::$app->request->post('id');
+        $model = $this->findModel($id);
 
-        if (!$id) {
-            return ['success' => false, 'error' => 'Не указан ID объявления'];
+        // Проверяем, что пользователь не владелец
+        $currentUserId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        if ($currentUserId !== null && (int)$currentUserId === (int)$model->user_id) {
+            return ['success' => false, 'error' => 'Вы уже являетесь владельцем этого объявления'];
         }
 
-        $model = Advertisement::findOne($id);
-        if (!$model) {
-            return ['success' => false, 'error' => 'Объявление не найдено'];
+        // Проверяем, что объявление активно
+        if ($model->status !== Advertisement::STATUS_ACTIVE) {
+            return ['success' => false, 'error' => 'Объявление неактивно'];
         }
 
-        // Проверка прав: только админ или владелец
-        $user = Yii::$app->user->identity;
-        if (!$user || ($model->user_id !== $user->id && !$user->isAdmin())) {
-            return ['success' => false, 'error' => 'У вас нет прав для этого действия'];
+        // ============================================================
+        // СОБИРАЕМ КОНТАКТЫ ЗАПРОСИВШЕГО
+        // ============================================================
+        $email = null;
+        $telegram = null;
+
+        if (!Yii::$app->user->isGuest) {
+            // Авторизованный: берём из профиля
+            $user = Yii::$app->user->identity;
+            $email = $user->email;
+            $telegram = $user->telegram;
+
+            // Можно дополнить из POST, если переданы
+            $postEmail = trim((string)Yii::$app->request->post('email', ''));
+            $postTelegram = trim((string)Yii::$app->request->post('telegram', ''));
+
+            if ($postEmail !== '') {
+                $email = $postEmail;
+            }
+            if ($postTelegram !== '') {
+                $telegram = $postTelegram;
+            }
+        } else {
+            // Гость: берём из POST
+            $email = trim((string)Yii::$app->request->post('email', ''));
+            $telegram = trim((string)Yii::$app->request->post('telegram', ''));
+
+            // Хотя бы одно поле должно быть заполнено
+            if ($email === '' && $telegram === '') {
+                return ['success' => false, 'error' => 'Укажите email или Telegram для связи'];
+            }
+
+            // Простая валидация email
+            if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return ['success' => false, 'error' => 'Некорректный email'];
+            }
         }
 
-        $deleted = AdvertisementRating::deleteAll(['advertisement_id' => $id]);
+        // ============================================================
+        // ГЕНЕРИРУЕМ ИЛИ ПЕРЕИСПОЛЬЗУЕМ INVITATION_TOKEN
+        // ============================================================
+        $link = null;
 
-        Yii::info("Rating reset for advertisement #{$id}, deleted rows: {$deleted}", 'rating');
+        if (!empty($model->invitation_token) && $model->isInvitationTokenValid()) {
+            // Токен ещё валиден — переиспользуем
+            $link = $model->getInvitationLink();
+        } else {
+            // Генерируем новый
+            $model->generateInvitationToken();
+            if (!$model->save(false, ['invitation_token', 'invitation_token_created_at'])) {
+                Yii::error('Failed to save invitation token for ad #' . $model->id, 'access_request');
+                return ['success' => false, 'error' => 'Ошибка при генерации ссылки'];
+            }
+            $link = $model->getInvitationLink();
+        }
+
+        if (empty($link)) {
+            return ['success' => false, 'error' => 'Не удалось сформировать ссылку'];
+        }
+
+        // ============================================================
+        // ОТПРАВЛЯЕМ УВЕДОМЛЕНИЕ ВСЕМ АДМИНАМ
+        // ============================================================
+        $admins = \app\models\User::find()
+            ->where(['type' => \app\models\User::TYPE_ADMIN])
+            ->all();
+
+        if (empty($admins)) {
+            Yii::warning('No admins found to notify about access request for ad #' . $model->id, 'access_request');
+            return ['success' => false, 'error' => 'Администраторы не найдены. Обратитесь в поддержку.'];
+        }
+
+        $subject = 'Запрос доступа к объявлению: ' . $model->title;
+        $message = $this->buildAccessRequestMessage($model, $email, $telegram, $link);
+        $htmlMessage = $this->buildAccessRequestHtmlMessage($model, $email, $telegram, $link);
+
+        $sentCount = 0;
+
+        foreach ($admins as $admin) {
+            try {
+                $result = $this->queueAccessRequestNotification(
+                    $admin->id,
+                    $subject,
+                    $message,
+                    $htmlMessage
+                );
+                if ($result) {
+                    $sentCount++;
+                }
+            } catch (\Exception $e) {
+                Yii::error('Failed to queue access request notification for admin #' . $admin->id . ': ' . $e->getMessage(), 'access_request');
+            }
+        }
+
+        Yii::info(
+            "Access request for ad #{$model->id} from " . ($email ?: $telegram ?: 'unknown') . ", notifications queued: {$sentCount}",
+            'access_request'
+        );
+
+        if ($sentCount === 0) {
+            return ['success' => false, 'error' => 'Не удалось отправить уведомление администраторам'];
+        }
 
         return [
             'success' => true,
-            'message' => 'Оценка сброшена',
-            'deleted' => $deleted,
+            'message' => 'Заявка отправлена администратору. После передачи прав вы получите доступ к редактированию.',
         ];
+    }
+
+    /**
+     * Поставить уведомление о запросе доступа в очередь для конкретного админа
+     *
+     * @param int $adminId
+     * @param string $subject
+     * @param string $message
+     * @param string $htmlMessage
+     * @return bool
+     */
+    protected function queueAccessRequestNotification($adminId, $subject, $message, $htmlMessage)
+    {
+        // Получаем активные подписки админа на событие access_request
+        $subscriptions = \app\models\NotificationSubscription::getActiveSubscriptions($adminId, 'access_request');
+
+        if (empty($subscriptions)) {
+            // Если админ ещё не подписан на это событие — автоматически подпишем на email,
+            // чтобы он получил уведомление
+            \app\models\NotificationSubscription::subscribe(
+                $adminId,
+                'access_request',
+                \app\models\NotificationSubscription::CHANNEL_EMAIL
+            );
+
+            // Перечитываем подписки
+            $subscriptions = \app\models\NotificationSubscription::getActiveSubscriptions($adminId, 'access_request');
+
+            if (empty($subscriptions)) {
+                Yii::warning("Could not subscribe admin #{$adminId} to access_request event", 'access_request');
+                return false;
+            }
+        }
+
+        $queued = 0;
+        foreach ($subscriptions as $subscription) {
+            $channelName = $subscription->channel;
+            $channel = Yii::$app->notificationManager->getChannel($channelName);
+
+            if (!$channel || !$channel->isAvailable()) {
+                continue;
+            }
+
+            // Определяем получателя для канала
+            $admin = \app\models\User::findOne($adminId);
+            if (!$admin) {
+                continue;
+            }
+
+            $to = $this->getRecipient($admin, $channelName);
+            if (!$to) {
+                continue;
+            }
+
+            // Создаём запись в очереди
+            $log = \app\models\NotificationLog::createQueued(
+                $adminId,
+                $channelName,
+                'access_request',
+                $subject,
+                $message,
+                ['html_body' => $htmlMessage]
+            );
+
+            if ($log->save()) {
+                $queued++;
+                Yii::info("Access request notification queued for admin #{$adminId} via '{$channelName}' (log_id: {$log->id})", 'access_request');
+            } else {
+                Yii::error("Failed to queue access request notification: " . json_encode($log->errors), 'access_request');
+            }
+        }
+
+        return $queued > 0;
+    }
+
+    /**
+     * Собрать текстовое сообщение о запросе доступа
+     */
+    protected function buildAccessRequestMessage($advertisement, $email, $telegram, $link)
+    {
+        $adUrl = Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]);
+        $expiresAt = date('d.m.Y H:i', $advertisement->invitation_token_created_at + 7 * 24 * 60 * 60);
+
+        $parts = [
+            'Запрос доступа к редактированию объявления',
+            '',
+            'Объявление: ' . $advertisement->title,
+            'Ссылка на объявление: ' . $adUrl,
+            '',
+            'Контакты запросившего:',
+        ];
+
+        if (!empty($email)) {
+            $parts[] = '- Email: ' . $email;
+        }
+        if (!empty($telegram)) {
+            $parts[] = '- Telegram: ' . $telegram;
+        }
+
+        $parts[] = '';
+        $parts[] = 'Ссылка для передачи прав:';
+        $parts[] = $link;
+        $parts[] = '';
+        $parts[] = 'Действительна до: ' . $expiresAt;
+
+        return implode("\n", $parts);
+    }
+
+    /**
+     * Собрать HTML-сообщение о запросе доступа
+     */
+    protected function buildAccessRequestHtmlMessage($advertisement, $email, $telegram, $link)
+    {
+        $adUrl = Yii::$app->urlManager->createAbsoluteUrl(['advertisements/view', 'id' => $advertisement->id]);
+        $expiresAt = date('d.m.Y H:i', $advertisement->invitation_token_created_at + 7 * 24 * 60 * 60);
+
+        $contactsHtml = '';
+        if (!empty($email)) {
+            $contactsHtml .= '<li><strong>Email:</strong> ' . \yii\helpers\Html::encode($email) . '</li>';
+        }
+        if (!empty($telegram)) {
+            $tg = ltrim($telegram, '@');
+            $contactsHtml .= '<li><strong>Telegram:</strong> <a href="https://t.me/' . \yii\helpers\Html::encode($tg) . '">' . \yii\helpers\Html::encode($telegram) . '</a></li>';
+        }
+
+        return "
+            <html>
+            <head>
+            <style>
+                body { font-family: Arial, sans-serif; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: #ff9800; color: white; padding: 15px; text-align: center; }
+                .content { padding: 20px; background: #f8f9fa; }
+                .contacts { background: #e9ecef; padding: 15px; border-radius: 5px; margin: 15px 0; }
+                .btn { display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; margin: 10px 0; }
+                .footer { text-align: center; padding: 15px; color: #6c757d; font-size: 12px; }
+                .expires { color: #856404; font-size: 13px; margin-top: 10px; }
+            </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h2>🔐 Запрос доступа к редактированию</h2>
+                    </div>
+                    <div class='content'>
+                        <p>Поступил запрос на доступ к редактированию объявления.</p>
+                        <h3>" . \yii\helpers\Html::encode($advertisement->title) . "</h3>
+                        <p>
+                            <a href='" . \yii\helpers\Html::encode($adUrl) . "'>" . \yii\helpers\Html::encode($adUrl) . "</a>
+                        </p>
+                        <div class='contacts'>
+                            <strong>Контакты запросившего:</strong>
+                            <ul>" . $contactsHtml . "</ul>
+                        </div>
+                        <p><strong>Ссылка для передачи прав:</strong></p>
+                        <p>
+                            <a href='" . \yii\helpers\Html::encode($link) . "' class='btn'>Передать права</a>
+                        </p>
+                        <p style='word-break: break-all; font-size: 12px; color: #6c757d;'>" . \yii\helpers\Html::encode($link) . "</p>
+                        <p class='expires'>Ссылка действительна до: <strong>{$expiresAt}</strong></p>
+                    </div>
+                    <div class='footer'>
+                        &copy; " . Yii::$app->name . " " . date('Y') . "
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
     }
 }
