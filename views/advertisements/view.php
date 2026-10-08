@@ -531,6 +531,53 @@ if (YII_DEBUG) {
                 </div>
             <?php endif; ?>
 
+            
+            <?php if (Yii::$app->user->isGuest || Yii::$app->user->id != $model->user_id): ?>
+                <!-- Запрос доступа к редактированию -->
+                <div class="panel panel-default">
+                    <div class="panel-body" style="text-align: center;">
+                        <p style="margin: 0; font-size: 13px; color: #6c757d;">
+                            Это ваше объявление?
+                            <a href="#" id="request-access-link" data-id="<?= $model->id ?>" style="color: var(--bs-link-color); text-decoration: none; border-bottom: 1px dashed currentColor;">
+                                Получите доступ к редактированию
+                            </a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Модальное окно запроса доступа -->
+                <div class="modal fade" id="request-access-modal" tabindex="-1" role="dialog" aria-labelledby="request-access-modal-label" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="request-access-modal-label">Получить доступ к редактированию</h5>
+                            </div>
+                            <div class="modal-body">
+                                <p style="margin-bottom: 15px; color: #6c757d; font-size: 14px;">
+                                    Укажите контакт для связи. Мы отправим запрос администратору, и он передаст вам права на редактирование.
+                                </p>
+                                <div class="form-group">
+                                    <label for="request-access-email">Email</label>
+                                    <input type="email" class="form-control" id="request-access-email" placeholder="email@example.com" value="<?= Yii::$app->user->isGuest ? '' : Html::encode(Yii::$app->user->identity->email) ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="request-access-telegram">Telegram</label>
+                                    <input type="text" class="form-control" id="request-access-telegram" placeholder="@username или username" value="<?= Yii::$app->user->isGuest ? '' : Html::encode(Yii::$app->user->identity->telegram) ?>">
+                                    <small class="text-muted">Заполните хотя бы одно поле — email или Telegram</small>
+                                </div>
+                                <div id="request-access-error" class="alert alert-danger" style="display: none; margin-top: 10px;"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-bs-dismiss="modal">Отмена</button>
+                                <button type="button" class="btn btn-primary" id="request-access-submit">
+                                    <span class="glyphicon glyphicon-send"></span> Отправить запрос
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <!-- Похожие объявления -->
             <?= \app\widgets\SimilarAdvertisements::widget([
                 'advertisement' => $model,
@@ -599,51 +646,6 @@ if (YII_DEBUG) {
                                     </div>
                                 </div>
                             <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
-            <?php if (Yii::$app->user->isGuest || Yii::$app->user->id != $model->user_id): ?>
-                <!-- Запрос доступа к редактированию -->
-                <div class="panel panel-default">
-                    <div class="panel-body" style="text-align: center;">
-                        <p style="margin: 0; font-size: 13px; color: #6c757d;">
-                            Это ваше объявление?
-                            <a href="#" id="request-access-link" data-id="<?= $model->id ?>" style="color: var(--bs-link-color); text-decoration: none; border-bottom: 1px dashed currentColor;">
-                                Получите доступ к редактированию
-                            </a>
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Модальное окно запроса доступа -->
-                <div class="modal fade" id="request-access-modal" tabindex="-1" role="dialog" aria-labelledby="request-access-modal-label" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="request-access-modal-label">Получить доступ к редактированию</h5>
-                            </div>
-                            <div class="modal-body">
-                                <p style="margin-bottom: 15px; color: #6c757d; font-size: 14px;">
-                                    Укажите контакт для связи. Мы отправим запрос администратору, и он передаст вам права на редактирование.
-                                </p>
-                                <div class="form-group">
-                                    <label for="request-access-email">Email</label>
-                                    <input type="email" class="form-control" id="request-access-email" placeholder="email@example.com" value="<?= Yii::$app->user->isGuest ? '' : Html::encode(Yii::$app->user->identity->email) ?>">
-                                </div>
-                                <div class="form-group">
-                                    <label for="request-access-telegram">Telegram</label>
-                                    <input type="text" class="form-control" id="request-access-telegram" placeholder="@username или username" value="<?= Yii::$app->user->isGuest ? '' : Html::encode(Yii::$app->user->identity->telegram) ?>">
-                                    <small class="text-muted">Заполните хотя бы одно поле — email или Telegram</small>
-                                </div>
-                                <div id="request-access-error" class="alert alert-danger" style="display: none; margin-top: 10px;"></div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-bs-dismiss="modal">Отмена</button>
-                                <button type="button" class="btn btn-primary" id="request-access-submit">
-                                    <span class="glyphicon glyphicon-send"></span> Отправить запрос
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
