@@ -18,6 +18,7 @@ class SearchSubscriptionController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
+                'only' => ['index', 'delete'], // create доступен гостям
                 'rules' => [
                     [
                         'allow' => true,
@@ -43,7 +44,7 @@ class SearchSubscriptionController extends Controller
 
     /**
      * Создание подписки из параметров поиска
-     * Исправлено: сохраняем параметры в правильном формате с логированием
+     * Для гостя: сохраняем параметры в сессию и просим авторизоваться
      */
     public function actionCreate()
     {
@@ -62,8 +63,6 @@ class SearchSubscriptionController extends Controller
             return ['success' => false, 'error' => 'Не указаны параметры поиска'];
         }
 
-        $userId = Yii::$app->user->id;
-
         // Очищаем параметры от префикса AdvertisementSearch[]
         $cleanedParams = [];
         foreach ($params as $key => $value) {
@@ -72,10 +71,10 @@ class SearchSubscriptionController extends Controller
             if (strpos($key, 'AdvertisementSearch[') === 0) {
                 $cleanKey = str_replace(['AdvertisementSearch[', ']'], '', $key);
             }
-            
+
             // Если значение - массив, очищаем каждый элемент
             if (is_array($value)) {
-                $filtered = array_filter($value, function($item) {
+                $filtered = array_filter($value, function ($item) {
                     return $item !== '' && $item !== null && $item !== '0';
                 });
                 if (!empty($filtered)) {
@@ -98,6 +97,31 @@ class SearchSubscriptionController extends Controller
             Yii::warning('No significant params after cleaning', 'search_subscription');
             return ['success' => false, 'error' => 'Нет значимых параметров для подписки'];
         }
+
+        // ============================================================
+        // ГОСТЬ: сохраняем параметры в сессию и просим авторизоваться
+        // ============================================================
+        if (Yii::$app->user->isGuest) {
+            Yii::$app->session->set('pending_subscription', [
+                'params' => $cleanedParams,
+                'section' => $section,
+                'returnUrl' => Yii::$app->request->referrer ?: Yii::$app->urlManager->createAbsoluteUrl(['advertisements/' . ($section === 'buy' ? 'buy' : 'sell')]),
+            ]);
+
+            Yii::info('Guest tried to subscribe. Saved to session for later. Params: ' . json_encode($cleanedParams, JSON_UNESCAPED_UNICODE), 'search_subscription');
+
+            return [
+                'success' => false,
+                'requireAuth' => true,
+                'loginUrl' => \yii\helpers\Url::to(['/site/login']),
+                'message' => 'Для подписки необходимо войти или зарегистрироваться',
+            ];
+        }
+
+        // ============================================================
+        // АВТОРИЗОВАННЫЙ: создаём подписку как обычно
+        // ============================================================
+        $userId = Yii::$app->user->id;
 
         // Проверяем, существует ли уже такая подписка
         $existing = SearchSubscription::find()

@@ -9,6 +9,7 @@ use Yii;
 use app\models\LoginForm;
 use app\models\User;
 use app\models\Advertisement;
+use app\models\SearchSubscription;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
@@ -72,20 +73,32 @@ class SiteController extends Controller
 
     public function actionLogin(): Response|string
     {
+        // Обрабатываем явный returnUrl из GET-параметра
+        $returnUrl = Yii::$app->request->get('returnUrl');
+        if ($returnUrl) {
+            Yii::$app->user->setReturnUrl($returnUrl);
+        }
+
         if (!Yii::$app->user->isGuest) {
+            // Проверяем отложенную подписку (гость кликнул "Подписаться", но уже залогинен)
+            $redirect = $this->processPendingSubscription();
+            if ($redirect !== null) {
+                return $redirect;
+            }
+
             $invitationToken = Yii::$app->session->get('invitation_token');
             if ($invitationToken) {
                 $advertisement = Advertisement::find()
                     ->where(['invitation_token' => $invitationToken])
                     ->andWhere(['status' => Advertisement::STATUS_ACTIVE])
                     ->one();
-                
+
                 if ($advertisement && $advertisement->isInvitationTokenValid()) {
                     $advertisement->user_id = Yii::$app->user->id;
                     $advertisement->invitation_token = null;
                     $advertisement->invitation_token_created_at = null;
                     $advertisement->save(false);
-                    
+
                     Yii::$app->session->remove('invitation_token');
                     Yii::$app->session->setFlash('success', 'Вы стали владельцем объявления!');
                     return $this->redirect(['advertisements/view', 'id' => $advertisement->id]);
@@ -98,19 +111,25 @@ class SiteController extends Controller
         $model = new LoginForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            // Сначала — отложенная подписка
+            $redirect = $this->processPendingSubscription();
+            if ($redirect !== null) {
+                return $redirect;
+            }
+
             $invitationToken = Yii::$app->session->get('invitation_token');
             if ($invitationToken) {
                 $advertisement = Advertisement::find()
                     ->where(['invitation_token' => $invitationToken])
                     ->andWhere(['status' => Advertisement::STATUS_ACTIVE])
                     ->one();
-                
+
                 if ($advertisement && $advertisement->isInvitationTokenValid()) {
                     $advertisement->user_id = Yii::$app->user->id;
                     $advertisement->invitation_token = null;
                     $advertisement->invitation_token_created_at = null;
                     $advertisement->save(false);
-                    
+
                     Yii::$app->session->remove('invitation_token');
                     Yii::$app->session->setFlash('success', 'Вы стали владельцем объявления!');
                     return $this->redirect(['advertisements/view', 'id' => $advertisement->id]);
@@ -139,20 +158,20 @@ class SiteController extends Controller
     {
         Yii::info('=== REGISTER ACTION START ===', 'registration');
         Yii::info('Token from GET: ' . ($token ?? 'null'), 'registration');
-        
+
         $model = new User();
         $model->scenario = 'register';
-        
+
         // Проверяем токен в GET или сессии
         $invitationToken = null;
-        
+
         if ($token) {
             // Проверяем токен из GET
             $advertisement = Advertisement::find()
                 ->where(['invitation_token' => $token])
                 ->andWhere(['status' => Advertisement::STATUS_ACTIVE])
                 ->one();
-            
+
             if ($advertisement && $advertisement->isInvitationTokenValid()) {
                 $invitationToken = $token;
                 Yii::$app->session->set('invitation_token', $token);
@@ -168,7 +187,7 @@ class SiteController extends Controller
                     ->where(['invitation_token' => $sessionToken])
                     ->andWhere(['status' => Advertisement::STATUS_ACTIVE])
                     ->one();
-                
+
                 if ($advertisement && $advertisement->isInvitationTokenValid()) {
                     $invitationToken = $sessionToken;
                     Yii::info('Token from session is valid: ' . $sessionToken, 'registration');
@@ -181,44 +200,44 @@ class SiteController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
             Yii::info('POST data loaded', 'registration');
-            
+
             if ($model->validate()) {
                 Yii::info('Model validation PASSED', 'registration');
-                
+
                 if (!empty($model->vk_profile_url)) {
                     $vkId = $this->extractVkIdFromUrl($model->vk_profile_url);
                     if ($vkId) {
                         $model->vk_id = $vkId;
                     }
                 }
-                
+
                 $model->setPassword($model->password);
                 $model->generateAuthKey();
-                
+
                 if ($model->save()) {
                     Yii::info('User saved successfully! ID: ' . $model->id, 'registration');
-                    
+
                     $this->subscribeToNotifications($model->id);
-                    
+
                     if ($invitationToken) {
                         Yii::info('Processing invitation token: ' . $invitationToken, 'registration');
-                        
+
                         $advertisement = Advertisement::find()
                             ->where(['invitation_token' => $invitationToken])
                             ->andWhere(['status' => Advertisement::STATUS_ACTIVE])
                             ->one();
-                        
+
                         if ($advertisement && $advertisement->isInvitationTokenValid()) {
                             Yii::info('Found advertisement #' . $advertisement->id, 'registration');
-                            
+
                             $advertisement->user_id = $model->id;
                             $advertisement->invitation_token = null;
                             $advertisement->invitation_token_created_at = null;
                             $advertisement->save(false);
-                            
+
                             Yii::$app->session->remove('invitation_token');
                             Yii::$app->user->login($model, 3600 * 24 * 30);
-                            
+
                             Yii::$app->session->setFlash('success', 'Регистрация успешно завершена! Вы стали владельцем объявления.');
                             return $this->redirect(['advertisements/view', 'id' => $advertisement->id]);
                         } else {
@@ -227,8 +246,15 @@ class SiteController extends Controller
                             Yii::$app->session->setFlash('warning', 'Ссылка приглашения устарела, но регистрация успешно завершена.');
                         }
                     }
-                    
+
                     Yii::$app->user->login($model, 3600 * 24 * 30);
+
+                    // Проверяем отложенную подписку
+                    $redirect = $this->processPendingSubscription();
+                    if ($redirect !== null) {
+                        return $redirect;
+                    }
+
                     Yii::$app->session->setFlash('success', 'Регистрация успешно завершена!');
                     return $this->redirect(['/user/profile']);
                 } else {
@@ -237,7 +263,7 @@ class SiteController extends Controller
                 }
             } else {
                 Yii::warning('Model validation FAILED: ' . json_encode($model->errors), 'registration');
-                
+
                 $errors = [];
                 foreach ($model->errors as $field => $fieldErrors) {
                     $errors[] = $field . ': ' . implode(', ', $fieldErrors);
@@ -245,7 +271,7 @@ class SiteController extends Controller
                 Yii::$app->session->setFlash('error', 'Пожалуйста, исправьте ошибки: ' . implode('; ', $errors));
             }
         }
-        
+
         return $this->render('register', [
             'model' => $model,
             'invitationToken' => $invitationToken,
@@ -259,39 +285,89 @@ class SiteController extends Controller
     {
         Yii::info('=== REGISTER INVITATION ===', 'registration');
         Yii::info('Token: ' . $token, 'registration');
-        
+
         $advertisement = Advertisement::find()
             ->where(['invitation_token' => $token])
             ->andWhere(['status' => Advertisement::STATUS_ACTIVE])
             ->one();
-        
+
         if (!$advertisement) {
             Yii::warning('Advertisement not found for token: ' . $token, 'registration');
             Yii::$app->session->setFlash('error', 'Ссылка приглашения недействительна.');
             return $this->redirect(['site/login']);
         }
-        
+
         if (!$advertisement->isInvitationTokenValid()) {
             Yii::warning('Token expired for advertisement #' . $advertisement->id, 'registration');
             Yii::$app->session->setFlash('error', 'Срок действия ссылки истек.');
             return $this->redirect(['site/login']);
         }
-        
+
         if (!Yii::$app->user->isGuest) {
             Yii::info('User already logged in, assigning advertisement #' . $advertisement->id, 'registration');
-            
+
             $advertisement->user_id = Yii::$app->user->id;
             $advertisement->invitation_token = null;
             $advertisement->invitation_token_created_at = null;
             $advertisement->save(false);
-            
+
             Yii::$app->session->setFlash('success', 'Вы стали владельцем объявления!');
             return $this->redirect(['advertisements/view', 'id' => $advertisement->id]);
         }
-        
+
         // ✅ Перенаправляем на регистрацию с токеном
         Yii::info('Redirecting to registration with token: ' . $token, 'registration');
         return $this->redirect(['site/register', 'token' => $token]);
+    }
+
+    /**
+     * Обработать отложенную подписку после логина/регистрации
+     * 
+     * @return Response|null Редирект, если была отложенная подписка, иначе null
+     */
+    private function processPendingSubscription(): ?Response
+    {
+        $pending = Yii::$app->session->get('pending_subscription');
+        if (!$pending) {
+            return null;
+        }
+
+        $userId = Yii::$app->user->id;
+        $section = $pending['section'];
+        $paramsJson = json_encode($pending['params'], JSON_UNESCAPED_UNICODE);
+
+        // Проверяем, нет ли уже такой подписки
+        $existing = SearchSubscription::find()
+            ->where([
+                'user_id' => $userId,
+                'section' => $section,
+                'is_active' => true,
+            ])
+            ->andWhere(['params' => $paramsJson])
+            ->one();
+
+        if ($existing) {
+            Yii::info('Pending subscription already exists: ' . $existing->id, 'search_subscription');
+            Yii::$app->session->setFlash('info', 'Вы уже подписаны на эти параметры поиска');
+        } else {
+            $subscription = new SearchSubscription();
+            $subscription->user_id = $userId;
+            $subscription->section = $section;
+            $subscription->setParamsArray($pending['params']);
+            $subscription->is_active = true;
+
+            if ($subscription->save()) {
+                Yii::$app->session->setFlash('success', 'Подписка на поиск создана!');
+                Yii::info('Pending subscription created after login: ' . $subscription->id, 'search_subscription');
+            } else {
+                Yii::error('Failed to save pending subscription: ' . json_encode($subscription->errors), 'search_subscription');
+                Yii::$app->session->setFlash('error', 'Не удалось создать подписку на поиск');
+            }
+        }
+
+        Yii::$app->session->remove('pending_subscription');
+
+        return $this->redirect($pending['returnUrl']);
     }
 
     private function extractVkIdFromUrl($url)
@@ -300,11 +376,11 @@ class SiteController extends Controller
         if (!$screenName) {
             return null;
         }
-        
+
         if (preg_match('/^id(\d+)$/', $screenName, $matches)) {
             return (int)$matches[1];
         }
-        
+
         return $this->getUserIdByScreenName($screenName);
     }
 
@@ -333,13 +409,13 @@ class SiteController extends Controller
     {
         try {
             $accessToken = Yii::$app->params['vk_access_token'] ?? null;
-            
+
             $url = 'https://api.vk.com/method/users.get?' . http_build_query([
                 'user_ids' => $screenName,
                 'v' => '5.131',
                 'access_token' => $accessToken,
             ]);
-            
+
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -347,16 +423,16 @@ class SiteController extends Controller
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            
+
             $response = curl_exec($ch);
             curl_close($ch);
-            
+
             $data = json_decode($response, true);
-            
+
             if (isset($data['response']) && !empty($data['response'])) {
                 return (int)$data['response'][0]['id'];
             }
-            
+
             return null;
         } catch (\Exception $e) {
             return null;
@@ -371,7 +447,7 @@ class SiteController extends Controller
                 \app\models\NotificationSubscription::EVENT_NEW_ADVERTISEMENT,
                 \app\models\NotificationSubscription::EVENT_NEW_MESSAGE,
             ];
-            
+
             foreach ($events as $event) {
                 \app\models\NotificationSubscription::subscribe(
                     $userId,
@@ -379,7 +455,7 @@ class SiteController extends Controller
                     \app\models\NotificationSubscription::CHANNEL_EMAIL
                 );
             }
-            
+
             Yii::info("User {$userId} subscribed to email notifications", 'auth');
         } catch (\Exception $e) {
             Yii::error("Failed to subscribe user {$userId} to notifications: " . $e->getMessage(), 'auth');

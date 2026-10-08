@@ -19,23 +19,23 @@
         initSubscribeButton: function() {
             $(document).on('click', '.search-subscribe-btn', function() {
                 var $button = $(this);
-                
+
                 // Собираем все параметры из формы поиска
                 var params = {};
                 var hasAnyValue = false;
                 var section = 'sell'; // По умолчанию 'sell'
-                
+
                 // Ищем все поля с именем AdvertisementSearch[...]
                 $('input[name^="AdvertisementSearch["], select[name^="AdvertisementSearch["]').each(function() {
                     var $field = $(this);
                     var name = $field.attr('name');
                     var value = $field.val();
-                    
+
                     // Пропускаем пустые значения
                     if (value === '' || value === null || value === undefined) {
                         return;
                     }
-                    
+
                     // Обрабатываем множественные значения (select multiple)
                     if ($field.is('select') && $field.prop('multiple')) {
                         var selectedValues = $field.val() || [];
@@ -53,23 +53,23 @@
                         }
                         return;
                     }
-                    
+
                     // Пропускаем пустые строки и нулевые значения для числовых полей
                     if (value === '' || value === '0') {
                         return;
                     }
-                    
+
                     // Очищаем ключ от префикса AdvertisementSearch[]
                     var cleanName = name.replace('AdvertisementSearch[', '').replace(']', '');
                     params[cleanName] = value;
                     hasAnyValue = true;
                 });
-                
+
                 // Также проверяем скрытые поля
                 $('input[type="hidden"][name^="AdvertisementSearch["]').each(function() {
                     var name = $(this).attr('name');
                     var value = $(this).val();
-                    
+
                     if (value && value !== '') {
                         var cleanName = name.replace('AdvertisementSearch[', '').replace(']', '');
                         if (!params[cleanName]) {
@@ -78,7 +78,7 @@
                         }
                     }
                 });
-                
+
                 // Если параметров нет, но есть текст поиска - берем его
                 if (!hasAnyValue) {
                     var searchText = $('input[name="AdvertisementSearch[search_text]"]').val();
@@ -87,7 +87,7 @@
                         hasAnyValue = true;
                     }
                 }
-                
+
                 // Если есть секция в data-атрибуте или в форме - используем её
                 var dataSection = $button.data('section');
                 if (dataSection) {
@@ -98,7 +98,7 @@
                         section = formSection;
                     }
                 }
-                
+
                 // Проверяем, есть ли хотя бы один параметр для подписки
                 var hasValidParams = false;
                 for (var key in params) {
@@ -116,15 +116,15 @@
                         }
                     }
                 }
-                
+
                 if (!hasValidParams) {
                     SearchActiveSubscribe.showNotification('Укажите хотя бы один параметр для подписки (поиск, цена, город, тип, сертификация и т.д.)', 'warning');
                     return;
                 }
-                
+
                 var originalText = $button.html();
                 $button.prop('disabled', true).html('<span class="glyphicon glyphicon-refresh glyphicon-spin"></span> <span class="btn-text">Сохранение...</span>');
-                
+
                 // Отправляем запрос
                 $.ajax({
                     url: '/search-subscription/create',
@@ -136,6 +136,13 @@
                     },
                     dataType: 'json',
                     success: function(response) {
+                        // Если требуется авторизация — редирект на логин
+                        if (response.requireAuth) {
+                            var returnUrl = encodeURIComponent(window.location.href);
+                            window.location.href = response.loginUrl + '?returnUrl=' + returnUrl;
+                            return;
+                        }
+
                         if (response.success) {
                             SearchActiveSubscribe.showNotification(response.message || 'Подписка создана!', 'success');
                             $button.html('<span class="glyphicon glyphicon-ok"></span> <span class="btn-text">Подписано</span>');

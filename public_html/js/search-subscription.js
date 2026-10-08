@@ -1,4 +1,4 @@
-// FILE: .\web\js\search-subscription.js
+// FILE: .\public_html\js\search-subscription.js
 
 (function($) {
     'use strict';
@@ -65,22 +65,22 @@
         initSubscribeButton: function() {
             $(document).on('click', '#subscribe-button, .subscribe-button', function() {
                 var $button = $(this);
-                
+
                 // Собираем все параметры из всех форм на странице
                 var params = {};
                 var hasAnyValue = false;
-                
+
                 // Ищем все поля с именем AdvertisementSearch[...]
                 $('input[name^="AdvertisementSearch["], select[name^="AdvertisementSearch["]').each(function() {
                     var $field = $(this);
                     var name = $field.attr('name');
                     var value = $field.val();
-                    
+
                     // Пропускаем пустые значения
                     if (value === '' || value === null || value === undefined) {
                         return;
                     }
-                    
+
                     // Обрабатываем множественные значения (select multiple)
                     if ($field.is('select') && $field.prop('multiple')) {
                         var selectedValues = $field.val() || [];
@@ -91,23 +91,23 @@
                         }
                         return;
                     }
-                    
+
                     // Пропускаем пустые строки и нулевые значения для числовых полей
                     if (value === '' || value === '0') {
                         return;
                     }
-                    
+
                     // Сохраняем значение
                     var cleanName = name.replace('AdvertisementSearch[', '').replace(']', '');
                     params[cleanName] = value;
                     hasAnyValue = true;
                 });
-                
+
                 // Также проверяем скрытые поля
                 $('input[type="hidden"][name^="AdvertisementSearch["]').each(function() {
                     var name = $(this).attr('name');
                     var value = $(this).val();
-                    
+
                     if (value && value !== '') {
                         var cleanName = name.replace('AdvertisementSearch[', '').replace(']', '');
                         if (!params[cleanName]) {
@@ -116,16 +116,16 @@
                         }
                     }
                 });
-                
+
                 // Получаем секцию
-                var section = $button.data('section') || 
-                              $('input[name="AdvertisementSearch[section]"]').val() || 
+                var section = $button.data('section') ||
+                              $('input[name="AdvertisementSearch[section]"]').val() ||
                               '';
 
                 // Логируем для отладки
                 console.log('Collected params:', params);
                 console.log('Has any value:', hasAnyValue);
-                
+
                 if (!hasAnyValue) {
                     SearchSubscription.showNotification('Укажите хотя бы один параметр для подписки (поиск, цена, город и т.д.)', 'warning');
                     return;
@@ -144,6 +144,13 @@
                     },
                     dataType: 'json',
                     success: function(response) {
+                        // Если требуется авторизация — редирект на логин
+                        if (response.requireAuth) {
+                            var returnUrl = encodeURIComponent(window.location.href);
+                            window.location.href = response.loginUrl + '?returnUrl=' + returnUrl;
+                            return;
+                        }
+
                         if (response.success) {
                             SearchSubscription.showNotification(response.message || 'Подписка создана!', 'success');
                             $button.html('<span class="glyphicon glyphicon-ok"></span> Подписано');
