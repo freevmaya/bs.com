@@ -1,4 +1,5 @@
 <?php
+// FILE: .\models\AdvertisementImage.php
 
 namespace app\models;
 
@@ -51,7 +52,7 @@ class AdvertisementImage extends ActiveRecord
             // imageFile валидируется отдельно, без обязательных полей
             [['imageFile'], 'file', 
                 'skipOnEmpty' => true, 
-                'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'],
+                'extensions' => ['jpg', 'jpeg', 'jfif', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'],
                 'maxSize' => self::MAX_VIDEO_SIZE,
                 'tooBig' => 'Размер файла не должен превышать '.self::MAX_VIDEO_SIZE_MGB.' MB',
                 'checkExtensionByMimeType' => false,
@@ -100,7 +101,7 @@ class AdvertisementImage extends ActiveRecord
             return true;
         }
         $ext = strtolower(pathinfo($this->file_name, PATHINFO_EXTENSION));
-        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $imageExtensions = ['jpg', 'jpeg', 'jfif', 'png', 'gif', 'webp'];
         return in_array($ext, $imageExtensions);
     }
     
@@ -147,7 +148,7 @@ class AdvertisementImage extends ActiveRecord
         $extension = strtolower($this->imageFile->extension);
         
         // Проверяем разрешенные расширения
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
+        $allowedExtensions = ['jpg', 'jpeg', 'jfif', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
         if (!in_array($extension, $allowedExtensions)) {
             $this->addError('imageFile', 'Разрешены только файлы с расширениями: ' . implode(', ', $allowedExtensions));
             return false;
@@ -222,7 +223,7 @@ class AdvertisementImage extends ActiveRecord
         $extension = strtolower($this->imageFile->extension);
         
         // Проверяем разрешенные расширения
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
+        $allowedExtensions = ['jpg', 'jpeg', 'jfif', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
         if (!in_array($extension, $allowedExtensions)) {
             $this->addError('imageFile', 'Разрешены только файлы с расширениями: ' . implode(', ', $allowedExtensions));
             return false;
@@ -510,6 +511,4 @@ class AdvertisementImage extends ActiveRecord
         }
         return false;
     }
-    
-    // УДАЛЕНЫ МЕТОДЫ generateInvitationToken(), generateGUID(), isInvitationTokenValid()
 }
