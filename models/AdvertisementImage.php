@@ -48,14 +48,13 @@ class AdvertisementImage extends ActiveRecord
             [['advertisement_id'], 'required'],
             [['advertisement_id', 'sort_order'], 'integer'],
             [['file_name', 'file_path', 'thumbnail_path', 'file_type'], 'string', 'max' => 500],
-            // УДАЛЕНЫ строки с invitation_token и invitation_token_created_at
-            // imageFile валидируется отдельно, без обязательных полей
-            [['imageFile'], 'file', 
-                'skipOnEmpty' => true, 
-                'extensions' => ['jpg', 'jpeg', 'jfif', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'],
+            // Валидатор file — только размер и обязательность.
+            // Тип файла определяется вручную в upload()/uploadTemp() через finfo + getimagesize.
+            // Это позволяет загружать файлы без расширения.
+            [['imageFile'], 'file',
+                'skipOnEmpty' => true,
                 'maxSize' => self::MAX_VIDEO_SIZE,
                 'tooBig' => 'Размер файла не должен превышать '.self::MAX_VIDEO_SIZE_MGB.' MB',
-                'checkExtensionByMimeType' => false,
             ],
         ];
     }
@@ -134,25 +133,129 @@ class AdvertisementImage extends ActiveRecord
      */
     public function getVideoDuration()
     {
-        // В реальном проекте можно получить через FFmpeg
+        return null;
+    }
+    
+    /**
+     * Определить тип файла по содержимому (MIME + fallback через getimagesize)
+     *
+     * Работает независимо от расширения файла. Позволяет загружать файлы
+     * без расширения или с неверным расширением — реальный тип определяется
+     * по сигнатуре (magic bytes).
+     *
+     * @param string $filePath Абсолютный путь к файлу
+     * @return array|null ['type' => 'image'|'video', 'extension' => 'jpg', 'mime' => 'image/jpeg']
+     *                    или null, если тип не распознан
+     */
+    protected function detectFileType($filePath)
+    {
+        if (!file_exists($filePath)) {
+            return null;
+        }
+        
+        // Карта MIME → тип и расширение
+        $map = [
+            // Изображения
+            'image/jpeg'       => ['type' => self::TYPE_IMAGE, 'extension' => 'jpg'],
+            'image/jpg'        => ['type' => self::TYPE_IMAGE, 'extension' => 'jpg'],
+            'image/pjpeg'      => ['type' => self::TYPE_IMAGE, 'extension' => 'jpg'],
+            'image/png'        => ['type' => self::TYPE_IMAGE, 'extension' => 'png'],
+            'image/gif'        => ['type' => self::TYPE_IMAGE, 'extension' => 'gif'],
+            'image/webp'       => ['type' => self::TYPE_IMAGE, 'extension' => 'webp'],
+            // Видео
+            'video/mp4'        => ['type' => self::TYPE_VIDEO, 'extension' => 'mp4'],
+            'video/quicktime'  => ['type' => self::TYPE_VIDEO, 'extension' => 'mov'],
+            'video/x-msvideo'  => ['type' => self::TYPE_VIDEO, 'extension' => 'avi'],
+            'video/x-ms-wmv'   => ['type' => self::TYPE_VIDEO, 'extension' => 'wmv'],
+            'video/x-flv'      => ['type' => self::TYPE_VIDEO, 'extension' => 'flv'],
+            'video/x-matroska' => ['type' => self::TYPE_VIDEO, 'extension' => 'mkv'],
+            'video/webm'       => ['type' => self::TYPE_VIDEO, 'extension' => 'webm'],
+            'video/x-m4v'      => ['type' => self::TYPE_VIDEO, 'extension' => 'mp4'],
+            'video/3gpp'       => ['type' => self::TYPE_VIDEO, 'extension' => '3gp'],
+            'video/3gpp2'      => ['type' => self::TYPE_VIDEO, 'extension' => '3g2'],
+        ];
+        
+        $mimeType = null;
+        
+        // 1. Пробуем finfo (расширение Fileinfo)
+        if (class_exists('\finfo')) {
+            try {
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                $detected = $finfo->file($filePath);
+                if (!empty($detected)) {
+                    $mimeType = $detected;
+                }
+            } catch (\Exception $e) {
+                Yii::warning('finfo detection failed: ' . $e->getMessage(), 'upload');
+            }
+        } else {
+            Yii::warning('finfo extension is not available, using getimagesize fallback', 'upload');
+        }
+        
+        // 2. Если MIME известен и в карте — возвращаем сразу
+        if ($mimeType !== null && isset($map[$mimeType])) {
+            $result = $map[$mimeType];
+            $result['mime'] = $mimeType;
+            return $result;
+        }
+        
+        // 3. Fallback: если MIME не распознан или application/octet-stream —
+        //    пробуем getimagesize() (для изображений)
+        if ($mimeType === null || $mimeType === 'application/octet-stream' || strpos($mimeType, 'image/') === 0) {
+            $imageInfo = @getimagesize($filePath);
+            if ($imageInfo !== false && isset($imageInfo['mime'])) {
+                $imgMime = $imageInfo['mime'];
+                if (isset($map[$imgMime])) {
+                    $result = $map[$imgMime];
+                    $result['mime'] = $imgMime;
+                    return $result;
+                }
+            }
+        }
+        
+        // 4. Ничего не сработало — логируем и возвращаем null
+        Yii::warning(
+            'Could not detect file type. Path: ' . $filePath .
+            ', finfo mime: ' . ($mimeType ?? 'null') .
+            ', original name: ' . ($this->imageFile ? $this->imageFile->name : 'unknown'),
+            'upload'
+        );
+        
         return null;
     }
     
     public function upload()
     {
+
         if (!$this->imageFile) {
             return false;
         }
+
+        Yii::info([
+            'original_name' => $this->imageFile->name,
+            'temp_name' => $this->imageFile->tempName,
+            'size' => $this->imageFile->size,
+            'extension' => $this->imageFile->extension,
+            'type' => $this->imageFile->type,
+            'error' => $this->imageFile->error,
+            'temp_exists' => file_exists($this->imageFile->tempName),
+        ], 'upload_debug');
         
-        // Приводим расширение к нижнему регистру
-        $extension = strtolower($this->imageFile->extension);
+        // Определяем тип файла по содержимому
+        $fileInfo = $this->detectFileType($this->imageFile->tempName);
+
+        Yii::info([
+            'detect_result' => $fileInfo,
+            'temp_exists_after' => file_exists($this->imageFile->tempName),
+        ], 'upload_debug');
         
-        // Проверяем разрешенные расширения
-        $allowedExtensions = ['jpg', 'jpeg', 'jfif', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
-        if (!in_array($extension, $allowedExtensions)) {
-            $this->addError('imageFile', 'Разрешены только файлы с расширениями: ' . implode(', ', $allowedExtensions));
+        if ($fileInfo === null) {
+            $this->addError('imageFile', 'Не удалось определить тип файла. Загрузите изображение или видео.');
             return false;
         }
+        
+        $extension = $fileInfo['extension'];
+        $isVideo = ($fileInfo['type'] === self::TYPE_VIDEO);
         
         // Проверка размера
         if ($this->imageFile->size > self::MAX_VIDEO_SIZE) {
@@ -183,7 +286,7 @@ class AdvertisementImage extends ActiveRecord
         $thumbnailFullPath = $thumbnailPath . $thumbFileName;
         
         // Определяем тип файла
-        if ($this->isVideoFile($extension)) {
+        if ($isVideo) {
             $this->file_type = self::TYPE_VIDEO;
             if (!$this->imageFile->saveAs($fullPath)) {
                 Yii::error('Failed to save video file: ' . $fullPath);
@@ -218,16 +321,32 @@ class AdvertisementImage extends ActiveRecord
         if (!$this->imageFile) {
             return false;
         }
+
+        Yii::info([
+            'original_name' => $this->imageFile->name,
+            'temp_name' => $this->imageFile->tempName,
+            'size' => $this->imageFile->size,
+            'extension' => $this->imageFile->extension,
+            'type' => $this->imageFile->type,
+            'error' => $this->imageFile->error,
+            'temp_exists' => file_exists($this->imageFile->tempName),
+        ], 'upload_debug');
         
-        // Приводим расширение к нижнему регистру
-        $extension = strtolower($this->imageFile->extension);
+        // Определяем тип файла по содержимому
+        $fileInfo = $this->detectFileType($this->imageFile->tempName);
+
+        Yii::info([
+            'detect_result' => $fileInfo,
+            'temp_exists_after' => file_exists($this->imageFile->tempName),
+        ], 'upload_debug');
         
-        // Проверяем разрешенные расширения
-        $allowedExtensions = ['jpg', 'jpeg', 'jfif', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
-        if (!in_array($extension, $allowedExtensions)) {
-            $this->addError('imageFile', 'Разрешены только файлы с расширениями: ' . implode(', ', $allowedExtensions));
+        if ($fileInfo === null) {
+            $this->addError('imageFile', 'Не удалось определить тип файла. Загрузите изображение или видео.');
             return false;
         }
+        
+        $extension = $fileInfo['extension'];
+        $isVideo = ($fileInfo['type'] === self::TYPE_VIDEO);
         
         // Проверка размера
         if ($this->imageFile->size > self::MAX_VIDEO_SIZE) {
@@ -257,7 +376,7 @@ class AdvertisementImage extends ActiveRecord
         $thumbnailFullPath = $thumbnailPath . $thumbFileName;
         
         // Определяем тип файла
-        if ($this->isVideoFile($extension)) {
+        if ($isVideo) {
             $this->file_type = self::TYPE_VIDEO;
             if (!$this->imageFile->saveAs($fullPath)) {
                 Yii::error('Failed to save temp video file: ' . $fullPath);
@@ -280,15 +399,6 @@ class AdvertisementImage extends ActiveRecord
         $this->thumbnail_path = 'temp/' . $tempId . '/thumbnails/' . $thumbFileName;
         
         return true;
-    }
-    
-    /**
-     * Проверяет, является ли файл видео по расширению
-     */
-    protected function isVideoFile($extension)
-    {
-        $videoExtensions = ['mp4', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'webm'];
-        return in_array(strtolower($extension), $videoExtensions);
     }
     
     /**

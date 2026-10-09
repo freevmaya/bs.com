@@ -307,17 +307,12 @@
 
         /**
          * Загрузка файла
+         *
+         * Клиентская проверка MIME отключена. Файл может иметь любое расширение
+         * или не иметь его вовсе — реальный тип определяется на сервере через finfo
+         * (см. AdvertisementImage::detectFileType()).
          */
         function uploadFile(file) {
-            var allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-            var allowedVideoTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/x-flv', 'video/webm'];
-            var allowedTypes = allowedImageTypes.concat(allowedVideoTypes);
-
-            if (!allowedTypes.includes(file.type)) {
-                showError('Пожалуйста, выберите изображение или видео');
-                return;
-            }
-
             var maxFileSize = $fileInput.data('max-size') || 100 * 1024 * 1024;
             if (file.size > maxFileSize) {
                 showError('Размер файла не должен превышать ' + (maxFileSize / (1024 * 1024)) + ' MB');
