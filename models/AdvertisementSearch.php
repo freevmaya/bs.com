@@ -235,10 +235,22 @@ class AdvertisementSearch extends Advertisement
             }
         }
         
-        // Взлетный вес (должен быть в пределах weight_min - weight_max)
+        // Взлетный вес: ищем крылья, у которых середина весовой вилки
+        // попадает в диапазон ±N% от введённого веса.
+        // Процент задаётся в params['glider_weight_range_percent'].
         if ($this->glider_weight !== null && $this->glider_weight !== '') {
-            $query->andWhere(['<=', 'advertisement_glider.weight_min', $this->glider_weight]);
-            $query->andWhere(['>=', 'advertisement_glider.weight_max', $this->glider_weight]);
+            $weight = (float)$this->glider_weight;
+            $percent = (int)(Yii::$app->params['glider_weight_range_percent'] ?? 30);
+
+            $rangeMin = $weight * (1 - $percent / 100);
+            $rangeMax = $weight * (1 + $percent / 100);
+
+            $query->andWhere(['is not', 'advertisement_glider.weight_min', null]);
+            $query->andWhere(['is not', 'advertisement_glider.weight_max', null]);
+            $query->andWhere(new \yii\db\Expression(
+                '((advertisement_glider.weight_min + advertisement_glider.weight_max) / 2) BETWEEN :wmin AND :wmax',
+                [':wmin' => $rangeMin, ':wmax' => $rangeMax]
+            ));
         }
         
         // Минимальная дата выпуска
