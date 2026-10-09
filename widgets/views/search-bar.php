@@ -277,6 +277,16 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
                 
                 <!-- Основные параметры -->
                 <div class="col-md-3">
+                    <?= $form->field($searchModel, 'type', [
+                        'options' => ['class' => 'mb-0'],
+                        'labelOptions' => ['class' => 'form-label'],
+                    ])->dropDownList(
+                        ['' => 'Все типы'] + Advertisement::getTypeList(),
+                        ['class' => 'form-select', 'id' => 'search-type-select']
+                    ) ?>
+                </div>
+
+                <div class="col-md-3">
                     <?= $form->field($searchModel, 'price_min', [
                         'options' => ['class' => 'mb-0'],
                         'labelOptions' => ['class' => 'form-label'],
@@ -294,16 +304,6 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
                         'options' => ['class' => 'mb-0'],
                         'labelOptions' => ['class' => 'form-label'],
                     ])->textInput(['placeholder' => 'Город', 'class' => 'form-control']) ?>
-                </div>
-                
-                <div class="col-md-3">
-                    <?= $form->field($searchModel, 'type', [
-                        'options' => ['class' => 'mb-0'],
-                        'labelOptions' => ['class' => 'form-label'],
-                    ])->dropDownList(
-                        ['' => 'Все типы'] + Advertisement::getTypeList(),
-                        ['class' => 'form-select', 'id' => 'search-type-select']
-                    ) ?>
                 </div>
                 
                 <!-- Дополнительные параметры для GLIDER -->
