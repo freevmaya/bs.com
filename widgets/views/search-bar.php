@@ -9,6 +9,11 @@ use app\models\AdvertisementGlider;
 use app\models\AdvertisementHarness;
 use app\models\AdvertisementDevice;
 
+$this->registerJsFile('@web/js/share-filter.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END
+]);
+
 /**
  * @var \app\models\AdvertisementSearch $searchModel
  * @var string|null $section
@@ -218,6 +223,17 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
             </svg>
             <span class="btn-text"><?= Html::encode($subscribeBtnText) ?></span>
         </button>
+
+        <!-- Кнопка "Поделиться" -->
+        <button type="button" class="search-share-btn" title="Поделиться фильтром" style="transition: all 0.3s ease;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+        </button>
         
         <!-- Кнопка сброса с очисткой сессии -->
         <a href="<?= Url::to(['advertisements/reset-filters', 'section' => $section]) ?>" 
@@ -228,7 +244,7 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
                 <polyline points="23 4 23 10 17 10"></polyline>
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
             </svg>
-            Сбросить фильтры
+            Сбросить
         </a>
     </div>
     <?php endif; ?>
