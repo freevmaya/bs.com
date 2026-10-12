@@ -176,6 +176,7 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
     ]); ?>
 
     <?= Html::hiddenInput('sort', Yii::$app->request->get('sort', '-updated_at')) ?>
+    <?= Html::hiddenInput('display_currency', Yii::$app->request->get('display_currency', '')) ?>
     
     <div class="input-group">
         <?= Html::textInput('AdvertisementSearch[search_text]', $searchModel->search_text, [
@@ -271,6 +272,7 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
                 <!-- Скрытые поля -->
                 <?= Html::hiddenInput('AdvertisementSearch[search_text]', $searchModel->search_text) ?>
                 <?= Html::hiddenInput('sort', Yii::$app->request->get('sort', '-updated_at')) ?>
+                <?= Html::hiddenInput('display_currency', Yii::$app->request->get('display_currency', '')) ?>
                 <?php if ($section): ?>
                     <?= Html::hiddenInput('AdvertisementSearch[section]', $section) ?>
                 <?php endif; ?>

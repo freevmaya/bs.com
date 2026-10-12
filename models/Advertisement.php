@@ -199,11 +199,7 @@ class Advertisement extends ActiveRecord
      */
     public function getFormattedPrice()
     {
-        if ($this->price === null || $this->price === '') {
-            return 'Цена не указана';
-        }
-        $symbol = self::getCurrencySymbol($this->currency);
-        return number_format($this->price, 0, '.', ' ') . ' ' . $symbol;
+        return \app\helpers\CurrencyFormatter::display($this->price, $this->currency);
     }
     
     public function incrementViews()

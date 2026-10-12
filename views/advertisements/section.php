@@ -14,57 +14,66 @@ $action = ($section === Advertisement::SECTION_SELL) ? 'sell' : 'buy';
 $isGuest = Yii::$app->user->isGuest;
 ?>
 
-<div class="advertisements-section">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="d-flex justify-content-between align-items-center flex-wrap" style="margin-bottom: 15px;">
-                <h1 style="margin: 0;"><?= Html::encode($this->title) ?></h1>
+    <div class="advertisements-section">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center flex-wrap" style="margin-bottom: 15px;">
+                    <h1 style="margin: 0;"><?= Html::encode($this->title) ?></h1>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Блок поиска -->
-    <?= SearchBar::widget([
-        'searchModel' => $searchModel,
-        'section' => $section,
-        'action' => ['advertisements/' . $action],
-    ]) ?>
+        
+        <!-- Блок поиска -->
+        <?= SearchBar::widget([
+            'searchModel' => $searchModel,
+            'section' => $section,
+            'action' => ['advertisements/' . $action],
+        ]) ?>
 
-    <div class="d-flex justify-content-between align-items-center search-ext-block">
-        <div class="sort-options">
-            <form method="get" class="form-inline">
-                <?= Yii::$app->view->render('@app/widgets/views/_hidden_params', [
-                    'params' => Yii::$app->request->get(),
-                    'exclude' => ['sort'],
-                ]) ?>
-                <div class="form-group">
-                    <select name="sort" class="form-control" onchange="this.form.submit()">
-                        <option value="-updated_at" <?= Yii::$app->request->get('sort') == '-updated_at' ? 'selected' : '' ?>>
-                            Обновлённые
-                        </option>
-                        <option value="-created_at" <?= Yii::$app->request->get('sort') == '-created_at' ? 'selected' : '' ?>>
-                            Новые
-                        </option>
-                        <option value="-price" <?= Yii::$app->request->get('sort') == '-price' ? 'selected' : '' ?>>Дороже</option>
-                        <option value="price" <?= Yii::$app->request->get('sort') == 'price' ? 'selected' : '' ?>>Дешевле</option>
-                        <option value="-views_count" <?= Yii::$app->request->get('sort') == '-views_count' ? 'selected' : '' ?>>Популярные</option>
-                    </select>
-                </div>
-            </form>
-        </div>
-        <div style="flex-shrink: 0;">
-            <?= Html::a(
-                '<span class="glyphicon glyphicon-plus"></span> Разместить объявление',
-                $isGuest ? ['/site/login'] : ['create', 'section' => $section],
-                [
-                    'class' => 'btn btn-success',
-                    'style' => 'white-space: nowrap;',
-                    'data' => $isGuest ? [
-                        'method' => 'get',
-                        'confirm' => 'Для размещения объявления необходимо авторизоваться. Перейти на страницу входа?',
-                    ] : [],
-                ]
-            ) ?>
+        <div class="d-flex justify-content-between align-items-center search-ext-block">
+            <div class="sort-options d-flex align-items-center" style="gap: 8px;">
+                <form method="get" class="form-inline d-flex align-items-center" style="gap: 8px;">
+                    <?= Yii::$app->view->render('@app/widgets/views/_hidden_params', [
+                        'params' => Yii::$app->request->get(),
+                        'exclude' => ['sort', 'page', 'display_currency'],
+                    ]) ?>
+                    <div class="form-group">
+                        <select name="sort" class="form-select" onchange="this.form.submit()">
+                            <option value="-updated_at" <?= Yii::$app->request->get('sort') == '-updated_at' ? 'selected' : '' ?>>
+                                Обновлённые
+                            </option>
+                            <option value="-created_at" <?= Yii::$app->request->get('sort') == '-created_at' ? 'selected' : '' ?>>
+                                Новые
+                            </option>
+                            <option value="-price" <?= Yii::$app->request->get('sort') == '-price' ? 'selected' : '' ?>>Дороже</option>
+                            <option value="price" <?= Yii::$app->request->get('sort') == 'price' ? 'selected' : '' ?>>Дешевле</option>
+                            <option value="-views_count" <?= Yii::$app->request->get('sort') == '-views_count' ? 'selected' : '' ?>>Популярные</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select name="display_currency" class="form-select" onchange="this.form.submit()" style="width: 100px;">
+                            <option value="" <?= Yii::$app->request->get('display_currency', '') === '' ? 'selected' : '' ?>>Все валюты</option>
+                            <?php foreach (\app\helpers\CurrencyFormatter::getCurrencyList() as $code => $label): ?>
+                                <option value="<?= $code ?>" <?= Yii::$app->request->get('display_currency') === $code ? 'selected' : '' ?>><?= $label ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div style="flex-shrink: 0;">
+                <?= Html::a(
+                    '<span class="glyphicon glyphicon-plus"></span> Разместить объявление',
+                    $isGuest ? ['/site/login'] : ['create', 'section' => $section],
+                    [
+                        'class' => 'btn btn-success',
+                        'style' => 'white-space: nowrap;',
+                        'data' => $isGuest ? [
+                            'method' => 'get',
+                            'confirm' => 'Для размещения объявления необходимо авторизоваться. Перейти на страницу входа?',
+                        ] : [],
+                    ]
+                ) ?>
+            </div>
         </div>
     </div>
     

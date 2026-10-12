@@ -149,7 +149,7 @@ $this->registerCssFile('@web/css/user-profile.css', ['depends' => [\yii\bootstra
                 [
                     'attribute' => 'price',
                     'value' => function ($model) {
-                        return $model->price ? number_format($model->price, 0, '.', ' ') . ' ₽' : '—';
+                        return \app\helpers\CurrencyFormatter::display($model->price, $model->currency);
                     },
                 ],
                 [

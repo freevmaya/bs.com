@@ -96,10 +96,7 @@ $this->registerJs("
             [
                 'attribute' => 'price',
                 'value' => function ($model) {
-                    if ($model->price) {
-                        return number_format($model->price, 0, '.', ' ') . ' ₽';
-                    }
-                    return 'не указана';
+                    return \app\helpers\CurrencyFormatter::display($model->price, $model->currency);
                 },
             ],
             [

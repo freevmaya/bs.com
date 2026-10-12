@@ -252,7 +252,7 @@ if (YII_DEBUG) {
                     
                     <div class="price-large" style="font-size: 28px; color: #d9534f; margin: 20px 0;">
                         <?php if ($model->price): ?>
-                            <?= number_format($model->price, 0, '.', ' ') ?> <?= \app\models\Advertisement::getCurrencySymbol($model->currency) ?>
+                            <?= \app\helpers\CurrencyFormatter::display($model->price, $model->currency) ?>
                             <?php if ($model->price_negotiable): ?>
                                 <small>(цена договорная)</small>
                             <?php endif; ?>

@@ -1103,8 +1103,7 @@ thead, tbody, tfoot, tr, td, th {
 .search-ext-block .sort-options {
     flex-shrink: 1; 
     min-width: 0; 
-    overflow: hidden; 
-    max-width: 180px;
+    overflow: hidden;
 }
 
 .panel-default td, .panel-default th {

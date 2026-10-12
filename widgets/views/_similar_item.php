@@ -53,7 +53,7 @@ if ($ad->type === Advertisement::TYPE_GLIDER && $ad->glider && $ad->glider->cert
         <div class="similar-item-title"><?= Html::encode(StringHelper::truncate($ad->title, 40)) ?></div>
         <div class="similar-item-price">
             <?php if ($ad->price): ?>
-                <?= number_format($ad->price, 0, '.', ' ') ?> <?= Advertisement::getCurrencySymbol($ad->currency) ?>
+                <?= \app\helpers\CurrencyFormatter::display($ad->price, $ad->currency) ?>
             <?php else: ?>
                 <span class="text-muted">Цена не указана</span>
             <?php endif; ?>
