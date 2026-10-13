@@ -697,6 +697,18 @@ thead, tbody, tfoot, tr, td, th {
         width: 330px;
         max-width: 330px;
     }
+    
+    .advertisements-section .btn-success {
+        display: inline-block;
+        max-width: 130px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+    .advertisements-section .btn-success .glyphicon {
+        display: none;
+    }
 }
 
 .advertisement-meta {

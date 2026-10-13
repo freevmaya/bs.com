@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ListView;
 use app\widgets\SearchBar;
 use app\models\Advertisement;
+use app\helpers\TextHelper;
 
 $this->title = $sectionTitle;
 $this->params['breadcrumbs'][] = $this->title;
@@ -12,6 +13,10 @@ $action = ($section === Advertisement::SECTION_SELL) ? 'sell' : 'buy';
 
 // Проверяем, авторизован ли пользователь
 $isGuest = Yii::$app->user->isGuest;
+
+// Количество объявлений по текущему запросу (без учёта пагинации)
+$totalCount = $dataProvider->getTotalCount();
+$countWord = TextHelper::plural($totalCount, ['объявление', 'объявления', 'объявлений']);
 ?>
 
     <div class="advertisements-section">
@@ -51,12 +56,17 @@ $isGuest = Yii::$app->user->isGuest;
                         </select>
                     </div>
                     <div class="form-group">
-                        <select name="display_currency" class="form-select" onchange="this.form.submit()" style="width: 100px;">
+                        <select name="display_currency" class="form-select" onchange="this.form.submit()">
                             <option value="" <?= Yii::$app->request->get('display_currency', '') === '' ? 'selected' : '' ?>>Все валюты</option>
                             <?php foreach (\app\helpers\CurrencyFormatter::getCurrencyList() as $code => $label): ?>
                                 <option value="<?= $code ?>" <?= Yii::$app->request->get('display_currency') === $code ? 'selected' : '' ?>><?= $label ?></option>
                             <?php endforeach; ?>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <span class="text-muted found-count" style="white-space: nowrap;">
+                            <?= (int)$totalCount ?> <?= Html::encode($countWord) ?>
+                        </span>
                     </div>
                 </form>
             </div>

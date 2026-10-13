@@ -89,4 +89,47 @@ class TextHelper
 
         return $url;
     }
+
+    /**
+     * Склонение существительного по числу.
+     *
+     * Использование:
+     *   TextHelper::plural(1,  ['объявление', 'объявления', 'объявлений']) // "объявление"
+     *   TextHelper::plural(2,  ['объявление', 'объявления', 'объявлений']) // "объявления"
+     *   TextHelper::plural(5,  ['объявление', 'объявления', 'объявлений']) // "объявлений"
+     *   TextHelper::plural(21, ['объявление', 'объявления', 'объявлений']) // "объявление"
+     *   TextHelper::plural(11, ['объявление', 'объявления', 'объявлений']) // "объявлений"
+     *
+     * @param int   $count  Число
+     * @param array $forms  Массив из 3 форм: [ед.ч., 2-4, 5+]
+     * @return string
+     */
+    public static function plural($count, array $forms)
+    {
+        if (count($forms) !== 3) {
+            return $forms[0] ?? '';
+        }
+
+        $count = abs((int)$count);
+        $mod10  = $count % 10;
+        $mod100 = $count % 100;
+
+        // 11-14 → всегда третья форма ("объявлений")
+        if ($mod100 >= 11 && $mod100 <= 14) {
+            return $forms[2];
+        }
+
+        // 1 → первая форма
+        if ($mod10 === 1) {
+            return $forms[0];
+        }
+
+        // 2-4 → вторая форма
+        if ($mod10 >= 2 && $mod10 <= 4) {
+            return $forms[1];
+        }
+
+        // 0, 5-9 → третья форма
+        return $forms[2];
+    }
 }
