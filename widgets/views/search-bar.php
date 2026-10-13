@@ -301,13 +301,6 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
                     ])->textInput(['placeholder' => 'Цена до', 'class' => 'form-control']) ?>
                 </div>
                 
-                <div class="col-md-3">
-                    <?= $form->field($searchModel, 'city', [
-                        'options' => ['class' => 'mb-0'],
-                        'labelOptions' => ['class' => 'form-label'],
-                    ])->textInput(['placeholder' => 'Город', 'class' => 'form-control']) ?>
-                </div>
-                
                 <!-- Дополнительные параметры для GLIDER -->
                 <div class="col-12 extra-fields glider-fields" style="display: <?= $showGliderFields ? 'block' : 'none' ?>; margin-top: 15px;">
                     <h5 style="color: #e0e0e0; border-bottom: 1px solid #555; padding-bottom: 8px;">Параплан</h5>

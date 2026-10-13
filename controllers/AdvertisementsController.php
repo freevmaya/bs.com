@@ -1684,4 +1684,273 @@ class AdvertisementsController extends Controller
             </html>
         ";
     }
+
+    /**
+     * Импорт одного изображения/видео по URL из JSON.
+     *
+     * Принимает POST:
+     *   - url       — URL файла
+     *   - mode      — 'create' | 'update'
+     *   - tempId    — для create
+     *   - id        — ID объявления для update
+     *
+     * Возвращает JSON:
+     *   { success: true, thumbnailUrl: '...', imageId|index, isVideo: bool }
+     *   или { success: false, error: '...' }
+     */
+    public function actionImportImage()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        // Только админ
+        $user = Yii::$app->user->identity;
+        if (!$user || !$user->isAdmin()) {
+            return ['success' => false, 'error' => 'Доступ запрещён'];
+        }
+
+        if (!Yii::$app->request->validateCsrfToken()) {
+            return ['success' => false, 'error' => 'CSRF token validation failed'];
+        }
+
+        $url = trim((string)Yii::$app->request->post('url', ''));
+        $mode = Yii::$app->request->post('mode', 'create');
+        $tempId = (int)Yii::$app->request->post('tempId', 0);
+        $adId = (int)Yii::$app->request->post('id', 0);
+
+        if ($url === '') {
+            return ['success' => false, 'error' => 'URL не указан'];
+        }
+
+        // ============================================================
+        // 1. Валидация URL
+        // ============================================================
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return ['success' => false, 'error' => 'Некорректный URL'];
+        }
+
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        if (!in_array(strtolower($scheme), ['http', 'https'], true)) {
+            return ['success' => false, 'error' => 'Разрешены только http:// и https://'];
+        }
+
+        // Защита от SSRF: блокируем приватные IP-диапазоны
+        $ssrfCheck = $this->checkSsrf($url);
+        if ($ssrfCheck !== true) {
+            return ['success' => false, 'error' => $ssrfCheck];
+        }
+
+        // ============================================================
+        // 2. Скачивание во временный файл
+        // ============================================================
+        $tmpFile = tempnam(sys_get_temp_dir(), 'imp_');
+        if ($tmpFile === false) {
+            return ['success' => false, 'error' => 'Не удалось создать временный файл'];
+        }
+
+        $downloadResult = $this->downloadUrl($url, $tmpFile);
+        if ($downloadResult !== true) {
+            @unlink($tmpFile);
+            return ['success' => false, 'error' => $downloadResult];
+        }
+
+        // ============================================================
+        // 3. Создаём объект UploadedFile и загружаем через AdvertisementImage
+        // ============================================================
+        try {
+            $uploadedFile = new \yii\web\UploadedFile([
+                'name' => basename(parse_url($url, PHP_URL_PATH) ?: 'import'),
+                'tempName' => $tmpFile,
+                'type' => mime_content_type($tmpFile) ?: 'application/octet-stream',
+                'size' => filesize($tmpFile),
+                'error' => UPLOAD_ERR_OK,
+            ]);
+
+            if ($mode === 'update' && $adId > 0) {
+                $advertisement = $this->findModel($adId);
+
+                // Проверка прав на редактирование
+                if ($advertisement->user_id !== $user->id && !$user->isAdmin()) {
+                    @unlink($tmpFile);
+                    return ['success' => false, 'error' => 'Нет прав на редактирование'];
+                }
+
+                $image = new \app\models\AdvertisementImage();
+                $image->advertisement_id = $advertisement->id;
+                $image->imageFile = $uploadedFile;
+
+                if (!$image->upload()) {
+                    @unlink($tmpFile);
+                    return ['success' => false, 'error' => 'Ошибка сохранения файла'];
+                }
+
+                $image->sort_order = $advertisement->getImages()->count();
+                if (!$image->save()) {
+                    @unlink($tmpFile);
+                    return ['success' => false, 'error' => 'Ошибка записи в БД'];
+                }
+
+                @unlink($tmpFile);
+
+                return [
+                    'success' => true,
+                    'imageId' => $image->id,
+                    'thumbnailUrl' => $image->getThumbnailUrl(),
+                    'isVideo' => $image->isVideo(),
+                ];
+            }
+
+            // create-режим
+            $sessionTempId = Yii::$app->session->get('temp_ad_id');
+            if (!$sessionTempId || (int)$sessionTempId !== $tempId) {
+                @unlink($tmpFile);
+                return ['success' => false, 'error' => 'Неверный идентификатор сессии'];
+            }
+
+            $image = new \app\models\AdvertisementImage();
+            $image->imageFile = $uploadedFile;
+
+            if (!$image->uploadTemp($tempId)) {
+                @unlink($tmpFile);
+                return ['success' => false, 'error' => 'Ошибка сохранения временного файла: ' . json_encode($image->getErrors())];
+            }
+
+            $imageData = [
+                'file_name' => $image->file_name,
+                'file_path' => $image->file_path,
+                'thumbnail_path' => $image->thumbnail_path,
+                'sort_order' => count($this->tempStorage->getTempImages($tempId)),
+            ];
+
+            $this->tempStorage->addTempImage($tempId, $imageData);
+
+            $tempImages = $this->tempStorage->getTempImages($tempId);
+            $currentIndex = count($tempImages) - 1;
+
+            @unlink($tmpFile);
+
+            return [
+                'success' => true,
+                'index' => $currentIndex,
+                'thumbnailUrl' => Yii::getAlias('@web/uploads/advertisements/' . $image->thumbnail_path),
+                'isVideo' => $image->isVideo(),
+            ];
+        } catch (\Exception $e) {
+            @unlink($tmpFile);
+            Yii::error('Import image exception: ' . $e->getMessage(), 'import_images');
+            return ['success' => false, 'error' => 'Ошибка: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Проверка URL на SSRF (приватные IP-диапазоны).
+     *
+     * @param string $url
+     * @return true|string true, если URL безопасен, иначе текст ошибки
+     */
+    protected function checkSsrf($url)
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+        if (!$host) {
+            return 'Не удалось определить хост';
+        }
+
+        // Резолвим хост в IP
+        $ips = [];
+
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            $ips[] = $host;
+        } else {
+            $records = @dns_get_record($host, DNS_A | DNS_AAAA);
+            if (is_array($records)) {
+                foreach ($records as $record) {
+                    if (!empty($record['ip']))   $ips[] = $record['ip'];
+                    if (!empty($record['ipv6'])) $ips[] = $record['ipv6'];
+                }
+            }
+            // Fallback
+            $ipv4 = @gethostbyname($host);
+            if ($ipv4 && $ipv4 !== $host) {
+                $ips[] = $ipv4;
+            }
+        }
+
+        if (empty($ips)) {
+            return 'Не удалось разрешить хост в IP';
+        }
+
+        foreach ($ips as $ip) {
+            if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+                continue;
+            }
+
+            // Приватные и зарезервированные диапазоны
+            $isPrivate = !filter_var(
+                $ip,
+                FILTER_VALIDATE_IP,
+                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+            );
+
+            if ($isPrivate) {
+                Yii::warning("SSRF blocked: {$url} resolves to {$ip}", 'import_images');
+                return 'URL ведёт на приватный/зарезервированный IP';
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Скачать URL во временный файл с ограничениями.
+     *
+     * @param string $url
+     * @param string $targetPath
+     * @return true|string true при успехе, иначе текст ошибки
+     */
+    protected function downloadUrl($url, $targetPath)
+    {
+        $maxSize = \app\models\AdvertisementImage::MAX_VIDEO_SIZE;
+        
+        try {
+            $client = new \yii\httpclient\Client([
+                'transport' => 'yii\httpclient\CurlTransport',
+            ]);
+            
+            $response = $client->createRequest()
+                ->setMethod('GET')
+                ->setUrl($url)
+                ->setOptions([
+                    CURLOPT_TIMEOUT => 60,
+                    CURLOPT_CONNECTTIMEOUT => 15,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_MAXREDIRS => 5,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
+                    CURLOPT_USERAGENT => 'Mozilla/5.0 BS.com Image Importer',
+                    CURLOPT_REFERER => parse_url($url, PHP_URL_SCHEME) . '://' . parse_url($url, PHP_URL_HOST) . '/',
+                ])
+                ->send();
+            
+            if (!$response->isOk) {
+                return "Не удалось скачать файл (HTTP {$response->statusCode})";
+            }
+            
+            $content = $response->content;
+            if ($content === null || $content === '') {
+                return 'Файл пустой';
+            }
+            
+            if (strlen($content) > $maxSize) {
+                return 'Файл превышает ' . round($maxSize / (1024 * 1024)) . ' MB';
+            }
+            
+            if (file_put_contents($targetPath, $content) === false) {
+                return 'Не удалось записать файл';
+            }
+            
+            return true;
+        } catch (\Exception $e) {
+            Yii::error('downloadUrl exception: ' . $e->getMessage(), 'import_images');
+            return 'Ошибка скачивания: ' . $e->getMessage();
+        }
+    }
 }

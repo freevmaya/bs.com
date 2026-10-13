@@ -223,10 +223,100 @@ class AdvertisementImage extends ActiveRecord
         
         return null;
     }
-    
+
+    /**
+     * Проверить и при необходимости создать директорию.
+     *
+     * Возвращает true, если директория существует и доступна для записи.
+     *
+     * @param string $dir Абсолютный путь к директории
+     * @return bool
+     */
+    protected function ensureDirectoryExists($dir)
+    {
+        if (is_dir($dir)) {
+            if (!is_writable($dir)) {
+                Yii::error("Directory exists but is not writable: {$dir}", 'upload');
+                return false;
+            }
+            return true;
+        }
+
+        if (!@mkdir($dir, 0777, true) && !is_dir($dir)) {
+            $error = error_get_last();
+            Yii::error(
+                "Failed to create directory: {$dir}. Error: " .
+                ($error ? $error['message'] : 'unknown'),
+                'upload'
+            );
+            return false;
+        }
+
+        if (!is_writable($dir)) {
+            Yii::error("Directory created but is not writable: {$dir}", 'upload');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Безопасное сохранение UploadedFile с логированием причины ошибки.
+     *
+     * @param \yii\web\UploadedFile $file
+     * @param string $targetPath Абсолютный путь назначения
+     * @return bool
+     */
+    protected function safeSaveAs($file, $targetPath)
+    {
+        $targetDir = dirname($targetPath);
+
+        if (!$this->ensureDirectoryExists($targetDir)) {
+            return false;
+        }
+
+        // Проверяем, что исходный temp-файл существует и читаем
+        if (!file_exists($file->tempName)) {
+            Yii::error("Source temp file does not exist: {$file->tempName}", 'upload');
+            return false;
+        }
+
+        if (!is_readable($file->tempName)) {
+            Yii::error("Source temp file is not readable: {$file->tempName}", 'upload');
+            return false;
+        }
+
+        // Сбрасываем предыдущую ошибку
+        error_clear_last();
+
+        $result = $file->saveAs($targetPath, false);
+
+        if ($result === false) {
+            $error = error_get_last();
+            Yii::error(
+                "saveAs() failed. Source: {$file->tempName}, Target: {$targetPath}, " .
+                "Error: " . ($error ? $error['message'] : 'unknown'),
+                'upload'
+            );
+            return false;
+        }
+
+        if (!file_exists($targetPath)) {
+            Yii::error("saveAs() returned true but target file does not exist: {$targetPath}", 'upload');
+            return false;
+        }
+
+        if (filesize($targetPath) === 0) {
+            Yii::error("saveAs() created empty file: {$targetPath}", 'upload');
+            @unlink($targetPath);
+            return false;
+        }
+
+        return true;
+    }
+
     public function upload()
     {
-
         if (!$this->imageFile) {
             return false;
         }
@@ -274,12 +364,14 @@ class AdvertisementImage extends ActiveRecord
         $uploadPath = Yii::getAlias('@webroot') . '/uploads/advertisements/';
         $thumbnailPath = Yii::getAlias('@webroot') . '/uploads/advertisements/thumbnails/';
         
-        // Создаем директории
-        if (!is_dir($uploadPath)) {
-            mkdir($uploadPath, 0777, true);
+        // Создаем директории с проверкой
+        if (!$this->ensureDirectoryExists($uploadPath)) {
+            $this->addError('imageFile', 'Не удалось создать директорию для загрузки: ' . $uploadPath);
+            return false;
         }
-        if (!is_dir($thumbnailPath)) {
-            mkdir($thumbnailPath, 0777, true);
+        if (!$this->ensureDirectoryExists($thumbnailPath)) {
+            $this->addError('imageFile', 'Не удалось создать директорию для миниатюр: ' . $thumbnailPath);
+            return false;
         }
         
         $fullPath = $uploadPath . $fileName;
@@ -288,8 +380,8 @@ class AdvertisementImage extends ActiveRecord
         // Определяем тип файла
         if ($isVideo) {
             $this->file_type = self::TYPE_VIDEO;
-            if (!$this->imageFile->saveAs($fullPath)) {
-                Yii::error('Failed to save video file: ' . $fullPath);
+            if (!$this->safeSaveAs($this->imageFile, $fullPath)) {
+                $this->addError('imageFile', 'Не удалось сохранить видеофайл');
                 return false;
             }
             // Создаем превью для видео
@@ -297,8 +389,8 @@ class AdvertisementImage extends ActiveRecord
             $this->thumbnail_path = $thumbFileName;
         } else {
             $this->file_type = self::TYPE_IMAGE;
-            if (!$this->imageFile->saveAs($fullPath)) {
-                Yii::error('Failed to save file: ' . $fullPath);
+            if (!$this->safeSaveAs($this->imageFile, $fullPath)) {
+                $this->addError('imageFile', 'Не удалось сохранить изображение');
                 return false;
             }
             // Оптимизируем и создаем превью
@@ -365,11 +457,13 @@ class AdvertisementImage extends ActiveRecord
         $uploadPath = Yii::getAlias('@webroot') . '/uploads/advertisements/temp/' . $tempId . '/';
         $thumbnailPath = Yii::getAlias('@webroot') . '/uploads/advertisements/temp/' . $tempId . '/thumbnails/';
         
-        if (!is_dir($uploadPath)) {
-            mkdir($uploadPath, 0777, true);
+        if (!$this->ensureDirectoryExists($uploadPath)) {
+            $this->addError('imageFile', 'Не удалось создать временную директорию: ' . $uploadPath);
+            return false;
         }
-        if (!is_dir($thumbnailPath)) {
-            mkdir($thumbnailPath, 0777, true);
+        if (!$this->ensureDirectoryExists($thumbnailPath)) {
+            $this->addError('imageFile', 'Не удалось создать временную директорию для миниатюр: ' . $thumbnailPath);
+            return false;
         }
         
         $fullPath = $uploadPath . $fileName;
@@ -378,16 +472,16 @@ class AdvertisementImage extends ActiveRecord
         // Определяем тип файла
         if ($isVideo) {
             $this->file_type = self::TYPE_VIDEO;
-            if (!$this->imageFile->saveAs($fullPath)) {
-                Yii::error('Failed to save temp video file: ' . $fullPath);
+            if (!$this->safeSaveAs($this->imageFile, $fullPath)) {
+                $this->addError('imageFile', 'Не удалось сохранить временный видеофайл');
                 return false;
             }
             // Создаем превью для видео
             $this->createVideoThumbnail($fullPath, $thumbnailFullPath);
         } else {
             $this->file_type = self::TYPE_IMAGE;
-            if (!$this->imageFile->saveAs($fullPath)) {
-                Yii::error('Failed to save temp file: ' . $fullPath);
+            if (!$this->safeSaveAs($this->imageFile, $fullPath)) {
+                $this->addError('imageFile', 'Не удалось сохранить временное изображение');
                 return false;
             }
             $this->optimizeImage($fullPath, self::IMAGE_WIDTH, self::IMAGE_HEIGHT, self::QUALITY);
