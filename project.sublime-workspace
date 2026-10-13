@@ -520,180 +520,228 @@
 	"buffers":
 	[
 		{
-			"file": "controllers/ShortUrlController.php",
-			"file_size": 3119,
-			"file_write_time": 134360301616948640,
+			"file": "views/advertisements/section.php",
+			"file_size": 5430,
+			"file_write_time": 134362501980648154,
 			"settings":
 			{
-				"buffer_size": 2695,
+				"buffer_size": 5063,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			},
 			"undo_stack":
 			[
 				[
-					1,
-					1,
-					"paste",
-					null,
-					"AQAAAAAAAAAAAAAAhwoAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/"
-				]
-			]
-		},
-		{
-			"file": "config/web.php",
-			"file_size": 6724,
-			"file_write_time": 134360303514775349,
-			"settings":
-			{
-				"buffer_size": 6609,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			},
-			"undo_stack":
-			[
-				[
-					4,
-					1,
-					"insert",
-					{
-						"characters": "\n"
-					},
-					"AgAAAPoLAAAAAAAA+wsAAAAAAAAAAAAA+wsAAAAAAAALDAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA+gsAAAAAAAD6CwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					5,
+					6,
 					1,
 					"paste",
 					null,
-					"AQAAAAsMAAAAAAAAkwwAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAACwwAAAAAAAALDAAAAAAAAAAAAAAAAPC/"
+					"AQAAAL4DAAAAAAAARggAAAAAAABIBQAAPGRpdiBjbGFzcz0ic29ydC1vcHRpb25zIj4KICAgICAgICAgICAgPGZvcm0gbWV0aG9kPSJnZXQiIGNsYXNzPSJmb3JtLWlubGluZSI+CiAgICAgICAgICAgICAgICA8Pz0gWWlpOjokYXBwLT52aWV3LT5yZW5kZXIoJ0BhcHAvd2lkZ2V0cy92aWV3cy9faGlkZGVuX3BhcmFtcycsIFsKICAgICAgICAgICAgICAgICAgICAncGFyYW1zJyA9PiBZaWk6OiRhcHAtPnJlcXVlc3QtPmdldCgpLAogICAgICAgICAgICAgICAgICAgICdleGNsdWRlJyA9PiBbJ3NvcnQnXSwKICAgICAgICAgICAgICAgIF0pID8+CiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPSJmb3JtLWdyb3VwIj4KICAgICAgICAgICAgICAgICAgICA8c2VsZWN0IG5hbWU9InNvcnQiIGNsYXNzPSJmb3JtLWNvbnRyb2wiIG9uY2hhbmdlPSJ0aGlzLmZvcm0uc3VibWl0KCkiPgogICAgICAgICAgICAgICAgICAgICAgICA8b3B0aW9uIHZhbHVlPSItdXBkYXRlZF9hdCIgPD89IFlpaTo6JGFwcC0+cmVxdWVzdC0+Z2V0KCdzb3J0JykgPT0gJy11cGRhdGVkX2F0JyA/ICdzZWxlY3RlZCcgOiAnJyA/Pj4KICAgICAgICAgICAgICAgICAgICAgICAgICAgINCe0LHQvdC+0LLQu9GR0L3QvdGL0LUKICAgICAgICAgICAgICAgICAgICAgICAgPC9vcHRpb24+CiAgICAgICAgICAgICAgICAgICAgICAgIDxvcHRpb24gdmFsdWU9Ii1jcmVhdGVkX2F0IiA8Pz0gWWlpOjokYXBwLT5yZXF1ZXN0LT5nZXQoJ3NvcnQnKSA9PSAnLWNyZWF0ZWRfYXQnID8gJ3NlbGVjdGVkJyA6ICcnID8+PgogICAgICAgICAgICAgICAgICAgICAgICAgICAg0J3QvtCy0YvQtQogICAgICAgICAgICAgICAgICAgICAgICA8L29wdGlvbj4KICAgICAgICAgICAgICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT0iLXByaWNlIiA8Pz0gWWlpOjokYXBwLT5yZXF1ZXN0LT5nZXQoJ3NvcnQnKSA9PSAnLXByaWNlJyA/ICdzZWxlY3RlZCcgOiAnJyA/Pj7QlNC+0YDQvtC20LU8L29wdGlvbj4KICAgICAgICAgICAgICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT0icHJpY2UiIDw/PSBZaWk6OiRhcHAtPnJlcXVlc3QtPmdldCgnc29ydCcpID09ICdwcmljZScgPyAnc2VsZWN0ZWQnIDogJycgPz4+0JTQtdGI0LXQstC70LU8L29wdGlvbj4KICAgICAgICAgICAgICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT0iLXZpZXdzX2NvdW50IiA8Pz0gWWlpOjokYXBwLT5yZXF1ZXN0LT5nZXQoJ3NvcnQnKSA9PSAnLXZpZXdzX2NvdW50JyA/ICdzZWxlY3RlZCcgOiAnJyA/Pj7Qn9C+0L/Rg9C70Y/RgNC90YvQtTwvb3B0aW9uPgogICAgICAgICAgICAgICAgICAgIDwvc2VsZWN0PgogICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgIDwvZm9ybT4KICAgICAgICA8L2Rpdj4",
+					"AQAAAAAAAAABAAAAvgMAAAAAAADfCAAAAAAAAAAAAAAAAPC/"
 				],
 				[
-					8,
-					4,
+					9,
+					2,
 					"indent",
 					null,
-					"CAAAACkMAAAAAAAALQwAAAAAAAAAAAAAYwwAAAAAAABnDAAAAAAAAAAAAAApDAAAAAAAAC0MAAAAAAAAAAAAAGcMAAAAAAAAawwAAAAAAAAAAAAAKQwAAAAAAAAtDAAAAAAAAAAAAABrDAAAAAAAAG8MAAAAAAAAAAAAACkMAAAAAAAALQwAAAAAAAAAAAAAbwwAAAAAAABzDAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAkwwAAAAAAAApDAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					13,
-					1,
-					"cut",
-					null,
-					"AQAAAPoLAAAAAAAA+gsAAAAAAAC5AAAACiAgICAgICAgICAgICAgICAncycgPT4gJ2FkdmVydGlzZW1lbnRzL3NlbGwnLAogICAgICAgICAgICAgICAgJ3MvPGNvZGU6W2EtekEtWjAtOV17MSwxNn0+JyA9PiAnc2hvcnQtdXJsL3JlZGlyZWN0JywKICAgICAgICAgICAgICAgICdhZHZlcnRpc2VtZW50cy9zaG9ydGVuLXVybCcgPT4gJ3Nob3J0LXVybC9zaG9ydGVuJyw",
-					"AQAAAAAAAAABAAAA+gsAAAAAAACzDAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					16,
-					1,
-					"paste",
-					null,
-					"AQAAABsFAAAAAAAA1AUAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAGwUAAAAAAAAbBQAAAAAAAAAAAAAAAPC/"
-				]
-			]
-		},
-		{
-			"file": "widgets/views/search-bar.php",
-			"file_size": 36254,
-			"file_write_time": 134360334759580883,
-			"settings":
-			{
-				"buffer_size": 33363,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			},
-			"undo_stack":
-			[
-				[
-					13,
-					2,
-					"left_delete",
-					null,
-					"AgAAAMImAAAAAAAAwiYAAAAAAAAOAAAA0YTQuNC70YzRgtGA0YvBJgAAAAAAAMEmAAAAAAAAAQAAACA",
-					"AQAAAAAAAAABAAAAwiYAAAAAAADJJgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					16,
-					1,
-					"insert",
-					{
-						"characters": "\n\n"
-					},
-					"BQAAAE0kAAAAAAAATiQAAAAAAAAAAAAATiQAAAAAAABWJAAAAAAAAAAAAABWJAAAAAAAAFckAAAAAAAAAAAAAFckAAAAAAAAXyQAAAAAAAAAAAAATiQAAAAAAABOJAAAAAAAAAgAAAAgICAgICAgIA",
-					"AQAAAAAAAAABAAAATSQAAAAAAABNJAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					17,
-					1,
-					"paste",
-					null,
-					"AQAAAFckAAAAAAAAwCYAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAVyQAAAAAAABXJAAAAAAAAAAAAAAAAPC/"
+					"KAAAANkDAAAAAAAA3QMAAAAAAAAAAAAACQQAAAAAAAANBAAAAAAAAAAAAABYBAAAAAAAAFwEAAAAAAAAAAAAAI8EAAAAAAAAkwQAAAAAAAAAAAAAvgQAAAAAAADCBAAAAAAAAAAAAADQBAAAAAAAANQEAAAAAAAAAAAAAPUEAAAAAAAA+QQAAAAAAAAAAAAATAUAAAAAAABQBQAAAAAAAAAAAADHBQAAAAAAAMsFAAAAAAAAAAAAAOsFAAAAAAAA7wUAAAAAAAAAAAAACQYAAAAAAAANBgAAAAAAAAAAAACEBgAAAAAAAIgGAAAAAAAAAAAAAKIGAAAAAAAApgYAAAAAAAAAAAAAwAYAAAAAAADEBgAAAAAAAAAAAABABwAAAAAAAEQHAAAAAAAAAAAAAL8HAAAAAAAAwwcAAAAAAAAAAAAATwgAAAAAAABTCAAAAAAAAAAAAABpCAAAAAAAAG0IAAAAAAAAAAAAAHwIAAAAAAAAgAgAAAAAAAAAAAAAjAgAAAAAAACQCAAAAAAAAAAAAADZAwAAAAAAAN0DAAAAAAAAAAAAAA0EAAAAAAAAEQQAAAAAAAAAAAAAYAQAAAAAAABkBAAAAAAAAAAAAACbBAAAAAAAAJ8EAAAAAAAAAAAAAM4EAAAAAAAA0gQAAAAAAAAAAAAA5AQAAAAAAADoBAAAAAAAAAAAAAANBQAAAAAAABEFAAAAAAAAAAAAAGgFAAAAAAAAbAUAAAAAAAAAAAAA5wUAAAAAAADrBQAAAAAAAAAAAAAPBgAAAAAAABMGAAAAAAAAAAAAADEGAAAAAAAANQYAAAAAAAAAAAAAsAYAAAAAAAC0BgAAAAAAAAAAAADSBgAAAAAAANYGAAAAAAAAAAAAAPQGAAAAAAAA+AYAAAAAAAAAAAAAeAcAAAAAAAB8BwAAAAAAAAAAAAD7BwAAAAAAAP8HAAAAAAAAAAAAAI8IAAAAAAAAkwgAAAAAAAAAAAAArQgAAAAAAACxCAAAAAAAAAAAAADECAAAAAAAAMgIAAAAAAAAAAAAANgIAAAAAAAA3AgAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAARggAAAAAAADdAwAAAAAAAAAAAAAAAPC/"
 				],
 				[
 					20,
-					2,
+					1,
+					"paste",
+					null,
+					"AQAAAGUDAAAAAAAA1A0AAAAAAACoBQAAPGRpdiBjbGFzcz0iZC1mbGV4IGp1c3RpZnktY29udGVudC1iZXR3ZWVuIGFsaWduLWl0ZW1zLWNlbnRlciBzZWFyY2gtZXh0LWJsb2NrIj4KICAgICAgICA8ZGl2IGNsYXNzPSJzb3J0LW9wdGlvbnMiPgogICAgICAgICAgICA8Zm9ybSBtZXRob2Q9ImdldCIgY2xhc3M9ImZvcm0taW5saW5lIj4KICAgICAgICAgICAgICAgIDw/PSBZaWk6OiRhcHAtPnZpZXctPnJlbmRlcignQGFwcC93aWRnZXRzL3ZpZXdzL19oaWRkZW5fcGFyYW1zJywgWwogICAgICAgICAgICAgICAgICAgICdwYXJhbXMnID0+IFlpaTo6JGFwcC0+cmVxdWVzdC0+Z2V0KCksCiAgICAgICAgICAgICAgICAgICAgJ2V4Y2x1ZGUnID0+IFsnc29ydCcsICdwYWdlJ10sCiAgICAgICAgICAgICAgICBdKSA/PgogICAgICAgICAgICAgICAgPGRpdiBjbGFzcz0iZm9ybS1ncm91cCI+CiAgICAgICAgICAgICAgICAgICAgPHNlbGVjdCBuYW1lPSJzb3J0IiBjbGFzcz0iZm9ybS1zZWxlY3QiIG9uY2hhbmdlPSJ0aGlzLmZvcm0uc3VibWl0KCkiPgogICAgICAgICAgICAgICAgICAgICAgICA8b3B0aW9uIHZhbHVlPSItdXBkYXRlZF9hdCIgPD89IFlpaTo6JGFwcC0+cmVxdWVzdC0+Z2V0KCdzb3J0JykgPT0gJy11cGRhdGVkX2F0JyA/ICdzZWxlY3RlZCcgOiAnJyA/Pj4KICAgICAgICAgICAgICAgICAgICAgICAgICAgINCe0LHQvdC+0LLQu9GR0L3QvdGL0LUKICAgICAgICAgICAgICAgICAgICAgICAgPC9vcHRpb24+CiAgICAgICAgICAgICAgICAgICAgICAgIDxvcHRpb24gdmFsdWU9Ii1jcmVhdGVkX2F0IiA8Pz0gWWlpOjokYXBwLT5yZXF1ZXN0LT5nZXQoJ3NvcnQnKSA9PSAnLWNyZWF0ZWRfYXQnID8gJ3NlbGVjdGVkJyA6ICcnID8+PgogICAgICAgICAgICAgICAgICAgICAgICAgICAg0J3QvtCy0YvQtQogICAgICAgICAgICAgICAgICAgICAgICA8L29wdGlvbj4KICAgICAgICAgICAgICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT0iLXByaWNlIiA8Pz0gWWlpOjokYXBwLT5yZXF1ZXN0LT5nZXQoJ3NvcnQnKSA9PSAnLXByaWNlJyA/ICdzZWxlY3RlZCcgOiAnJyA/Pj7QlNC+0YDQvtC20LU8L29wdGlvbj4KICAgICAgICAgICAgICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT0icHJpY2UiIDw/PSBZaWk6OiRhcHAtPnJlcXVlc3QtPmdldCgnc29ydCcpID09ICdwcmljZScgPyAnc2VsZWN0ZWQnIDogJycgPz4+0JTQtdGI0LXQstC70LU8L29wdGlvbj4KICAgICAgICAgICAgICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT0iLXZpZXdzX2NvdW50IiA8Pz0gWWlpOjokYXBwLT5yZXF1ZXN0LT5nZXQoJ3NvcnQnKSA9PSAnLXZpZXdzX2NvdW50JyA/ICdzZWxlY3RlZCcgOiAnJyA/Pj7Qn9C+0L/Rg9C70Y/RgNC90YvQtTwvb3B0aW9uPgogICAgICAgICAgICAgICAgICAgIDwvc2VsZWN0PgogICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgIDwvZm9ybT4KICAgICAgICA8L2Rpdj4",
+					"AQAAAAAAAAABAAAAZQMAAAAAAADmCAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					23,
+					1,
 					"indent",
 					null,
-					"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"
+					"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"
 				],
 				[
-					24,
+					33,
 					1,
-					"insert",
-					{
-						"characters": "\n\n"
-					},
-					"AgAAAPUAAAAAAAAA9gAAAAAAAAAAAAAA9gAAAAAAAAD3AAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA9QAAAAAAAAD1AAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					25,
-					1,
-					"paste",
+					"indent",
 					null,
-					"AQAAAPcAAAAAAAAAhgEAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA9wAAAAAAAAD3AAAAAAAAAAAAAAAAAPC/"
+					"LAAAAPYDAAAAAAAA+gMAAAAAAAAAAAAASQQAAAAAAABNBAAAAAAAAAAAAACtBAAAAAAAALEEAAAAAAAAAAAAAAQFAAAAAAAACAUAAAAAAAAAAAAAQwUAAAAAAABHBQAAAAAAAAAAAACOBQAAAAAAAJIFAAAAAAAAAAAAAKgFAAAAAAAArAUAAAAAAAAAAAAA1QUAAAAAAADZBQAAAAAAAAAAAABaBgAAAAAAAF4GAAAAAAAAAAAAAOsGAAAAAAAA7wYAAAAAAAAAAAAAYAcAAAAAAABkBwAAAAAAAAAAAAADCAAAAAAAAAcIAAAAAAAAAAAAADQIAAAAAAAAOAgAAAAAAAAAAAAAVggAAAAAAABaCAAAAAAAAAAAAABxCAAAAAAAAHUIAAAAAAAAAAAAAJ4IAAAAAAAAoggAAAAAAAAAAAAA/QgAAAAAAAABCQAAAAAAAAAAAACACQAAAAAAAIQJAAAAAAAAAAAAAKwJAAAAAAAAsAkAAAAAAAAAAAAA0gkAAAAAAADWCQAAAAAAAAAAAABVCgAAAAAAAFkKAAAAAAAAAAAAAHsKAAAAAAAAfwoAAAAAAAAAAAAAoQoAAAAAAAClCgAAAAAAAAAAAAApCwAAAAAAAC0LAAAAAAAAAAAAALALAAAAAAAAtAsAAAAAAAAAAAAASAwAAAAAAABMDAAAAAAAAAAAAABqDAAAAAAAAG4MAAAAAAAAAAAAAIUMAAAAAAAAiQwAAAAAAAAAAAAAnQwAAAAAAAChDAAAAAAAAAAAAACwDAAAAAAAALQMAAAAAAAAAAAAANoMAAAAAAAA3gwAAAAAAAAAAAAA9wwAAAAAAAD7DAAAAAAAAAAAAABTDQAAAAAAAFcNAAAAAAAAAAAAAKcNAAAAAAAAqw0AAAAAAAAAAAAAvQ0AAAAAAADBDQAAAAAAAAAAAADzDQAAAAAAAPcNAAAAAAAAAAAAAC4OAAAAAAAAMg4AAAAAAAAAAAAAXQ4AAAAAAABhDgAAAAAAAAAAAACMDgAAAAAAAJAOAAAAAAAAAAAAAAgPAAAAAAAADA8AAAAAAAAAAAAAKA8AAAAAAAAsDwAAAAAAAAAAAAA+DwAAAAAAAEIPAAAAAAAAAAAAAFMPAAAAAAAAVw8AAAAAAAAAAAAAZg8AAAAAAABqDwAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAA/gMAAAAAAADEDgAAAAAAAAAAAAAAAPC/"
 				],
 				[
-					41,
-					1,
-					"cut",
-					null,
-					"AQAAAF00AAAAAAAAXTQAAAAAAADtAQAACiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9ImNvbC1tZC0zIj4KICAgICAgICAgICAgICAgICAgICA8Pz0gJGZvcm0tPmZpZWxkKCRzZWFyY2hNb2RlbCwgJ3R5cGUnLCBbCiAgICAgICAgICAgICAgICAgICAgICAgICdvcHRpb25zJyA9PiBbJ2NsYXNzJyA9PiAnbWItMCddLAogICAgICAgICAgICAgICAgICAgICAgICAnbGFiZWxPcHRpb25zJyA9PiBbJ2NsYXNzJyA9PiAnZm9ybS1sYWJlbCddLAogICAgICAgICAgICAgICAgICAgIF0pLT5kcm9wRG93bkxpc3QoCiAgICAgICAgICAgICAgICAgICAgICAgIFsnJyA9PiAn0JLRgdC1INGC0LjQv9GLJ10gKyBBZHZlcnRpc2VtZW50OjpnZXRUeXBlTGlzdCgpLAogICAgICAgICAgICAgICAgICAgICAgICBbJ2NsYXNzJyA9PiAnZm9ybS1zZWxlY3QnLCAnaWQnID0+ICdzZWFyY2gtdHlwZS1zZWxlY3QnXQogICAgICAgICAgICAgICAgICAgICkgPz4KICAgICAgICAgICAgICAgIDwvZGl2Pg",
-					"AQAAAAAAAAABAAAAXTQAAAAAAABDNgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					44,
-					1,
-					"paste",
-					null,
-					"AQAAADwwAAAAAAAAIjIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAPDAAAAAAAAA8MAAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					45,
-					1,
-					"insert",
-					{
-						"characters": "\n"
-					},
-					"AgAAACIyAAAAAAAAIzIAAAAAAAAAAAAAIzIAAAAAAAAzMgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAIjIAAAAAAAAiMgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					48,
+					70,
 					1,
 					"left_delete",
 					null,
-					"AgAAADwwAAAAAAAAPDAAAAAAAAARAAAACiAgICAgICAgICAgICAgICASMgAAAAAAABIyAAAAAAAAEAAAACAgICAgICAgICAgICAgICA",
-					"AQAAAAAAAAABAAAAPDAAAAAAAABNMAAAAAAAAAAAAAAAAPC/"
+					"AQAAAHQPAAAAAAAAdA8AAAAAAADXAgAACiAgICAgICAgPGRpdiBzdHlsZT0iZmxleC1zaHJpbms6IDA7Ij4KICAgICAgICAgICAgPD89IEh0bWw6OmEoCiAgICAgICAgICAgICAgICAnPHNwYW4gY2xhc3M9ImdseXBoaWNvbiBnbHlwaGljb24tcGx1cyI+PC9zcGFuPiDQoNCw0LfQvNC10YHRgtC40YLRjCDQvtCx0YrRj9Cy0LvQtdC90LjQtScsCiAgICAgICAgICAgICAgICAkaXNHdWVzdCA/IFsnL3NpdGUvbG9naW4nXSA6IFsnY3JlYXRlJywgJ3NlY3Rpb24nID0+ICRzZWN0aW9uXSwKICAgICAgICAgICAgICAgIFsKICAgICAgICAgICAgICAgICAgICAnY2xhc3MnID0+ICdidG4gYnRuLXN1Y2Nlc3MnLAogICAgICAgICAgICAgICAgICAgICdzdHlsZScgPT4gJ3doaXRlLXNwYWNlOiBub3dyYXA7JywKICAgICAgICAgICAgICAgICAgICAnZGF0YScgPT4gJGlzR3Vlc3QgPyBbCiAgICAgICAgICAgICAgICAgICAgICAgICdtZXRob2QnID0+ICdnZXQnLAogICAgICAgICAgICAgICAgICAgICAgICAnY29uZmlybScgPT4gJ9CU0LvRjyDRgNCw0LfQvNC10YnQtdC90LjRjyDQvtCx0YrRj9Cy0LvQtdC90LjRjyDQvdC10L7QsdGF0L7QtNC40LzQviDQsNCy0YLQvtGA0LjQt9C+0LLQsNGC0YzRgdGPLiDQn9C10YDQtdC50YLQuCDQvdCwINGB0YLRgNCw0L3QuNGG0YMg0LLRhdC+0LTQsD8nLAogICAgICAgICAgICAgICAgICAgIF0gOiBbXSwKICAgICAgICAgICAgICAgIF0KICAgICAgICAgICAgKSA/PgogICAgICAgIDwvZGl2Pg",
+					"AQAAAAAAAAABAAAAdA8AAAAAAADyEQAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					82,
+					1,
+					"",
+					null,
+					"AgAAAIQMAAAAAAAATQ8AAAAAAAAAAAAApwUAAAAAAACnBQAAAAAAANICAAAKICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPSJmb3JtLWdyb3VwIj4KICAgICAgICAgICAgICAgICAgICAgICAgPHNlbGVjdCBuYW1lPSJkaXNwbGF5X2N1cnJlbmN5IiBjbGFzcz0iZm9ybS1zZWxlY3QiIG9uY2hhbmdlPSJ0aGlzLmZvcm0uc3VibWl0KCkiIHN0eWxlPSJtaW4td2lkdGg6IDE0MHB4OyI+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8b3B0aW9uIHZhbHVlPSIiIDw/PSBZaWk6OiRhcHAtPnJlcXVlc3QtPmdldCgnZGlzcGxheV9jdXJyZW5jeScsICcnKSA9PT0gJycgPyAnc2VsZWN0ZWQnIDogJycgPz4+0JLRgdC1INCy0LDQu9GO0YLRizwvb3B0aW9uPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgPD9waHAgZm9yZWFjaCAoXGFwcFxoZWxwZXJzXEN1cnJlbmN5Rm9ybWF0dGVyOjpnZXRDdXJyZW5jeUxpc3QoKSBhcyAkY29kZSA9PiAkbGFiZWwpOiA/PgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxvcHRpb24gdmFsdWU9Ijw/PSAkY29kZSA/PiIgPD89IFlpaTo6JGFwcC0+cmVxdWVzdC0+Z2V0KCdkaXNwbGF5X2N1cnJlbmN5JykgPT09ICRjb2RlID8gJ3NlbGVjdGVkJyA6ICcnID8+Pjw/PSAkbGFiZWwgPz48L29wdGlvbj4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw/cGhwIGVuZGZvcmVhY2g7ID8+CiAgICAgICAgICAgICAgICAgICAgICAgIDwvc2VsZWN0PgogICAgICAgICAgICAgICAgICAgIDwvZGl2Pg",
+					"AQAAAAAAAAABAAAApwUAAAAAAABwCAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					86,
+					1,
+					"left_delete",
+					null,
+					"AQAAAFoKAAAAAAAAWgoAAAAAAAAEAAAAbWluLQ",
+					"AQAAAAAAAAABAAAAWgoAAAAAAABeCgAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					89,
+					1,
+					"insert",
+					{
+						"characters": "90"
+					},
+					"AgAAAGEKAAAAAAAAYgoAAAAAAAADAAAAMTQwYgoAAAAAAABjCgAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAYQoAAAAAAABkCgAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					94,
+					1,
+					"insert",
+					{
+						"characters": "10"
+					},
+					"AgAAAGEKAAAAAAAAYgoAAAAAAAABAAAAOWIKAAAAAAAAYwoAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAYQoAAAAAAABiCgAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "widgets/views/_similar_item.php",
+			"file_size": 2667,
+			"file_write_time": 134362490916396790,
+			"settings":
+			{
+				"buffer_size": 2529,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+				[
+					8,
+					1,
+					"paste",
+					null,
+					"AQAAAPUGAAAAAAAA6wcAAAAAAABOAQAAPGRpdiBjbGFzcz0ic2ltaWxhci1pdGVtLXByaWNlIj4KICAgICAgICAgICAgPD9waHAgaWYgKCRhZC0+cHJpY2UpOiA/PgogICAgICAgICAgICAgICAgPD89IG51bWJlcl9mb3JtYXQoJGFkLT5wcmljZSwgMCwgJy4nLCAnICcpID8+IDw/PSBBZHZlcnRpc2VtZW50OjpnZXRDdXJyZW5jeVN5bWJvbCgkYWQtPmN1cnJlbmN5KSA/PgogICAgICAgICAgICA8P3BocCBlbHNlOiA/PgogICAgICAgICAgICAgICAgPHNwYW4gY2xhc3M9InRleHQtbXV0ZWQiPtCm0LXQvdCwINC90LUg0YPQutCw0LfQsNC90LA8L3NwYW4+CiAgICAgICAgICAgIDw/cGhwIGVuZGlmOyA/PgogICAgICAgIDwvZGl2Pg",
+					"AQAAAAAAAAABAAAA9QYAAAAAAAA2CAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					11,
+					2,
+					"indent",
+					null,
+					"DAAAABYHAAAAAAAAGgcAAAAAAAAAAAAAOAcAAAAAAAA8BwAAAAAAAAAAAACOBwAAAAAAAJIHAAAAAAAAAAAAAKUHAAAAAAAAqQcAAAAAAAAAAAAA4QcAAAAAAADlBwAAAAAAAAAAAAD5BwAAAAAAAP0HAAAAAAAAAAAAABYHAAAAAAAAGgcAAAAAAAAAAAAAPAcAAAAAAABABwAAAAAAAAAAAACWBwAAAAAAAJoHAAAAAAAAAAAAALEHAAAAAAAAtQcAAAAAAAAAAAAA8QcAAAAAAAD1BwAAAAAAAAAAAAANCAAAAAAAABEIAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAA6wcAAAAAAAAaBwAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "views/user/profile.php",
+			"file_size": 10699,
+			"file_write_time": 134362491256167805,
+			"settings":
+			{
+				"buffer_size": 10303,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+				[
+					8,
+					1,
+					"paste",
+					null,
+					"AQAAALofAAAAAAAAXSAAAAAAAAD1AAAAWwogICAgICAgICAgICAgICAgICAgICdhdHRyaWJ1dGUnID0+ICdwcmljZScsCiAgICAgICAgICAgICAgICAgICAgJ3ZhbHVlJyA9PiBmdW5jdGlvbiAoJG1vZGVsKSB7CiAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiAkbW9kZWwtPnByaWNlID8gbnVtYmVyX2Zvcm1hdCgkbW9kZWwtPnByaWNlLCAwLCAnLicsICcgJykgLiAnIOKCvScgOiAn4oCUJzsKICAgICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgXSw",
+					"AQAAAAAAAAABAAAAuh8AAAAAAACrIAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					11,
+					4,
+					"indent",
+					null,
+					"FAAAALwfAAAAAAAAwB8AAAAAAAAAAAAA3B8AAAAAAADgHwAAAAAAAAAAAAADIAAAAAAAAAcgAAAAAAAAAAAAAGAgAAAAAAAAZCAAAAAAAAAAAAAAayAAAAAAAABvIAAAAAAAAAAAAAC8HwAAAAAAAMAfAAAAAAAAAAAAAOAfAAAAAAAA5B8AAAAAAAAAAAAACyAAAAAAAAAPIAAAAAAAAAAAAABsIAAAAAAAAHAgAAAAAAAAAAAAAHsgAAAAAAAAfyAAAAAAAAAAAAAAvB8AAAAAAADAHwAAAAAAAAAAAADkHwAAAAAAAOgfAAAAAAAAAAAAABMgAAAAAAAAFyAAAAAAAAAAAAAAeCAAAAAAAAB8IAAAAAAAAAAAAACLIAAAAAAAAI8gAAAAAAAAAAAAALwfAAAAAAAAwB8AAAAAAAAAAAAA6B8AAAAAAADsHwAAAAAAAAAAAAAbIAAAAAAAAB8gAAAAAAAAAAAAAIQgAAAAAAAAiCAAAAAAAAAAAAAAmyAAAAAAAACfIAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAXSAAAAAAAADAHwAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "views/advertisements/my.php",
+			"file_size": 6687,
+			"file_write_time": 134362491630514833,
+			"settings":
+			{
+				"buffer_size": 6193,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+				[
+					6,
+					1,
+					"paste",
+					null,
+					"AQAAAKgNAAAAAAAASw4AAAAAAAA+AQAAWwogICAgICAgICAgICAgICAgJ2F0dHJpYnV0ZScgPT4gJ3ByaWNlJywKICAgICAgICAgICAgICAgICd2YWx1ZScgPT4gZnVuY3Rpb24gKCRtb2RlbCkgewogICAgICAgICAgICAgICAgICAgIGlmICgkbW9kZWwtPnByaWNlKSB7CiAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiBudW1iZXJfZm9ybWF0KCRtb2RlbC0+cHJpY2UsIDAsICcuJywgJyAnKSAuICcg4oK9JzsKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgcmV0dXJuICfQvdC1INGD0LrQsNC30LDQvdCwJzsKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgIF0s",
+					"AQAAAAAAAAABAAAAqA0AAAAAAADbDgAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					9,
+					3,
+					"indent",
+					null,
+					"DwAAAKoNAAAAAAAArg0AAAAAAAAAAAAAyg0AAAAAAADODQAAAAAAAAAAAADxDQAAAAAAAPUNAAAAAAAAAAAAAE4OAAAAAAAAUg4AAAAAAAAAAAAAWQ4AAAAAAABdDgAAAAAAAAAAAACqDQAAAAAAAK4NAAAAAAAAAAAAAM4NAAAAAAAA0g0AAAAAAAAAAAAA+Q0AAAAAAAD9DQAAAAAAAAAAAABaDgAAAAAAAF4OAAAAAAAAAAAAAGkOAAAAAAAAbQ4AAAAAAAAAAAAAqg0AAAAAAACuDQAAAAAAAAAAAADSDQAAAAAAANYNAAAAAAAAAAAAAAEOAAAAAAAABQ4AAAAAAAAAAAAAZg4AAAAAAABqDgAAAAAAAAAAAAB5DgAAAAAAAH0OAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAASw4AAAAAAACuDQAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "models/Advertisement.php",
+			"file_size": 16864,
+			"file_write_time": 134362492030735761,
+			"settings":
+			{
+				"buffer_size": 15044,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+				[
+					6,
+					1,
+					"paste",
+					null,
+					"AQAAAHoZAAAAAAAA9BkAAAAAAAAtAQAAcHVibGljIGZ1bmN0aW9uIGdldEZvcm1hdHRlZFByaWNlKCkKICAgIHsKICAgICAgICBpZiAoJHRoaXMtPnByaWNlID09PSBudWxsIHx8ICR0aGlzLT5wcmljZSA9PT0gJycpIHsKICAgICAgICAgICAgcmV0dXJuICfQptC10L3QsCDQvdC1INGD0LrQsNC30LDQvdCwJzsKICAgICAgICB9CiAgICAgICAgJHN5bWJvbCA9IHNlbGY6OmdldEN1cnJlbmN5U3ltYm9sKCR0aGlzLT5jdXJyZW5jeSk7CiAgICAgICAgcmV0dXJuIG51bWJlcl9mb3JtYXQoJHRoaXMtPnByaWNlLCAwLCAnLicsICcgJykgLiAnICcgLiAkc3ltYm9sOwogICAgfQ",
+					"AQAAAAAAAAABAAAAehkAAAAAAACaGgAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					9,
+					2,
+					"indent",
+					null,
+					"BgAAAJ4ZAAAAAAAAohkAAAAAAAAAAAAApBkAAAAAAACoGQAAAAAAAAAAAAD7GQAAAAAAAP8ZAAAAAAAAAAAAAJ4ZAAAAAAAAohkAAAAAAAAAAAAAqBkAAAAAAACsGQAAAAAAAAAAAAADGgAAAAAAAAcaAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAA9BkAAAAAAACeGQAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					10,
+					1,
+					"unindent",
+					null,
+					"AwAAAJ4ZAAAAAAAAnhkAAAAAAAAEAAAAICAgIKQZAAAAAAAApBkAAAAAAAAEAAAAICAgIPsZAAAAAAAA+xkAAAAAAAAEAAAAICAgIA",
+					"AQAAAAAAAAABAAAADBoAAAAAAACeGQAAAAAAAAAAAAAAAPC/"
 				]
 			]
 		},
@@ -717,7 +765,7 @@
 						"characters": "\n\n"
 					},
 					"BQAAAIcMAAAAAAAAiAwAAAAAAAAAAAAAiAwAAAAAAACMDAAAAAAAAAAAAACMDAAAAAAAAI0MAAAAAAAAAAAAAI0MAAAAAAAAkQwAAAAAAAAAAAAAiAwAAAAAAACIDAAAAAAAAAQAAAAgICAg",
-					"AQAAAAAAAAABAAAAhwwAAAAAAACHDAAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAACHDAAAAAAAAIcMAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					4,
@@ -725,7 +773,7 @@
 					"paste",
 					null,
 					"AQAAAI0MAAAAAAAA1g0AAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAjQwAAAAAAACNDAAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAACNDAAAAAAAAI0MAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					7,
@@ -735,7 +783,7 @@
 						"characters": ","
 					},
 					"AQAAAIcMAAAAAAAAiAwAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAhwwAAAAAAACHDAAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAACHDAAAAAAAAIcMAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					10,
@@ -743,7 +791,7 @@
 					"left_delete",
 					null,
 					"AQAAANYNAAAAAAAA1g0AAAAAAAABAAAALA",
-					"AQAAAAAAAAABAAAA1w0AAAAAAADXDQAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAADXDQAAAAAAANcNAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					15,
@@ -753,7 +801,7 @@
 						"characters": "5"
 					},
 					"AQAAANQNAAAAAAAA1Q0AAAAAAAACAAAAMzA",
-					"AQAAAAAAAAABAAAA1A0AAAAAAADWDQAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAADUDQAAAAAAANYNAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					22,
@@ -763,7 +811,7 @@
 						"characters": "1"
 					},
 					"AQAAANQNAAAAAAAA1Q0AAAAAAAABAAAANQ",
-					"AQAAAAAAAAABAAAA1A0AAAAAAADVDQAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAADUDQAAAAAAANUNAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					25,
@@ -773,7 +821,7 @@
 						"characters": "5"
 					},
 					"AQAAANQNAAAAAAAA1Q0AAAAAAAABAAAAMQ",
-					"AQAAAAAAAAABAAAA1A0AAAAAAADVDQAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAADUDQAAAAAAANUNAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					28,
@@ -783,7 +831,7 @@
 						"characters": "12"
 					},
 					"AgAAANQNAAAAAAAA1Q0AAAAAAAABAAAANdUNAAAAAAAA1g0AAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA1A0AAAAAAADVDQAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAADUDQAAAAAAANUNAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					33,
@@ -793,7 +841,7 @@
 						"characters": "8"
 					},
 					"AQAAANQNAAAAAAAA1Q0AAAAAAAACAAAAMTI",
-					"AQAAAAAAAAABAAAA1A0AAAAAAADWDQAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAADUDQAAAAAAANYNAAAAAAAAAAAAAAAA8L8"
 				]
 			]
 		},
@@ -815,7 +863,7 @@
 					"paste",
 					null,
 					"AQAAAAwfAAAAAAAARCIAAAAAAAByAQAALy8g0JLQt9C70LXRgtC90YvQuSDQstC10YEgKNC00L7Qu9C20LXQvSDQsdGL0YLRjCDQsiDQv9GA0LXQtNC10LvQsNGFIHdlaWdodF9taW4gLSB3ZWlnaHRfbWF4KQogICAgICAgIGlmICgkdGhpcy0+Z2xpZGVyX3dlaWdodCAhPT0gbnVsbCAmJiAkdGhpcy0+Z2xpZGVyX3dlaWdodCAhPT0gJycpIHsKICAgICAgICAgICAgJHF1ZXJ5LT5hbmRXaGVyZShbJzw9JywgJ2FkdmVydGlzZW1lbnRfZ2xpZGVyLndlaWdodF9taW4nLCAkdGhpcy0+Z2xpZGVyX3dlaWdodF0pOwogICAgICAgICAgICAkcXVlcnktPmFuZFdoZXJlKFsnPj0nLCAnYWR2ZXJ0aXNlbWVudF9nbGlkZXIud2VpZ2h0X21heCcsICR0aGlzLT5nbGlkZXJfd2VpZ2h0XSk7CiAgICAgICAgfQ",
-					"AQAAAAAAAAABAAAADB8AAAAAAABgIAAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAMHwAAAAAAAGAgAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					9,
@@ -823,20 +871,9 @@
 					"indent",
 					null,
 					"HAAAAEsfAAAAAAAATx8AAAAAAAAAAAAAfh8AAAAAAACCHwAAAAAAAAAAAAC/HwAAAAAAAMMfAAAAAAAAAAAAAAcgAAAAAAAACyAAAAAAAAAAAAAANiAAAAAAAAA6IAAAAAAAAAAAAACJIAAAAAAAAI0gAAAAAAAAAAAAAL0gAAAAAAAAwSAAAAAAAAAAAAAA8iAAAAAAAAD2IAAAAAAAAAAAAABBIQAAAAAAAEUhAAAAAAAAAAAAAJAhAAAAAAAAlCEAAAAAAAAAAAAAwSEAAAAAAADFIQAAAAAAAAAAAAAyIgAAAAAAADYiAAAAAAAAAAAAAGsiAAAAAAAAbyIAAAAAAAAAAAAAdyIAAAAAAAB7IgAAAAAAAAAAAABLHwAAAAAAAE8fAAAAAAAAAAAAAIIfAAAAAAAAhh8AAAAAAAAAAAAAxx8AAAAAAADLHwAAAAAAAAAAAAATIAAAAAAAABcgAAAAAAAAAAAAAEYgAAAAAAAASiAAAAAAAAAAAAAAnSAAAAAAAAChIAAAAAAAAAAAAADVIAAAAAAAANkgAAAAAAAAAAAAAA4hAAAAAAAAEiEAAAAAAAAAAAAAYSEAAAAAAABlIQAAAAAAAAAAAAC0IQAAAAAAALghAAAAAAAAAAAAAOkhAAAAAAAA7SEAAAAAAAAAAAAAXiIAAAAAAABiIgAAAAAAAAAAAACbIgAAAAAAAJ8iAAAAAAAAAAAAAKsiAAAAAAAAryIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAARCIAAAAAAABLHwAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAABEIgAAAAAAAEsfAAAAAAAAAAAAAAAA8L8"
 				]
 			]
-		},
-		{
-			"file": "public_html/css/site.css",
-			"file_size": 37390,
-			"file_write_time": 134358535903916042,
-			"settings":
-			{
-				"buffer_size": 36301,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
 		},
 		{
 			"file": "public_html/css/search.css",
@@ -858,7 +895,7 @@
 						"characters": "\n\n"
 					},
 					"AgAAANcsAAAAAAAA2CwAAAAAAAAAAAAA2CwAAAAAAADZLAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA1ywAAAAAAADXLAAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAADXLAAAAAAAANcsAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					4,
@@ -866,7 +903,7 @@
 					"paste",
 					null,
 					"AQAAANksAAAAAAAA7C8AAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA2SwAAAAAAADZLAAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAADZLAAAAAAAANksAAAAAAAAAAAAAAAA8L8"
 				]
 			]
 		}
@@ -952,14 +989,19 @@
 	"expanded_folders":
 	[
 		"/C/OpenServer/domains/bs.com",
-		"/C/OpenServer/domains/bs.com/models",
 		"/C/OpenServer/domains/bs.com/public_html",
-		"/C/OpenServer/domains/bs.com/public_html/css",
-		"/C/OpenServer/domains/bs.com/widgets",
-		"/C/OpenServer/domains/bs.com/widgets/views"
+		"/C/OpenServer/domains/bs.com/public_html/css"
 	],
 	"file_history":
 	[
+		"/C/OpenServer/domains/bs.com/controllers/ShortUrlController.php",
+		"/C/OpenServer/domains/bs.com/config/web.php",
+		"/C/OpenServer/domains/bs.com/widgets/views/search-bar.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/view.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/_item.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/index.php",
+		"/C/OpenServer/domains/bs.com/helpers/CurrencyFormatter.php",
+		"/C/OpenServer/domains/bs.com/public_html/css/site.css",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/params.php",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/web.php",
 		"/C/OpenServer/domains/bs.com/public_html/js/share-filter.js",
@@ -971,10 +1013,8 @@
 		"/C/OpenServer/domains/bs.com/runtime/logs/app.log",
 		"/D/tmp/Объявления/Wings/Скaй кантри диcкaвepи 4/1.uSWtLba4FcybmpfB0w_mQtSMF8oTjJfam4EXzh2EHcYb.iWZz8cLPQ0nguqmWlxEhxL-UFfEG1_Vd3hThPcDuD9U.bit",
 		"/C/OpenServer/domains/bs.com/public_html/js/search-subscription.js",
-		"/C/OpenServer/domains/bs.com/widgets/views/search-bar.php",
 		"/C/OpenServer/domains/bs.com/components/notifications/NotificationManager.php",
 		"/C/OpenServer/domains/bs.com/controllers/AdvertisementsController.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/view.php",
 		"/C/OpenServer/domains/bs.com/commands/SubscribeAdminsController.php",
 		"/C/OpenServer/domains/bs.com/controllers/SiteController.php",
 		"/C/OpenServer/domains/bs.com/components/SimilarAdvertisementService.php",
@@ -983,13 +1023,11 @@
 		"/C/OpenServer/domains/bs.com/widgets/views/_similar_item.php",
 		"/C/OpenServer/domains/bs.com/controllers/SearchSubscriptionController.php",
 		"/C/OpenServer/domains/bs.com/public_html/js/search-active-subscribe.js",
-		"/C/OpenServer/domains/bs.com/public_html/css/site.css",
 		"/C/OpenServer/domains/bs.com/helpers/TextHelper.php",
 		"/C/Documents/Для резюме.txt",
 		"/C/Users/fwadi/Downloads/Измеритель строп.txt",
 		"/C/OpenServer/domains/bs.com/models/Advertisement.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/section.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/index.php",
 		"/C/OpenServer/domains/bs.com/components/ratings/AdvertisementRatingService.php",
 		"/C/OpenServer/domains/bs.com/components/CurrencyRateStorage.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/create.php",
@@ -1027,7 +1065,6 @@
 		"/C/Documents/Paragliding/Mesuring-test-2.csv",
 		"/C/OpenServer/domains/bs.com/public_html/js/rating.js",
 		"/C/OpenServer/domains/bs.com/public_html/css/advertisement-form.css",
-		"/C/OpenServer/domains/bs.com/config/web.php",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/app.log",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/console.php",
 		"/C/OpenServer/domains/bs.com/config/console.php",
@@ -1046,7 +1083,6 @@
 		"/C/Documents/Paragliding/Joy/Joy3 M/Joy_3m_diff (1).csv",
 		"/C/Users/fwadi/Downloads/Первоначальное обучение  (4).txt",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-3/web.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/_item.php",
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000018_add_currency_to_advertisements.php",
 		"/C/Users/fwadi/Downloads/Новый документ.txt",
 		"/C/Documents/Paragliding/Joy 2/Joy 2 XS_diff.csv",
@@ -1085,9 +1121,7 @@
 		"/C/OpenServer/domains/bs.com/components/notifications/channels/WhatsAppChannel.php",
 		"/C/OpenServer/domains/bs.com/views/user/change-password.php",
 		"/C/OpenServer/domains/bs.com/controllers/TelegramWebhookController.php",
-		"/C/OpenServer/domains/bs.com/views/layouts/miniapp.php",
-		"/C/OpenServer/domains/bs.com/controllers/UserController.php",
-		"/C/OpenServer/domains/bs.com/views/site/miniapp.php"
+		"/C/OpenServer/domains/bs.com/views/layouts/miniapp.php"
 	],
 	"find":
 	{
@@ -1233,6 +1267,20 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			".search-ext-block .sort-options",
+			"Разместить объявление",
+			"<?= Html::hiddenInput('AdvertisementSearch[search_text]', $searchModel->search_text) ?>",
+			"search-params-form",
+			"#search-params-form",
+			"<?= Html::hiddenInput('sort', Yii::$app->request->get('sort', '-updated_at')) ?>",
+			"<?php $form = ActiveForm::begin([",
+			"<div class=\"d-flex justify-content-between align-items-center search-ext-block\">",
+			"getFormattedPrice",
+			"'attribute' => 'price',",
+			"<div class=\"similar-item-price\">",
+			"<div class=\"price-large\"",
+			"$priceText = $model",
+			"sort-options",
 			"<!-- Основные параметры --",
 			"$this->glider_weight",
 			"search-active-params",
@@ -1346,21 +1394,7 @@
 			"$defaultModel",
 			"defaultModel",
 			"$defaultModel",
-			"default",
-			"defaultModel",
-			"openrouter.api_key",
-			"callOpenRouter",
-			"openrouter_api_key",
-			"levels",
-			"callOpenRouter",
-			"callAI",
-			"Не удалось сгенерировать оценку. Попробуйте позже.",
-			"openai_api_key",
-			"col-md-4",
-			"actionBump",
-			"\t",
-			" ",
-			"\t"
+			"default"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -1512,82 +1546,20 @@
 			[
 				{
 					"buffer": 0,
-					"file": "controllers/ShortUrlController.php",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2695,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1240,
-								1253
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/PHP/PHP.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1105.6,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"stack_multiselect": false,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "config/web.php",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6609,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1307,
-								1492
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/PHP/PHP.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 490.4,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"stack_multiselect": false,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "widgets/views/search-bar.php",
+					"file": "views/advertisements/section.php",
 					"selected": true,
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 33363,
+						"buffer_size": 5063,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								12348,
-								12348
+								2659,
+								2659
 							]
 						],
 						"settings":
@@ -1597,7 +1569,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 5154.4,
+						"translation.y": 547.2,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -1605,7 +1577,131 @@
 					"type": "text"
 				},
 				{
+					"buffer": 1,
+					"file": "widgets/views/_similar_item.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2529,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2075,
+								1826
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 762.4,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "views/user/profile.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10303,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8365,
+								8144
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2742.4,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
 					"buffer": 3,
+					"file": "views/advertisements/my.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6193,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3497,
+								3497
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1374.4,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "models/Advertisement.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15044,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6490,
+								6490
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3372.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
 					"file": "config/params.php",
 					"semi_transient": false,
 					"settings":
@@ -1631,12 +1727,12 @@
 						"translation.y": 380.8,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 6,
 					"stack_multiselect": false,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 6,
 					"file": "models/AdvertisementSearch.php",
 					"semi_transient": false,
 					"settings":
@@ -1662,43 +1758,12 @@
 						"translation.y": 4041.6,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 1,
 					"stack_multiselect": false,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
-					"file": "public_html/css/site.css",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 36301,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/CSS/CSS.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"stack_multiselect": false,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
+					"buffer": 7,
 					"file": "public_html/css/search.css",
 					"semi_transient": false,
 					"settings":
@@ -1724,7 +1789,7 @@
 						"translation.y": 9858.4,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 7,
 					"stack_multiselect": false,
 					"type": "text"
 				}

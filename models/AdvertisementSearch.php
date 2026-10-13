@@ -162,12 +162,7 @@ class AdvertisementSearch extends Advertisement
         }
         
         // Фильтр по цене (от и до)
-        if ($this->price_min !== null && $this->price_min !== '') {
-            $query->andWhere(['>=', 'price', $this->price_min]);
-        }
-        if ($this->price_max !== null && $this->price_max !== '') {
-            $query->andWhere(['<=', 'price', $this->price_max]);
-        }
+        $this->applyPriceFilter($query);
         
         // Дополнительные фильтры в зависимости от типа
         $this->applyExtraFilters($query);
@@ -424,5 +419,78 @@ class AdvertisementSearch extends Advertisement
         $orderBySql = "{$nullOrder}, ({$caseExpression}) {$directionSql}";
 
         $query->addOrderBy(new \yii\db\Expression($orderBySql, $params));
+    }
+
+    /**
+     * Применить фильтр по цене с учётом валюты.
+     *
+     * Цена каждого объявления приводится к базовой валюте (RUB) по текущему курсу,
+     * затем сравнивается с price_min / price_max (которые указаны в базовой валюте).
+     *
+     * @param \yii\db\ActiveQuery $query
+     */
+    protected function applyPriceFilter($query)
+    {
+        $priceMin = $this->price_min !== null && $this->price_min !== '' ? (float)$this->price_min : null;
+        $priceMax = $this->price_max !== null && $this->price_max !== '' ? (float)$this->price_max : null;
+
+        if ($priceMin === null && $priceMax === null) {
+            return;
+        }
+
+        // Собираем курсы для CASE WHEN
+        $rates = \app\helpers\CurrencyRate::getRates();
+        $baseCurrency = \app\helpers\CurrencyRate::getBaseCurrency();
+
+        $cases = [];
+        $params = [];
+        $i = 0;
+
+        foreach ($rates as $currency => $rate) {
+            $currency = strtoupper($currency);
+
+            // Пропускаем базовую валюту — для неё курс 1
+            if ($currency === $baseCurrency) {
+                continue;
+            }
+
+            $rate = (float)$rate;
+            if ($rate <= 0) {
+                continue;
+            }
+
+            $paramName = ':pf_rate_' . strtolower($currency) . '_' . $i;
+            $cases[] = "WHEN advertisements.currency = '{$currency}' THEN advertisements.price * {$paramName}";
+            $params[$paramName] = $rate;
+            $i++;
+        }
+
+        // Формируем CASE-выражение.
+        // Для базовой валюты и для валют без известного курса — price как есть.
+        if (!empty($cases)) {
+            $caseExpression = 'CASE ' . implode(' ', $cases) . ' ELSE advertisements.price END';
+        } else {
+            $caseExpression = 'advertisements.price';
+        }
+
+        // Применяем фильтр по минимальной цене
+        if ($priceMin !== null) {
+            $minParam = ':pf_min';
+            $params[$minParam] = $priceMin;
+            $query->andWhere(new \yii\db\Expression(
+                "{$caseExpression} >= {$minParam}",
+                $params
+            ));
+        }
+
+        // Применяем фильтр по максимальной цене
+        if ($priceMax !== null) {
+            $maxParam = ':pf_max';
+            $params[$maxParam] = $priceMax;
+            $query->andWhere(new \yii\db\Expression(
+                "{$caseExpression} <= {$maxParam}",
+                $params
+            ));
+        }
     }
 }
