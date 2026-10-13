@@ -20,13 +20,6 @@ $countWord = TextHelper::plural($totalCount, ['объявление', 'объя�
 ?>
 
     <div class="advertisements-section">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="d-flex justify-content-between align-items-center flex-wrap" style="margin-bottom: 15px;">
-                    <h1 style="margin: 0;"><?= Html::encode($this->title) ?></h1>
-                </div>
-            </div>
-        </div>
         
         <!-- Блок поиска -->
         <?= SearchBar::widget([
