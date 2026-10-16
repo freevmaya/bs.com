@@ -453,7 +453,7 @@ $action = ($section === Advertisement::SECTION_SELL) ? 'sell' : 'buy';
                                     Источник:
                                 </strong>
                                 <a href="<?= Html::encode($model->source_url) ?>" target="_blank" rel="noopener noreferrer" style="word-break: break-all;">
-                                    <?= Html::encode($model->source_url) ?>
+                                    <?= Html::encode(\yii\helpers\StringHelper::truncate($model->source_url, 25, '...')) ?>
                                 </a>
                             </p>
                         <?php endif; ?>
