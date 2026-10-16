@@ -144,27 +144,52 @@ class TempAdStorage extends Component
     /**
      * Очищает временную директорию после переноса файлов
      */
-    private function cleanupTempDirectory($tempId)
+     private function cleanupTempDirectory($tempId)
     {
         $tempDir = Yii::getAlias('@webroot') . '/uploads/advertisements/temp/' . $tempId;
-        
-        if (is_dir($tempDir)) {
-            // Удаляем все файлы в подпапках
-            $files = glob($tempDir . '/thumbnails/*');
-            foreach ($files as $file) {
-                if (is_file($file)) {
-                    unlink($file);
-                }
-            }
-            
-            // Удаляем подпапки
-            if (is_dir($tempDir . '/thumbnails')) {
-                rmdir($tempDir . '/thumbnails');
-            }
-            
-            // Удаляем основную папку
-            rmdir($tempDir);
+
+        if (!is_dir($tempDir)) {
+            return;
         }
+
+        $this->deleteDirectoryRecursive($tempDir);
+    }
+
+    /**
+     * Рекурсивно удаляет директорию со всем содержимым.
+     *
+     * Подавляет ошибки, чтобы не прерывать выполнение скрипта,
+     * если какой-то файл не удалось удалить (например, нет прав).
+     *
+     * @param string $dir
+     * @return bool
+     */
+    private function deleteDirectoryRecursive($dir)
+    {
+        if (!is_dir($dir)) {
+            return false;
+        }
+
+        $items = @scandir($dir);
+        if ($items === false) {
+            return false;
+        }
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+
+            if (is_dir($path) && !is_link($path)) {
+                $this->deleteDirectoryRecursive($path);
+            } else {
+                @unlink($path);
+            }
+        }
+
+        return @rmdir($dir);
     }
     
     /**

@@ -82,10 +82,11 @@
    * "bad" — плохое, требует ремонта
 9. Производитель (producer_name):
    * Извлеки из текста
-   * Возможные: Advance, AirDesign, Axis, BGD, DaVinci, Dudek, Flow, Gin, Gradient, Icaro, Independence, MAC Para, Niviuk, NoLimit, Nova, Ozone, Paratech, Skywalk, Sky Country, Swing, Triple Seven, UP, Windtech, Woody Valley
+   * Возможные: Advance, AirDesign, Axis, BGD, DaVinci, Dudek, Flow, Gin, Gradient, Icaro, Independence, MAC Para, Niviuk, NoLimit, Nova, Ozone, Paratech, Skywalk, Sky Country, Swing, Triple Seven, UP, Windtech, Woody Valley и другие
 10. Сертификация (certification_name):
-   * EN A, EN B, EN C, EN D, CCC, LFT, LFT A, LFT B
+   * EN A,EN B,EN C,EN D,CCC,LFT 1,LFT 1-2,LFT 2,DHV 1,DHV 1-2,DHV 2,DHV 2-3,DHV Competition,LTF 2-3,LTF 3 (open class),AFNOR Standart,AFNOR Performance,AFNOR Competition,AFNOR Tandem,EN 926-1,EN 926-2,ССС,ACRO, Motor
    * Может быть указана как "A класс", "В класс" и т.д.
+   * Сертификацию (certification_name) указывать обязательно! Искать информацию на сайте производителя или форумах и т.п.
 11. Весовая вилка (weight_min, weight_max):
    * Извлеки из текста
    * Может быть "85-105 кг" или "размер М (85-105 кг)"
@@ -158,6 +159,7 @@ json
 * Числовые поля (price, weight_min, weight_max, flight_time) должны быть числами, не строками
 * Если тип не glider — не включай поле glider в JSON
 * Если информация отсутствует — ищи информацию в интернете и соответственно заполняй поле, если не удалось найти информацию в интернете или LLM оставляй поле пустым ("" или null)
+* certification_name указывать обязательно! Искать информацию о сертификации на сайте производителя или форумах и т.п.
 * Найди полное название производителя по названию крыла, если он явно не указан в объявлении.
 * Старайся определить производителя точно!
 * Обязательно заполняйте производителя - поле producer_name!
