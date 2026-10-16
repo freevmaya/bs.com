@@ -266,7 +266,7 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
                <?php $form = ActiveForm::begin([
                     'method' => 'get',
                     'action' => $action,
-                    'options' => ['class' => 'row g-3', 'id' => 'search-params-form'],
+                    'options' => ['id' => 'search-params-form'],
                 ]); ?>
 
                 <!-- Скрытые поля -->
@@ -277,199 +277,205 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
                     <?= Html::hiddenInput('AdvertisementSearch[section]', $section) ?>
                 <?php endif; ?>
                 
-                <!-- Основные параметры -->
-                <div class="col-md-3">
-                    <?= $form->field($searchModel, 'type', [
-                        'options' => ['class' => 'mb-0'],
-                        'labelOptions' => ['class' => 'form-label'],
-                    ])->dropDownList(
-                        ['' => 'Все типы'] + Advertisement::getTypeList(),
-                        ['class' => 'form-select', 'id' => 'search-type-select']
-                    ) ?>
-                </div>
+                <div id="search-params-fields">
+                    <div class="row g-3">
+                
+                        <!-- Основные параметры -->
+                        <div class="col-md-3">
+                            <?= $form->field($searchModel, 'type', [
+                                'options' => ['class' => 'mb-0'],
+                                'labelOptions' => ['class' => 'form-label'],
+                            ])->dropDownList(
+                                ['' => 'Все типы'] + Advertisement::getTypeList(),
+                                ['class' => 'form-select', 'id' => 'search-type-select']
+                            ) ?>
+                        </div>
 
-                <div class="col-md-3">
-                    <?= $form->field($searchModel, 'price_min', [
-                        'options' => ['class' => 'mb-0'],
-                        'labelOptions' => ['class' => 'form-label'],
-                    ])->textInput(['placeholder' => 'Цена от', 'class' => 'form-control']) ?>
-                </div>
-                <div class="col-md-3">
-                    <?= $form->field($searchModel, 'price_max', [
-                        'options' => ['class' => 'mb-0'],
-                        'labelOptions' => ['class' => 'form-label'],
-                    ])->textInput(['placeholder' => 'Цена до', 'class' => 'form-control']) ?>
-                </div>
-                
-                <!-- Дополнительные параметры для GLIDER -->
-                <div class="col-12 extra-fields glider-fields" style="display: <?= $showGliderFields ? 'block' : 'none' ?>; margin-top: 15px;">
-                    <h5 style="color: #e0e0e0; border-bottom: 1px solid #555; padding-bottom: 8px;">Параплан</h5>
-                    <div class="row g-3">
                         <div class="col-md-3">
-                            <?= $form->field($searchModel, 'glider_model', [
+                            <?= $form->field($searchModel, 'price_min', [
                                 'options' => ['class' => 'mb-0'],
                                 'labelOptions' => ['class' => 'form-label'],
-                            ])->textInput(['placeholder' => 'Модель', 'class' => 'form-control']) ?>
+                            ])->textInput(['placeholder' => 'Цена от', 'class' => 'form-control']) ?>
                         </div>
                         <div class="col-md-3">
-                            <?= $form->field($searchModel, 'glider_producer_ids', [
+                            <?= $form->field($searchModel, 'price_max', [
                                 'options' => ['class' => 'mb-0'],
                                 'labelOptions' => ['class' => 'form-label'],
-                            ])->dropDownList(
-                                $producerList,
-                                [
-                                    'class' => 'form-select',
-                                    'multiple' => true,
-                                    'size' => 4,
-                                    'prompt' => 'Все производители'
-                                ]
-                            ) ?>
-                            <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                            ])->textInput(['placeholder' => 'Цена до', 'class' => 'form-control']) ?>
                         </div>
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'glider_certification_ids', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->dropDownList(
-                                $certificationList,
-                                [
-                                    'class' => 'form-select',
-                                    'multiple' => true,
-                                    'size' => 4,
-                                    'prompt' => 'Все сертификации'
-                                ]
-                            ) ?>
-                            <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                        
+                        <!-- Дополнительные параметры для GLIDER -->
+                        <div class="col-12 extra-fields glider-fields" style="display: <?= $showGliderFields ? 'block' : 'none' ?>; margin-top: 15px;">
+                            <h5 style="color: #e0e0e0; border-bottom: 1px solid #555; padding-bottom: 8px;">Параплан</h5>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'glider_model', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->textInput(['placeholder' => 'Модель', 'class' => 'form-control']) ?>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'glider_producer_ids', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->dropDownList(
+                                        $producerList,
+                                        [
+                                            'class' => 'form-select',
+                                            'multiple' => true,
+                                            'size' => 4,
+                                            'prompt' => 'Все производители'
+                                        ]
+                                    ) ?>
+                                    <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'glider_certification_ids', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->dropDownList(
+                                        $certificationList,
+                                        [
+                                            'class' => 'form-select',
+                                            'multiple' => true,
+                                            'size' => 4,
+                                            'prompt' => 'Все сертификации'
+                                        ]
+                                    ) ?>
+                                    <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'glider_weight', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->textInput(['placeholder' => 'Взлетный вес (кг)', 'class' => 'form-control']) ?>
+                                    <small class="text-muted" style="color: #999 !important;">Вес пилота + вес всего снаряжения</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'glider_date_release_min', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->textInput(['placeholder' => 'Год выпуска от', 'class' => 'form-control']) ?>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'glider_flight_time_max', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->textInput(['placeholder' => 'Налёт до (часов)', 'class' => 'form-control']) ?>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'glider_condition', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->dropDownList(
+                                        ['' => 'Любое'] + $conditionListGlider,
+                                        ['class' => 'form-select']
+                                    ) ?>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'glider_weight', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->textInput(['placeholder' => 'Взлетный вес (кг)', 'class' => 'form-control']) ?>
-                            <small class="text-muted" style="color: #999 !important;">Вес пилота + вес всего снаряжения</small>
+                        
+                        <!-- Дополнительные параметры для HARNESS -->
+                        <div class="col-12 extra-fields harness-fields" style="display: <?= $showHarnessFields ? 'block' : 'none' ?>; margin-top: 15px;">
+                            <h5 style="color: #e0e0e0; border-bottom: 1px solid #555; padding-bottom: 8px;">Подвесная система</h5>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'harness_model', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->textInput(['placeholder' => 'Модель', 'class' => 'form-control']) ?>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'harness_producer_ids', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->dropDownList(
+                                        $producerList,
+                                        [
+                                            'class' => 'form-select',
+                                            'multiple' => true,
+                                            'size' => 4,
+                                            'prompt' => 'Все производители'
+                                        ]
+                                    ) ?>
+                                    <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'harness_sizes', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->dropDownList(
+                                        $sizeList,
+                                        [
+                                            'class' => 'form-select',
+                                            'multiple' => true,
+                                            'size' => 4,
+                                            'prompt' => 'Все размеры'
+                                        ]
+                                    ) ?>
+                                    <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'harness_date_release_min', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->textInput(['placeholder' => 'Год выпуска от', 'class' => 'form-control']) ?>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'harness_condition', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->dropDownList(
+                                        ['' => 'Любое'] + $conditionListHarness,
+                                        ['class' => 'form-select']
+                                    ) ?>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'glider_date_release_min', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->textInput(['placeholder' => 'Год выпуска от', 'class' => 'form-control']) ?>
+                        
+                        <!-- Дополнительные параметры для DEVICE -->
+                        <div class="col-12 extra-fields device-fields" style="display: <?= $showDeviceFields ? 'block' : 'none' ?>; margin-top: 15px;">
+                            <h5 style="color: #e0e0e0; border-bottom: 1px solid #555; padding-bottom: 8px;">Прибор</h5>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'device_model', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->textInput(['placeholder' => 'Модель', 'class' => 'form-control']) ?>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'device_producer_ids', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->dropDownList(
+                                        $producerList,
+                                        [
+                                            'class' => 'form-select',
+                                            'multiple' => true,
+                                            'size' => 4,
+                                            'prompt' => 'Все производители'
+                                        ]
+                                    ) ?>
+                                    <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'device_condition', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->dropDownList(
+                                        ['' => 'Любое'] + $conditionListDevice,
+                                        ['class' => 'form-select']
+                                    ) ?>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'glider_flight_time_max', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->textInput(['placeholder' => 'Налёт до (часов)', 'class' => 'form-control']) ?>
-                        </div>
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'glider_condition', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->dropDownList(
-                                ['' => 'Любое'] + $conditionListGlider,
-                                ['class' => 'form-select']
-                            ) ?>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Дополнительные параметры для HARNESS -->
-                <div class="col-12 extra-fields harness-fields" style="display: <?= $showHarnessFields ? 'block' : 'none' ?>; margin-top: 15px;">
-                    <h5 style="color: #e0e0e0; border-bottom: 1px solid #555; padding-bottom: 8px;">Подвесная система</h5>
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'harness_model', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->textInput(['placeholder' => 'Модель', 'class' => 'form-control']) ?>
-                        </div>
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'harness_producer_ids', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->dropDownList(
-                                $producerList,
-                                [
-                                    'class' => 'form-select',
-                                    'multiple' => true,
-                                    'size' => 4,
-                                    'prompt' => 'Все производители'
-                                ]
-                            ) ?>
-                            <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
-                        </div>
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'harness_sizes', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->dropDownList(
-                                $sizeList,
-                                [
-                                    'class' => 'form-select',
-                                    'multiple' => true,
-                                    'size' => 4,
-                                    'prompt' => 'Все размеры'
-                                ]
-                            ) ?>
-                            <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
-                        </div>
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'harness_date_release_min', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->textInput(['placeholder' => 'Год выпуска от', 'class' => 'form-control']) ?>
-                        </div>
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'harness_condition', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->dropDownList(
-                                ['' => 'Любое'] + $conditionListHarness,
-                                ['class' => 'form-select']
-                            ) ?>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Дополнительные параметры для DEVICE -->
-                <div class="col-12 extra-fields device-fields" style="display: <?= $showDeviceFields ? 'block' : 'none' ?>; margin-top: 15px;">
-                    <h5 style="color: #e0e0e0; border-bottom: 1px solid #555; padding-bottom: 8px;">Прибор</h5>
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'device_model', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->textInput(['placeholder' => 'Модель', 'class' => 'form-control']) ?>
-                        </div>
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'device_producer_ids', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->dropDownList(
-                                $producerList,
-                                [
-                                    'class' => 'form-select',
-                                    'multiple' => true,
-                                    'size' => 4,
-                                    'prompt' => 'Все производители'
-                                ]
-                            ) ?>
-                            <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
-                        </div>
-                        <div class="col-md-3">
-                            <?= $form->field($searchModel, 'device_condition', [
-                                'options' => ['class' => 'mb-0'],
-                                'labelOptions' => ['class' => 'form-label'],
-                            ])->dropDownList(
-                                ['' => 'Любое'] + $conditionListDevice,
-                                ['class' => 'form-select']
-                            ) ?>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-12 text-end mt-3">
+                    
+                    </div><!-- /.row.g-3 -->
+                </div><!-- /#search-params-fields -->
+
+                <!-- Кнопки (футер) -->
+                <div class="text-end mt-3">
                     <?= Html::submitButton('Применить', ['class' => 'btn btn-primary']) ?>
-                    <!-- Кнопка сброса с очисткой сессии -->
                     <?= Html::a(
                         'Сбросить',
                         ['advertisements/reset-filters', 'section' => $section],
@@ -492,75 +498,6 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
     position: relative;
 }
 
-.search-params-popup {
-    position: absolute;
-    top: calc(100% + 10px);
-    left: 0;
-    width: 100%;
-    z-index: 100;
-    background: #3b3b3b;
-    border-radius: 8px;
-    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.4);
-    display: none;
-    overflow: hidden;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
-.search-params-popup.open {
-    display: block;
-    animation: fadeInPopup 0.25s ease;
-}
-
-@keyframes fadeInPopup {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.search-params-popup-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 20px;
-    background: #2a2a2a;
-    border-bottom: 1px solid #444;
-    flex-shrink: 0;
-}
-
-.search-params-popup-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #e0e0e0;
-}
-
-.search-params-popup-close {
-    background: none;
-    border: none;
-    color: #888;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.search-params-popup-close:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.search-params-popup-body {
-    padding: 20px;
-}
-
 /* Стили для активных параметров - делаем кликабельными */
 .search-params-label,
 .search-params-text {
@@ -571,89 +508,6 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
 .search-params-label:hover,
 .search-params-text:hover {
     opacity: 0.8;
-}
-
-/* Для светлой темы */
-[data-bs-theme="light"] .search-params-popup {
-    background: #f8f9fa;
-    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2);
-}
-
-[data-bs-theme="light"] .search-params-popup-header {
-    background: #e9ecef;
-    border-bottom: 1px solid #dee2e6;
-}
-
-[data-bs-theme="light"] .search-params-popup-title {
-    color: #212529;
-}
-
-[data-bs-theme="light"] .search-params-popup-close {
-    color: #6c757d;
-}
-
-[data-bs-theme="light"] .search-params-popup-close:hover {
-    color: #212529;
-    background: rgba(0, 0, 0, 0.05);
-}
-
-/* Адаптивность для мобильных */
-@media (max-width: 768px) {
-    .search-params-popup {
-        top: calc(100% + 6px);
-        border-radius: 6px;
-    }
-    .search-params-popup-header {
-        padding: 10px 16px;
-    }
-    .search-params-popup-title {
-        font-size: 14px;
-    }
-    .search-params-popup-body {
-        padding: 12px 16px;
-    }
-}
-
-@media (max-width: 576px) {
-    .search-params-popup {
-        top: calc(100% + 4px);
-        border-radius: 0 0 8px 8px;
-        left: -10px;
-        width: calc(100% + 20px);
-        max-height: 70vh;
-    }
-    .search-params-popup-header {
-        padding: 8px 14px;
-    }
-    .search-params-popup-body {
-        padding: 10px 14px;
-    }
-}
-
-/* Стили для scrollbar внутри popup */
-.search-params-popup::-webkit-scrollbar {
-    width: 6px;
-}
-
-.search-params-popup::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.search-params-popup::-webkit-scrollbar-thumb {
-    background: #555;
-    border-radius: 3px;
-}
-
-[data-bs-theme="light"] .search-params-popup::-webkit-scrollbar-thumb {
-    background: #ccc;
-}
-
-.search-params-popup::-webkit-scrollbar-thumb:hover {
-    background: #666;
-}
-
-[data-bs-theme="light"] .search-params-popup::-webkit-scrollbar-thumb:hover {
-    background: #bbb;
 }
 </style>
 
@@ -666,21 +520,22 @@ $script = <<< JS
     var closeBtn = document.getElementById('searchParamsClose');
     var labelEl = document.querySelector('.search-params-label');
     var textEl = document.querySelector('.search-params-text');
-    
+
     if (!toggleBtn || !popup) return;
-    
+
     function openPopup() {
         popup.classList.add('open');
         toggleBtn.classList.add('active');
         toggleBtn.setAttribute('aria-expanded', 'true');
+        computePopupMaxHeight();
     }
-    
+
     function closePopup() {
         popup.classList.remove('open');
         toggleBtn.classList.remove('active');
         toggleBtn.setAttribute('aria-expanded', 'false');
     }
-    
+
     function togglePopup() {
         if (popup.classList.contains('open')) {
             closePopup();
@@ -688,13 +543,37 @@ $script = <<< JS
             openPopup();
         }
     }
-    
+
+    // Рассчитываем максимальную высоту popup:
+    // viewport − top_попапа − высота_нижнего_меню − отступ
+    function computePopupMaxHeight() {
+        if (!popup.classList.contains('open')) return;
+
+        var rect = popup.getBoundingClientRect();
+        var topOffset = rect.top;
+
+        // Высота .bottom-nav — берём из padding-bottom у body (60px)
+        var bottomNavHeight = 60;
+        var safetyMargin = 10;
+
+        var available = window.innerHeight - topOffset - bottomNavHeight - safetyMargin;
+        if (available < 200) {
+            available = 200;
+        }
+
+        popup.style.maxHeight = available + 'px';
+    }
+
+    // Пересчёт при resize и scroll
+    window.addEventListener('resize', computePopupMaxHeight, { passive: true });
+    window.addEventListener('scroll', computePopupMaxHeight, { passive: true });
+
     // Открытие/закрытие по клику на кнопку
     toggleBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         togglePopup();
     });
-    
+
     // Открытие по клику на label (Фильтры:)
     if (labelEl) {
         labelEl.addEventListener('click', function(e) {
@@ -704,7 +583,7 @@ $script = <<< JS
             }
         });
     }
-    
+
     // Открытие по клику на text (список фильтров)
     if (textEl) {
         textEl.addEventListener('click', function(e) {
@@ -714,7 +593,7 @@ $script = <<< JS
             }
         });
     }
-    
+
     // Закрытие по клику на крестик
     if (closeBtn) {
         closeBtn.addEventListener('click', function(e) {
@@ -722,7 +601,7 @@ $script = <<< JS
             closePopup();
         });
     }
-    
+
     // Закрытие по клику вне попапа
     document.addEventListener('click', function(e) {
         if (popup.classList.contains('open')) {
@@ -732,22 +611,22 @@ $script = <<< JS
             }
         }
     });
-    
+
     // Закрытие по Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && popup.classList.contains('open')) {
             closePopup();
         }
     });
-    
-    // Закрытие при отправке формы (чтобы не оставался висеть)
+
+    // Закрытие при отправке формы
     var form = document.getElementById('search-params-form');
     if (form) {
         form.addEventListener('submit', function() {
             closePopup();
         });
     }
-    
+
     console.log('Search params popup initialized');
 })();
 JS;
@@ -761,12 +640,12 @@ function toggleExtraFields() {
     var gliderFields = document.querySelector('.glider-fields');
     var harnessFields = document.querySelector('.harness-fields');
     var deviceFields = document.querySelector('.device-fields');
-    
+
     // Скрываем все
     if (gliderFields) gliderFields.style.display = 'none';
     if (harnessFields) harnessFields.style.display = 'none';
     if (deviceFields) deviceFields.style.display = 'none';
-    
+
     // Показываем нужные
     if (selectedType === 'glider' && gliderFields) {
         gliderFields.style.display = 'block';

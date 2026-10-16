@@ -1,5 +1,6 @@
 /**
  * Search Active Subscribe - управление кнопкой подписки в блоке активных параметров
+ * + Sticky-шапка (добавление класса .is-stuck при скролле)
  */
 
 (function($) {
@@ -11,6 +12,48 @@
          */
         init: function() {
             this.initSubscribeButton();
+            this.initStickySearchBar();
+        },
+
+        /**
+         * Инициализация sticky-шапки страницы
+         *
+         * Добавляет/убирает класс .is-stuck у .search-sticky-wrapper .advertisements-section,
+         * когда страница прокручена и шапка "приклеена" к верху.
+         */
+        initStickySearchBar: function() {
+            var stickyBar = document.querySelector('.search-sticky-wrapper .advertisements-section');
+            if (!stickyBar) {
+                return;
+            }
+
+            var offsetTop = stickyBar.offsetTop;
+            var ticking = false;
+
+            function onScroll() {
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+                if (scrollTop > offsetTop) {
+                    if (!stickyBar.classList.contains('is-stuck')) {
+                        stickyBar.classList.add('is-stuck');
+                    }
+                } else {
+                    if (stickyBar.classList.contains('is-stuck')) {
+                        stickyBar.classList.remove('is-stuck');
+                    }
+                }
+                ticking = false;
+            }
+
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(onScroll);
+                    ticking = true;
+                }
+            }, { passive: true });
+
+            // Инициализация на случай, если страница открыта с прокруткой
+            onScroll();
         },
 
         /**

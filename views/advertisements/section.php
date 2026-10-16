@@ -19,6 +19,7 @@ $totalCount = $dataProvider->getTotalCount();
 $countWord = TextHelper::plural($totalCount, ['объявление', 'объявления', 'объявлений']);
 ?>
 
+<div class="search-sticky-wrapper">
     <div class="advertisements-section">
         
         <!-- Блок поиска -->

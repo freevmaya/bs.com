@@ -3,101 +3,109 @@
 use yii\helpers\Html;
 use yii\widgets\ListView;
 use app\widgets\SearchBar;
+use app\models\Advertisement;
 
 $this->title = 'Все объявления';
 $this->params['breadcrumbs'][] = $this->title;
 
 // Проверяем, авторизован ли пользователь
 $isGuest = Yii::$app->user->isGuest;
+
+// Секция по умолчанию для кнопки «Разместить объявление»
+$section = Advertisement::SECTION_SELL;
 ?>
 
-<div class="advertisements-index">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="d-flex justify-content-between align-items-center flex-wrap" style="margin-bottom: 15px;">
-                <h1 style="margin: 0;"><?= Html::encode($this->title) ?></h1>
+<div class="search-sticky-wrapper">
+    <div class="advertisements-index">
+        <div class="advertisements-section">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap" style="margin-bottom: 15px;">
+                        <h1 style="margin: 0;"><?= Html::encode($this->title) ?></h1>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Блок поиска -->
+            <?= SearchBar::widget([
+                'searchModel' => $searchModel,
+                'action' => ['index'],
+            ]) ?>
+            
+            <div class="d-flex justify-content-between align-items-center search-ext-block">
+                <div class="sort-options d-flex align-items-center" style="gap: 8px;">
+                    <form method="get" class="form-inline d-flex align-items-center" style="gap: 8px;">
+                        <?= Yii::$app->view->render('@app/widgets/views/_hidden_params', [
+                            'params' => Yii::$app->request->get(),
+                            'exclude' => ['sort', 'page', 'display_currency'],
+                        ]) ?>
+                        <div class="form-group">
+                            <select name="display_currency" class="form-select" onchange="this.form.submit()" style="min-width: 140px;">
+                                <option value="" <?= Yii::$app->request->get('display_currency', '') === '' ? 'selected' : '' ?>>Все валюты</option>
+                                <?php foreach (\app\helpers\CurrencyFormatter::getCurrencyList() as $code => $label): ?>
+                                    <option value="<?= $code ?>" <?= Yii::$app->request->get('display_currency') === $code ? 'selected' : '' ?>><?= $label ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select name="sort" class="form-select" onchange="this.form.submit()">
+                                <option value="-updated_at" <?= Yii::$app->request->get('sort') == '-updated_at' ? 'selected' : '' ?>>
+                                    Обновлённые
+                                </option>
+                                <option value="-created_at" <?= Yii::$app->request->get('sort') == '-created_at' ? 'selected' : '' ?>>
+                                    Новые
+                                </option>
+                                <option value="-price" <?= Yii::$app->request->get('sort') == '-price' ? 'selected' : '' ?>>Дороже</option>
+                                <option value="price" <?= Yii::$app->request->get('sort') == 'price' ? 'selected' : '' ?>>Дешевле</option>
+                                <option value="-views_count" <?= Yii::$app->request->get('sort') == '-views_count' ? 'selected' : '' ?>>Популярные</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div style="flex-shrink: 0;">
+                    <?= Html::a(
+                        '<span class="glyphicon glyphicon-plus"></span> Разместить объявление',
+                        $isGuest ? ['/site/login'] : ['create', 'section' => $section],
+                        [
+                            'class' => 'btn btn-success',
+                            'style' => 'white-space: nowrap;',
+                            'data' => $isGuest ? [
+                                'method' => 'get',
+                                'confirm' => 'Для размещения объявления необходимо авторизоваться. Перейти на страницу входа?',
+                            ] : [],
+                        ]
+                    ) ?>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Блок поиска -->
-    <?= SearchBar::widget([
-        'searchModel' => $searchModel,
-        'action' => ['index'],
-    ]) ?>
-    
-    <div class="d-flex justify-content-between align-items-center search-ext-block">
-        <div class="sort-options d-flex align-items-center" style="gap: 8px;">
-            <form method="get" class="form-inline d-flex align-items-center" style="gap: 8px;">
-                <?= Yii::$app->view->render('@app/widgets/views/_hidden_params', [
-                    'params' => Yii::$app->request->get(),
-                    'exclude' => ['sort', 'page', 'display_currency'],
-                ]) ?>
-                <div class="form-group">
-                    <select name="display_currency" class="form-select" onchange="this.form.submit()" style="min-width: 140px;">
-                        <option value="" <?= Yii::$app->request->get('display_currency', '') === '' ? 'selected' : '' ?>>Все валюты</option>
-                        <?php foreach (\app\helpers\CurrencyFormatter::getCurrencyList() as $code => $label): ?>
-                            <option value="<?= $code ?>" <?= Yii::$app->request->get('display_currency') === $code ? 'selected' : '' ?>><?= $label ?></option>
-                        <?php endforeach; ?>
-                    </select>
+        
+        <!-- Контент -->
+        <div class="row">
+            <div class="col-md-12">
+                <?= ListView::widget([
+                    'dataProvider' => $dataProvider,
+                    'itemView' => '_item',
+                    'layout' => "{items}",
+                    'emptyText' => 'Объявлений не найдено',
+                    'itemOptions' => ['class' => 'item'],
+                ]); ?>
+            </div>
+        </div>
+        
+        <!-- Пагинация отдельно, под всеми объявлениями -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="pagination-wrapper">
+                    <?= \yii\widgets\LinkPager::widget([
+                        'pagination' => $dataProvider->getPagination(),
+                        'options' => ['class' => 'pagination justify-content-center'],
+                        'linkOptions' => ['class' => 'page-link'],
+                        'prevPageLabel' => '&laquo;',
+                        'nextPageLabel' => '&raquo;',
+                        'firstPageLabel' => 'Первая',
+                        'lastPageLabel' => 'Последняя',
+                    ]) ?>
                 </div>
-                <div class="form-group">
-                    <select name="sort" class="form-select" onchange="this.form.submit()">
-                        <option value="-updated_at" <?= Yii::$app->request->get('sort') == '-updated_at' ? 'selected' : '' ?>>
-                            Обновлённые
-                        </option>
-                        <option value="-created_at" <?= Yii::$app->request->get('sort') == '-created_at' ? 'selected' : '' ?>>
-                            Новые
-                        </option>
-                        <option value="-price" <?= Yii::$app->request->get('sort') == '-price' ? 'selected' : '' ?>>Дороже</option>
-                        <option value="price" <?= Yii::$app->request->get('sort') == 'price' ? 'selected' : '' ?>>Дешевле</option>
-                        <option value="-views_count" <?= Yii::$app->request->get('sort') == '-views_count' ? 'selected' : '' ?>>Популярные</option>
-                    </select>
-                </div>
-            </form>
-        </div>
-        <div style="flex-shrink: 0;">
-            <?= Html::a(
-                '<span class="glyphicon glyphicon-plus"></span> Разместить объявление',
-                $isGuest ? ['/site/login'] : ['create', 'section' => $section],
-                [
-                    'class' => 'btn btn-success',
-                    'style' => 'white-space: nowrap;',
-                    'data' => $isGuest ? [
-                        'method' => 'get',
-                        'confirm' => 'Для размещения объявления необходимо авторизоваться. Перейти на страницу входа?',
-                    ] : [],
-                ]
-            ) ?>
-        </div>
-    </div>
-    
-    <!-- Контент -->
-    <div class="row">
-        <div class="col-md-12">
-            <?= ListView::widget([
-                'dataProvider' => $dataProvider,
-                'itemView' => '_item',
-                'layout' => "{items}",
-                'emptyText' => 'Объявлений не найдено',
-                'itemOptions' => ['class' => 'item'],
-            ]); ?>
-        </div>
-    </div>
-    
-    <!-- Пагинация отдельно, под всеми объявлениями -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="pagination-wrapper">
-                <?= \yii\widgets\LinkPager::widget([
-                    'pagination' => $dataProvider->getPagination(),
-                    'options' => ['class' => 'pagination justify-content-center'],
-                    'linkOptions' => ['class' => 'page-link'],
-                    'prevPageLabel' => '&laquo;',
-                    'nextPageLabel' => '&raquo;',
-                    'firstPageLabel' => 'Первая',
-                    'lastPageLabel' => 'Последняя',
-                ]) ?>
             </div>
         </div>
     </div>

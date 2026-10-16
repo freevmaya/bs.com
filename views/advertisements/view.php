@@ -6,6 +6,7 @@ use yii\helpers\Url;
 use app\helpers\SvgHelper;
 use app\models\Advertisement;
 use app\models\AdvertisementRating;
+use app\widgets\SearchBar;
 
 // ✅ Формируем заголовок для OG на основе краткой информации
 $shortInfo = $model->getShortInfoString(' • ');
@@ -174,524 +175,541 @@ if (YII_DEBUG) {
     echo "<!-- AD URL: {$adUrl} -->\n";
     echo "<!-- DESCRIPTION: {$description} -->\n";
 }
+
+// Готовим данные для SearchBar на странице объявления
+$searchModel = new \app\models\AdvertisementSearch();
+$section = $model->section;
+$action = ($section === Advertisement::SECTION_SELL) ? 'sell' : 'buy';
 ?>
 
 <!-- ============================================================ -->
 <!-- ОСНОВНОЙ HTML КОД СТРАНИЦЫ -->
 <!-- ============================================================ -->
 
-<div class="advertisements-view">
-    <div class="row">
-        <div class="col-md-8">
-            <!-- Галерея изображений -->
-            <?php if ($model->section === 'sell' && $model->getImageCount() > 0): ?>
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <div class="gallery-container">
-                            <div class="gallery-grid" id="gallery-<?= $model->id ?>">
-                                <?php foreach ($model->getImages()->all() as $index => $image): ?>
-                                    <?php 
-                                    $isVideo = $image->isVideo();
-                                    $fullUrl = $image->getImageUrl();
-                                    $thumbUrl = $image->getThumbnailUrl();
-                                    ?>
-                                    <div class="gallery-item <?= $isVideo ? 'video-item' : '' ?>">
-                                        <img src="<?= $thumbUrl ?>" 
-                                             alt="Фото <?= $index + 1 ?>" 
-                                             class="gallery-thumb grid-preview-item"
-                                             data-full-image="<?= $fullUrl ?>"
-                                             data-is-video="<?= $isVideo ? 'true' : 'false' ?>">
-                                        <div class="gallery-overlay">
+<div class="search-sticky-wrapper">
+
+    <!-- Строка поиска (sticky, в самом верху страницы) -->
+    <div class="advertisements-section">
+        <?= SearchBar::widget([
+            'searchModel' => $searchModel,
+            'section' => $section,
+            'action' => ['advertisements/' . $action],
+        ]) ?>
+    </div>
+
+    <div class="advertisements-view">
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Галерея изображений -->
+                <?php if ($model->section === 'sell' && $model->getImageCount() > 0): ?>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="gallery-container">
+                                <div class="gallery-grid" id="gallery-<?= $model->id ?>">
+                                    <?php foreach ($model->getImages()->all() as $index => $image): ?>
+                                        <?php 
+                                        $isVideo = $image->isVideo();
+                                        $fullUrl = $image->getImageUrl();
+                                        $thumbUrl = $image->getThumbnailUrl();
+                                        ?>
+                                        <div class="gallery-item <?= $isVideo ? 'video-item' : '' ?>">
+                                            <img src="<?= $thumbUrl ?>" 
+                                                 alt="Фото <?= $index + 1 ?>" 
+                                                 class="gallery-thumb grid-preview-item"
+                                                 data-full-image="<?= $fullUrl ?>"
+                                                 data-is-video="<?= $isVideo ? 'true' : 'false' ?>">
+                                            <div class="gallery-overlay">
+                                                <?php if ($isVideo): ?>
+                                                    <span class="glyphicon glyphicon-play" style="font-size: 40px; color: #fff; opacity: 0.8; text-shadow: 0 0 30px rgba(0,0,0,0.8);"></span>
+                                                <?php else: ?>
+                                                    <span class="glyphicon glyphicon-search"></span>
+                                                <?php endif; ?>
+                                            </div>
                                             <?php if ($isVideo): ?>
-                                                <span class="glyphicon glyphicon-play" style="font-size: 40px; color: #fff; opacity: 0.8; text-shadow: 0 0 30px rgba(0,0,0,0.8);"></span>
-                                            <?php else: ?>
-                                                <span class="glyphicon glyphicon-search"></span>
+                                                <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: white; font-size: 11px; padding: 2px 12px; border-radius: 12px; font-weight: 600; pointer-events: none; z-index: 5;">
+                                                    <span class="glyphicon glyphicon-film"></span> Видео
+                                                </div>
                                             <?php endif; ?>
                                         </div>
-                                        <?php if ($isVideo): ?>
-                                            <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: white; font-size: 11px; padding: 2px 12px; border-radius: 12px; font-weight: 600; pointer-events: none; z-index: 5;">
-                                                <span class="glyphicon glyphicon-film"></span> Видео
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            <?php else: ?>
-                <div class="panel panel-default">
-                    <div class="panel-body text-center" style="padding: 60px 20px;">
-                        <span class="glyphicon glyphicon-picture" style="font-size: 80px; color: #ccc;"></span>
-                        <p class="text-muted" style="margin-top: 15px;">Нет изображений</p>
+                <?php else: ?>
+                    <div class="panel panel-default">
+                        <div class="panel-body text-center" style="padding: 60px 20px;">
+                            <span class="glyphicon glyphicon-picture" style="font-size: 80px; color: #ccc;"></span>
+                            <p class="text-muted" style="margin-top: 15px;">Нет изображений</p>
+                        </div>
                     </div>
-                </div>
-            <?php endif; ?>
-            
-            <!-- Основная информация -->
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <h1><?= Html::encode($model->title) ?></h1>
-                    
-                    <div class="advertisement-meta-info" style="margin-bottom: 20px;">
-                        <span class="label <?= $model->section === 'sell' ? 'label-danger' : 'label-info' ?>" style="font-size: 14px;">
-                            <?= $model->getSectionLabel() ?>
-                        </span>
-                        <span class="label label-default">
-                            <span class="glyphicon glyphicon-eye-open"></span> <?= $model->views_count ?> просмотров
-                        </span>
-                        <span class="label label-default">
-                            <span class="glyphicon glyphicon-time"></span> <?= Yii::$app->formatter->asDate($model->created_at) ?>
-                        </span>
-                        <?php if ($model->user): ?>
-                            <span class="label label-default">
-                                <span class="glyphicon glyphicon-user"></span> <?= Html::encode($model->user->username) ?>
+                <?php endif; ?>
+                
+                <!-- Основная информация -->
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <h1><?= Html::encode($model->title) ?></h1>
+                        
+                        <div class="advertisement-meta-info" style="margin-bottom: 20px;">
+                            <span class="label <?= $model->section === 'sell' ? 'label-danger' : 'label-info' ?>" style="font-size: 14px;">
+                                <?= $model->getSectionLabel() ?>
                             </span>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <div class="price-large" style="font-size: 28px; color: #d9534f; margin: 20px 0;">
-                        <?php if ($model->price): ?>
-                            <?= \app\helpers\CurrencyFormatter::display($model->price, $model->currency) ?>
-                            <?php if ($model->price_negotiable): ?>
-                                <small>(цена договорная)</small>
+                            <span class="label label-default">
+                                <span class="glyphicon glyphicon-eye-open"></span> <?= $model->views_count ?> просмотров
+                            </span>
+                            <span class="label label-default">
+                                <span class="glyphicon glyphicon-time"></span> <?= Yii::$app->formatter->asDate($model->created_at) ?>
+                            </span>
+                            <?php if ($model->user): ?>
+                                <span class="label label-default">
+                                    <span class="glyphicon glyphicon-user"></span> <?= Html::encode($model->user->username) ?>
+                                </span>
                             <?php endif; ?>
-                        <?php else: ?>
-                            <span class="text-muted">Цена не указана</span>
-                        <?php endif; ?>
-                    </div>
-
-                    <?php if (!empty($model->item_info_link)): ?>
-                        <p>
-                            <a href="<?= Html::encode($model->item_info_link) ?>" target="_blank" rel="noopener noreferrer" style="word-break: break-all;">
-                                <strong>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <line x1="12" y1="16" x2="12" y2="12"/>
-                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
-                                    </svg>
-                                </strong>
-                                Информация о снаряжении
-                            </a>
-                        </p>
-                    <?php endif; ?>
-
-                    <!-- Дополнительные поля в зависимости от типа -->
-                    <?php if ($model->type !== 'normal' && $model->getTypeObject()): ?>
-                        <div class="panel panel-default" style="margin-top: 20px;">
-                            <div class="panel-body">
-                                <?php if ($model->type === 'glider' && $model->glider): ?>
-                                    <table class="table">
-                                        <tr><th>Тип</th><td><?= $model->getTypeLabel() ?></td></tr>
-                                        <tr><th>Модель</th><td><?= Html::encode($model->glider->model) ?></td></tr>
-                                        <tr><th>Производитель</th><td><?= Html::encode($model->glider->producer->fullName ?? '') ?></td></tr>
-                                        <tr><th>Сертификация</th><td><?= Html::encode($model->glider->certification->name ?? '') ?></td></tr>
-                                        <tr><th>Весовая вилка</th><td><?= $model->glider->weight_min ?> - <?= $model->glider->weight_max ?> кг</td></tr>
-                                        <tr><th>Год выпуска</th><td><?= Html::encode($model->glider->date_release) ?></td></tr>
-                                        <tr><th>Налёт</th><td><?= $model->glider->flight_time ?> ч.</td></tr>
-                                        <tr><th>Состояние</th><td><?= Html::encode(\app\models\AdvertisementGlider::getConditionList()[$model->glider->condition] ?? '') ?></td></tr>
-                                        <?php if ($model->glider->defects): ?>
-                                            <tr><th>Дефекты</th><td><?= nl2br(Html::encode($model->glider->defects)) ?></td></tr>
-                                        <?php endif; ?>
-                                        <?php if ($model->glider->cause): ?>
-                                            <tr><th>Причина продажи</th><td><?= nl2br(Html::encode($model->glider->cause)) ?></td></tr>
-                                        <?php endif; ?>
-                                    </table>
-                                <?php elseif ($model->type === 'harness' && $model->harness): ?>
-                                    <table class="table table-bordered">
-                                        <tr><th>Тип</th><td><?= $model->getTypeLabel() ?></td></tr>
-                                        <tr><th>Модель</th><td><?= Html::encode($model->harness->model) ?></td></tr>
-                                        <tr><th>Производитель</th><td><?= Html::encode($model->harness->producer->fullName ?? '') ?></td></tr>
-                                        <tr><th>Размер</th><td><?= Html::encode($model->harness->size) ?></td></tr>
-                                        <tr><th>Год выпуска</th><td><?= Html::encode($model->harness->date_release) ?></td></tr>
-                                        <tr><th>Состояние</th><td><?= Html::encode(\app\models\AdvertisementHarness::getConditionList()[$model->harness->condition] ?? '') ?></td></tr>
-                                        <?php if ($model->harness->defects): ?>
-                                            <tr><th>Дефекты</th><td><?= nl2br(Html::encode($model->harness->defects)) ?></td></tr>
-                                        <?php endif; ?>
-                                    </table>
-                                <?php elseif ($model->type === 'device' && $model->device): ?>
-                                    <table class="table table-bordered">
-                                        <tr><th>Тип</th><td><?= $model->getTypeLabel() ?></td></tr>
-                                        <tr><th>Модель</th><td><?= Html::encode($model->device->model) ?></td></tr>
-                                        <tr><th>Производитель</th><td><?= Html::encode($model->device->producer->fullName ?? '') ?></td></tr>
-                                        <tr><th>Состояние</th><td><?= Html::encode(\app\models\AdvertisementDevice::getConditionList()[$model->device->condition] ?? '') ?></td></tr>
-                                        <?php if ($model->device->defects): ?>
-                                            <tr><th>Дефекты</th><td><?= nl2br(Html::encode($model->device->defects)) ?></td></tr>
-                                        <?php endif; ?>
-                                    </table>
-                                <?php endif; ?>
-                            </div>
                         </div>
-                    <?php endif; ?>                    
-                    
-                    <div class="well advertisement-description">
-                        <?= \app\helpers\TextHelper::linkify($model->description) ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <!-- Контактная информация -->
-            <div class="panel panel-info">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        <?= SvgHelper::render('email', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) ?>
-                        Контакты
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    <?php if ($model->city): ?>
-                        <p>
-                            <strong>
-                                <?= SvgHelper::render('map-pin', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
-                                Город:
-                            </strong>
-                            <?= Html::encode($model->city) ?>
-                        </p>
-                    <?php endif; ?>
-                    
-                    <?php if ($model->phone): ?>
-                        <p>
-                            <strong>
-                                <?= SvgHelper::render('phone', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
-                                Телефон:
-                            </strong>
-                            <a href="tel:<?= preg_replace('/[^0-9+]/', '', $model->phone) ?>" class="phone-link">
-                                <?= Html::encode($model->phone) ?>
-                            </a>
-                        </p>
-                    <?php endif; ?>
-                    
-                    <?php if ($model->email): ?>
-                        <p>
-                            <strong>
-                                <?= SvgHelper::render('email', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
-                                Email:
-                            </strong>
-                            <a href="mailto:<?= Html::encode($model->email) ?>" style="word-break: break-all;">
-                                <?= Html::encode($model->email) ?>
-                            </a>
-                        </p>
-                    <?php endif; ?>
-                    
-                    <?php if ($model->telegram): ?>
-                        <?php 
-                        $telegramUsername = ltrim($model->telegram, '@');
-                        $telegramLink = 'https://t.me/' . $telegramUsername;
-                        ?>
-                        <p>
-                            <strong>
-                                <?= SvgHelper::render('telegram', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
-                                Telegram:
-                            </strong>
-                            <a href="<?= $telegramLink ?>" target="_blank" rel="noopener noreferrer">
-                                @<?= Html::encode($telegramUsername) ?>
-                            </a>
-                        </p>
-                    <?php endif; ?>
-                    
-                    <?php if ($model->vk_profile_url): ?>
-                        <p>
-                            <strong>
-                                <?= SvgHelper::render('vk', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
-                                VK:
-                            </strong>
-                            <a href="<?= Html::encode($model->vk_profile_url) ?>" target="_blank" rel="noopener noreferrer">
-                                <?php 
-                                $vkName = $model->vk_profile_url;
-                                if (preg_match('/vk\.com\/([^\?\/]+)/', $vkName, $matches)) {
-                                    $vkName = $matches[1];
-                                }
-                                echo Html::encode($vkName);
-                                ?>
-                            </a>
-                        </p>
-                    <?php endif; ?>
-                    
-                    <?php 
-                    $whatsappConfigured = !empty(Yii::$app->params['whatsapp_api_key']) && 
-                                          !empty(Yii::$app->params['whatsapp_api_url']) &&
-                                          Yii::$app->params['whatsapp_api_key'] !== 'ВАШ_WHATSAAP_API_KEY';
-                    if ($whatsappConfigured && $model->whatsapp): 
-                    ?>
-                        <p>
-                            <strong>
-                                <?= SvgHelper::render('whatsapp', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
-                                WhatsApp:
-                            </strong>
-                            <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $model->whatsapp) ?>" target="_blank" rel="noopener noreferrer">
-                                <?= Html::encode($model->whatsapp) ?>
-                            </a>
-                        </p>
-                    <?php endif; ?>
-                    
-                    <?php if (!empty($model->source_url)): ?>
-                        <p>
-                            <strong>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
-                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                                </svg>
-                                Источник:
-                            </strong>
-                            <a href="<?= Html::encode($model->source_url) ?>" target="_blank" rel="noopener noreferrer" style="word-break: break-all;">
-                                <?= Html::encode($model->source_url) ?>
-                            </a>
-                        </p>
-                    <?php endif; ?>
-                    
-                    <hr>
-                    
-                    <!-- Кнопки действий -->
-                    <?php if (!Yii::$app->user->isGuest): ?>
-                        <?php if (Yii::$app->user->id != $model->user_id): ?>
-                            <?php
-                            $telegramDialogUrl = $model->telegram ? 'https://t.me/' . ltrim($model->telegram, '@') : null;
-                            $vkDialogUrl = $model->vk_profile_url ? $model->vk_profile_url : null;
-                            ?>
-                            
-                            <div class="btn-group-vertical" style="width: 100%;">
-                                <?= Html::a(
-                                    SvgHelper::render('envelope', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать автору',
-                                    ['/messages/start', 'advertisementId' => $model->id],
-                                    ['class' => 'btn btn-primary btn-block']
-                                ) ?>
-                                
-                                <?php if ($telegramDialogUrl): ?>
-                                    <?= Html::a(
-                                        SvgHelper::render('telegram-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в Telegram',
-                                        $telegramDialogUrl,
-                                        [
-                                            'class' => 'btn btn-info btn-block',
-                                            'target' => '_blank',
-                                            'rel' => 'noopener noreferrer',
-                                        ]
-                                    ) ?>
+                        
+                        <div class="price-large" style="font-size: 28px; color: #d9534f; margin: 20px 0;">
+                            <?php if ($model->price): ?>
+                                <?= \app\helpers\CurrencyFormatter::display($model->price, $model->currency) ?>
+                                <?php if ($model->price_negotiable): ?>
+                                    <small>(цена договорная)</small>
                                 <?php endif; ?>
-                                
-                                <?php if ($vkDialogUrl): ?>
-                                    <?= Html::a(
-                                        SvgHelper::render('vk-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в VK',
-                                        $vkDialogUrl,
-                                        [
-                                            'class' => 'btn btn-primary btn-block',
-                                            'target' => '_blank',
-                                            'rel' => 'noopener noreferrer',
-                                            'style' => 'background: #4a76a8; border-color: #4a76a8;'
-                                        ]
-                                    ) ?>
-                                <?php endif; ?>
-                            </div>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <div class="alert alert-warning" style="margin-bottom: 0;">
-                            <?= SvgHelper::render('alert', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) ?>
-                            <?= Html::a('Войдите', ['/site/login']) ?> или 
-                            <?= Html::a('зарегистрируйтесь', ['/site/register']) ?>, 
-                            чтобы связаться с автором
+                            <?php else: ?>
+                                <span class="text-muted">Цена не указана</span>
+                            <?php endif; ?>
                         </div>
-                    <?php endif; ?>
+
+                        <?php if (!empty($model->item_info_link)): ?>
+                            <p>
+                                <a href="<?= Html::encode($model->item_info_link) ?>" target="_blank" rel="noopener noreferrer" style="word-break: break-all;">
+                                    <strong>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <line x1="12" y1="16" x2="12" y2="12"/>
+                                            <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                        </svg>
+                                    </strong>
+                                    Информация о снаряжении
+                                </a>
+                            </p>
+                        <?php endif; ?>
+
+                        <!-- Дополнительные поля в зависимости от типа -->
+                        <?php if ($model->type !== 'normal' && $model->getTypeObject()): ?>
+                            <div class="panel panel-default" style="margin-top: 20px;">
+                                <div class="panel-body">
+                                    <?php if ($model->type === 'glider' && $model->glider): ?>
+                                        <table class="table">
+                                            <tr><th>Тип</th><td><?= $model->getTypeLabel() ?></td></tr>
+                                            <tr><th>Модель</th><td><?= Html::encode($model->glider->model) ?></td></tr>
+                                            <tr><th>Производитель</th><td><?= Html::encode($model->glider->producer->fullName ?? '') ?></td></tr>
+                                            <tr><th>Сертификация</th><td><?= Html::encode($model->glider->certification->name ?? '') ?></td></tr>
+                                            <tr><th>Весовая вилка</th><td><?= $model->glider->weight_min ?> - <?= $model->glider->weight_max ?> кг</td></tr>
+                                            <tr><th>Год выпуска</th><td><?= Html::encode($model->glider->date_release) ?></td></tr>
+                                            <tr><th>Налёт</th><td><?= $model->glider->flight_time ?> ч.</td></tr>
+                                            <tr><th>Состояние</th><td><?= Html::encode(\app\models\AdvertisementGlider::getConditionList()[$model->glider->condition] ?? '') ?></td></tr>
+                                            <?php if ($model->glider->defects): ?>
+                                                <tr><th>Дефекты</th><td><?= nl2br(Html::encode($model->glider->defects)) ?></td></tr>
+                                            <?php endif; ?>
+                                            <?php if ($model->glider->cause): ?>
+                                                <tr><th>Причина продажи</th><td><?= nl2br(Html::encode($model->glider->cause)) ?></td></tr>
+                                            <?php endif; ?>
+                                        </table>
+                                    <?php elseif ($model->type === 'harness' && $model->harness): ?>
+                                        <table class="table table-bordered">
+                                            <tr><th>Тип</th><td><?= $model->getTypeLabel() ?></td></tr>
+                                            <tr><th>Модель</th><td><?= Html::encode($model->harness->model) ?></td></tr>
+                                            <tr><th>Производитель</th><td><?= Html::encode($model->harness->producer->fullName ?? '') ?></td></tr>
+                                            <tr><th>Размер</th><td><?= Html::encode($model->harness->size) ?></td></tr>
+                                            <tr><th>Год выпуска</th><td><?= Html::encode($model->harness->date_release) ?></td></tr>
+                                            <tr><th>Состояние</th><td><?= Html::encode(\app\models\AdvertisementHarness::getConditionList()[$model->harness->condition] ?? '') ?></td></tr>
+                                            <?php if ($model->harness->defects): ?>
+                                                <tr><th>Дефекты</th><td><?= nl2br(Html::encode($model->harness->defects)) ?></td></tr>
+                                            <?php endif; ?>
+                                        </table>
+                                    <?php elseif ($model->type === 'device' && $model->device): ?>
+                                        <table class="table table-bordered">
+                                            <tr><th>Тип</th><td><?= $model->getTypeLabel() ?></td></tr>
+                                            <tr><th>Модель</th><td><?= Html::encode($model->device->model) ?></td></tr>
+                                            <tr><th>Производитель</th><td><?= Html::encode($model->device->producer->fullName ?? '') ?></td></tr>
+                                            <tr><th>Состояние</th><td><?= Html::encode(\app\models\AdvertisementDevice::getConditionList()[$model->device->condition] ?? '') ?></td></tr>
+                                            <?php if ($model->device->defects): ?>
+                                                <tr><th>Дефекты</th><td><?= nl2br(Html::encode($model->device->defects)) ?></td></tr>
+                                            <?php endif; ?>
+                                        </table>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>                    
+                        
+                        <div class="well advertisement-description">
+                            <?= \app\helpers\TextHelper::linkify($model->description) ?>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <!-- Информация об авторе -->
-            <?php if ($model->user && !$isAuthorAdmin): ?>
-                <div class="panel panel-default">
+            <div class="col-md-4">
+                <!-- Контактная информация -->
+                <div class="panel panel-info">
                     <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <?= SvgHelper::render('user', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) ?>
-                            Об авторе
-                        </h4>
+                        <h3 class="panel-title">
+                            <?= SvgHelper::render('email', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) ?>
+                            Контакты
+                        </h3>
                     </div>
                     <div class="panel-body">
-                        <p>
-                            <strong><?= Html::encode($model->user->username) ?></strong>
-                            <?php if ($model->user->city): ?>
-                                <span class="text-muted">, <?= Html::encode($model->user->city) ?></span>
-                            <?php endif; ?>
-                        </p>
-                        <?php if ($model->user->created_at): ?>
-                            <p class="text-muted small">
-                                <?= SvgHelper::render('clock', ['width' => 12, 'height' => 12, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
-                                На сайте с <?= Yii::$app->formatter->asDate($model->user->created_at) ?>
+                        <?php if ($model->city): ?>
+                            <p>
+                                <strong>
+                                    <?= SvgHelper::render('map-pin', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                    Город:
+                                </strong>
+                                <?= Html::encode($model->city) ?>
                             </p>
                         <?php endif; ?>
                         
-                        <?php
-                        $userAdsCount = \app\models\Advertisement::find()
-                            ->where(['user_id' => $model->user_id, 'status' => \app\models\Advertisement::STATUS_ACTIVE])
-                            ->count();
+                        <?php if ($model->phone): ?>
+                            <p>
+                                <strong>
+                                    <?= SvgHelper::render('phone', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                    Телефон:
+                                </strong>
+                                <a href="tel:<?= preg_replace('/[^0-9+]/', '', $model->phone) ?>" class="phone-link">
+                                    <?= Html::encode($model->phone) ?>
+                                </a>
+                            </p>
+                        <?php endif; ?>
+                        
+                        <?php if ($model->email): ?>
+                            <p>
+                                <strong>
+                                    <?= SvgHelper::render('email', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                    Email:
+                                </strong>
+                                <a href="mailto:<?= Html::encode($model->email) ?>" style="word-break: break-all;">
+                                    <?= Html::encode($model->email) ?>
+                                </a>
+                            </p>
+                        <?php endif; ?>
+                        
+                        <?php if ($model->telegram): ?>
+                            <?php 
+                            $telegramUsername = ltrim($model->telegram, '@');
+                            $telegramLink = 'https://t.me/' . $telegramUsername;
+                            ?>
+                            <p>
+                                <strong>
+                                    <?= SvgHelper::render('telegram', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                    Telegram:
+                                </strong>
+                                <a href="<?= $telegramLink ?>" target="_blank" rel="noopener noreferrer">
+                                    @<?= Html::encode($telegramUsername) ?>
+                                </a>
+                            </p>
+                        <?php endif; ?>
+                        
+                        <?php if ($model->vk_profile_url): ?>
+                            <p>
+                                <strong>
+                                    <?= SvgHelper::render('vk', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                    VK:
+                                </strong>
+                                <a href="<?= Html::encode($model->vk_profile_url) ?>" target="_blank" rel="noopener noreferrer">
+                                    <?php 
+                                    $vkName = $model->vk_profile_url;
+                                    if (preg_match('/vk\.com\/([^\?\/]+)/', $vkName, $matches)) {
+                                        $vkName = $matches[1];
+                                    }
+                                    echo Html::encode($vkName);
+                                    ?>
+                                </a>
+                            </p>
+                        <?php endif; ?>
+                        
+                        <?php 
+                        $whatsappConfigured = !empty(Yii::$app->params['whatsapp_api_key']) && 
+                                              !empty(Yii::$app->params['whatsapp_api_url']) &&
+                                              Yii::$app->params['whatsapp_api_key'] !== 'ВАШ_WHATSAAP_API_KEY';
+                        if ($whatsappConfigured && $model->whatsapp): 
                         ?>
-                        <p class="text-muted small">
-                            <?= SvgHelper::render('list', ['width' => 12, 'height' => 12, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
-                            Активных объявлений: <?= $userAdsCount ?>
-                        </p>
-                    </div>
-                </div>
-            <?php endif; ?>
-
-            
-            <?php if (Yii::$app->user->isGuest || Yii::$app->user->id != $model->user_id): ?>
-                <!-- Запрос доступа к редактированию -->
-                <div class="panel panel-default">
-                    <div class="panel-body" style="text-align: center;">
-                        <p style="margin: 0; font-size: 13px; color: #6c757d;">
-                            Это ваше объявление?
-                            <a href="#" id="request-access-link" data-id="<?= $model->id ?>" style="color: var(--bs-link-color); text-decoration: none; border-bottom: 1px dashed currentColor;">
-                                Получите доступ к редактированию
-                            </a>
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Модальное окно запроса доступа -->
-                <div class="modal fade" id="request-access-modal" tabindex="-1" role="dialog" aria-labelledby="request-access-modal-label" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="request-access-modal-label">Получить доступ к редактированию</h5>
-                            </div>
-                            <div class="modal-body">
-                                <p style="margin-bottom: 15px; color: #6c757d; font-size: 14px;">
-                                    Укажите контакт для связи. Мы отправим запрос администратору, и он передаст вам права на редактирование.
-                                </p>
-                                <div class="form-group">
-                                    <label for="request-access-email">Email</label>
-                                    <input type="email" class="form-control" id="request-access-email" placeholder="email@example.com" value="<?= Yii::$app->user->isGuest ? '' : Html::encode(Yii::$app->user->identity->email) ?>">
-                                </div>
-                                <div class="form-group">
-                                    <label for="request-access-telegram">Telegram</label>
-                                    <input type="text" class="form-control" id="request-access-telegram" placeholder="@username или username" value="<?= Yii::$app->user->isGuest ? '' : Html::encode(Yii::$app->user->identity->telegram) ?>">
-                                    <small class="text-muted">Заполните хотя бы одно поле — email или Telegram</small>
-                                </div>
-                                <div id="request-access-error" class="alert alert-danger" style="display: none; margin-top: 10px;"></div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-bs-dismiss="modal">Отмена</button>
-                                <button type="button" class="btn btn-primary" id="request-access-submit">
-                                    <span class="glyphicon glyphicon-send"></span> Отправить запрос
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
-
-            <!-- Похожие объявления -->
-            <?= \app\widgets\SimilarAdvertisements::widget([
-                'advertisement' => $model,
-                'limit' => 4,
-                'minResults' => 2,
-            ]) ?>
-            
-            <?php if (!Yii::$app->user->isGuest && Yii::$app->user->id == $model->user_id): ?>
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <div class="btn-group-vertical" style="width: 100%;">
-                            <?= Html::a(
-                                SvgHelper::render('edit', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Редактировать',
-                                ['update', 'id' => $model->id],
-                                ['class' => 'btn btn-primary btn-block']
-                            ) ?>
-                            <?= Html::a(
-                                SvgHelper::render('trash', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Удалить',
-                                ['delete', 'id' => $model->id],
-                                [
-                                    'class' => 'btn btn-danger btn-block',
-                                    'data' => [
-                                        'confirm' => 'Вы уверены, что хотите удалить это объявление?',
-                                        'method' => 'post',
-                                    ],
-                                ]
-                            ) ?>
-                            <button type="button" class="btn btn-success btn-block bump-button" data-id="<?= $model->id ?>">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
-                                    <polyline points="18 15 12 9 6 15"/>
-                                </svg>
-                                Поднять
-                            </button>
-                            
-                            <?php if ($isAdmin): ?>
-                                <hr>
-                                <!-- Кнопка "Сделать ссылку" (только для админов) -->
-                                <button type="button" class="btn btn-block generate-invitation-btn" data-id="<?= $model->id ?>">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                            <p>
+                                <strong>
+                                    <?= SvgHelper::render('whatsapp', ['width' => 14, 'height' => 14, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                    WhatsApp:
+                                </strong>
+                                <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $model->whatsapp) ?>" target="_blank" rel="noopener noreferrer">
+                                    <?= Html::encode($model->whatsapp) ?>
+                                </a>
+                            </p>
+                        <?php endif; ?>
+                        
+                        <?php if (!empty($model->source_url)): ?>
+                            <p>
+                                <strong>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
                                         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
                                         <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
                                     </svg>
-                                    Сделать ссылку
-                                </button>
+                                    Источник:
+                                </strong>
+                                <a href="<?= Html::encode($model->source_url) ?>" target="_blank" rel="noopener noreferrer" style="word-break: break-all;">
+                                    <?= Html::encode($model->source_url) ?>
+                                </a>
+                            </p>
+                        <?php endif; ?>
+                        
+                        <hr>
+                        
+                        <!-- Кнопки действий -->
+                        <?php if (!Yii::$app->user->isGuest): ?>
+                            <?php if (Yii::$app->user->id != $model->user_id): ?>
+                                <?php
+                                $telegramDialogUrl = $model->telegram ? 'https://t.me/' . ltrim($model->telegram, '@') : null;
+                                $vkDialogUrl = $model->vk_profile_url ? $model->vk_profile_url : null;
+                                ?>
                                 
-                                <!-- Блок для отображения ссылки -->
-                                <div id="invitation-link-container" style="display: none; margin-top: 10px;">
-                                    <div class="alert alert-success">
-                                        <strong>Ссылка для передачи объявления:</strong>
-                                        <div class="input-group" style="margin-top: 8px;">
-                                            <input type="text" id="invitation-link-input" class="form-control" readonly>
-                                            <span class="input-group-btn">
-                                                <button type="button" class="btn btn-info" id="copy-invitation-link">
-                                                    <span class="glyphicon glyphicon-copy"></span> Копировать
-                                                </button>
-                                            </span>
-                                        </div>
-                                        <small class="text-muted" style="display: block; margin-top: 5px;">
-                                            <span class="glyphicon glyphicon-info-sign"></span>
-                                            Ссылка действительна 7 дней. После перехода по ссылке и регистрации, пользователь станет владельцем объявления.
-                                        </small>
-                                        <small class="text-muted" style="display: block; margin-top: 2px;">
-                                            <span class="glyphicon glyphicon-time"></span>
-                                            Действительна до: <span id="invitation-expires"></span>
-                                        </small>
-                                    </div>
+                                <div class="btn-group-vertical" style="width: 100%;">
+                                    <?= Html::a(
+                                        SvgHelper::render('envelope', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать автору',
+                                        ['/messages/start', 'advertisementId' => $model->id],
+                                        ['class' => 'btn btn-primary btn-block']
+                                    ) ?>
+                                    
+                                    <?php if ($telegramDialogUrl): ?>
+                                        <?= Html::a(
+                                            SvgHelper::render('telegram-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в Telegram',
+                                            $telegramDialogUrl,
+                                            [
+                                                'class' => 'btn btn-info btn-block',
+                                                'target' => '_blank',
+                                                'rel' => 'noopener noreferrer',
+                                            ]
+                                        ) ?>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($vkDialogUrl): ?>
+                                        <?= Html::a(
+                                            SvgHelper::render('vk-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в VK',
+                                            $vkDialogUrl,
+                                            [
+                                                'class' => 'btn btn-primary btn-block',
+                                                'target' => '_blank',
+                                                'rel' => 'noopener noreferrer',
+                                                'style' => 'background: #4a76a8; border-color: #4a76a8;'
+                                            ]
+                                        ) ?>
+                                    <?php endif; ?>
                                 </div>
                             <?php endif; ?>
-                        </div>
+                        <?php else: ?>
+                            <div class="alert alert-warning" style="margin-bottom: 0;">
+                                <?= SvgHelper::render('alert', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) ?>
+                                <?= Html::a('Войдите', ['/site/login']) ?> или 
+                                <?= Html::a('зарегистрируйтесь', ['/site/register']) ?>, 
+                                чтобы связаться с автором
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
-            <?php endif; ?>
-        </div>
-    </div>
-    
+                
+                <!-- Информация об авторе -->
+                <?php if ($model->user && !$isAuthorAdmin): ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <?= SvgHelper::render('user', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) ?>
+                                Об авторе
+                            </h4>
+                        </div>
+                        <div class="panel-body">
+                            <p>
+                                <strong><?= Html::encode($model->user->username) ?></strong>
+                                <?php if ($model->user->city): ?>
+                                    <span class="text-muted">, <?= Html::encode($model->user->city) ?></span>
+                                <?php endif; ?>
+                            </p>
+                            <?php if ($model->user->created_at): ?>
+                                <p class="text-muted small">
+                                    <?= SvgHelper::render('clock', ['width' => 12, 'height' => 12, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                    На сайте с <?= Yii::$app->formatter->asDate($model->user->created_at) ?>
+                                </p>
+                            <?php endif; ?>
+                            
+                            <?php
+                            $userAdsCount = \app\models\Advertisement::find()
+                                ->where(['user_id' => $model->user_id, 'status' => \app\models\Advertisement::STATUS_ACTIVE])
+                                ->count();
+                            ?>
+                            <p class="text-muted small">
+                                <?= SvgHelper::render('list', ['width' => 12, 'height' => 12, 'class' => 'svg-icon', 'style' => 'margin-right: 4px;']) ?>
+                                Активных объявлений: <?= $userAdsCount ?>
+                            </p>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
-    <?php if ($model->section === Advertisement::SECTION_SELL): ?>
-    <!-- AI Оценка -->
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                </svg>
-                🤖 Оценка AI
-                <span class="badge" style="font-size: 11px; background: #6c757d; margin-left: 8px;">Beta</span>
-            </h4>
+                
+                <?php if (Yii::$app->user->isGuest || Yii::$app->user->id != $model->user_id): ?>
+                    <!-- Запрос доступа к редактированию -->
+                    <div class="panel panel-default">
+                        <div class="panel-body" style="text-align: center;">
+                            <p style="margin: 0; font-size: 13px; color: #6c757d;">
+                                Это ваше объявление?
+                                <a href="#" id="request-access-link" data-id="<?= $model->id ?>" style="color: var(--bs-link-color); text-decoration: none; border-bottom: 1px dashed currentColor;">
+                                    Получите доступ к редактированию
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Модальное окно запроса доступа -->
+                    <div class="modal fade" id="request-access-modal" tabindex="-1" role="dialog" aria-labelledby="request-access-modal-label" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="request-access-modal-label">Получить доступ к редактированию</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <p style="margin-bottom: 15px; color: #6c757d; font-size: 14px;">
+                                        Укажите контакт для связи. Мы отправим запрос администратору, и он передаст вам права на редактирование.
+                                    </p>
+                                    <div class="form-group">
+                                        <label for="request-access-email">Email</label>
+                                        <input type="email" class="form-control" id="request-access-email" placeholder="email@example.com" value="<?= Yii::$app->user->isGuest ? '' : Html::encode(Yii::$app->user->identity->email) ?>">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="request-access-telegram">Telegram</label>
+                                        <input type="text" class="form-control" id="request-access-telegram" placeholder="@username или username" value="<?= Yii::$app->user->isGuest ? '' : Html::encode(Yii::$app->user->identity->telegram) ?>">
+                                        <small class="text-muted">Заполните хотя бы одно поле — email или Telegram</small>
+                                    </div>
+                                    <div id="request-access-error" class="alert alert-danger" style="display: none; margin-top: 10px;"></div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Отмена</button>
+                                    <button type="button" class="btn btn-primary" id="request-access-submit">
+                                        <span class="glyphicon glyphicon-send"></span> Отправить запрос
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Похожие объявления -->
+                <?= \app\widgets\SimilarAdvertisements::widget([
+                    'advertisement' => $model,
+                    'limit' => 4,
+                    'minResults' => 2,
+                ]) ?>
+                
+                <?php if (!Yii::$app->user->isGuest && Yii::$app->user->id == $model->user_id): ?>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="btn-group-vertical" style="width: 100%;">
+                                <?= Html::a(
+                                    SvgHelper::render('edit', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Редактировать',
+                                    ['update', 'id' => $model->id],
+                                    ['class' => 'btn btn-primary btn-block']
+                                ) ?>
+                                <?= Html::a(
+                                    SvgHelper::render('trash', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Удалить',
+                                    ['delete', 'id' => $model->id],
+                                    [
+                                        'class' => 'btn btn-danger btn-block',
+                                        'data' => [
+                                            'confirm' => 'Вы уверены, что хотите удалить это объявление?',
+                                            'method' => 'post',
+                                        ],
+                                    ]
+                                ) ?>
+                                <button type="button" class="btn btn-success btn-block bump-button" data-id="<?= $model->id ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                                        <polyline points="18 15 12 9 6 15"/>
+                                    </svg>
+                                    Поднять
+                                </button>
+                                
+                                <?php if ($isAdmin): ?>
+                                    <hr>
+                                    <!-- Кнопка "Сделать ссылку" (только для админов) -->
+                                    <button type="button" class="btn btn-block generate-invitation-btn" data-id="<?= $model->id ?>">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                        </svg>
+                                        Сделать ссылку
+                                    </button>
+                                    
+                                    <!-- Блок для отображения ссылки -->
+                                    <div id="invitation-link-container" style="display: none; margin-top: 10px;">
+                                        <div class="alert alert-success">
+                                            <strong>Ссылка для передачи объявления:</strong>
+                                            <div class="input-group" style="margin-top: 8px;">
+                                                <input type="text" id="invitation-link-input" class="form-control" readonly>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-info" id="copy-invitation-link">
+                                                        <span class="glyphicon glyphicon-copy"></span> Копировать
+                                                    </button>
+                                                </span>
+                                            </div>
+                                            <small class="text-muted" style="display: block; margin-top: 5px;">
+                                                <span class="glyphicon glyphicon-info-sign"></span>
+                                                Ссылка действительна 7 дней. После перехода по ссылке и регистрации, пользователь станет владельцем объявления.
+                                            </small>
+                                            <small class="text-muted" style="display: block; margin-top: 2px;">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                                Действительна до: <span id="invitation-expires"></span>
+                                            </small>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
-        <div class="panel-body" id="rating-container">
-            <?php 
-            $lastRating = AdvertisementRating::find()
-                ->where(['advertisement_id' => $model->id])
-                ->orderBy(['created_at' => SORT_DESC])
-                ->one();
-            ?>
-            
-            <?php if ($lastRating): ?>
-                <?= $lastRating->getRatingHtml() ?>
-                <button type="button" class="btn btn-outline-secondary btn-sm rate-button rate-refresh" data-id="<?= $model->id ?>" style="margin-top: 10px;">
-                    <span class="glyphicon glyphicon-refresh"></span> Обновить оценку
-                </button>
-            <?php else: ?>
-                <p class="text-muted" style="margin-bottom: 12px;">
-                    <span class="glyphicon glyphicon-info-sign"></span>
-                    Получите объективную оценку данного снаряжения от искусственного интеллекта 
-                    на основе анализа цены, состояния и сравнения с другими объявлениями.
-                </p>
-                <button type="button" class="btn btn-primary rate-button" data-id="<?= $model->id ?>">
-                    <span class="glyphicon glyphicon-stats"></span> Оценить
-                </button>
-            <?php endif; ?>
+        
+
+        <?php if ($model->section === Advertisement::SECTION_SELL): ?>
+        <!-- AI Оценка -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    🤖 Оценка AI
+                    <span class="badge" style="font-size: 11px; background: #6c757d; margin-left: 8px;">Beta</span>
+                </h4>
+            </div>
+            <div class="panel-body" id="rating-container">
+                <?php 
+                $lastRating = AdvertisementRating::find()
+                    ->where(['advertisement_id' => $model->id])
+                    ->orderBy(['created_at' => SORT_DESC])
+                    ->one();
+                ?>
+                
+                <?php if ($lastRating): ?>
+                    <?= $lastRating->getRatingHtml() ?>
+                    <button type="button" class="btn btn-outline-secondary btn-sm rate-button rate-refresh" data-id="<?= $model->id ?>" style="margin-top: 10px;">
+                        <span class="glyphicon glyphicon-refresh"></span> Обновить оценку
+                    </button>
+                <?php else: ?>
+                    <p class="text-muted" style="margin-bottom: 12px;">
+                        <span class="glyphicon glyphicon-info-sign"></span>
+                        Получите объективную оценку данного снаряжения от искусственного интеллекта 
+                        на основе анализа цены, состояния и сравнения с другими объявлениями.
+                    </p>
+                    <button type="button" class="btn btn-primary rate-button" data-id="<?= $model->id ?>">
+                        <span class="glyphicon glyphicon-stats"></span> Оценить
+                    </button>
+                <?php endif; ?>
+            </div>
         </div>
+        <?php endif; ?>
     </div>
-    <?php endif; ?>
 </div>
 
 <?php
