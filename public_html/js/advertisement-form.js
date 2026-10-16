@@ -1,6 +1,12 @@
 /**
  * Advertisement Form - управление формой объявлений
- * Включает: динамические поля, валидацию, загрузку изображений
+ * Включает: динамические поля, валидацию, загрузку изображений, проверку дубликатов
+ *
+ * Порядок действий при клике на "Создать объявление":
+ *   1. AJAX-валидация полей (advertisements/validate)
+ *   2. AJAX-проверка дубликатов (advertisements/check-duplicates)
+ *   3. Если дубликатов нет — обычный POST формы
+ *   4. Если дубликаты есть — модальное окно + ожидание реакции пользователя
  */
 
 (function($) {
@@ -19,11 +25,11 @@
         // Инициализация переключения раздела
         initSectionToggle();
 
-        // Инициализация AJAX валидации
-        initAjaxValidation($form);
-
         // Инициализация загрузки изображений
         initImageUpload();
+
+        // Инициализация обработчика кнопки "Создать объявление"
+        initSubmitChain($form);
     }
 
     /**
@@ -80,80 +86,221 @@
     }
 
     /**
-     * Инициализация AJAX валидации
+     * Инициализация цепочки отправки формы
+     *
+     * Клик по кнопке "Создать объявление" запускает:
+     *   1. AJAX-валидацию
+     *   2. AJAX-проверку дубликатов
+     *   3. Обычный POST формы (если всё ок)
      */
-    function initAjaxValidation($form) {
-        var $submitBtn = $form.find('[type="submit"]');
-        var originalText = $submitBtn.text();
+    function initSubmitChain($form) {
+        var $submitBtn = $('#advertisement-submit-btn');
+        if (!$submitBtn.length) {
+            // На случай старых шаблонов с [type=submit]
+            $submitBtn = $form.find('[type="submit"]');
+        }
 
+        if (!$submitBtn.length) return;
+
+        var originalBtnText = $submitBtn.html();
+
+        // Флаг: пользователь подтвердил создание, можно отправлять форму
+        var confirmed = false;
+
+        // Блокируем обычный submit формы (например, по Enter)
         $form.on('submit', function(e) {
+            if (!confirmed) {
+                e.preventDefault();
+            }
+        });
+
+        // Клик по кнопке "Создать объявление"
+        $submitBtn.on('click', function(e) {
             e.preventDefault();
 
-            var formData = new FormData(this);
+            if (confirmed) {
+                // Если уже подтверждено — сразу отправляем
+                $form.off('submit').submit();
+                return;
+            }
 
-            $submitBtn.prop('disabled', true);
-            $submitBtn.text('Проверка...');
+            // Шаг 1: AJAX-валидация
+            $submitBtn.prop('disabled', true).html(
+                '<span class="glyphicon glyphicon-refresh glyphicon-spin"></span> Проверка...'
+            );
+
+            var formData = new FormData($form[0]);
 
             $.ajax({
-                url: window.location.href + '?validate=1',
+                url: window.validateUrl,
                 type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 dataType: 'json',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 success: function(response) {
-                    if (response.success) {
-                        $form.off('submit').submit();
+                    if (!response.success) {
+                        handleValidationErrors(response, $form, $submitBtn, originalBtnText);
                         return;
                     }
-
-                    // Показываем ошибки
-                    if (response.errors) {
-                        $.each(response.errors, function(field, message) {
-                            showNotification(message, 'danger');
-                        });
-                    } else if (response.message) {
-                        showNotification(response.message, 'danger');
-                    } else {
-                        showNotification('Пожалуйста, заполните все обязательные поля', 'danger');
-                    }
-
-                    // Подсвечиваем поля с ошибками
-                    if (response.invalidFields) {
-                        $.each(response.invalidFields, function(index, fieldName) {
-                            var $field = $('[name="' + fieldName + '"]');
-                            if ($field.length) {
-                                $field.css({
-                                    borderColor: '#dc3545',
-                                    backgroundColor: '#fff8f8'
-                                }).one('focus', function() {
-                                    $(this).css({
-                                        borderColor: '',
-                                        backgroundColor: ''
-                                    });
-                                });
-                            }
-                        });
-
-                        // Прокручиваем к первому полю с ошибкой
-                        var $firstError = $('[style*="border-color: rgb(220, 53, 69)"]').first();
-                        if ($firstError.length) {
-                            $('html, body').animate({
-                                scrollTop: $firstError.offset().top - 100
-                            }, 300);
-                        }
-                    }
-
-                    $submitBtn.prop('disabled', false);
-                    $submitBtn.text(originalText);
+                    // Валидация прошла — переходим к шагу 2
+                    checkDuplicates();
                 },
                 error: function() {
+                    // При ошибке соединения не блокируем пользователя — отправляем форму
+                    $submitBtn.prop('disabled', false).html(originalBtnText);
+                    confirmed = true;
                     $form.off('submit').submit();
                 }
             });
+        });
+
+        /**
+         * Шаг 2: проверка дубликатов
+         */
+        function checkDuplicates() {
+            if (!window.checkDuplicatesUrl) {
+                // Если URL не задан — пропускаем проверку
+                submitForm();
+                return;
+            }
+
+            $submitBtn.prop('disabled', true).html(
+                '<span class="glyphicon glyphicon-refresh glyphicon-spin"></span> Проверка дубликатов...'
+            );
+
+            var formData = new FormData($form[0]);
+
+            $.ajax({
+                url: window.checkDuplicatesUrl,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                success: function(response) {
+                    $submitBtn.prop('disabled', false).html(originalBtnText);
+
+                    if (!response.success) {
+                        // Ошибка сервера — просто отправляем форму
+                        submitForm();
+                        return;
+                    }
+
+                    if (response.duplicates && response.duplicates.length > 0) {
+                        // Есть дубликаты — открываем модальное окно
+                        renderDuplicatesModal(response.duplicates);
+                        $('#duplicates-modal').modal('show');
+                    } else {
+                        // Дубликатов нет — отправляем форму
+                        submitForm();
+                    }
+                },
+                error: function() {
+                    // При ошибке AJAX не блокируем — отправляем форму
+                    $submitBtn.prop('disabled', false).html(originalBtnText);
+                    submitForm();
+                }
+            });
+        }
+
+        /**
+         * Отправка формы обычным POST
+         */
+        function submitForm() {
+            confirmed = true;
+            $form.off('submit').submit();
+        }
+
+        /**
+         * Обработка ошибок валидации
+         */
+        function handleValidationErrors(response, $form, $submitBtn, originalBtnText) {
+            if (response.errors) {
+                $.each(response.errors, function(field, message) {
+                    showNotification(message, 'danger');
+                });
+            } else if (response.message) {
+                showNotification(response.message, 'danger');
+            } else {
+                showNotification('Пожалуйста, заполните все обязательные поля', 'danger');
+            }
+
+            // Подсвечиваем поля с ошибками
+            if (response.invalidFields) {
+                $.each(response.invalidFields, function(index, fieldName) {
+                    var $field = $('[name="' + fieldName + '"]');
+                    if ($field.length) {
+                        $field.css({
+                            borderColor: '#dc3545',
+                            backgroundColor: '#fff8f8'
+                        }).one('focus', function() {
+                            $(this).css({
+                                borderColor: '',
+                                backgroundColor: ''
+                            });
+                        });
+                    }
+                });
+
+                // Прокручиваем к первому полю с ошибкой
+                var $firstError = $('[style*="border-color: rgb(220, 53, 69)"]').first();
+                if ($firstError.length) {
+                    $('html, body').animate({
+                        scrollTop: $firstError.offset().top - 100
+                    }, 300);
+                }
+            }
+
+            $submitBtn.prop('disabled', false).html(originalBtnText);
+        }
+
+        /**
+         * Отрисовка списка дубликатов в модальном окне
+         */
+        function renderDuplicatesModal(duplicates) {
+            var $list = $('#duplicates-list');
+            $list.empty();
+
+            duplicates.forEach(function(item) {
+                var thumbHtml = '';
+                if (item.thumbnail) {
+                    thumbHtml = '<img src="' + item.thumbnail + '" alt="" class="duplicate-thumb">';
+                } else {
+                    thumbHtml = '<div class="duplicate-thumb duplicate-thumb-placeholder">' +
+                                '<span class="glyphicon glyphicon-picture"></span>' +
+                                '</div>';
+                }
+
+                var $item = $('<a>', {
+                    'href': item.url,
+                    'target': '_blank',
+                    'rel': 'noopener noreferrer',
+                    'class': 'duplicate-item'
+                });
+
+                $item.append(thumbHtml);
+                $item.append($('<div>', {
+                    'class': 'duplicate-title',
+                    'text': item.title
+                }));
+
+                $list.append($item);
+            });
+        }
+
+        // Кнопка "Отмена" в модальном окне
+        $('#duplicates-modal').on('click', '#duplicates-cancel-btn', function() {
+            $('#duplicates-modal').modal('hide');
+        });
+
+        // Кнопка "Всё равно создать"
+        $('#duplicates-modal').on('click', '#duplicates-confirm-btn', function() {
+            $('#duplicates-modal').modal('hide');
+            confirmed = true;
+            $form.off('submit').submit();
         });
     }
 

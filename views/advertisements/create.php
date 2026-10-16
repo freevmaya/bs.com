@@ -18,7 +18,9 @@ $this->registerJsFile('@web/js/advertisement-form.js', [
 
 // Передаем параметры в JS
 $this->registerJs(
-    'window.tempId = ' . json_encode($tempId) . ';',
+    'window.tempId = ' . json_encode($tempId) . ';' .
+    'window.validateUrl = ' . json_encode(\yii\helpers\Url::to(['advertisements/validate'])) . ';' .
+    'window.checkDuplicatesUrl = ' . json_encode(\yii\helpers\Url::to(['advertisements/check-duplicates'])) . ';',
     \yii\web\View::POS_BEGIN
 );
 
@@ -145,7 +147,11 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
                     ])->hint('Ссылка на страницу с информацией о товаре от производителя') ?>
                     
                     <div class="form-group">
-                        <?= Html::submitButton('Создать объявление', ['class' => 'btn btn-success btn-lg btn-block']) ?>
+                        <?= Html::button('Создать объявление', [
+                            'type' => 'button',
+                            'class' => 'btn btn-success btn-lg btn-block',
+                            'id' => 'advertisement-submit-btn',
+                        ]) ?>
                     </div>
                     
                     <?php ActiveForm::end(); ?>
@@ -169,6 +175,9 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
         <?= $this->render('_json_import') ?>
     <?php endif; ?>
 </div>
+
+<!-- Модальное окно предупреждения о дубликатах -->
+<?= $this->render('_duplicates_modal') ?>
 
 <?php
 // JavaScript для показа/скрытия поля заголовка в зависимости от типа

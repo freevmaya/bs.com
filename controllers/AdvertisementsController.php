@@ -40,7 +40,7 @@ class AdvertisementsController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['create', 'update', 'delete', 'my', 'add-image', 'delete-image', 'reorder-images', 'add-temp-image', 'delete-temp-image', 'toggle-status', 'bump', 'reset-rating'],
+                'only' => ['create', 'update', 'delete', 'my', 'add-image', 'delete-image', 'reorder-images', 'add-temp-image', 'delete-temp-image', 'toggle-status', 'bump', 'reset-rating', 'check-duplicates', 'validate'],
                 'rules' => [
                     [
                         'allow' => true,
@@ -57,6 +57,8 @@ class AdvertisementsController extends Controller
                     'reorder-images' => ['POST'],
                     'toggle-status' => ['POST'],
                     'bump' => ['POST'],
+                    'check-duplicates' => ['POST'],
+                    'validate' => ['POST'],
                 ],
             ],
         ];
@@ -185,6 +187,273 @@ class AdvertisementsController extends Controller
             'tempId' => $tempId,
             'tempImages' => $tempImages,
         ]);
+    }
+
+    /**
+     * AJAX-валидация формы создания/редактирования объявления
+     *
+     * Всегда возвращает JSON. Никогда не делает редирект.
+     * Используется для проверки полей перед созданием/проверкой дубликатов.
+     *
+     * @return array JSON
+     */
+    public function actionValidate()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'error' => 'Только POST-запросы'];
+        }
+
+        if (!Yii::$app->request->validateCsrfToken()) {
+            return ['success' => false, 'error' => 'CSRF token validation failed'];
+        }
+
+        // Для редактирования — загружаем модель по id, если передан
+        $id = Yii::$app->request->post('id');
+        if ($id) {
+            $model = $this->findModel($id);
+        } else {
+            $model = new Advertisement();
+            $model->user_id = Yii::$app->user->id;
+            $model->status = Advertisement::STATUS_ACTIVE;
+        }
+
+        $model->load(Yii::$app->request->post());
+
+        $errors = [];
+        $invalidFields = [];
+
+        if (!$model->validate()) {
+            foreach ($model->errors as $field => $fieldErrors) {
+                // Пропускаем ошибку title, если тип не normal
+                if ($field === 'title' && $model->type !== Advertisement::TYPE_NORMAL) {
+                    continue;
+                }
+                $errors[$field] = implode(', ', $fieldErrors);
+                $invalidFields[] = 'Advertisement[' . $field . ']';
+            }
+        }
+
+        // Поля, которые заполняются на сервере и не должны валидироваться в AJAX
+        $ignoredChildFields = ['advertisement_id', 'producer_id'];
+
+        $type = $model->type;
+        if ($type === Advertisement::TYPE_GLIDER) {
+            $gliderModel = new AdvertisementGlider();
+            $gliderModel->load(Yii::$app->request->post());
+            if (!$gliderModel->validate()) {
+                foreach ($gliderModel->errors as $field => $fieldErrors) {
+                    if (in_array($field, $ignoredChildFields, true)) {
+                        continue;
+                    }
+                    $errors['glider_' . $field] = 'Параплан: ' . implode(', ', $fieldErrors);
+                    $invalidFields[] = 'AdvertisementGlider[' . $field . ']';
+                }
+            }
+        } elseif ($type === Advertisement::TYPE_HARNESS) {
+            $harnessModel = new AdvertisementHarness();
+            $harnessModel->load(Yii::$app->request->post());
+            if (!$harnessModel->validate()) {
+                foreach ($harnessModel->errors as $field => $fieldErrors) {
+                    if (in_array($field, $ignoredChildFields, true)) {
+                        continue;
+                    }
+                    $errors['harness_' . $field] = 'Подвеска: ' . implode(', ', $fieldErrors);
+                    $invalidFields[] = 'AdvertisementHarness[' . $field . ']';
+                }
+            }
+        } elseif ($type === Advertisement::TYPE_DEVICE) {
+            $deviceModel = new AdvertisementDevice();
+            $deviceModel->load(Yii::$app->request->post());
+            if (!$deviceModel->validate()) {
+                foreach ($deviceModel->errors as $field => $fieldErrors) {
+                    if (in_array($field, $ignoredChildFields, true)) {
+                        continue;
+                    }
+                    $errors['device_' . $field] = 'Прибор: ' . implode(', ', $fieldErrors);
+                    $invalidFields[] = 'AdvertisementDevice[' . $field . ']';
+                }
+            }
+        }
+
+        if (empty($errors)) {
+            return ['success' => true];
+        }
+
+        return [
+            'success' => false,
+            'errors' => $errors,
+            'invalidFields' => $invalidFields,
+            'message' => 'Пожалуйста, исправьте ошибки в форме',
+        ];
+    }
+
+    /**
+     * AJAX-проверка на дубликаты перед созданием объявления
+     *
+     * Принимает POST-данные формы создания, возвращает JSON со списком дубликатов.
+     *
+     * @return array JSON
+     */
+    public function actionCheckDuplicates()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'error' => 'Только POST-запросы'];
+        }
+
+        if (!Yii::$app->request->validateCsrfToken()) {
+            return ['success' => false, 'error' => 'CSRF token validation failed'];
+        }
+
+        // Создаём временную модель для чтения POST-данных
+        $model = new Advertisement();
+        $model->load(Yii::$app->request->post());
+
+        $gliderModel = new AdvertisementGlider();
+        $harnessModel = new AdvertisementHarness();
+        $deviceModel = new AdvertisementDevice();
+
+        $postData = Yii::$app->request->post();
+        if (isset($postData['AdvertisementGlider'])) {
+            $gliderModel->setAttributes($postData['AdvertisementGlider']);
+        }
+        if (isset($postData['AdvertisementHarness'])) {
+            $harnessModel->setAttributes($postData['AdvertisementHarness']);
+        }
+        if (isset($postData['AdvertisementDevice'])) {
+            $deviceModel->setAttributes($postData['AdvertisementDevice']);
+        }
+
+        $duplicates = $this->findDuplicates($model, $gliderModel, $harnessModel, $deviceModel);
+
+        // Формируем лёгкий ответ для клиента
+        $items = [];
+        foreach ($duplicates as $dup) {
+            $thumbUrl = null;
+            $mainImage = $dup->mainImage;
+            if ($mainImage) {
+                $thumbUrl = $mainImage->getThumbnailUrl();
+            }
+
+            $items[] = [
+                'id' => (int)$dup->id,
+                'title' => $dup->title,
+                'thumbnail' => $thumbUrl,
+                'url' => \yii\helpers\Url::to(['/advertisements/view', 'id' => $dup->id]),
+            ];
+        }
+
+        return [
+            'success' => true,
+            'duplicates' => $items,
+        ];
+    }
+
+    /**
+     * Поиск дубликатов объявления
+     *
+     * Логика:
+     *   1. Если указан source_url — ищем по нему (точное совпадение).
+     *   2. Иначе — ищем по типу:
+     *      - normal  → точное совпадение title
+     *      - glider  → producer_id + weight_min + weight_max + date_release
+     *      - harness → producer_id + size
+     *      - device  → producer_id + model
+     *
+     * Область поиска: только активные объявления.
+     *
+     * @param Advertisement $model
+     * @param AdvertisementGlider $gliderModel
+     * @param AdvertisementHarness $harnessModel
+     * @param AdvertisementDevice $deviceModel
+     * @return Advertisement[] Найденные дубликаты
+     */
+    protected function findDuplicates($model, $gliderModel, $harnessModel, $deviceModel)
+    {
+        $baseQuery = Advertisement::find()
+            ->where(['status' => Advertisement::STATUS_ACTIVE])
+            ->with(['images']);
+
+        // Исключаем самого себя (на случай редактирования)
+        if (!empty($model->id)) {
+            $baseQuery->andWhere(['<>', 'advertisements.id', $model->id]);
+        }
+
+        // ============================================================
+        // 1. Поиск по source_url (приоритетный)
+        // ============================================================
+        if (!empty($model->source_url)) {
+            $bySource = (clone $baseQuery)
+                ->andWhere(['source_url' => $model->source_url])
+                ->all();
+
+            if (!empty($bySource)) {
+                return $bySource;
+            }
+            // Если по source_url ничего не нашли — падаем в поиск по типу
+        }
+
+        // ============================================================
+        // 2. Поиск по типу объявления
+        // ============================================================
+        $type = $model->type;
+
+        if ($type === Advertisement::TYPE_GLIDER) {
+            if (empty($gliderModel->producer_id)
+                || empty($gliderModel->weight_min)
+                || empty($gliderModel->weight_max)
+                || empty($gliderModel->date_release)
+            ) {
+                return [];
+            }
+
+            $query = (clone $baseQuery)
+                ->innerJoin('advertisement_glider', 'advertisement_glider.advertisement_id = advertisements.id')
+                ->andWhere(['advertisement_glider.producer_id' => $gliderModel->producer_id])
+                ->andWhere(['advertisement_glider.weight_min' => $gliderModel->weight_min])
+                ->andWhere(['advertisement_glider.weight_max' => $gliderModel->weight_max])
+                ->andWhere(['advertisement_glider.date_release' => $gliderModel->date_release]);
+
+            return $query->all();
+        }
+
+        if ($type === Advertisement::TYPE_HARNESS) {
+            if (empty($harnessModel->producer_id) || empty($harnessModel->size)) {
+                return [];
+            }
+
+            $query = (clone $baseQuery)
+                ->innerJoin('advertisement_harness', 'advertisement_harness.advertisement_id = advertisements.id')
+                ->andWhere(['advertisement_harness.producer_id' => $harnessModel->producer_id])
+                ->andWhere(['advertisement_harness.size' => $harnessModel->size]);
+
+            return $query->all();
+        }
+
+        if ($type === Advertisement::TYPE_DEVICE) {
+            if (empty($deviceModel->producer_id) || empty($deviceModel->model)) {
+                return [];
+            }
+
+            $query = (clone $baseQuery)
+                ->innerJoin('advertisement_device', 'advertisement_device.advertisement_id = advertisements.id')
+                ->andWhere(['advertisement_device.producer_id' => $deviceModel->producer_id])
+                ->andWhere(['advertisement_device.model' => $deviceModel->model]);
+
+            return $query->all();
+        }
+
+        // normal — точное совпадение title
+        if (!empty($model->title)) {
+            return (clone $baseQuery)
+                ->andWhere(['title' => $model->title])
+                ->all();
+        }
+
+        return [];
     }
     
     public function actionUpdate($id)
@@ -793,94 +1062,12 @@ class AdvertisementsController extends Controller
         return ['success' => false, 'error' => 'Изображение не найдено'];
     }
 
+    /**
+     * beforeAction больше не перехватывает AJAX-валидацию —
+     * она вынесена в отдельный actionValidate().
+     */
     public function beforeAction($action)
     {
-        $isAjaxValidate = Yii::$app->request->isAjax && Yii::$app->request->get('validate');
-        
-        if (($action->id == 'create' || $action->id == 'update') && $isAjaxValidate) {
-            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-            
-            if ($action->id == 'create') {
-                $model = new Advertisement();
-                $model->user_id = Yii::$app->user->id;
-                $model->status = Advertisement::STATUS_ACTIVE;
-            } else {
-                $id = Yii::$app->request->get('id');
-                $model = $this->findModel($id);
-            }
-            
-            $model->load(Yii::$app->request->post());
-            
-            $errors = [];
-            $invalidFields = [];
-            
-            // Валидируем только если title не пустой (для normal) или если тип не normal (пропускаем)
-            if (!$model->validate()) {
-                // Фильтруем ошибки: пропускаем ошибку title, если тип не normal
-                foreach ($model->errors as $field => $fieldErrors) {
-                    // Если поле title и тип не normal - пропускаем
-                    if ($field === 'title' && $model->type !== Advertisement::TYPE_NORMAL) {
-                        continue;
-                    }
-                    $errors[$field] = implode(', ', $fieldErrors);
-                    $invalidFields[] = 'Advertisement[' . $field . ']';
-                }
-            }
-            
-            $type = $model->type;
-            if ($type === 'glider') {
-                $gliderModel = new AdvertisementGlider();
-                $gliderModel->load(Yii::$app->request->post());
-                if (!$gliderModel->validate()) {
-                    foreach ($gliderModel->errors as $field => $fieldErrors) {
-                        // Пропускаем ошибку producer_id (теперь необязательный)
-                        if ($field === 'producer_id') {
-                            continue;
-                        }
-                        $errors['glider_' . $field] = 'Параплан: ' . implode(', ', $fieldErrors);
-                        $invalidFields[] = 'AdvertisementGlider[' . $field . ']';
-                    }
-                }
-            } elseif ($type === 'harness') {
-                $harnessModel = new AdvertisementHarness();
-                $harnessModel->load(Yii::$app->request->post());
-                if (!$harnessModel->validate()) {
-                    foreach ($harnessModel->errors as $field => $fieldErrors) {
-                        // Пропускаем ошибку producer_id (теперь необязательный)
-                        if ($field === 'producer_id') {
-                            continue;
-                        }
-                        $errors['harness_' . $field] = 'Подвеска: ' . implode(', ', $fieldErrors);
-                        $invalidFields[] = 'AdvertisementHarness[' . $field . ']';
-                    }
-                }
-            } elseif ($type === 'device') {
-                $deviceModel = new AdvertisementDevice();
-                $deviceModel->load(Yii::$app->request->post());
-                if (!$deviceModel->validate()) {
-                    foreach ($deviceModel->errors as $field => $fieldErrors) {
-                        // Пропускаем ошибку producer_id (теперь необязательный)
-                        if ($field === 'producer_id') {
-                            continue;
-                        }
-                        $errors['device_' . $field] = 'Прибор: ' . implode(', ', $fieldErrors);
-                        $invalidFields[] = 'AdvertisementDevice[' . $field . ']';
-                    }
-                }
-            }
-            
-            if (empty($errors)) {
-                return ['success' => true];
-            } else {
-                return [
-                    'success' => false,
-                    'errors' => $errors,
-                    'invalidFields' => $invalidFields,
-                    'message' => 'Пожалуйста, исправьте ошибки в форме'
-                ];
-            }
-        }
-        
         return parent::beforeAction($action);
     }
 
