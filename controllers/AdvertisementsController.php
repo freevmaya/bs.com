@@ -128,6 +128,9 @@ class AdvertisementsController extends Controller
         $model = new Advertisement();
         $model->user_id = Yii::$app->user->id;
         $model->status = Advertisement::STATUS_ACTIVE;
+        // ✅ Значения по умолчанию для нового объявления
+        $model->currency = Advertisement::CURRENCY_RUB;
+        $model->type = Advertisement::TYPE_GLIDER;
         
         // Заполняем контакты из профиля пользователя ТОЛЬКО если это НЕ админ
         $user = Yii::$app->user->identity;
