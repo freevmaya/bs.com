@@ -7,7 +7,7 @@
 @import url('search.css');
 @import url('image-grid-preview.css');
 @import url('image-sortable.css');
-@import url('bottom-nav.css');
+@import url('bottom-nav.css'); 
 
 :root {
     --primary-color: #3498db;
