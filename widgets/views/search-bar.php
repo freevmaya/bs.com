@@ -8,6 +8,7 @@ use app\models\Advertisement;
 use app\models\AdvertisementGlider;
 use app\models\AdvertisementHarness;
 use app\models\AdvertisementDevice;
+use app\models\AdvertisementReserve;
 
 $this->registerJsFile('@web/js/share-filter.js', [
     'depends' => [\yii\web\JqueryAsset::class],
@@ -136,6 +137,30 @@ if ($searchModel->type === 'device') {
     }
 }
 
+// Добавляем параметры для reserve
+if ($searchModel->type === 'reserve') {
+    if (!empty($searchModel->reserve_model)) {
+        $paramParts[] = 'Модель: ' . Html::encode($searchModel->reserve_model);
+    }
+    if (!empty($searchModel->reserve_producer_ids)) {
+        $producerNames = ArrayHelper::getColumn(
+            \app\models\Producer::find()->where(['id' => $searchModel->reserve_producer_ids])->all(),
+            'name'
+        );
+        $paramParts[] = 'Производитель: ' . implode(', ', $producerNames);
+    }
+    if (!empty($searchModel->reserve_canopy_types)) {
+        $canopyList = AdvertisementReserve::getCanopyTypeList();
+        $canopyNames = array_map(function($t) use ($canopyList) {
+            return $canopyList[$t] ?? $t;
+        }, $searchModel->reserve_canopy_types);
+        $paramParts[] = 'Тип купола: ' . implode(', ', $canopyNames);
+    }
+    if (!empty($searchModel->reserve_max_weight_min)) {
+        $paramParts[] = 'Макс. вес от: ' . $searchModel->reserve_max_weight_min . ' кг';
+    }
+}
+
 // Объединяем параметры через запятую
 $paramsString = implode(', ', $paramParts);
 
@@ -151,13 +176,16 @@ $certificationList = ArrayHelper::map($certifications, 'id', 'name');
 $conditionListGlider = AdvertisementGlider::getConditionList();
 $conditionListHarness = AdvertisementHarness::getConditionList();
 $conditionListDevice = AdvertisementDevice::getConditionList();
+$conditionListReserve = AdvertisementReserve::getConditionList();
 $sizeList = AdvertisementHarness::getSizeList();
+$canopyTypeListReserve = AdvertisementReserve::getCanopyTypeList();
 
 // Определяем, какой тип выбран для отображения дополнительных полей
 $selectedType = $searchModel->type ?? '';
 $showGliderFields = ($selectedType === 'glider');
 $showHarnessFields = ($selectedType === 'harness');
 $showDeviceFields = ($selectedType === 'device');
+$showReserveFields = ($selectedType === 'reserve');
 
 // Регистрируем JS для кнопки подписки в блоке активных параметров
 $this->registerJsFile('@web/js/search-active-subscribe.js', [
@@ -469,6 +497,55 @@ $this->registerJsFile('@web/js/search-active-subscribe.js', [
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Дополнительные параметры для RESERVE -->
+                        <div class="col-12 extra-fields reserve-fields" style="display: <?= $showReserveFields ? 'block' : 'none' ?>; margin-top: 15px;">
+                            <h5 style="color: #e0e0e0; border-bottom: 1px solid #555; padding-bottom: 8px;">Запасной парашют</h5>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'reserve_model', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->textInput(['placeholder' => 'Модель', 'class' => 'form-control']) ?>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'reserve_producer_ids', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->dropDownList(
+                                        $producerList,
+                                        [
+                                            'class' => 'form-select',
+                                            'multiple' => true,
+                                            'size' => 4,
+                                            'prompt' => 'Все производители'
+                                        ]
+                                    ) ?>
+                                    <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'reserve_canopy_types', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->dropDownList(
+                                        $canopyTypeListReserve,
+                                        [
+                                            'class' => 'form-select',
+                                            'multiple' => true,
+                                            'size' => 4,
+                                            'prompt' => 'Все типы купола'
+                                        ]
+                                    ) ?>
+                                    <small class="text-muted" style="color: #999 !important;">Для выбора нескольких зажмите Ctrl</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($searchModel, 'reserve_max_weight_min', [
+                                        'options' => ['class' => 'mb-0'],
+                                        'labelOptions' => ['class' => 'form-label'],
+                                    ])->textInput(['placeholder' => 'Макс. вес от (кг)', 'class' => 'form-control']) ?>
+                                </div>
+                            </div>
+                        </div>
                     
                     </div><!-- /.row.g-3 -->
                 </div><!-- /#search-params-fields -->
@@ -640,11 +717,13 @@ function toggleExtraFields() {
     var gliderFields = document.querySelector('.glider-fields');
     var harnessFields = document.querySelector('.harness-fields');
     var deviceFields = document.querySelector('.device-fields');
+    var reserveFields = document.querySelector('.reserve-fields');
 
     // Скрываем все
     if (gliderFields) gliderFields.style.display = 'none';
     if (harnessFields) harnessFields.style.display = 'none';
     if (deviceFields) deviceFields.style.display = 'none';
+    if (reserveFields) reserveFields.style.display = 'none';
 
     // Показываем нужные
     if (selectedType === 'glider' && gliderFields) {
@@ -653,6 +732,8 @@ function toggleExtraFields() {
         harnessFields.style.display = 'block';
     } else if (selectedType === 'device' && deviceFields) {
         deviceFields.style.display = 'block';
+    } else if (selectedType === 'reserve' && reserveFields) {
+        reserveFields.style.display = 'block';
     }
 }
 
@@ -695,3 +776,4 @@ document.getElementById('search-params-form').addEventListener('submit', functio
 });
 JS;
 $this->registerJs($script3);
+?>

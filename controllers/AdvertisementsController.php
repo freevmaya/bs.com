@@ -17,6 +17,7 @@ use app\models\AdvertisementImage;
 use app\models\AdvertisementGlider;
 use app\models\AdvertisementHarness;
 use app\models\AdvertisementDevice;
+use app\models\AdvertisementReserve;
 use app\models\Producer;
 use app\models\Certification;
 use app\models\SearchSubscription;
@@ -69,7 +70,7 @@ class AdvertisementsController extends Controller
         $searchModel = new AdvertisementSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        $dataProvider->query->with(['images', 'glider', 'harness', 'device']);
+        $dataProvider->query->with(['images', 'glider', 'harness', 'device', 'reserve']);
         
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -85,7 +86,7 @@ class AdvertisementsController extends Controller
             Advertisement::SECTION_SELL
         );
         
-        $dataProvider->query->with(['images', 'glider', 'harness', 'device']);
+        $dataProvider->query->with(['images', 'glider', 'harness', 'device', 'reserve']);
         
         return $this->render('section', [
             'searchModel' => $searchModel,
@@ -103,7 +104,7 @@ class AdvertisementsController extends Controller
             Advertisement::SECTION_BUY
         );
         
-        $dataProvider->query->with(['images', 'glider', 'harness', 'device']);
+        $dataProvider->query->with(['images', 'glider', 'harness', 'device', 'reserve']);
         
         return $this->render('section', [
             'searchModel' => $searchModel,
@@ -154,6 +155,7 @@ class AdvertisementsController extends Controller
         $gliderModel = new AdvertisementGlider();
         $harnessModel = new AdvertisementHarness();
         $deviceModel = new AdvertisementDevice();
+        $reserveModel = new AdvertisementReserve();
         
         if ($model->load(Yii::$app->request->post())) {
             // Для типа не normal ПРИНУДИТЕЛЬНО очищаем title
@@ -187,6 +189,7 @@ class AdvertisementsController extends Controller
             'gliderModel' => $gliderModel,
             'harnessModel' => $harnessModel,
             'deviceModel' => $deviceModel,
+            'reserveModel' => $reserveModel,
             'tempId' => $tempId,
             'tempImages' => $tempImages,
         ]);
@@ -278,6 +281,18 @@ class AdvertisementsController extends Controller
                     $invalidFields[] = 'AdvertisementDevice[' . $field . ']';
                 }
             }
+        } elseif ($type === Advertisement::TYPE_RESERVE) {
+            $reserveModel = new AdvertisementReserve();
+            $reserveModel->load(Yii::$app->request->post());
+            if (!$reserveModel->validate()) {
+                foreach ($reserveModel->errors as $field => $fieldErrors) {
+                    if (in_array($field, $ignoredChildFields, true)) {
+                        continue;
+                    }
+                    $errors['reserve_' . $field] = 'Запасной парашют: ' . implode(', ', $fieldErrors);
+                    $invalidFields[] = 'AdvertisementReserve[' . $field . ']';
+                }
+            }
         }
 
         if (empty($errors)) {
@@ -365,6 +380,7 @@ class AdvertisementsController extends Controller
      *      - glider  → producer_id + weight_min + weight_max + date_release
      *      - harness → producer_id + size
      *      - device  → producer_id + model
+     *      - reserve → producer_id + model
      *
      * Область поиска: только активные объявления.
      *
@@ -449,6 +465,25 @@ class AdvertisementsController extends Controller
             return $query->all();
         }
 
+        if ($type === Advertisement::TYPE_RESERVE) {
+            $reserveModel = new AdvertisementReserve();
+            $postData = Yii::$app->request->post();
+            if (isset($postData['AdvertisementReserve'])) {
+                $reserveModel->setAttributes($postData['AdvertisementReserve']);
+            }
+
+            if (empty($reserveModel->producer_id) || empty($reserveModel->model)) {
+                return [];
+            }
+
+            $query = (clone $baseQuery)
+                ->innerJoin('advertisement_reserve', 'advertisement_reserve.advertisement_id = advertisements.id')
+                ->andWhere(['advertisement_reserve.producer_id' => $reserveModel->producer_id])
+                ->andWhere(['advertisement_reserve.model' => $reserveModel->model]);
+
+            return $query->all();
+        }
+
         // normal — точное совпадение title
         if (!empty($model->title)) {
             return (clone $baseQuery)
@@ -480,6 +515,7 @@ class AdvertisementsController extends Controller
         $gliderModel = $model->glider ?: new AdvertisementGlider();
         $harnessModel = $model->harness ?: new AdvertisementHarness();
         $deviceModel = $model->device ?: new AdvertisementDevice();
+        $reserveModel = $model->reserve ?: new AdvertisementReserve();
         
         if ($gliderModel->advertisement_id === null) {
             $gliderModel->advertisement_id = $model->id;
@@ -489,6 +525,9 @@ class AdvertisementsController extends Controller
         }
         if ($deviceModel->advertisement_id === null) {
             $deviceModel->advertisement_id = $model->id;
+        }
+        if ($reserveModel->advertisement_id === null) {
+            $reserveModel->advertisement_id = $model->id;
         }
         
         if ($model->load(Yii::$app->request->post())) {
@@ -526,6 +565,7 @@ class AdvertisementsController extends Controller
             'gliderModel' => $gliderModel,
             'harnessModel' => $harnessModel,
             'deviceModel' => $deviceModel,
+            'reserveModel' => $reserveModel,
         ]);
     }
 
@@ -634,6 +674,36 @@ class AdvertisementsController extends Controller
                     return false;
                 }
                 break;
+
+            case Advertisement::TYPE_RESERVE:
+                if (isset($postData['AdvertisementReserve'])) {
+                    $extraModel = $advertisement->reserve ?: new AdvertisementReserve();
+                    $extraModel->setAttributes($postData['AdvertisementReserve']);
+                    $extraModel->advertisement_id = $advertisement->id;
+
+                    if (empty($extraModel->condition)) {
+                        $extraModel->condition = AdvertisementReserve::CONDITION_GOOD;
+                    }
+
+                    Yii::info('Reserve attributes before save: ' . json_encode($extraModel->attributes));
+
+                    if ($extraModel->validate()) {
+                        if ($extraModel->save()) {
+                            Yii::info('Reserve saved successfully');
+                            $saved = true;
+                        } else {
+                            Yii::error('Failed to save reserve: ' . json_encode($extraModel->errors));
+                            return false;
+                        }
+                    } else {
+                        Yii::error('Validation errors for reserve: ' . json_encode($extraModel->errors));
+                        return false;
+                    }
+                } else {
+                    Yii::error('AdvertisementReserve not found in POST data');
+                    return false;
+                }
+                break;
                 
             default:
                 return true;
@@ -648,6 +718,8 @@ class AdvertisementsController extends Controller
                 $advertisement->populateRelation('harness', $advertisement->getHarness()->one());
             } elseif ($type === Advertisement::TYPE_DEVICE) {
                 $advertisement->populateRelation('device', $advertisement->getDevice()->one());
+            } elseif ($type === Advertisement::TYPE_RESERVE) {
+                $advertisement->populateRelation('reserve', $advertisement->getReserve()->one());
             }
             
             // Генерируем заголовок и сохраняем
@@ -820,8 +892,7 @@ class AdvertisementsController extends Controller
     }
 
     /**
-     * Очищает строку от эмодзи и 4-байтовых символов
-     * 
+     * Очищает строку от эмодзи и 4-байтовых символов     * 
      * @param string|null $string
      * @return string|null
      */

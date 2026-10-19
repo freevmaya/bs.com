@@ -153,6 +153,63 @@ json
         "cause": "Продаю, так как редко летаю"
     }
 }
+
+Поля объщие для всех типов
+
+type  string (enum: normal / glider / harness / device / reserve)
+section  string (enum: sell / buy)
+title string(200)
+description text
+price decimal(10,2)
+currency string(3) (RUB / USD / EUR)
+price_negotiable  boolean
+city  string(100)
+phone string(500)
+email string(500)
+telegram string(500)
+vk_profile_url string(500)
+whatsapp string(500)
+source_url  string(500)
+item_info_link string(500)
+
+Поля для типа glider:
+
+model string
+producer_name  string
+certification_name   string
+weight_min  integer
+weight_max  integer
+date_release   string
+flight_time integer
+condition   string (enum: new / excellent / good / fair / bad)
+defects  string
+cause string
+
+Поля для типа reserve:
+
+model (string(255), NOT NULL)
+producer_name (string(255), NOT NULL)
+canopy_type (ENUM round/square/multi_slot/other, nullable)
+max_weight (integer, nullable)
+area (decimal(5,1), nullable)
+weight (integer, nullable)
+date_release (string(100), nullable)
+repack_date (date, nullable)
+condition (ENUM new/excellent/good/fair/bad, NOT NULL, DEFAULT 'good')
+defects (text, nullable)
+was_used (boolean, nullable)
+equipment (text, nullable)
+cause (text, nullable)
+
+Поля для типа harness:
+
+model string
+producer_name  string
+size  string (enum: XS / S / SM / M / ML / L / XL / XXL / XXXL / OneSize и другие)
+date_release   string
+condition   string (enum: new / excellent / good / fair / bad)
+defects  string
+
 ВАЖНО:
 * Возвращай ТОЛЬКО JSON, без маркдауна (```json), без пояснений
 * Все поля должны быть в JSON, даже если они пустые ("" или null)
@@ -173,4 +230,5 @@ json
 * Если получен код HTML или URL страницы и если там несколько объявлений тогда выдавать результат через запятую
 * Обязательно должен быть блок название поля = названием типа с информацией, для данного типа объявления
 * Если в объявлении нет фото, изображений товара, найти на сайте произвоителя 2-3 фото, либо на тематических форумах. Важно: парсить HTML страницы и найти ссылку на файл изображения.
+* Вывод делай блоками кода
 Теперь обработай следующий текст или HTML код, или страницу объявления объявления и верни JSON:

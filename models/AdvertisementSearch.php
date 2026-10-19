@@ -32,6 +32,12 @@ class AdvertisementSearch extends Advertisement
     public $device_model;
     public $device_producer_ids = [];
     public $device_condition;
+
+    // Поля для фильтрации reserve
+    public $reserve_model;
+    public $reserve_producer_ids = [];
+    public $reserve_canopy_types = [];
+    public $reserve_max_weight_min;
     
     public function rules()
     {
@@ -53,6 +59,11 @@ class AdvertisementSearch extends Advertisement
             // Device fields
             [['device_model', 'device_condition'], 'string'],
             [['device_producer_ids'], 'safe'],
+
+            // Reserve fields
+            [['reserve_model'], 'string'],
+            [['reserve_producer_ids', 'reserve_canopy_types'], 'safe'],
+            [['reserve_max_weight_min'], 'integer'],
         ];
     }
     
@@ -94,6 +105,12 @@ class AdvertisementSearch extends Advertisement
             'device_model' => 'Модель',
             'device_producer_ids' => 'Производитель',
             'device_condition' => 'Состояние',
+
+            // Поля для RESERVE
+            'reserve_model' => 'Модель',
+            'reserve_producer_ids' => 'Производитель',
+            'reserve_canopy_types' => 'Тип купола',
+            'reserve_max_weight_min' => 'Макс. спасаемый вес от',
         ];
     }
     
@@ -101,7 +118,7 @@ class AdvertisementSearch extends Advertisement
     {
         $query = Advertisement::find()->where(['status' => Advertisement::STATUS_ACTIVE]);
         
-        $query->with(['images', 'glider', 'harness', 'device']);
+        $query->with(['images', 'glider', 'harness', 'device', 'reserve']);
         
         if ($section) {
             $query->andWhere(['section' => $section]);
@@ -183,6 +200,8 @@ class AdvertisementSearch extends Advertisement
             $this->applyHarnessFilters($query);
         } elseif ($type === self::TYPE_DEVICE) {
             $this->applyDeviceFilters($query);
+        } elseif ($type === self::TYPE_RESERVE) {
+            $this->applyReserveFilters($query);
         }
     }
     
@@ -351,6 +370,51 @@ class AdvertisementSearch extends Advertisement
         // Состояние
         if (!empty($this->device_condition)) {
             $query->andWhere(['advertisement_device.condition' => $this->device_condition]);
+        }
+    }
+
+    /**
+     * Фильтры для запасных парашютов (reserve)
+     */
+    protected function applyReserveFilters($query)
+    {
+        $query->join('INNER JOIN', 'advertisement_reserve',
+            'advertisement_reserve.advertisement_id = advertisements.id');
+
+        if (!empty($this->reserve_model)) {
+            $query->andWhere(['like', 'advertisement_reserve.model', $this->reserve_model]);
+        }
+
+        if (!empty($this->reserve_producer_ids)) {
+            if (!is_array($this->reserve_producer_ids)) {
+                $this->reserve_producer_ids = [$this->reserve_producer_ids];
+            }
+
+            $producerIds = array_filter($this->reserve_producer_ids, function($id) {
+                return $id !== '' && $id !== null && $id !== '0' && $id !== 0;
+            });
+
+            if (!empty($producerIds)) {
+                $query->andWhere(['in', 'advertisement_reserve.producer_id', $producerIds]);
+            }
+        }
+
+        if (!empty($this->reserve_canopy_types)) {
+            if (!is_array($this->reserve_canopy_types)) {
+                $this->reserve_canopy_types = [$this->reserve_canopy_types];
+            }
+
+            $types = array_filter($this->reserve_canopy_types, function($t) {
+                return $t !== '' && $t !== null;
+            });
+
+            if (!empty($types)) {
+                $query->andWhere(['in', 'advertisement_reserve.canopy_type', $types]);
+            }
+        }
+
+        if ($this->reserve_max_weight_min !== null && $this->reserve_max_weight_min !== '') {
+            $query->andWhere(['>=', 'advertisement_reserve.max_weight', (int)$this->reserve_max_weight_min]);
         }
     }
 

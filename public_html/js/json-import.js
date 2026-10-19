@@ -9,6 +9,9 @@
  *   - maxImagesPerImport: 20
  *   - csrfToken: '...'
  *   - tempId: 12345
+ *
+ * При импорте JSON все ранее загруженные изображения (временные и реальные)
+ * удаляются, после чего загружаются заново из массива `images` в JSON.
  */
 
 (function($) {
@@ -28,7 +31,8 @@
     var optionsCache = {
         glider: { producer: null, cert: null },
         harness: { producer: null },
-        device: { producer: null }
+        device: { producer: null },
+        reserve: { producer: null }
     };
 
     // ============================================================
@@ -41,6 +45,7 @@
             case 'glider':  selectId = 'advertisementglider-producer_id'; break;
             case 'harness': selectId = 'advertisementharness-producer_id'; break;
             case 'device':  selectId = 'advertisementdevice-producer_id'; break;
+            case 'reserve': selectId = 'advertisementreserve-producer_id'; break;
             default: return null;
         }
         return document.getElementById(selectId);
@@ -220,6 +225,22 @@
         'defects': 'advertisementdevice-defects'
     };
 
+    var reserveFieldMap = {
+        'model': 'advertisementreserve-model',
+        'producer_id': 'advertisementreserve-producer_id',
+        'canopy_type': 'advertisementreserve-canopy_type',
+        'max_weight': 'advertisementreserve-max_weight',
+        'area': 'advertisementreserve-area',
+        'weight': 'advertisementreserve-weight',
+        'date_release': 'advertisementreserve-date_release',
+        'repack_date': 'advertisementreserve-repack_date',
+        'condition': 'advertisementreserve-condition',
+        'defects': 'advertisementreserve-defects',
+        'was_used': 'advertisementreserve-was_used',
+        'equipment': 'advertisementreserve-equipment',
+        'cause': 'advertisementreserve-cause'
+    };
+
     var ignoredFieldsByType = {
         glider: [],
         harness: [
@@ -228,7 +249,8 @@
             'weight', 'max_load', 'rucksack_volume',
             'protection', 'cause'
         ],
-        device: []
+        device: [],
+        reserve: []
     };
 
     var ignoredLabels = {
@@ -342,6 +364,39 @@
         if (producerId) setFieldValue(deviceFieldMap.producer_id, producerId);
     }
 
+    function fillReserveFields(data) {
+        if (!data) return;
+
+        var directFields = [
+            'model', 'canopy_type', 'max_weight', 'area', 'weight',
+            'date_release', 'repack_date', 'condition', 'defects',
+            'was_used', 'equipment', 'cause'
+        ];
+        for (var i = 0; i < directFields.length; i++) {
+            var key = directFields[i];
+            if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
+                setIfNotEmpty(reserveFieldMap[key], data[key]);
+            }
+        }
+
+        var producerId = null;
+        if (data.producer_id) producerId = data.producer_id;
+        if (!producerId && data.producer_name) {
+            producerId = findProducerId(data.producer_name, 'reserve');
+        }
+        if (!producerId && data.model) {
+            var modelLower = String(data.model).toLowerCase();
+            var producerKeys = Object.keys(producerMap);
+            for (var i = 0; i < producerKeys.length; i++) {
+                if (modelLower.indexOf(producerKeys[i]) !== -1) {
+                    producerId = producerMap[producerKeys[i]];
+                    break;
+                }
+            }
+        }
+        if (producerId) setFieldValue(reserveFieldMap.producer_id, producerId);
+    }
+
     function collectIgnoredFields(type, typeData) {
         var ignored = [];
         var ignoredList = ignoredFieldsByType[type] || [];
@@ -401,6 +456,15 @@
     // ИМПОРТ ИЗОБРАЖЕНИЙ ИЗ JSON
     // ============================================================
 
+    /**
+     * Обработка импорта изображений.
+     *
+     * Всегда удаляет все существующие изображения (временные или реальные)
+     * и загружает их из JSON заново — без диалога выбора пользователю.
+     *
+     * @param {string[]} urls
+     * @param {function} onComplete - (loaded, failed, errors, truncated)
+     */
     function handleImagesImport(urls, onComplete) {
         var truncated = false;
         if (urls.length > MAX_IMAGES_PER_IMPORT) {
@@ -412,32 +476,13 @@
         var advertisementId = getAdvertisementId();
         var currentTempId = tempId;
 
-        var existingCount = document.querySelectorAll('#images-container .sortable-item').length;
-
-        function proceed(mode) {
-            if (mode === 'cancel') {
-                onComplete(0, 0, [], truncated);
-                return;
-            }
-
-            if (mode === 'replace') {
-                deleteAllExistingImages(function() {
-                    importUrlsSequentially(urls, advertisementId, currentTempId, function(loaded, failed, errors) {
-                        onComplete(loaded, failed, errors, truncated);
-                    });
-                });
-            } else {
-                importUrlsSequentially(urls, advertisementId, currentTempId, function(loaded, failed, errors) {
-                    onComplete(loaded, failed, errors, truncated);
-                });
-            }
-        }
-
-        if (advertisementId && existingCount > 0) {
-            showImagesModeModal(existingCount, proceed);
-        } else {
-            proceed('append');
-        }
+        // Всегда удаляем все существующие изображения (временные или реальные)
+        // и загружаем из JSON заново.
+        deleteAllExistingImages(function() {
+            importUrlsSequentially(urls, advertisementId, currentTempId, function(loaded, failed, errors) {
+                onComplete(loaded, failed, errors, truncated);
+            });
+        });
     }
 
     function importUrlsSequentially(urls, advertisementId, currentTempId, onComplete) {
@@ -503,52 +548,26 @@
         next(0);
     }
 
-    function showImagesModeModal(existingCount, callback) {
-        var old = document.getElementById('images-mode-modal');
-        if (old) old.remove();
-
-        var modal = document.createElement('div');
-        modal.id = 'images-mode-modal';
-        modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center;';
-
-        var box = document.createElement('div');
-        box.style.cssText = 'background: #fff; color: #333; border-radius: 8px; padding: 24px; max-width: 480px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);';
-
-        box.innerHTML = '' +
-            '<h4 style="margin-top: 0;">У объявления уже есть ' + existingCount + ' изображений</h4>' +
-            '<p style="color: #666;">Что сделать с новыми изображениями из JSON?</p>' +
-            '<div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px;">' +
-                '<button type="button" class="btn btn-default" data-action="cancel">Отмена</button>' +
-                '<button type="button" class="btn btn-warning" data-action="replace">Заменить</button>' +
-                '<button type="button" class="btn btn-primary" data-action="append">Добавить</button>' +
-            '</div>';
-
-        modal.appendChild(box);
-        document.body.appendChild(modal);
-
-        box.addEventListener('click', function(e) {
-            var action = e.target.getAttribute('data-action');
-            if (!action) return;
-            modal.remove();
-            callback(action);
-        });
-
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.remove();
-                callback('cancel');
-            }
-        });
-    }
-
+    /**
+     * Удаляет все существующие изображения (временные или реальные).
+     *
+     * Для create-режима сервер переиндексирует массив временных изображений
+     * после каждого удаления, поэтому удаляем в обратном порядке (с конца),
+     * чтобы не сбить индексы.
+     */
     function deleteAllExistingImages(onComplete) {
+        // Сбрасываем ошибки предыдущего импорта
+        var oldErrors = document.getElementById('images-import-errors');
+        if (oldErrors) oldErrors.remove();
+
         var buttons = document.querySelectorAll('#images-container .sortable-item .delete-image-btn');
         if (buttons.length === 0) {
             onComplete();
             return;
         }
 
-        var items = Array.prototype.slice.call(buttons);
+        // Удаляем в обратном порядке (важно для create-режима)
+        var items = Array.prototype.slice.call(buttons).reverse();
         var index = 0;
 
         function next() {
@@ -763,7 +782,8 @@
         optionsCache = {
             glider: { producer: null, cert: null },
             harness: { producer: null },
-            device: { producer: null }
+            device: { producer: null },
+            reserve: { producer: null }
         };
 
         // 1. Основные поля
@@ -799,6 +819,13 @@
             } else if (type === 'device' && data.device) {
                 fillDeviceFields(data.device);
                 ignoredFields = collectIgnoredFields('device', data.device);
+            } else if (type === 'reserve') {
+                if (data.reserve) {
+                    fillReserveFields(data.reserve);
+                    ignoredFields = collectIgnoredFields('reserve', data.reserve);
+                } else if (data.canopy_type || data.max_weight || data.area || data.weight) {
+                    fillReserveFields(data);
+                }
             }
 
             // 4. Показываем блок изображений
@@ -846,6 +873,7 @@
                     }
                 });
             } else {
+                // Нет images в JSON — просто показываем статус
                 if (ignoredFields.length > 0) {
                     showStatus(
                         '⚠️ Форма заполнена. Проигнорированы поля (нет в форме): ' +

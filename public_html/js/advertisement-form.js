@@ -42,6 +42,7 @@
         var $gliderFields = $('#glider-fields');
         var $harnessFields = $('#harness-fields');
         var $deviceFields = $('#device-fields');
+        var $reserveFields = $('#reserve-fields');
 
         function toggleTypeFields() {
             var selectedType = $typeSelect.val();
@@ -49,6 +50,7 @@
             $gliderFields.hide();
             $harnessFields.hide();
             $deviceFields.hide();
+            $reserveFields.hide();
 
             if (selectedType === 'glider') {
                 $gliderFields.show();
@@ -56,6 +58,8 @@
                 $harnessFields.show();
             } else if (selectedType === 'device') {
                 $deviceFields.show();
+            } else if (selectedType === 'reserve') {
+                $reserveFields.show();
             }
         }
 

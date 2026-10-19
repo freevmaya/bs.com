@@ -20,6 +20,7 @@ class Advertisement extends ActiveRecord
     const TYPE_GLIDER = 'glider';
     const TYPE_HARNESS = 'harness';
     const TYPE_DEVICE = 'device';
+    const TYPE_RESERVE = 'reserve';
     
     // Валюты
     const CURRENCY_RUB = 'RUB';
@@ -48,7 +49,7 @@ class Advertisement extends ActiveRecord
             [['user_id', 'section'], 'required'],
             [['title'], 'string', 'max' => 200],
             [['user_id', 'views_count', 'invitation_token_created_at'], 'integer'],
-            [['type'], 'in', 'range' => [self::TYPE_NORMAL, self::TYPE_GLIDER, self::TYPE_HARNESS, self::TYPE_DEVICE]],
+            [['type'], 'in', 'range' => [self::TYPE_NORMAL, self::TYPE_GLIDER, self::TYPE_HARNESS, self::TYPE_DEVICE, self::TYPE_RESERVE]],
             [['price'], 'number', 'min' => 0],
             [['price_negotiable'], 'boolean'],
             [['description'], 'string'],
@@ -64,7 +65,6 @@ class Advertisement extends ActiveRecord
             [['whatsapp'], 'match', 'pattern' => '/^[\d\s\+\(\)\-]{5,20}$/', 'message' => 'Введите корректный номер WhatsApp'],
             [['source_url', 'item_info_link'], 'url', 'message' => 'Введите корректный URL (например: https://example.com)'],
             [['invitation_token'], 'unique', 'message' => 'Этот токен уже используется'],
-            // Default для currency устанавливается через beforeSave
         ];
     }
     
@@ -97,9 +97,6 @@ class Advertisement extends ActiveRecord
         ];
     }
     
-    /**
-     * Получить список валют
-     */
     public static function getCurrencyList()
     {
         return [
@@ -109,9 +106,6 @@ class Advertisement extends ActiveRecord
         ];
     }
     
-    /**
-     * Получить символ валюты
-     */
     public static function getCurrencySymbol($currency)
     {
         $symbols = [
@@ -122,9 +116,6 @@ class Advertisement extends ActiveRecord
         return $symbols[$currency] ?? '₽';
     }
     
-    /**
-     * Получить полное название валюты
-     */
     public static function getCurrencyLabel($currency)
     {
         $labels = [
@@ -135,16 +126,12 @@ class Advertisement extends ActiveRecord
         return $labels[$currency] ?? 'RUB';
     }
     
-    /**
-     * Валидация ссылки на профиль VK
-     */
     public function validateVkProfileUrl($attribute, $params)
     {
         if (empty($this->$attribute)) {
             return;
         }
         
-        // Проверяем, что ссылка ведет на VK
         if (!preg_match('/^https?:\/\/(?:www\.)?vk\.com\/(?:id\d+|[\w\.]+)$/i', $this->$attribute)) {
             $this->addError($attribute, 'Введите корректную ссылку на профиль VK (например: https://vk.com/durov)');
         }
@@ -194,9 +181,6 @@ class Advertisement extends ActiveRecord
         return $labels[$this->status] ?? $this->status;
     }
     
-    /**
-     * Получить отформатированную цену с символом валюты
-     */
     public function getFormattedPrice()
     {
         return \app\helpers\CurrencyFormatter::display($this->price, $this->currency);
@@ -254,6 +238,11 @@ class Advertisement extends ActiveRecord
         return $this->hasOne(AdvertisementDevice::class, ['advertisement_id' => 'id']);
     }
 
+    public function getReserve()
+    {
+        return $this->hasOne(AdvertisementReserve::class, ['advertisement_id' => 'id']);
+    }
+
     public static function getTypeList()
     {
         return [
@@ -261,12 +250,12 @@ class Advertisement extends ActiveRecord
             self::TYPE_GLIDER => 'Параплан',
             self::TYPE_HARNESS => 'Подвесная система',
             self::TYPE_DEVICE => 'Прибор',
+            self::TYPE_RESERVE => 'Запасной парашют',
         ];
     }
 
     public function generateTitle()
     {
-
         if ($this->type === self::TYPE_NORMAL) {
             if (!empty($this->title)) {
                 return $this->title;
@@ -292,6 +281,11 @@ class Advertisement extends ActiveRecord
             $modelName = $this->device->model;
             if ($this->device->producer) {
                 $producerName = $this->device->producer->short ?? $this->device->producer->name;
+            }
+        } elseif ($this->type === self::TYPE_RESERVE && $this->reserve) {
+            $modelName = $this->reserve->model;
+            if ($this->reserve->producer) {
+                $producerName = $this->reserve->producer->short ?? $this->reserve->producer->name;
             }
         }
 
@@ -322,13 +316,14 @@ class Advertisement extends ActiveRecord
                 $this->populateRelation('harness', $this->getHarness()->one());
             } elseif ($this->type === self::TYPE_DEVICE && !$this->isRelationPopulated('device')) {
                 $this->populateRelation('device', $this->getDevice()->one());
+            } elseif ($this->type === self::TYPE_RESERVE && !$this->isRelationPopulated('reserve')) {
+                $this->populateRelation('reserve', $this->getReserve()->one());
             }
             
             if ($this->type !== self::TYPE_NORMAL || empty($this->title)) {
                 $this->title = $this->generateTitle();
             }
             
-            // Устанавливаем валюту по умолчанию, если не установлена
             if (empty($this->currency)) {
                 $this->currency = self::CURRENCY_RUB;
             }
@@ -338,15 +333,6 @@ class Advertisement extends ActiveRecord
         return false;
     }
 
-    // ============================================================
-    // НОВЫЕ МЕТОДЫ ДЛЯ РАБОТЫ С ТИПАМИ
-    // ============================================================
-
-    /**
-     * Возвращает объект типа (glider, harness, device) или null
-     * 
-     * @return BaseAdvertisementType|null
-     */
     public function getTypeObject()
     {
         switch ($this->type) {
@@ -356,18 +342,13 @@ class Advertisement extends ActiveRecord
                 return $this->harness;
             case self::TYPE_DEVICE:
                 return $this->device;
+            case self::TYPE_RESERVE:
+                return $this->reserve;
             default:
                 return null;
         }
     }
 
-    /**
-     * Возвращает краткую строку с характеристиками объявления в зависимости от типа
-     * Делегирует вызов к соответствующему объекту типа
-     * 
-     * @param string $separator Разделитель между элементами (по умолчанию ' | ')
-     * @return string
-     */
     public function getShortInfoString($separator = ' | ')
     {
         $typeObject = $this->getTypeObject();
@@ -377,12 +358,6 @@ class Advertisement extends ActiveRecord
         return '';
     }
 
-    /**
-     * Возвращает название типа товара
-     * Делегирует вызов к соответствующему объекту типа
-     * 
-     * @return string
-     */
     public function getTypeLabel()
     {
         $typeObject = $this->getTypeObject();
@@ -392,25 +367,11 @@ class Advertisement extends ActiveRecord
         return 'Обычное объявление';
     }
 
-    /**
-     * Проверяет, есть ли у объявления объект типа
-     * 
-     * @return bool
-     */
     public function hasTypeObject()
     {
         return $this->getTypeObject() !== null;
     }
 
-    // ============================================================
-    // МЕТОДЫ ДЛЯ РАБОТЫ С ПРИГЛАШЕНИЯМИ
-    // ============================================================
-
-    /**
-     * Генерирует новый токен приглашения
-     * 
-     * @return string Сгенерированный GUID
-     */
     public function generateInvitationToken()
     {
         $this->invitation_token = $this->generateGUID();
@@ -418,11 +379,6 @@ class Advertisement extends ActiveRecord
         return $this->invitation_token;
     }
 
-    /**
-     * Генерирует GUID (UUID v4)
-     * 
-     * @return string
-     */
     private function generateGUID()
     {
         return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
@@ -434,35 +390,20 @@ class Advertisement extends ActiveRecord
         );
     }
 
-    /**
-     * Проверяет, действителен ли токен приглашения
-     * Токен действителен 7 дней (604800 секунд)
-     * 
-     * @return bool
-     */
     public function isInvitationTokenValid()
     {
         if (empty($this->invitation_token) || empty($this->invitation_token_created_at)) {
             return false;
         }
-        // Токен действителен 7 дней
         return (time() - $this->invitation_token_created_at) < 7 * 24 * 60 * 60;
     }
 
-    /**
-     * Очищает токен приглашения
-     */
     public function clearInvitationToken()
     {
         $this->invitation_token = null;
         $this->invitation_token_created_at = null;
     }
 
-    /**
-     * Получить ссылку-приглашение
-     * 
-     * @return string|null URL ссылки или null если токен не сгенерирован
-     */
     public function getInvitationLink()
     {
         if (empty($this->invitation_token)) {
@@ -474,11 +415,6 @@ class Advertisement extends ActiveRecord
         ]);
     }
 
-    /**
-     * Получить ссылку на информацию о товаре
-     * 
-     * @return string|null
-     */
     public function getItemInfoLink()
     {
         return $this->item_info_link;

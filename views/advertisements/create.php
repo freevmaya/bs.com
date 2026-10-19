@@ -100,6 +100,13 @@ $isAdmin = !Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin();
                             'deviceModel' => $deviceModel,
                         ]) ?>
                     </div>
+
+                    <div id="reserve-fields" style="display: none;">
+                        <?= $this->render('_reserve_fields', [
+                            'form' => $form,
+                            'reserveModel' => $reserveModel,
+                        ]) ?>
+                    </div>
                     
                     <!-- ============================================ -->
                     <!-- КОНТАКТНАЯ ИНФОРМАЦИЯ -->

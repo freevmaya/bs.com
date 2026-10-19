@@ -336,6 +336,41 @@ $action = ($section === Advertisement::SECTION_SELL) ? 'sell' : 'buy';
                                                 <tr><th>Дефекты</th><td><?= nl2br(Html::encode($model->device->defects)) ?></td></tr>
                                             <?php endif; ?>
                                         </table>
+                                    <?php elseif ($model->type === 'reserve' && $model->reserve): ?>
+                                        <table class="table table-bordered">
+                                            <tr><th>Тип</th><td><?= $model->getTypeLabel() ?></td></tr>
+                                            <tr><th>Модель</th><td><?= Html::encode($model->reserve->model) ?></td></tr>
+                                            <tr><th>Производитель</th><td><?= Html::encode($model->reserve->producer->fullName ?? '—') ?></td></tr>
+                                            <tr><th>Тип купола</th><td><?= Html::encode($model->reserve->getCanopyTypeLabel()) ?></td></tr>
+                                            <?php if ($model->reserve->max_weight): ?>
+                                                <tr><th>Макс. спасаемый вес</th><td><?= (int)$model->reserve->max_weight ?> кг</td></tr>
+                                            <?php endif; ?>
+                                            <?php if ($model->reserve->area): ?>
+                                                <tr><th>Площадь</th><td><?= Html::encode($model->reserve->area) ?> м²</td></tr>
+                                            <?php endif; ?>
+                                            <?php if ($model->reserve->weight): ?>
+                                                <tr><th>Вес запаски</th><td><?= rtrim(rtrim(number_format((float)$model->reserve->weight, 2, '.', ' '), '0'), '.') ?> кг</td></tr>
+                                            <?php endif; ?>
+                                            <?php if ($model->reserve->date_release): ?>
+                                                <tr><th>Год выпуска</th><td><?= Html::encode($model->reserve->date_release) ?></td></tr>
+                                            <?php endif; ?>
+                                            <?php if ($model->reserve->repack_date): ?>
+                                                <tr><th>Дата переукладки</th><td><?= Yii::$app->formatter->asDate($model->reserve->repack_date, 'php:d.m.Y') ?></td></tr>
+                                            <?php endif; ?>
+                                            <tr><th>Состояние</th><td><?= Html::encode($model->reserve->getConditionLabel()) ?></td></tr>
+                                            <?php if ($model->reserve->defects): ?>
+                                                <tr><th>Дефекты</th><td><?= nl2br(Html::encode($model->reserve->defects)) ?></td></tr>
+                                            <?php endif; ?>
+                                            <?php if ($model->reserve->was_used !== null): ?>
+                                                <tr><th>Применялась по назначению</th><td><?= $model->reserve->was_used ? 'Да' : 'Нет' ?></td></tr>
+                                            <?php endif; ?>
+                                            <?php if ($model->reserve->equipment): ?>
+                                                <tr><th>Комплектация</th><td><?= nl2br(Html::encode($model->reserve->equipment)) ?></td></tr>
+                                            <?php endif; ?>
+                                            <?php if ($model->reserve->cause): ?>
+                                                <tr><th>Причина продажи</th><td><?= nl2br(Html::encode($model->reserve->cause)) ?></td></tr>
+                                            <?php endif; ?>
+                                        </table>
                                     <?php endif; ?>
                                 </div>
                             </div>
