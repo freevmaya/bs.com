@@ -1,0 +1,177 @@
+/* FILE: .\public_html\css\favorites.css */
+
+/* ============================================
+   Иконка «Избранное» на карточке объявления
+   ============================================ */
+
+.favorite-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 0;
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    padding: 0;
+    transition: transform 0.2s ease, filter 0.25s ease;
+    color: #fff;
+    line-height: 1;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+}
+
+.favorite-btn:hover {
+    transform: scale(1.1);
+}
+
+.favorite-btn:focus {
+    outline: none;
+    filter: drop-shadow(0 0 0 3px rgba(255, 255, 255, 0.5));
+}
+
+.favorite-btn svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+    fill: #fff;
+    stroke: #000;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: fill 0.25s ease, stroke 0.25s ease;
+}
+
+/* Заполненное сердечко — в избранном */
+.favorite-btn.is-favorite svg {
+    fill: #e74c3c;
+    stroke: #e74c3c;
+}
+
+/* Пульсация при добавлении */
+@keyframes favoritePulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.35); }
+    70%  { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+.favorite-btn.animating svg {
+    animation: favoritePulse 0.45s ease-in-out;
+}
+
+/* Обёртка превью должна быть relative, чтобы абсолютное позиционирование
+   .favorite-btn работало относительно неё, а не улетало к body */
+.grid-preview-wrapper {
+    position: relative;
+}
+
+/* Контейнер превью тоже relative (для случая, когда .favorite-btn
+   рендерится внутри .image-grid-preview) */
+.image-grid-preview {
+    position: relative;
+}
+
+/* ============================================
+   Иконка «Избранное» на странице объявления
+   ============================================ */
+
+.advertisement-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.advertisement-title-row h1 {
+    margin: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    word-wrap: break-word;
+}
+
+.advertisement-title-row .favorite-btn-inline {
+    position: static;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.06);
+    color: #495057;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s ease, transform 0.2s ease;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.advertisement-title-row .favorite-btn-inline:hover {
+    background: rgba(0, 0, 0, 0.12);
+    transform: scale(1.08);
+}
+
+.advertisement-title-row .favorite-btn-inline svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: #495057;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: fill 0.25s ease, stroke 0.25s ease;
+}
+
+.advertisement-title-row .favorite-btn-inline.is-favorite svg {
+    fill: #e74c3c;
+    stroke: #e74c3c;
+}
+
+.advertisement-title-row .favorite-btn-inline.animating svg {
+    animation: favoritePulse 0.45s ease-in-out;
+}
+
+/* Тёмная тема */
+[data-bs-theme="dark"] .advertisement-title-row .favorite-btn-inline {
+    color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .advertisement-title-row .favorite-btn-inline:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+[data-bs-theme="dark"] .advertisement-title-row .favorite-btn-inline svg {
+    stroke: #adb5bd;
+}
+
+[data-bs-theme="dark"] .advertisement-title-row .favorite-btn-inline.is-favorite svg {
+    fill: #e74c3c;
+    stroke: #e74c3c;
+}
+
+/* Адаптивность */
+@media (max-width: 576px) {
+    .favorite-btn {
+        width: 32px;
+        height: 32px;
+        top: 6px;
+        right: 6px;
+    }
+    .favorite-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+    .advertisement-title-row .favorite-btn-inline {
+        width: 38px;
+        height: 38px;
+    }
+    .advertisement-title-row .favorite-btn-inline svg {
+        width: 20px;
+        height: 20px;
+    }
+}

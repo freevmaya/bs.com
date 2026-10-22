@@ -519,804 +519,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "views/advertisements/view.php",
-			"file_size": 53718,
-			"file_write_time": 134366349472028951,
-			"settings":
-			{
-				"buffer_size": 50765,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			},
-			"undo_stack":
-			[
-				[
-					12,
-					1,
-					"paste",
-					null,
-					"AQAAAN5hAAAAAAAA92QAAAAAAAApBAAAPD9waHAgaWYgKCFlbXB0eSgkbW9kZWwtPnNvdXJjZV91cmwpKTogPz4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxwPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxzdHJvbmc+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHlsZT0ibWFyZ2luLXJpZ2h0OiA0cHg7Ij4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxwYXRoIGQ9Ik0xMCAxM2E1IDUgMCAwIDAgNy41NC41NGwzLTNhNSA1IDAgMCAwLTcuMDctNy4wN2wtMS43MiAxLjcxIi8+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcxLTEuNzEiLz4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9zdmc+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgINCY0YHRgtC+0YfQvdC40Lo6CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9zdHJvbmc+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGEgaHJlZj0iPD89IEh0bWw6OmVuY29kZSgkbW9kZWwtPnNvdXJjZV91cmwpID8+IiB0YXJnZXQ9Il9ibGFuayIgcmVsPSJub29wZW5lciBub3JlZmVycmVyIiBzdHlsZT0id29yZC1icmVhazogYnJlYWstYWxsOyI+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw/PSBIdG1sOjplbmNvZGUoJG1vZGVsLT5zb3VyY2VfdXJsKSA/PgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvYT4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvcD4KICAgICAgICAgICAgICAgICAgICAgICAgPD9waHAgZW5kaWY7ID8+",
-					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAADeYQAAAAAAAP9lAAAAAAAAAAAAAAAA8L8"
-				],
-				[
-					15,
-					6,
-					"indent",
-					null,
-					"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"
-				],
-				[
-					19,
-					1,
-					"insert",
-					{
-						"characters": "3"
-					},
-					"AQAAALNlAAAAAAAAtGUAAAAAAAABAAAANg",
-					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAACzZQAAAAAAALRlAAAAAAAAAAAAAAAA8L8"
-				],
-				[
-					22,
-					1,
-					"insert",
-					{
-						"characters": "2"
-					},
-					"AQAAALNlAAAAAAAAtGUAAAAAAAABAAAAMw",
-					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAACzZQAAAAAAALRlAAAAAAAAAAAAAAAA8L8"
-				],
-				[
-					25,
-					1,
-					"insert",
-					{
-						"characters": "5"
-					},
-					"AQAAALRlAAAAAAAAtWUAAAAAAAABAAAAMA",
-					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAC0ZQAAAAAAALVlAAAAAAAAAAAAAAAA8L8"
-				]
-			]
-		},
-		{
-			"file": "utils/parse-advertisment-prompt.txt",
-			"file_size": 13503,
-			"file_write_time": 134368160572866229,
-			"settings":
-			{
-				"buffer_size": 9188,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			},
-			"undo_stack":
-			[
-				[
-					16,
-					1,
-					"insert",
-					{
-						"characters": "\n*"
-					},
-					"AgAAAGQiAAAAAAAAZSIAAAAAAAAAAAAAZSIAAAAAAABmIgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAZCIAAAAAAABkIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					17,
-					1,
-					"insert",
-					{
-						"characters": " Обяза"
-					},
-					"BgAAAGYiAAAAAAAAZyIAAAAAAAAAAAAAZyIAAAAAAABoIgAAAAAAAAAAAABoIgAAAAAAAGkiAAAAAAAAAAAAAGkiAAAAAAAAaiIAAAAAAAAAAAAAaiIAAAAAAABrIgAAAAAAAAAAAABrIgAAAAAAAGwiAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAZiIAAAAAAABmIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					18,
-					1,
-					"insert",
-					{
-						"characters": "тельно"
-					},
-					"BgAAAGwiAAAAAAAAbSIAAAAAAAAAAAAAbSIAAAAAAABuIgAAAAAAAAAAAABuIgAAAAAAAG8iAAAAAAAAAAAAAG8iAAAAAAAAcCIAAAAAAAAAAAAAcCIAAAAAAABxIgAAAAAAAAAAAABxIgAAAAAAAHIiAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAbCIAAAAAAABsIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					19,
-					1,
-					"insert",
-					{
-						"characters": " должен"
-					},
-					"BwAAAHIiAAAAAAAAcyIAAAAAAAAAAAAAcyIAAAAAAAB0IgAAAAAAAAAAAAB0IgAAAAAAAHUiAAAAAAAAAAAAAHUiAAAAAAAAdiIAAAAAAAAAAAAAdiIAAAAAAAB3IgAAAAAAAAAAAAB3IgAAAAAAAHgiAAAAAAAAAAAAAHgiAAAAAAAAeSIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAciIAAAAAAAByIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					20,
-					1,
-					"insert",
-					{
-						"characters": " быть"
-					},
-					"BQAAAHkiAAAAAAAAeiIAAAAAAAAAAAAAeiIAAAAAAAB7IgAAAAAAAAAAAAB7IgAAAAAAAHwiAAAAAAAAAAAAAHwiAAAAAAAAfSIAAAAAAAAAAAAAfSIAAAAAAAB+IgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAeSIAAAAAAAB5IgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					21,
-					1,
-					"insert",
-					{
-						"characters": " блок"
-					},
-					"BQAAAH4iAAAAAAAAfyIAAAAAAAAAAAAAfyIAAAAAAACAIgAAAAAAAAAAAACAIgAAAAAAAIEiAAAAAAAAAAAAAIEiAAAAAAAAgiIAAAAAAAAAAAAAgiIAAAAAAACDIgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAfiIAAAAAAAB+IgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					22,
-					1,
-					"insert",
-					{
-						"characters": " с"
-					},
-					"AgAAAIMiAAAAAAAAhCIAAAAAAAAAAAAAhCIAAAAAAACFIgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAgyIAAAAAAACDIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					23,
-					1,
-					"insert",
-					{
-						"characters": " информац"
-					},
-					"CQAAAIUiAAAAAAAAhiIAAAAAAAAAAAAAhiIAAAAAAACHIgAAAAAAAAAAAACHIgAAAAAAAIgiAAAAAAAAAAAAAIgiAAAAAAAAiSIAAAAAAAAAAAAAiSIAAAAAAACKIgAAAAAAAAAAAACKIgAAAAAAAIsiAAAAAAAAAAAAAIsiAAAAAAAAjCIAAAAAAAAAAAAAjCIAAAAAAACNIgAAAAAAAAAAAACNIgAAAAAAAI4iAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAhSIAAAAAAACFIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					24,
-					1,
-					"insert",
-					{
-						"characters": "ией"
-					},
-					"AwAAAI4iAAAAAAAAjyIAAAAAAAAAAAAAjyIAAAAAAACQIgAAAAAAAAAAAACQIgAAAAAAAJEiAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAjiIAAAAAAACOIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					25,
-					1,
-					"insert",
-					{
-						"characters": " о"
-					},
-					"AgAAAJEiAAAAAAAAkiIAAAAAAAAAAAAAkiIAAAAAAACTIgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAkSIAAAAAAACRIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					26,
-					1,
-					"insert",
-					{
-						"characters": " "
-					},
-					"AQAAAJMiAAAAAAAAlCIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAkyIAAAAAAACTIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					27,
-					3,
-					"left_delete",
-					null,
-					"AwAAAJMiAAAAAAAAkyIAAAAAAAABAAAAIJIiAAAAAAAAkiIAAAAAAAACAAAA0L6RIgAAAAAAAJEiAAAAAAAAAQAAACA",
-					"AQAAAAAAAAABAAAAlCIAAAAAAACUIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					28,
-					1,
-					"insert",
-					{
-						"characters": " для"
-					},
-					"BAAAAJEiAAAAAAAAkiIAAAAAAAAAAAAAkiIAAAAAAACTIgAAAAAAAAAAAACTIgAAAAAAAJQiAAAAAAAAAAAAAJQiAAAAAAAAlSIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAkSIAAAAAAACRIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					29,
-					1,
-					"insert",
-					{
-						"characters": " данного"
-					},
-					"CAAAAJUiAAAAAAAAliIAAAAAAAAAAAAAliIAAAAAAACXIgAAAAAAAAAAAACXIgAAAAAAAJgiAAAAAAAAAAAAAJgiAAAAAAAAmSIAAAAAAAAAAAAAmSIAAAAAAACaIgAAAAAAAAAAAACaIgAAAAAAAJsiAAAAAAAAAAAAAJsiAAAAAAAAnCIAAAAAAAAAAAAAnCIAAAAAAACdIgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAlSIAAAAAAACVIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					30,
-					1,
-					"insert",
-					{
-						"characters": " типа"
-					},
-					"BQAAAJ0iAAAAAAAAniIAAAAAAAAAAAAAniIAAAAAAACfIgAAAAAAAAAAAACfIgAAAAAAAKAiAAAAAAAAAAAAAKAiAAAAAAAAoSIAAAAAAAAAAAAAoSIAAAAAAACiIgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAnSIAAAAAAACdIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					31,
-					1,
-					"insert",
-					{
-						"characters": " "
-					},
-					"AQAAAKIiAAAAAAAAoyIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAoiIAAAAAAACiIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					32,
-					1,
-					"insert",
-					{
-						"characters": "объявле"
-					},
-					"BwAAAKMiAAAAAAAApCIAAAAAAAAAAAAApCIAAAAAAAClIgAAAAAAAAAAAAClIgAAAAAAAKYiAAAAAAAAAAAAAKYiAAAAAAAApyIAAAAAAAAAAAAApyIAAAAAAACoIgAAAAAAAAAAAACoIgAAAAAAAKkiAAAAAAAAAAAAAKkiAAAAAAAAqiIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAoyIAAAAAAACjIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					33,
-					1,
-					"insert",
-					{
-						"characters": "ния"
-					},
-					"AwAAAKoiAAAAAAAAqyIAAAAAAAAAAAAAqyIAAAAAAACsIgAAAAAAAAAAAACsIgAAAAAAAK0iAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAqiIAAAAAAACqIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					38,
-					1,
-					"insert",
-					{
-						"characters": ","
-					},
-					"AQAAAIMiAAAAAAAAhCIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAgyIAAAAAAACDIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					42,
-					1,
-					"left_delete",
-					null,
-					"AQAAAIMiAAAAAAAAgyIAAAAAAAABAAAALA",
-					"AQAAAAAAAAABAAAAhCIAAAAAAACEIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					46,
-					1,
-					"insert",
-					{
-						"characters": ","
-					},
-					"AQAAAJEiAAAAAAAAkiIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAkSIAAAAAAACRIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					49,
-					1,
-					"insert",
-					{
-						"characters": " с"
-					},
-					"AgAAAIMiAAAAAAAAhCIAAAAAAAAAAAAAhCIAAAAAAACFIgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAgyIAAAAAAACDIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					50,
-					1,
-					"left_delete",
-					null,
-					"AQAAAIQiAAAAAAAAhCIAAAAAAAACAAAA0YE",
-					"AQAAAAAAAAABAAAAhSIAAAAAAACFIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					51,
-					1,
-					"insert",
-					{
-						"characters": "с"
-					},
-					"AQAAAIQiAAAAAAAAhSIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAhCIAAAAAAACEIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					52,
-					1,
-					"insert",
-					{
-						"characters": " названием"
-					},
-					"CgAAAIUiAAAAAAAAhiIAAAAAAAAAAAAAhiIAAAAAAACHIgAAAAAAAAAAAACHIgAAAAAAAIgiAAAAAAAAAAAAAIgiAAAAAAAAiSIAAAAAAAAAAAAAiSIAAAAAAACKIgAAAAAAAAAAAACKIgAAAAAAAIsiAAAAAAAAAAAAAIsiAAAAAAAAjCIAAAAAAAAAAAAAjCIAAAAAAACNIgAAAAAAAAAAAACNIgAAAAAAAI4iAAAAAAAAAAAAAI4iAAAAAAAAjyIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAhSIAAAAAAACFIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					53,
-					1,
-					"insert",
-					{
-						"characters": " типа"
-					},
-					"BQAAAI8iAAAAAAAAkCIAAAAAAAAAAAAAkCIAAAAAAACRIgAAAAAAAAAAAACRIgAAAAAAAJIiAAAAAAAAAAAAAJIiAAAAAAAAkyIAAAAAAAAAAAAAkyIAAAAAAACUIgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAjyIAAAAAAACPIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					56,
-					2,
-					"left_delete",
-					null,
-					"AgAAAIQiAAAAAAAAhCIAAAAAAAACAAAA0YGDIgAAAAAAAIMiAAAAAAAAAQAAACA",
-					"AQAAAAAAAAABAAAAhSIAAAAAAACFIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					57,
-					1,
-					"insert",
-					{
-						"characters": " названи"
-					},
-					"CAAAAIMiAAAAAAAAhCIAAAAAAAAAAAAAhCIAAAAAAACFIgAAAAAAAAAAAACFIgAAAAAAAIYiAAAAAAAAAAAAAIYiAAAAAAAAhyIAAAAAAAAAAAAAhyIAAAAAAACIIgAAAAAAAAAAAACIIgAAAAAAAIkiAAAAAAAAAAAAAIkiAAAAAAAAiiIAAAAAAAAAAAAAiiIAAAAAAACLIgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAgyIAAAAAAACDIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					58,
-					1,
-					"insert",
-					{
-						"characters": "е"
-					},
-					"AQAAAIsiAAAAAAAAjCIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAiyIAAAAAAACLIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					59,
-					1,
-					"insert",
-					{
-						"characters": " поля"
-					},
-					"BQAAAIwiAAAAAAAAjSIAAAAAAAAAAAAAjSIAAAAAAACOIgAAAAAAAAAAAACOIgAAAAAAAI8iAAAAAAAAAAAAAI8iAAAAAAAAkCIAAAAAAAAAAAAAkCIAAAAAAACRIgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAjCIAAAAAAACMIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					60,
-					1,
-					"insert",
-					{
-						"characters": " -"
-					},
-					"AgAAAJEiAAAAAAAAkiIAAAAAAAAAAAAAkiIAAAAAAACTIgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAkSIAAAAAAACRIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					61,
-					1,
-					"left_delete",
-					null,
-					"AQAAAJIiAAAAAAAAkiIAAAAAAAABAAAALQ",
-					"AQAAAAAAAAABAAAAkyIAAAAAAACTIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					62,
-					1,
-					"insert",
-					{
-						"characters": "="
-					},
-					"AQAAAJIiAAAAAAAAkyIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAkiIAAAAAAACSIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					80,
-					1,
-					"insert",
-					{
-						"characters": "\n"
-					},
-					"AQAAAM0iAAAAAAAAziIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAzSIAAAAAAADNIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					81,
-					1,
-					"paste",
-					null,
-					"AQAAAM4iAAAAAAAALSMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAziIAAAAAAADOIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					87,
-					1,
-					"paste",
-					null,
-					"AQAAAM4iAAAAAAAA0CIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAziIAAAAAAADOIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					92,
-					1,
-					"insert",
-					{
-						"characters": "ссылок"
-					},
-					"BgAAAOYiAAAAAAAA5yIAAAAAAAAAAAAA5yIAAAAAAADoIgAAAAAAAAAAAADoIgAAAAAAAOkiAAAAAAAAAAAAAOkiAAAAAAAA6iIAAAAAAAAAAAAA6iIAAAAAAADrIgAAAAAAAAAAAADrIgAAAAAAAOwiAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA5iIAAAAAAADmIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					93,
-					1,
-					"insert",
-					{
-						"characters": " "
-					},
-					"AQAAAOwiAAAAAAAA7SIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA7CIAAAAAAADsIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					94,
-					7,
-					"left_delete",
-					null,
-					"BwAAAOwiAAAAAAAA7CIAAAAAAAABAAAAIOsiAAAAAAAA6yIAAAAAAAACAAAA0LrqIgAAAAAAAOoiAAAAAAAAAgAAANC+6SIAAAAAAADpIgAAAAAAAAIAAADQu+giAAAAAAAA6CIAAAAAAAACAAAA0YvnIgAAAAAAAOciAAAAAAAAAgAAANGB5iIAAAAAAADmIgAAAAAAAAIAAADRgQ",
-					"AQAAAAAAAAABAAAA7SIAAAAAAADtIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					96,
-					1,
-					"insert",
-					{
-						"characters": " изобра"
-					},
-					"BwAAAOoiAAAAAAAA6yIAAAAAAAAAAAAA6yIAAAAAAADsIgAAAAAAAAAAAADsIgAAAAAAAO0iAAAAAAAAAAAAAO0iAAAAAAAA7iIAAAAAAAAAAAAA7iIAAAAAAADvIgAAAAAAAAAAAADvIgAAAAAAAPAiAAAAAAAAAAAAAPAiAAAAAAAA8SIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA6iIAAAAAAADqIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					97,
-					1,
-					"insert",
-					{
-						"characters": "жений"
-					},
-					"BQAAAPEiAAAAAAAA8iIAAAAAAAAAAAAA8iIAAAAAAADzIgAAAAAAAAAAAADzIgAAAAAAAPQiAAAAAAAAAAAAAPQiAAAAAAAA9SIAAAAAAAAAAAAA9SIAAAAAAAD2IgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA8SIAAAAAAADxIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					98,
-					1,
-					"insert",
-					{
-						"characters": " това"
-					},
-					"BQAAAPYiAAAAAAAA9yIAAAAAAAAAAAAA9yIAAAAAAAD4IgAAAAAAAAAAAAD4IgAAAAAAAPkiAAAAAAAAAAAAAPkiAAAAAAAA+iIAAAAAAAAAAAAA+iIAAAAAAAD7IgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA9iIAAAAAAAD2IgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					99,
-					1,
-					"insert",
-					{
-						"characters": "ра"
-					},
-					"AgAAAPsiAAAAAAAA/CIAAAAAAAAAAAAA/CIAAAAAAAD9IgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA+yIAAAAAAAD7IgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					101,
-					1,
-					"left_delete",
-					null,
-					"AQAAAOoiAAAAAAAA6iIAAAAAAAABAAAAIA",
-					"AQAAAAAAAAABAAAA6yIAAAAAAADrIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					102,
-					1,
-					"insert",
-					{
-						"characters": ","
-					},
-					"AQAAAOoiAAAAAAAA6yIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA6iIAAAAAAADqIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					103,
-					1,
-					"insert",
-					{
-						"characters": " "
-					},
-					"AQAAAOsiAAAAAAAA7CIAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA6yIAAAAAAADrIgAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					111,
-					1,
-					"insert",
-					{
-						"characters": " Важно"
-					},
-					"BgAAAEMjAAAAAAAARCMAAAAAAAAAAAAARCMAAAAAAABFIwAAAAAAAAAAAABFIwAAAAAAAEYjAAAAAAAAAAAAAEYjAAAAAAAARyMAAAAAAAAAAAAARyMAAAAAAABIIwAAAAAAAAAAAABIIwAAAAAAAEkjAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAQyMAAAAAAABDIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					112,
-					1,
-					"insert",
-					{
-						"characters": " использовать"
-					},
-					"DQAAAEkjAAAAAAAASiMAAAAAAAAAAAAASiMAAAAAAABLIwAAAAAAAAAAAABLIwAAAAAAAEwjAAAAAAAAAAAAAEwjAAAAAAAATSMAAAAAAAAAAAAATSMAAAAAAABOIwAAAAAAAAAAAABOIwAAAAAAAE8jAAAAAAAAAAAAAE8jAAAAAAAAUCMAAAAAAAAAAAAAUCMAAAAAAABRIwAAAAAAAAAAAABRIwAAAAAAAFIjAAAAAAAAAAAAAFIjAAAAAAAAUyMAAAAAAAAAAAAAUyMAAAAAAABUIwAAAAAAAAAAAABUIwAAAAAAAFUjAAAAAAAAAAAAAFUjAAAAAAAAViMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAASSMAAAAAAABJIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					113,
-					1,
-					"insert",
-					{
-						"characters": " ссылк"
-					},
-					"BgAAAFYjAAAAAAAAVyMAAAAAAAAAAAAAVyMAAAAAAABYIwAAAAAAAAAAAABYIwAAAAAAAFkjAAAAAAAAAAAAAFkjAAAAAAAAWiMAAAAAAAAAAAAAWiMAAAAAAABbIwAAAAAAAAAAAABbIwAAAAAAAFwjAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAViMAAAAAAABWIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					114,
-					1,
-					"insert",
-					{
-						"characters": "у"
-					},
-					"AQAAAFwjAAAAAAAAXSMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAXCMAAAAAAABcIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					115,
-					1,
-					"insert",
-					{
-						"characters": " на"
-					},
-					"AwAAAF0jAAAAAAAAXiMAAAAAAAAAAAAAXiMAAAAAAABfIwAAAAAAAAAAAABfIwAAAAAAAGAjAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAXSMAAAAAAABdIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					116,
-					1,
-					"insert",
-					{
-						"characters": " фото"
-					},
-					"BQAAAGAjAAAAAAAAYSMAAAAAAAAAAAAAYSMAAAAAAABiIwAAAAAAAAAAAABiIwAAAAAAAGMjAAAAAAAAAAAAAGMjAAAAAAAAZCMAAAAAAAAAAAAAZCMAAAAAAABlIwAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAYCMAAAAAAABgIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					117,
-					4,
-					"left_delete",
-					null,
-					"BAAAAGQjAAAAAAAAZCMAAAAAAAACAAAA0L5jIwAAAAAAAGMjAAAAAAAAAgAAANGCYiMAAAAAAABiIwAAAAAAAAIAAADQvmEjAAAAAAAAYSMAAAAAAAACAAAA0YQ",
-					"AQAAAAAAAAABAAAAZSMAAAAAAABlIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					118,
-					1,
-					"insert",
-					{
-						"characters": "файл"
-					},
-					"BAAAAGEjAAAAAAAAYiMAAAAAAAAAAAAAYiMAAAAAAABjIwAAAAAAAAAAAABjIwAAAAAAAGQjAAAAAAAAAAAAAGQjAAAAAAAAZSMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAYSMAAAAAAABhIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					119,
-					1,
-					"insert",
-					{
-						"characters": " изображе"
-					},
-					"CQAAAGUjAAAAAAAAZiMAAAAAAAAAAAAAZiMAAAAAAABnIwAAAAAAAAAAAABnIwAAAAAAAGgjAAAAAAAAAAAAAGgjAAAAAAAAaSMAAAAAAAAAAAAAaSMAAAAAAABqIwAAAAAAAAAAAABqIwAAAAAAAGsjAAAAAAAAAAAAAGsjAAAAAAAAbCMAAAAAAAAAAAAAbCMAAAAAAABtIwAAAAAAAAAAAABtIwAAAAAAAG4jAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAZSMAAAAAAABlIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					120,
-					1,
-					"insert",
-					{
-						"characters": "ния,"
-					},
-					"BAAAAG4jAAAAAAAAbyMAAAAAAAAAAAAAbyMAAAAAAABwIwAAAAAAAAAAAABwIwAAAAAAAHEjAAAAAAAAAAAAAHEjAAAAAAAAciMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAbiMAAAAAAABuIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					121,
-					1,
-					"insert",
-					{
-						"characters": " а"
-					},
-					"AgAAAHIjAAAAAAAAcyMAAAAAAAAAAAAAcyMAAAAAAAB0IwAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAciMAAAAAAAByIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					122,
-					1,
-					"insert",
-					{
-						"characters": " не"
-					},
-					"AwAAAHQjAAAAAAAAdSMAAAAAAAAAAAAAdSMAAAAAAAB2IwAAAAAAAAAAAAB2IwAAAAAAAHcjAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAdCMAAAAAAAB0IwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					123,
-					1,
-					"insert",
-					{
-						"characters": " просто"
-					},
-					"BwAAAHcjAAAAAAAAeCMAAAAAAAAAAAAAeCMAAAAAAAB5IwAAAAAAAAAAAAB5IwAAAAAAAHojAAAAAAAAAAAAAHojAAAAAAAAeyMAAAAAAAAAAAAAeyMAAAAAAAB8IwAAAAAAAAAAAAB8IwAAAAAAAH0jAAAAAAAAAAAAAH0jAAAAAAAAfiMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAdyMAAAAAAAB3IwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					124,
-					1,
-					"insert",
-					{
-						"characters": " ссылку"
-					},
-					"BwAAAH4jAAAAAAAAfyMAAAAAAAAAAAAAfyMAAAAAAACAIwAAAAAAAAAAAACAIwAAAAAAAIEjAAAAAAAAAAAAAIEjAAAAAAAAgiMAAAAAAAAAAAAAgiMAAAAAAACDIwAAAAAAAAAAAACDIwAAAAAAAIQjAAAAAAAAAAAAAIQjAAAAAAAAhSMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAfiMAAAAAAAB+IwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					125,
-					1,
-					"insert",
-					{
-						"characters": " на"
-					},
-					"AwAAAIUjAAAAAAAAhiMAAAAAAAAAAAAAhiMAAAAAAACHIwAAAAAAAAAAAACHIwAAAAAAAIgjAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAhSMAAAAAAACFIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					126,
-					1,
-					"insert",
-					{
-						"characters": " страницу"
-					},
-					"CQAAAIgjAAAAAAAAiSMAAAAAAAAAAAAAiSMAAAAAAACKIwAAAAAAAAAAAACKIwAAAAAAAIsjAAAAAAAAAAAAAIsjAAAAAAAAjCMAAAAAAAAAAAAAjCMAAAAAAACNIwAAAAAAAAAAAACNIwAAAAAAAI4jAAAAAAAAAAAAAI4jAAAAAAAAjyMAAAAAAAAAAAAAjyMAAAAAAACQIwAAAAAAAAAAAACQIwAAAAAAAJEjAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAiCMAAAAAAACIIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					127,
-					1,
-					"insert",
-					{
-						"characters": "."
-					},
-					"AQAAAJEjAAAAAAAAkiMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAkSMAAAAAAACRIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					135,
-					1,
-					"left_delete",
-					null,
-					"AQAAAHEjAAAAAAAAcSMAAAAAAAA5AAAALCDQsCDQvdC1INC/0YDQvtGB0YLQviDRgdGB0YvQu9C60YMg0L3QsCDRgdGC0YDQsNC90LjRhtGD",
-					"AQAAAAAAAAABAAAAcSMAAAAAAACRIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					139,
-					1,
-					"insert",
-					{
-						"characters": "парсить"
-					},
-					"BwAAAEojAAAAAAAASyMAAAAAAAAAAAAASyMAAAAAAABMIwAAAAAAAAAAAABMIwAAAAAAAE0jAAAAAAAAAAAAAE0jAAAAAAAATiMAAAAAAAAAAAAATiMAAAAAAABPIwAAAAAAAAAAAABPIwAAAAAAAFAjAAAAAAAAAAAAAFAjAAAAAAAAUSMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAASiMAAAAAAABKIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					140,
-					1,
-					"insert",
-					{
-						"characters": " HTML"
-					},
-					"BQAAAFEjAAAAAAAAUiMAAAAAAAAAAAAAUiMAAAAAAABTIwAAAAAAAAAAAABTIwAAAAAAAFQjAAAAAAAAAAAAAFQjAAAAAAAAVSMAAAAAAAAAAAAAVSMAAAAAAABWIwAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAUSMAAAAAAABRIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					141,
-					1,
-					"insert",
-					{
-						"characters": " стран"
-					},
-					"BgAAAFYjAAAAAAAAVyMAAAAAAAAAAAAAVyMAAAAAAABYIwAAAAAAAAAAAABYIwAAAAAAAFkjAAAAAAAAAAAAAFkjAAAAAAAAWiMAAAAAAAAAAAAAWiMAAAAAAABbIwAAAAAAAAAAAABbIwAAAAAAAFwjAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAViMAAAAAAABWIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					142,
-					1,
-					"insert",
-					{
-						"characters": "ицу"
-					},
-					"AwAAAFwjAAAAAAAAXSMAAAAAAAAAAAAAXSMAAAAAAABeIwAAAAAAAAAAAABeIwAAAAAAAF8jAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAXCMAAAAAAABcIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					143,
-					1,
-					"left_delete",
-					null,
-					"AQAAAF4jAAAAAAAAXiMAAAAAAAACAAAA0YM",
-					"AQAAAAAAAAABAAAAXyMAAAAAAABfIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					144,
-					1,
-					"insert",
-					{
-						"characters": "ы"
-					},
-					"AQAAAF4jAAAAAAAAXyMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAXiMAAAAAAABeIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					145,
-					1,
-					"insert",
-					{
-						"characters": " и"
-					},
-					"AgAAAF8jAAAAAAAAYCMAAAAAAAAAAAAAYCMAAAAAAABhIwAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAXyMAAAAAAABfIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					146,
-					1,
-					"insert",
-					{
-						"characters": " найти"
-					},
-					"BgAAAGEjAAAAAAAAYiMAAAAAAAAAAAAAYiMAAAAAAABjIwAAAAAAAAAAAABjIwAAAAAAAGQjAAAAAAAAAAAAAGQjAAAAAAAAZSMAAAAAAAAAAAAAZSMAAAAAAABmIwAAAAAAAAAAAABmIwAAAAAAAGcjAAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAYSMAAAAAAABhIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					147,
-					1,
-					"insert",
-					{
-						"characters": " "
-					},
-					"AQAAAGcjAAAAAAAAaCMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAZyMAAAAAAABnIwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					152,
-					2,
-					"left_delete",
-					null,
-					"AgAAAGgjAAAAAAAAaCMAAAAAAAAYAAAA0LjRgdC/0L7Qu9GM0LfQvtCy0LDRgtGMZyMAAAAAAABnIwAAAAAAAAEAAAAg",
-					"AQAAAAAAAAABAAAAaCMAAAAAAAB0IwAAAAAAAAAAAAAAAPC/"
-				],
-				[
-					160,
-					1,
-					"insert",
-					{
-						"characters": ":"
-					},
-					"AQAAAEkjAAAAAAAASiMAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAASSMAAAAAAABJIwAAAAAAAAAAAAAAAPC/"
-				]
-			]
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -1398,32 +600,53 @@
 	},
 	"expanded_folders":
 	[
-		"/C/OpenServer/domains/bs.com",
-		"/C/OpenServer/domains/bs.com/utils"
+		"/C/OpenServer/domains/bs.com"
 	],
 	"file_history":
 	[
-		"/C/OpenServer/domains/bs.com/components/TempAdStorage.php",
-		"/C/OpenServer/domains/bs.com/controllers/AdvertisementsController.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/create.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/_duplicates_modal.php",
-		"/C/OpenServer/domains/bs.com/public_html/js/advertisement-form.js",
+		"/D/tmp/measuring_6_20261020_2033.csv",
+		"/C/Documents/Paragliding/test/Mesuring-test.csv",
+		"/C/Documents/Paragliding/test/Test-2lines.csv",
+		"/C/Users/fwadi/Downloads/Статья_ прибор измерения длин строп параплана.txt",
+		"/C/Documents/Paragliding/Lines-test-equal.csv",
+		"/C/Users/fwadi/Downloads/Измеритель строп (1).txt",
+		"/D/AndroidProjects/MeasuringPSS/.gitignore",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/web.php",
+		"/C/OpenServer/domains/bs.com/public_html/js/json-import.js",
+		"/C/OpenServer/domains/bs.com/public_html/css/site.css",
+		"/C/OpenServer/domains/bs.com/config/web.php",
+		"/C/OpenServer/domains/bs.com/config/assets-prod.php",
+		"/C/Users/fwadi/Documents/Google disk/numbers.js",
+		"/C/OpenServer/domains/bs.com/models/AdvertisementReserve.php",
+		"/C/OpenServer/domains/bs.com/migrations/m240000_000023_create_advertisement_reserve_table.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/_reserve_fields.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/view.php",
+		"/C/OpenServer/domains/bs.com/migrations/m240000_000024_add_reserve_to_advertisements_type_enum.php",
+		"/C/OpenServer/domains/bs.com/migrations/m240000_000024_alter_advertisement_reserve_weight_to_decimal.php",
 		"/C/OpenServer/domains/bs.com/utils/parse-advertisment-prompt.txt",
+		"/C/OpenServer/domains/bs.com/models/AdvertisementSearch.php",
+		"/C/OpenServer/domains/bs.com/widgets/views/search-bar.php",
+		"/C/OpenServer/domains/bs.com/controllers/AdvertisementsController.php",
+		"/C/OpenServer/domains/bs.com/models/Advertisement.php",
+		"/C/OpenServer/domains/bs.com/combine_run.py",
+		"/C/OpenServer/domains/bs.com/public_html/js/advertisement-form.js",
+		"/C/OpenServer/domains/bs.com/views/advertisements/update.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/create.php",
+		"/C/OpenServer/domains/bs.com/combined.txt",
+		"/C/OpenServer/domains/bs.com/utils/reserve-examples.txt",
+		"/C/OpenServer/domains/bs.com/migrations/m240000_000022_create_advertisement_reserve_table.php",
+		"/C/OpenServer/domains/bs.com/components/TempAdStorage.php",
+		"/C/OpenServer/domains/bs.com/views/advertisements/_duplicates_modal.php",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-3/app.log",
 		"/C/OpenServer/domains/bs.com/public_html/css/advertisement-form.css",
 		"/C/OpenServer/domains/bs.com/views/advertisements/section.php",
-		"/C/OpenServer/domains/bs.com/widgets/views/search-bar.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/index.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/view.php",
 		"/C/OpenServer/domains/bs.com/public_html/css/search.css",
 		"/C/OpenServer/domains/bs.com/public_html/js/search-active-subscribe.js",
-		"/C/OpenServer/domains/bs.com/public_html/css/site.css",
 		"/C/OpenServer/domains/bs.com/helpers/TextHelper.php",
 		"/C/Users/fwadi/AppData/Roaming/Arduino IDE/2024-06-04_log.log",
 		"/C/OpenServer/domains/bs.com/models/AdvertisementImage.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/_json_import.php",
-		"/C/OpenServer/domains/bs.com/public_html/js/json-import.js",
-		"/C/OpenServer/domains/bs.com/config/web.php",
 		"/C/OpenServer/domains/bs.com/runtime/logs/app.log",
 		"/C/Users/fwadi/Downloads/Заметки parasell (1).txt",
 		"/C/OpenServer/domains/bs.com/runtime/logs/app.log.1",
@@ -1432,16 +655,12 @@
 		"/C/OpenServer/domains/bs.com/config/params.php",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/params.php",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/AdvertisementSearch.php",
-		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/web.php",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/sql.log",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/currency_rates.json",
 		"/C/OpenServer/domains/bs.com/runtime/currency_rates.json",
-		"/C/OpenServer/domains/bs.com/combine_run.py",
 		"/C/OpenServer/domains/bs.com/widgets/views/_similar_item.php",
 		"/C/OpenServer/domains/bs.com/views/user/profile.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/my.php",
-		"/C/OpenServer/domains/bs.com/models/Advertisement.php",
-		"/C/OpenServer/domains/bs.com/models/AdvertisementSearch.php",
 		"/C/OpenServer/domains/bs.com/controllers/ShortUrlController.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/_item.php",
 		"/C/OpenServer/domains/bs.com/helpers/CurrencyFormatter.php",
@@ -1461,7 +680,6 @@
 		"/C/Users/fwadi/Downloads/Измеритель строп.txt",
 		"/C/OpenServer/domains/bs.com/components/ratings/AdvertisementRatingService.php",
 		"/C/OpenServer/domains/bs.com/components/CurrencyRateStorage.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/update.php",
 		"/C/OpenServer/domains/bs.com/widgets/views/_hidden_params.php",
 		"/C/OpenServer/domains/bs.com/widgets/SearchBar.php",
 		"/C/OpenServer/domains/bs.com/helpers/CurrencyRate.php",
@@ -1482,7 +700,6 @@
 		"/C/Users/fwadi/Downloads/выезд Бир, Индия 2026.txt",
 		"/D/Install/3D Max 9/Crack/install.txt",
 		"/D/Images/3DMax/Print/Размеры SJCAM.txt",
-		"/C/Documents/Paragliding/test/Mesuring-test.csv",
 		"/C/Documents/Paragliding/NK Koyot 3p/Koyot 3p 28.csv",
 		"/C/Users/fwadi/Downloads/Выезды.txt",
 		"/D/AndroidProjects/MeasuringPSS/Описание.txt",
@@ -1514,27 +731,11 @@
 		"/C/Users/fwadi/Downloads/Новая таблица - Joy 2 XS (1).csv",
 		"/C/OpenServer/domains/bs.com/helpers/SvgHelper.php",
 		"/C/OpenServer/domains/bs.com/models/AdvertisementHarness.php",
-		"/C/OpenServer/domains/bs.com/models/BaseAdvertisementType.php",
-		"/C/OpenServer/domains/bs.com/models/AdvertisementGlider.php",
-		"/C/OpenServer/domains/bs.com/models/AdvertisementDevice.php",
-		"/C/OpenServer/domains/bs.com/migrations/m240000_000019_add_item_info_link_to_advertisements.php",
-		"/C/OpenServer/domains/bs.com/migrations/m240000_000018_add_producer_info_link_to_producers.php",
-		"/C/Documents/Paragliding/Klimber P/Длины строп export.csv",
-		"/D/Videos/Парапланеризм/2026/Аушкуль-Воронино 19.07/caption.txt",
-		"/C/OpenServer/domains/bs.com/views/site/register.php",
-		"/C/OpenServer/domains/bs.com/models/User.php",
-		"/C/OpenServer/domains/bs.com/migrations/m240000_000017_add_invitation_token_to_advertisements.php",
-		"/C/Documents/Paragliding/Klimber P/Длины строп.cvs",
-		"/C/OpenServer/domains/bs.com/views/advertisements/_device_fields.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/_harness_fields.php",
-		"/C/OpenServer/domains/bs.com/views/advertisements/_glider_fields.php",
-		"/C/OpenServer/domains/bs.com/migrations/m240000_000015_add_type_to_users.php",
-		"/C/OpenServer/domains/bs.com/migrations/m240000_000016_add_source_url_to_advertisements.php",
-		"/C/OpenServer/domains/bs.com/views/layouts/_header.php"
+		"/C/OpenServer/domains/bs.com/models/BaseAdvertisementType.php"
 	],
 	"find":
 	{
-		"height": 40.0
+		"height": 27.2
 	},
 	"find_in_files":
 	{
@@ -1676,6 +877,30 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"hashCallback",
+			"registerCssFile",
+			"appendTimestamp",
+			"<?php if ($model->reserve->weight): ?>",
+			"<div class=\"col-md-4\">",
+			"rules",
+			"?php if ($model->type !== 'normal' && $model->getTypeObject()): ?>",
+			"actionUpdate",
+			"actionCreate",
+			"beforeSave",
+			"generateTitle",
+			"getTypeObject",
+			"getTypeList",
+			"getDevice",
+			"rules",
+			"const TYPE_",
+			"const TYPE_*",
+			"findDuplicates",
+			"actionValidate",
+			"actionUpdate",
+			"actionUpdate ",
+			"deviceModel ",
+			"actionCreate",
+			"EN",
 			"harness",
 			"<?php if (!empty($model->source_url)): ?>",
 			"deleteDirectoryRecursive",
@@ -1779,31 +1004,7 @@
 			"Рекомендуется добавить больше информации",
 			"generateRecommendations",
 			"Анализ рынка:",
-			"generateRecommendations",
-			"getBaseRating",
-			"generateRecommendations",
-			"generateCons",
-			"<div class=\"sort-options\">",
-			"<?php $form = ActiveForm::begin([",
-			"#search-params-form",
-			"ActiveForm::begin([",
-			"<?php $form = ActiveForm::begin([",
-			"<?php $form = ActiveForm::begin([\n    'method' => 'get',\n    'action' => $action,\n    'options' => ['class' => 'd-flex w-100', 'id' => 'main-search-form'],\n]); ?>",
-			"applyPriceSort",
-			"$dataProvider = new ActiveDataProvider([",
-			"search(",
-			"isAdmin",
-			" <div class=\"panel panel-default\">",
-			"<!-- Поле для JSON-импорта (только для админов) -->",
-			"access",
-			"actionResetRating",
-			"image-grid-preview .grid-item",
-			"Внутренние контейнеры",
-			"rating-summary",
-			"getRatingHtml",
-			"$this->summary",
-			"if ($this->summary)",
-			"if ($this->summary) {"
+			"generateRecommendations"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -1953,69 +1154,6 @@
 		{
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "views/advertisements/view.php",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 50765,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								26037,
-								26037
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/PHP/PHP.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 5514.4,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"stack_multiselect": false,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "utils/parse-advertisment-prompt.txt",
-					"selected": true,
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9188,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								9034,
-								9034
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 3,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 3053.6,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"stack_multiselect": false,
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -2113,7 +1251,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 378.0,
+	"side_bar_width": 427.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

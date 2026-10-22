@@ -14,6 +14,7 @@ AppAsset::register($this);
 $this->registerCssFile('@web/css/notification.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 $this->registerCssFile('@web/css/advertisement-form.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 $this->registerCssFile('@web/css/bottom-nav.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerCssFile('@web/css/favorites.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 
 // Регистрируем JS для уведомлений и нижнего меню
 $this->registerJsFile('@web/js/notification.js', [
@@ -40,6 +41,11 @@ $this->registerJsFile('@web/js/bootstrap.bundle.min.js', [
 $this->registerJsFile('@web/js/rating.js', [
     'depends' => [\yii\web\JqueryAsset::class],
     'position' => \yii\web\View::POS_END
+]);
+
+$this->registerJsFile('@web/js/favorites.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END,
 ]);
 
 ?>

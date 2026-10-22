@@ -52,6 +52,18 @@ use yii\helpers\Html;
             </li>
         <?php endif; ?>
 
+        <li class="nav-item">
+            <?= Html::a(
+                '<span class="nav-icon" style="position: relative;">' .
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' .
+                    '<span id="favorites-count-badge" style="display: none; position: absolute; right: -8px; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; min-width: 18px; text-align: center;"></span>' .
+                '</span>' .
+                '<span class="nav-label">Избранное</span>',
+                ['/favorites/index'],
+                ['class' => 'nav-link']
+            ) ?>
+        </li>
+
         
         <?php if (Yii::$app->user->isGuest): ?>
             <li class="nav-item">

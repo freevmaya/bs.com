@@ -248,7 +248,22 @@ $action = ($section === Advertisement::SECTION_SELL) ? 'sell' : 'buy';
                 <!-- Основная информация -->
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <h1><?= Html::encode($model->title) ?></h1>
+                        <?php
+                        $favoriteStorage = new \app\components\FavoriteStorage();
+                        $isFavorite = $favoriteStorage->has($model->id);
+                        ?>
+                        <div class="advertisement-title-row">
+                            <h1><?= Html::encode($model->title) ?></h1>
+                            <button type="button"
+                                    class="favorite-btn-inline <?= $isFavorite ? 'is-favorite' : '' ?>"
+                                    data-id="<?= (int)$model->id ?>"
+                                    aria-label="<?= $isFavorite ? 'Убрать из избранного' : 'Добавить в избранное' ?>"
+                                    title="<?= $isFavorite ? 'Убрать из избранного' : 'Добавить в избранное' ?>">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                </svg>
+                            </button>
+                        </div>
                         
                         <div class="advertisement-meta-info" style="margin-bottom: 20px;">
                             <span class="label <?= $model->section === 'sell' ? 'label-danger' : 'label-info' ?>" style="font-size: 14px;">

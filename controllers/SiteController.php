@@ -80,6 +80,7 @@ class SiteController extends Controller
         }
 
         if (!Yii::$app->user->isGuest) {
+
             // Проверяем отложенную подписку (гость кликнул "Подписаться", но уже залогинен)
             $redirect = $this->processPendingSubscription();
             if ($redirect !== null) {
@@ -111,6 +112,18 @@ class SiteController extends Controller
         $model = new LoginForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+
+            // Слияние гостевого избранного в БД
+            try {
+                $favoriteStorage = new \app\components\FavoriteStorage();
+                $merged = $favoriteStorage->mergeGuestFavorites($model->id);
+                if ($merged > 0) {
+                    Yii::info("Merged {$merged} guest favorites into DB for user {$model->id}", 'favorites');
+                }
+            } catch (\Exception $e) {
+                Yii::error('Failed to merge guest favorites: ' . $e->getMessage(), 'favorites');
+            }
+
             // Сначала — отложенная подписка
             $redirect = $this->processPendingSubscription();
             if ($redirect !== null) {
@@ -248,6 +261,17 @@ class SiteController extends Controller
                     }
 
                     Yii::$app->user->login($model, 3600 * 24 * 30);
+
+                    // Слияние гостевого избранного в БД
+                    try {
+                        $favoriteStorage = new \app\components\FavoriteStorage();
+                        $merged = $favoriteStorage->mergeGuestFavorites($model->id);
+                        if ($merged > 0) {
+                            Yii::info("Merged {$merged} guest favorites into DB for user {$model->id}", 'favorites');
+                        }
+                    } catch (\Exception $e) {
+                        Yii::error('Failed to merge guest favorites: ' . $e->getMessage(), 'favorites');
+                    }
 
                     // Проверяем отложенную подписку
                     $redirect = $this->processPendingSubscription();

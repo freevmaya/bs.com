@@ -1,10 +1,12 @@
 <?php
+// FILE: .\views\advertisements\_item.php
 
 use yii\helpers\Html;
 use yii\helpers\StringHelper;
 use yii\helpers\Url;
 use app\helpers\SvgHelper;
 use app\widgets\ImageGridPreview;
+use app\components\FavoriteStorage;
 
 $priceText = \app\helpers\CurrencyFormatter::display($model->price, $model->currency);
 if ($model->price_negotiable) {
@@ -19,8 +21,12 @@ $imagesCount = count($images);
 
 $link = Url::toRoute(['advertisements/view', 'id' => $model->id]);
 
-// ✅ Используем метод getShortInfoString() который делегирует к типу
 $shortInfoString = $model->getShortInfoString(', ', false);
+
+// Состояние избранного
+$favoriteStorage = new FavoriteStorage();
+$isFavorite = $favoriteStorage->has($model->id);
+$favoriteClass = $isFavorite ? 'is-favorite' : '';
 ?>
 
 <div class="media advertisement-item" data-advertisement-id="<?= $model->id ?>">
@@ -32,11 +38,33 @@ $shortInfoString = $model->getShortInfoString(', ', false);
                 'maxImages' => 5,
                 'containerClass' => 'image-grid-preview',
             ]) ?>
+            <button type="button"
+                    class="favorite-btn <?= $favoriteClass ?>"
+                    data-id="<?= (int)$model->id ?>"
+                    aria-label="<?= $isFavorite ? 'Убрать из избранного' : 'Добавить в избранное' ?>"
+                    title="<?= $isFavorite ? 'Убрать из избранного' : 'Добавить в избранное' ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+            </button>
         </div>
     </div>
     <?php endif; ?>
     
-    <div class="media-body" style="display: flex; flex-direction: column; height: 100%;">
+    <div class="media-body" style="display: flex; flex-direction: column; height: 100%; position: relative;">
+        <?php if ($imagesCount === 0): ?>
+            <button type="button"
+                    class="favorite-btn <?= $favoriteClass ?>"
+                    data-id="<?= (int)$model->id ?>"
+                    aria-label="<?= $isFavorite ? 'Убрать из избранного' : 'Добавить в избранное' ?>"
+                    title="<?= $isFavorite ? 'Убрать из избранного' : 'Добавить в избранное' ?>"
+                    style="top: 0; right: 0;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+            </button>
+        <?php endif; ?>
+
         <a href="<?= $link ?>" class="item-link">
             <div style="flex: 1;">
                 <h4 class="media-heading" style="margin-top: 0;">
