@@ -92,7 +92,7 @@ $rightSections = $powerSections;
     <?php else: ?>
 
         <div class="box">
-            <h3>Стропная система/h3>
+            <h3>Стропная система</h3>
 
             <div id="wing" class="wing detail">
 
