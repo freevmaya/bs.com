@@ -38,7 +38,13 @@ $rightSections = $powerSections;
 
 <div class="wing-view">
 
-    <h1>Line chart</h1>
+    <div class="wing-view-back">
+        <?= Html::a(
+            '<span class="glyphicon glyphicon-arrow-left"></span> Назад в каталог',
+            ['wings/index'],
+            ['class' => 'btn btn-sm btn-outline-secondary']
+        ) ?>
+    </div>
     <h2><?= Html::encode($wing->full_name) ?></h2>
 
     <?php if ($wing->manufacturer): ?>
