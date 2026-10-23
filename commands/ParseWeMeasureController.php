@@ -89,6 +89,9 @@ class ParseWeMeasureController extends Controller
         $this->out('=== ИТОГИ ===');
         $this->out('Найдено в каталоге: ' . $stats['catalog_total']);
         $this->out('Спарсено:          ' . $stats['parsed']);
+        $this->out('Обновлено:         ' . $stats['updated']);
+        $this->out('Удалено:           ' . $stats['deleted']);
+        $this->out('Скрыто:            ' . $stats['hidden']);
         $this->out('Пропущено:         ' . $stats['skipped']);
         $this->out('Расхождений:       ' . $stats['mismatches']);
         $this->out('Ошибок:            ' . $stats['errors']);

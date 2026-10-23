@@ -17,13 +17,45 @@ use yii\db\ActiveRecord;
  * @property string $full_name
  * @property string|null $source_url
  * @property int    $catalog_match
+ * @property string $state
  * @property string|null $parsed_at
  */
 class Wing extends ActiveRecord
 {
+    const STATE_ACTIVE         = 'active';
+    const STATE_REQUIRE_UPDATE = 'require_update';
+    const STATE_HIDE           = 'hide';
+    const STATE_DELETE         = 'delete';
+
     public static function tableName()
     {
         return 'wings';
+    }
+
+    public static function getStateList()
+    {
+        return [
+            self::STATE_ACTIVE         => 'Активно',
+            self::STATE_REQUIRE_UPDATE => 'Требует обновления',
+            self::STATE_HIDE           => 'Скрыто',
+            self::STATE_DELETE         => 'На удаление',
+        ];
+    }
+
+    public function getStateLabel()
+    {
+        return self::getStateList()[$this->state] ?? $this->state;
+    }
+
+    public function getStateColorClass()
+    {
+        $map = [
+            self::STATE_ACTIVE         => 'state-active',
+            self::STATE_REQUIRE_UPDATE => 'state-require-update',
+            self::STATE_HIDE           => 'state-hide',
+            self::STATE_DELETE         => 'state-delete',
+        ];
+        return $map[$this->state] ?? '';
     }
 
     public function rules()
@@ -37,6 +69,13 @@ class Wing extends ActiveRecord
             [['source_url'], 'string', 'max' => 500],
             [['parsed_at'], 'safe'],
             [['catalog_match'], 'default', 'value' => 1],
+            [['state'], 'default', 'value' => self::STATE_ACTIVE],
+            [['state'], 'in', 'range' => [
+                self::STATE_ACTIVE,
+                self::STATE_REQUIRE_UPDATE,
+                self::STATE_HIDE,
+                self::STATE_DELETE,
+            ]],
             [['source_id'], 'unique'],
         ];
     }
@@ -53,6 +92,7 @@ class Wing extends ActiveRecord
             'full_name'       => 'Полное название',
             'source_url'      => 'URL источника',
             'catalog_match'   => 'Совпадает с каталогом',
+            'state'           => 'Состояние',
             'parsed_at'       => 'Спарсено',
         ];
     }

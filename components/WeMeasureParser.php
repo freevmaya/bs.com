@@ -78,12 +78,18 @@ class WeMeasureParser extends Component
     /**
      * Основной метод: обход каталога и парсинг всех карт.
      *
-     * --limit ограничивает количество УСПЕШНО СПАРСЕННЫХ страниц,
-     * а не пройденных по каталогу. Уже сохранённые source_id
-     * пропускаются и в лимит не входят.
+     * Логика состояний:
+     *  - delete         → физически удалить крыло, stats['deleted']++
+     *  - require_update → перепарсить (как при --force), после успеха state=active, stats['updated']++
+     *  - hide           → пропустить, stats['hidden']++
+     *  - active + --force → перепарсить
+     *  - active без --force → пропустить, stats['skipped']++
      *
-     * @param int  $limit  0 = без ограничения
-     * @param bool $force  true = перепарсить уже существующие source_id
+     * --limit ограничивает количество УСПЕШНО СПАРСЕННЫХ страниц
+     * (parsed + updated), а не пройденных по каталогу.
+     *
+     * @param int  $limit
+     * @param bool $force
      * @return array
      */
     public function run($limit = 0, $force = false)
@@ -91,12 +97,14 @@ class WeMeasureParser extends Component
         $this->stats = [
             'catalog_total' => 0,
             'parsed'        => 0,
+            'updated'       => 0,
+            'deleted'       => 0,
+            'hidden'        => 0,
             'skipped'       => 0,
             'mismatches'    => 0,
             'errors'        => 0,
         ];
 
-        // Проверяем наличие cookie-файла
         $cookiePath = $this->getCookiePath();
         if (!is_file($cookiePath) || filesize($cookiePath) === 0) {
             Yii::warning(
@@ -114,12 +122,40 @@ class WeMeasureParser extends Component
         Yii::info('we-measure: catalog collected, items=' . count($catalog), 'we_measure');
 
         foreach ($catalog as $sourceId => $item) {
-            // Лимит считаем по УСПЕШНО СПАРСЕННЫМ страницам
-            if ($limit > 0 && $this->stats['parsed'] >= $limit) {
+            if ($limit > 0 && ($this->stats['parsed'] + $this->stats['updated']) >= $limit) {
                 break;
             }
 
-            if (!$force && $this->isAlreadyParsed($sourceId)) {
+            $existing = Wing::find()->where(['source_id' => $sourceId])->one();
+
+            // --- delete ---
+            if ($existing !== null && $existing->state === Wing::STATE_DELETE) {
+                try {
+                    $existing->delete();
+                    $this->stats['deleted']++;
+                    Yii::info("we-measure: source_id={$sourceId} deleted (state=delete)", 'we_measure');
+                } catch (\Throwable $e) {
+                    $this->stats['errors']++;
+                    Yii::error(
+                        "we-measure: error deleting source_id={$sourceId}: " . $e->getMessage(),
+                        'we_measure'
+                    );
+                }
+                continue;
+            }
+
+            // --- hide ---
+            if ($existing !== null && $existing->state === Wing::STATE_HIDE) {
+                $this->stats['hidden']++;
+                Yii::info("we-measure: source_id={$sourceId} hidden, skip", 'we_measure');
+                continue;
+            }
+
+            // --- require_update ---
+            $isRequireUpdate = $existing !== null && $existing->state === Wing::STATE_REQUIRE_UPDATE;
+
+            // --- active без force ---
+            if ($existing !== null && !$isRequireUpdate && !$force) {
                 $this->stats['skipped']++;
                 Yii::info("we-measure: source_id={$sourceId} already parsed, skip", 'we_measure');
                 continue;
@@ -127,8 +163,19 @@ class WeMeasureParser extends Component
 
             try {
                 $ok = $this->parseAndSaveWingPage($sourceId, $item);
+
                 if ($ok) {
-                    $this->stats['parsed']++;
+                    if ($isRequireUpdate) {
+                        // После успешного обновления возвращаем в active
+                        $wing = Wing::find()->where(['source_id' => $sourceId])->one();
+                        if ($wing !== null && $wing->state === Wing::STATE_REQUIRE_UPDATE) {
+                            $wing->state = Wing::STATE_ACTIVE;
+                            $wing->save(false, ['state']);
+                        }
+                        $this->stats['updated']++;
+                    } else {
+                        $this->stats['parsed']++;
+                    }
                 } else {
                     $this->stats['skipped']++;
                 }
@@ -467,6 +514,7 @@ class WeMeasureParser extends Component
             if ($wing === null) {
                 $wing = new Wing();
                 $wing->source_id = $sourceId;
+                $wing->state = Wing::STATE_ACTIVE;
             }
 
             $wing->manufacturer_id = $manufacturerId;

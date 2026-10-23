@@ -10,7 +10,6 @@
     margin-bottom: 20px;
 }
 
-/* --- Фильтр --- */
 .wings-index-filter {
     margin-bottom: 20px;
 }
@@ -58,17 +57,17 @@
     text-decoration: underline;
 }
 
-/* --- Контейнер моделей внутри производителя: grid --- */
+/* --- Grid моделей --- */
 .wings-index .box21 .models {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 5px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
     align-items: start;
 }
 
 @media (max-width: 1000px) {
     .wings-index .box21 .models {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -78,7 +77,6 @@
     }
 }
 
-/* --- Модель --- */
 .wings-index .box21 .section {
     display: flex;
     flex-direction: column;
@@ -101,7 +99,7 @@
     color: #adb5bd;
 }
 
-/* --- Плитки размеров: одна линия, сжимаются --- */
+/* --- Плитки размеров --- */
 .wings-index .tiles {
     display: flex;
     flex-direction: row;
@@ -109,6 +107,13 @@
     gap: 6px;
     width: 100%;
     overflow: hidden;
+}
+
+.wings-index .tile-wrapper {
+    position: relative;
+    display: inline-flex;
+    flex: 0 1 auto;
+    min-width: 0;
 }
 
 .wings-index .tile {
@@ -151,6 +156,205 @@
     background: #1a3a5c;
     border-color: #0d6efd;
     color: #8bb9ff;
+}
+
+/* --- Состояния плиток (для админа) --- */
+.wings-index .tile.tile-state-require-update {
+    border-color: #ffc107;
+    background: #fff8e1;
+    color: #856404;
+}
+
+.wings-index .tile.tile-state-hide {
+    border-color: #adb5bd;
+    background: #ececec;
+    color: #6c757d;
+    opacity: 0.85;
+}
+
+.wings-index .tile.tile-state-delete {
+    border-color: #dc3545;
+    background: #fdecea;
+    color: #a71d2a;
+    text-decoration: line-through;
+}
+
+[data-bs-theme="dark"] .wings-index .tile.tile-state-require-update {
+    background: #3a2f00;
+    color: #ffd75e;
+    border-color: #8a6d00;
+}
+
+[data-bs-theme="dark"] .wings-index .tile.tile-state-hide {
+    background: #2f2f2f;
+    color: #adb5bd;
+    border-color: #555;
+}
+
+[data-bs-theme="dark"] .wings-index .tile.tile-state-delete {
+    background: #3a1a1a;
+    color: #ff8080;
+    border-color: #8a2a2a;
+}
+
+/* --- Бейдж состояния и кнопка --- */
+.wings-index .tile-state-badge {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: 4px;
+    flex-shrink: 0;
+}
+
+.wings-index .tile-state-badge.state-active        { background: #28a745; }
+.wings-index .tile-state-badge.state-require-update { background: #ffc107; }
+.wings-index .tile-state-badge.state-hide          { background: #adb5bd; }
+.wings-index .tile-state-badge.state-delete        { background: #dc3545; }
+
+.wings-index .tile-state-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-left: 2px;
+    font-size: 10px;
+    line-height: 1;
+    color: #6c757d;
+    background: transparent;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+}
+
+.wings-index .tile-state-toggle:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: #212529;
+}
+
+[data-bs-theme="dark"] .wings-index .tile-state-toggle {
+    color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .wings-index .tile-state-toggle:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+/* --- Выпадающее меню состояния --- */
+.wing-state-menu {
+    position: absolute;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+    padding: 4px 0;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.wing-state-menu button {
+    display: block;
+    width: 100%;
+    padding: 6px 12px;
+    font-size: 13px;
+    text-align: left;
+    color: #212529;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.wing-state-menu button:hover {
+    background: #f0f0f0;
+}
+
+.wing-state-menu button.current {
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+[data-bs-theme="dark"] .wing-state-menu {
+    background: #2a2a2a;
+    border-color: #444;
+}
+
+[data-bs-theme="dark"] .wing-state-menu button {
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .wing-state-menu button:hover {
+    background: #383838;
+}
+
+[data-bs-theme="dark"] .wing-state-menu button.current {
+    color: #8bb9ff;
+}
+
+/* --- Статистика разброса --- */
+.wings-index .wings-diff-stats {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="dark"] .wings-index .wings-diff-stats {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.wings-index .wings-diff-stats h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: #212529;
+}
+
+[data-bs-theme="dark"] .wings-index .wings-diff-stats h3 {
+    color: #e9ecef;
+}
+
+.wings-index .wings-diff-table {
+    max-width: 500px;
+    margin: 0;
+}
+
+.wings-index .wings-diff-table th,
+.wings-index .wings-diff-table td {
+    padding: 6px 12px;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.wings-index .wings-diff-table thead th {
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid #dee2e6;
+}
+
+[data-bs-theme="dark"] .wings-index .wings-diff-table thead th {
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom-color: #444;
+}
+
+.wings-index .wings-diff-table tfoot th {
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.03);
+    border-top: 2px solid #dee2e6;
+}
+
+[data-bs-theme="dark"] .wings-index .wings-diff-table tfoot th {
+    background: rgba(255, 255, 255, 0.05);
+    border-top-color: #444;
+}
+
+.wings-index .wings-diff-table .text-end {
+    text-align: right;
 }
 
 /* --- Адаптивность --- */

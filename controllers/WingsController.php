@@ -6,6 +6,8 @@ namespace app\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException;
+use yii\web\Response;
 use app\models\Wing;
 use app\models\WingLowerLine;
 use app\models\WingUpperLine;
@@ -16,14 +18,35 @@ use app\models\WingUpperLine;
 class WingsController extends Controller
 {
     /**
+     * @return bool
+     */
+    protected function isAdmin()
+    {
+        if (Yii::$app->user->isGuest) {
+            return false;
+        }
+        $identity = Yii::$app->user->identity;
+        return $identity && method_exists($identity, 'isAdmin') && $identity->isAdmin();
+    }
+
+    /**
      * Каталог всех сохранённых крыльев, сгруппированных по производителю.
+     *
+     * Для админа — все состояния с пометкой; для остальных — только active.
      *
      * @return string
      */
     public function actionIndex()
     {
-        $wings = Wing::find()
-            ->with(['manufacturer'])
+        $isAdmin = $this->isAdmin();
+
+        $query = Wing::find()->with(['manufacturer']);
+
+        if (!$isAdmin) {
+            $query->andWhere(['state' => Wing::STATE_ACTIVE]);
+        }
+
+        $wings = $query
             ->orderBy([
                 'manufacturer_id' => SORT_ASC,
                 'model'           => SORT_ASC,
@@ -63,14 +86,12 @@ class WingsController extends Controller
             $byManufacturer[$manufacturerId]['models'][$modelKey]['wings'][] = $wing;
         }
 
-        // Сортируем производителей по имени
         uasort($byManufacturer, function ($a, $b) {
             $na = mb_strtolower($a['manufacturer']->name ?? '');
             $nb = mb_strtolower($b['manufacturer']->name ?? '');
             return $na <=> $nb;
         });
 
-        // Сортируем модели и размеры
         foreach ($byManufacturer as &$m) {
             uasort($m['models'], function ($a, $b) {
                 $cmp = mb_strtolower($a['model']) <=> mb_strtolower($b['model']);
@@ -89,7 +110,6 @@ class WingsController extends Controller
         }
         unset($m);
 
-        // «Без производителя» — сортируем по модели и source_id
         usort($noManufacturer, function ($a, $b) {
             $cmp = mb_strtolower($a->model) <=> mb_strtolower($b->model);
             if ($cmp !== 0) {
@@ -98,13 +118,62 @@ class WingsController extends Controller
             return $a->source_id <=> $b->source_id;
         });
 
-        $diffStats = $this->getDiffStats();
-
         return $this->render('index', [
             'byManufacturer' => $byManufacturer,
             'noManufacturer' => $noManufacturer,
-            'diffStats'      => $diffStats,
+            'diffStats'      => $this->getDiffStats(),
+            'isAdmin'        => $isAdmin,
         ]);
+    }
+
+    /**
+     * AJAX: смена состояния крыла. Только для админа.
+     *
+     * @return array
+     */
+    public function actionSetState()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!$this->isAdmin()) {
+            throw new ForbiddenHttpException('Доступ запрещён');
+        }
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'error' => 'Только POST'];
+        }
+
+        if (!Yii::$app->request->validateCsrfToken()) {
+            return ['success' => false, 'error' => 'CSRF token validation failed'];
+        }
+
+        $id = (int)Yii::$app->request->post('id', 0);
+        $state = (string)Yii::$app->request->post('state', '');
+
+        if ($id <= 0) {
+            return ['success' => false, 'error' => 'Не указан id'];
+        }
+
+        if (!in_array($state, array_keys(Wing::getStateList()), true)) {
+            return ['success' => false, 'error' => 'Некорректное состояние'];
+        }
+
+        $wing = Wing::findOne($id);
+        if (!$wing) {
+            return ['success' => false, 'error' => 'Крыло не найдено'];
+        }
+
+        $wing->state = $state;
+        if (!$wing->save(false, ['state'])) {
+            return ['success' => false, 'error' => 'Ошибка сохранения'];
+        }
+
+        return [
+            'success'     => true,
+            'state'       => $wing->state,
+            'state_label' => $wing->getStateLabel(),
+            'state_class' => $wing->getStateColorClass(),
+        ];
     }
 
     /**
@@ -120,13 +189,21 @@ class WingsController extends Controller
             throw new NotFoundHttpException('Не указан идентификатор крыла');
         }
 
+        $isAdmin = $this->isAdmin();
+
         $query = Wing::find()->with(['manufacturer']);
 
         if ($id !== null) {
-            $wing = $query->where(['id' => (int)$id])->one();
+            $query->where(['id' => (int)$id]);
         } else {
-            $wing = $query->where(['source_id' => (int)$source_id])->one();
+            $query->where(['source_id' => (int)$source_id]);
         }
+
+        if (!$isAdmin) {
+            $query->andWhere(['state' => Wing::STATE_ACTIVE]);
+        }
+
+        $wing = $query->one();
 
         if (!$wing) {
             throw new NotFoundHttpException('Крыло не найдено');
@@ -156,7 +233,72 @@ class WingsController extends Controller
             'wing'     => $wing,
             'sections' => $sections,
             'csvTable' => $csvTable,
+            'isAdmin'  => $isAdmin,
         ]);
+    }
+
+    /**
+     * Статистика разброса длин строп по группам (только active).
+     *
+     * @return array
+     */
+    public function getDiffStats()
+    {
+        $sql = <<<SQL
+SELECT
+    CASE
+        WHEN diff < 1000              THEN 'до 1 м'
+        WHEN diff < 1500              THEN '1–1.5 м'
+        WHEN diff < 2000              THEN '1.5–2 м'
+        WHEN diff < 2500              THEN '2–2.5 м'
+        WHEN diff < 3000              THEN '2.5–3 м'
+        ELSE '3 м и более'
+    END AS diff_group,
+    COUNT(*)  AS wings_count,
+    MIN(diff) AS min_diff,
+    MAX(diff) AS max_diff
+FROM (
+    SELECT
+        w.id,
+        (MAX(u.length_mm) - MIN(u.length_mm)) AS diff
+    FROM wings w
+    INNER JOIN wing_upper_lines u ON u.wing_id = w.id
+    WHERE w.state = 'active'
+    GROUP BY w.id
+) AS d
+GROUP BY diff_group
+ORDER BY MIN(diff)
+SQL;
+
+        $rows = Yii::$app->db->createCommand($sql)->queryAll();
+
+        $order = [
+            'до 1 м'      => null,
+            '1–1.5 м'     => null,
+            '1.5–2 м'     => null,
+            '2–2.5 м'     => null,
+            '2.5–3 м'     => null,
+            '3 м и более' => null,
+        ];
+
+        $byLabel = [];
+        foreach ($rows as $row) {
+            $byLabel[$row['diff_group']] = $row;
+        }
+
+        $result = [];
+        foreach ($order as $label => $_) {
+            $row = $byLabel[$label] ?? null;
+
+            $result[] = [
+                'label' => $label,
+                'min'   => $row['min_diff'] ?? null,
+                'max'   => $row['max_diff'] ?? null,
+                'count' => $row ? (int)$row['wings_count'] : 0,
+            ];
+        }
+
+        return $result;
     }
 
     /**
@@ -203,15 +345,12 @@ class WingsController extends Controller
         ksort($bySection);
 
         $sections = [];
-
         foreach ($bySection as $number => $groups) {
             $sections[] = $this->makeSection($number, false, $groups);
         }
-
         if (!empty($ears)) {
             $sections[] = $this->makeSection(null, false, $ears);
         }
-
         $hasBrake = false;
         if (!empty($brakeGroups)) {
             $hasBrake = true;
@@ -225,8 +364,6 @@ class WingsController extends Controller
     }
 
     /**
-     * Извлекает номер секции из имени группы.
-     *
      * @param string $name
      * @return int|null
      */
@@ -239,9 +376,6 @@ class WingsController extends Controller
     }
 
     /**
-     * Собирает секцию: группирует точки каждой группы по префиксу имени,
-     * каждая строка заполняется целиком.
-     *
      * @param int|null $number
      * @param bool     $isBrake
      * @param array    $groups
@@ -254,9 +388,7 @@ class WingsController extends Controller
         $outGroups = [];
 
         foreach ($groups as $g) {
-            /** @var WingLowerLine $lower */
             $lower = $g['lower'];
-            /** @var WingUpperLine[] $lines */
             $lines = $g['lines'];
 
             $rowsByPrefix = [];
@@ -310,8 +442,6 @@ class WingsController extends Controller
     }
 
     /**
-     * Извлекает префикс из имени стропы.
-     *
      * @param string $name
      * @return string
      */
@@ -324,8 +454,6 @@ class WingsController extends Controller
     }
 
     /**
-     * Строит структуру для CSV-блока внизу страницы.
-     *
      * @param WingLowerLine[] $lowerLines
      * @param array<int, WingUpperLine[]> $upperByLower
      * @return array
@@ -387,77 +515,5 @@ class WingsController extends Controller
             'columns'  => $columns,
             'max_rows' => $maxRows,
         ];
-    }
-
-    /**
-     * Статистика разброса длин строп по группам.
-     *
-     * diff = MAX(length_mm) − MIN(length_mm) по wing_upper_lines для крыла.
-     *
-     * @return array<int, array{
-     *     label: string,
-     *     min: int|null,
-     *     max: int|null,
-     *     count: int,
-     * }>
-     */
-    public function getDiffStats()
-    {
-        $sql = <<<SQL
-            SELECT
-                CASE
-                    WHEN diff < 1000              THEN 'до 1 м'
-                    WHEN diff < 1500              THEN '1–1.5 м'
-                    WHEN diff < 2000              THEN '1.5–2 м'
-                    WHEN diff < 2500              THEN '2–2.5 м'
-                    WHEN diff < 3000              THEN '2.5–3 м'
-                    ELSE '3 м и более'
-                END AS diff_group,
-                COUNT(*)  AS wings_count,
-                MIN(diff) AS min_diff,
-                MAX(diff) AS max_diff
-            FROM (
-                SELECT
-                    w.id,
-                    (MAX(u.length_mm) - MIN(u.length_mm)) AS diff
-                FROM wings w
-                INNER JOIN wing_upper_lines u ON u.wing_id = w.id
-                GROUP BY w.id
-            ) AS d
-            GROUP BY diff_group
-            ORDER BY MIN(diff)
-        SQL;
-
-        $rows = Yii::$app->db->createCommand($sql)->queryAll();
-
-        // Фиксированный порядок групп, чтобы в таблице всегда были все строки
-        // (даже если в какой-то группе 0 крыльев)
-        $order = [
-            'до 1 м'       => null,
-            '1–1.5 м'      => null,
-            '1.5–2 м'      => null,
-            '2–2.5 м'      => null,
-            '2.5–3 м'      => null,
-            '3 м и более'  => null,
-        ];
-
-        $byLabel = [];
-        foreach ($rows as $row) {
-            $byLabel[$row['diff_group']] = $row;
-        }
-
-        $result = [];
-        foreach ($order as $label => $_) {
-            $row = $byLabel[$label] ?? null;
-
-            $result[] = [
-                'label' => $label,
-                'min'   => $row['min_diff'] ?? null,
-                'max'   => $row['max_diff'] ?? null,
-                'count' => $row ? (int)$row['wings_count'] : 0,
-            ];
-        }
-
-        return $result;
     }
 }

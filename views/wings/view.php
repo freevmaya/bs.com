@@ -47,6 +47,12 @@ $rightSections = $powerSections;
     </div>
     <h2><?= Html::encode($wing->full_name) ?></h2>
 
+    <?php if ($isAdmin && $wing->state !== \app\models\Wing::STATE_ACTIVE): ?>
+        <div class="alert alert-<?= $wing->state === \app\models\Wing::STATE_DELETE ? 'danger' : ($wing->state === \app\models\Wing::STATE_REQUIRE_UPDATE ? 'warning' : 'secondary') ?>">
+            <strong>Состояние:</strong> <?= Html::encode($wing->getStateLabel()) ?>
+        </div>
+    <?php endif; ?>
+
     <?php if ($wing->manufacturer): ?>
         <p class="text-muted">
             Производитель: <?= Html::encode($wing->manufacturer->name) ?>
