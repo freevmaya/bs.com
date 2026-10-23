@@ -143,7 +143,7 @@
 
 [data-bs-theme="dark"] .wing-view .wing .group h3 {
     color: #adb5bd;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgb(46 62 107 / 28%);
 }
 
 /* --- Строки и точки --- */
