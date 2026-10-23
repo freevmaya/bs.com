@@ -57,6 +57,34 @@ $rightSections = $powerSections;
         </p>
     <?php endif; ?>
 
+    <?php
+    $wingFiles = $wing->getFiles()->all();
+    ?>
+    <?php if (!empty($wingFiles)): ?>
+        <div class="box wing-files-used">
+            <h3>Files used</h3>
+
+            <table class="table table-sm wing-files-table">
+                <tbody>
+                    <?php foreach ($wingFiles as $file): ?>
+                        <tr>
+                            <td class="wing-file-date">
+                                <?= $file->file_date ? Html::encode($file->file_date) : '' ?>
+                            </td>
+                            <td class="wing-file-name">
+                                <a href="<?= Html::encode($file->url) ?>"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    <?= Html::encode($file->name) ?>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>    
+
     <?php if (empty($sections['sections'])): ?>
         <div class="alert alert-info">
             Для этого крыла данные о стропах отсутствуют.

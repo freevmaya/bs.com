@@ -406,3 +406,54 @@
 .wings-index .wings-diff-table .text-end {
     text-align: right;
 }
+
+/* --- Блок Files used --- */
+.wing-view .wing-files-used h3 {
+    margin-bottom: 12px;
+}
+
+.wing-view .wing-files-table {
+    max-width: 700px;
+    margin: 0;
+}
+
+.wing-view .wing-files-table td {
+    padding: 6px 12px;
+    font-size: 13px;
+    vertical-align: middle;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="dark"] .wing-view .wing-files-table td {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.wing-view .wing-files-table tr:first-child td {
+    border-top: none;
+}
+
+.wing-view .wing-files-table .wing-file-date {
+    width: 110px;
+    color: #6c757d;
+    white-space: nowrap;
+    font-family: "Consolas", "Menlo", "Monaco", "Courier New", monospace;
+    font-size: 12px;
+}
+
+[data-bs-theme="dark"] .wing-view .wing-files-table .wing-file-date {
+    color: #adb5bd;
+}
+
+.wing-view .wing-files-table .wing-file-name a {
+    color: #0d6efd;
+    text-decoration: none;
+    word-break: break-word;
+}
+
+.wing-view .wing-files-table .wing-file-name a:hover {
+    text-decoration: underline;
+}
+
+[data-bs-theme="dark"] .wing-view .wing-files-table .wing-file-name a {
+    color: #8bb9ff;
+}

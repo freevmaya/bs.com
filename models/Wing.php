@@ -73,4 +73,10 @@ class Wing extends ActiveRecord
         return $this->hasMany(WingUpperLine::class, ['wing_id' => 'id'])
             ->orderBy(['sort_order' => SORT_ASC, 'name' => SORT_ASC]);
     }
+
+    public function getFiles()
+    {
+        return $this->hasMany(WingFile::class, ['wing_id' => 'id'])
+            ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC]);
+    }
 }

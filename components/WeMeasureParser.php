@@ -8,6 +8,7 @@ use yii\base\Component;
 use yii\httpclient\Client;
 use app\models\Manufacturer;
 use app\models\Wing;
+use app\models\WingFile;
 use app\models\WingLowerLine;
 use app\models\WingUpperLine;
 use app\models\ParseMismatch;
@@ -15,11 +16,8 @@ use app\models\ParseMismatch;
 /**
  * Парсер сайта we-measure.io.
  *
- * Собирает данные каталога (/database) и страниц карт строп
- * (/user/wing/map/{id}), пишет в БД.
- *
- * Страницы карт строп доступны только авторизованному пользователю,
- * поэтому парсер читает cookie из файла в формате Netscape (curl).
+ * Собирает данные каталога (/database), страниц карт строп (/user/wing/map/{id})
+ * и файлов, на которых основана карта (блок Files used), пишет в БД.
  */
 class WeMeasureParser extends Component
 {
@@ -415,7 +413,6 @@ class WeMeasureParser extends Component
             $pageFullName = trim(html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
         }
         if ($pageFullName === null || $pageFullName === '') {
-            // Возможно, редирект на /login — сессия протухла
             if (mb_strpos($html, "url='/login'") !== false
                 || mb_strpos($html, 'url="/login"') !== false
                 || mb_strpos($html, 'Redirecting to') !== false
@@ -430,6 +427,9 @@ class WeMeasureParser extends Component
             }
             return false;
         }
+
+        // 1a. Блок Files used
+        $filesUsed = $this->parseFilesUsed($html);
 
         // 2. Блок Data -> <table class="flex">
         $dataTableHtml = $this->extractDataTable($html);
@@ -482,6 +482,24 @@ class WeMeasureParser extends Component
                 throw new \RuntimeException('Failed to save Wing: ' . json_encode($wing->errors));
             }
 
+            // Files used: удаляем старые, пишем новые
+            WingFile::deleteAll(['wing_id' => $wing->id]);
+            foreach ($filesUsed as $sortOrder => $file) {
+                $wingFile = new WingFile();
+                $wingFile->wing_id    = $wing->id;
+                $wingFile->name       = mb_substr($file['name'], 0, 255);
+                $wingFile->url        = mb_substr($file['url'], 0, 500);
+                $wingFile->file_date  = $file['date'];
+                $wingFile->sort_order = $sortOrder;
+
+                if (!$wingFile->save()) {
+                    throw new \RuntimeException(
+                        'Failed to save WingFile: ' . json_encode($wingFile->errors)
+                    );
+                }
+            }
+
+            // Пересоздаём строки (idempotent при --force)
             WingUpperLine::deleteAll(['wing_id' => $wing->id]);
             WingLowerLine::deleteAll(['wing_id' => $wing->id]);
 
@@ -520,7 +538,7 @@ class WeMeasureParser extends Component
 
             Yii::info(
                 "we-measure: parsed source_id={$sourceId} ({$pageFullName}), "
-                . "groups=" . count($groups),
+                . "groups=" . count($groups) . ", files=" . count($filesUsed),
                 'we_measure'
             );
 
@@ -530,6 +548,71 @@ class WeMeasureParser extends Component
             $transaction->rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * Парсит блок "Files used".
+     *
+     * @param string $html
+     * @return array<int, array{
+     *     name: string,
+     *     url: string,
+     *     date: string|null,
+     * }>
+     */
+    protected function parseFilesUsed($html)
+    {
+        $files = [];
+
+        // Ищем блок, начинающийся с <h5>Files used</h5>
+        if (!preg_match('~<h5>\s*Files used\s*</h5>(.*?)</div>\s*</div>~s', $html, $blockMatch)) {
+            return $files;
+        }
+
+        $block = $blockMatch[1];
+
+        // Каждый файл: <div class="super"><sup>DATE</sup><a ... href="URL">...NAME</a></div>
+        if (!preg_match_all(
+            '~<div class="super">\s*<sup>(.*?)</sup>\s*<a[^>]*href="([^"]+)"[^>]*>(.*?)</a>\s*</div>~s',
+            $block,
+            $matches,
+            PREG_SET_ORDER
+        )) {
+            return $files;
+        }
+
+        foreach ($matches as $m) {
+            $date = trim(html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            $url  = trim($m[2]);
+            $name = trim(html_entity_decode(strip_tags($m[3]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+
+            // Убираем HTML-сущности вроде &nbsp;
+            $name = str_replace(["\xC2\xA0", '&nbsp;'], ' ', $name);
+            $name = trim($name);
+
+            if ($name === '' || $url === '') {
+                continue;
+            }
+
+            // Абсолютный URL
+            if (strpos($url, '/') === 0) {
+                $url = self::BASE_URL . $url;
+            }
+
+            // Дата: YYYY-MM-DD или null
+            $dateValue = null;
+            if ($date !== '' && preg_match('~^\d{4}-\d{2}-\d{2}$~', $date)) {
+                $dateValue = $date;
+            }
+
+            $files[] = [
+                'name' => $name,
+                'url'  => $url,
+                'date' => $dateValue,
+            ];
+        }
+
+        return $files;
     }
 
     /**
@@ -591,7 +674,6 @@ class WeMeasureParser extends Component
     {
         $groups = [];
 
-        // 1. Находим все позиции <tr class="group" ...>
         if (!preg_match_all(
             '~<tr\s+class="group"[^>]*>~s',
             $tableHtml,
@@ -604,7 +686,6 @@ class WeMeasureParser extends Component
 
         $groupCount = count($groupOpenMatches[0]);
 
-        // 2. Для каждой группы: границы от открытия текущей до открытия следующей
         for ($i = 0; $i < $groupCount; $i++) {
             $startPos = $groupOpenMatches[0][$i][1];
             $endPos   = $i + 1 < $groupCount
@@ -613,7 +694,6 @@ class WeMeasureParser extends Component
 
             $block = mb_substr($tableHtml, $startPos, $endPos - $startPos);
 
-            // 3. Имя группы: <th>…</th> сразу после <tr class="group">
             $groupName = null;
             if (preg_match('~<tr\s+class="group"[^>]*>\s*<th>(.*?)</th>~s', $block, $m)) {
                 $groupName = trim(html_entity_decode(
@@ -627,14 +707,12 @@ class WeMeasureParser extends Component
                 continue;
             }
 
-            // 4. Внутренняя <table class="rows"> — содержимое
             if (!preg_match('~<table class="rows">(.*?)</table>~s', $block, $rowsMatch)) {
                 continue;
             }
 
             $rowsHtml = $rowsMatch[1];
 
-            // 5. Строки: <tr><th>…</th><td>…</td></tr>
             if (!preg_match_all(
                 '~<tr>\s*<th>(.*?)</th>\s*<td>(.*?)</td>\s*</tr>~s',
                 $rowsHtml,
@@ -657,7 +735,6 @@ class WeMeasureParser extends Component
                 $nameRaw  = trim($rm[1]);
                 $valueRaw = trim($rm[2]);
 
-                // Пустая заглушка <th>&nbsp;</th><td>&nbsp;</td>
                 if ($nameRaw === '&nbsp;' || $nameRaw === '') {
                     $riserRaw = $valueRaw;
                     continue;
@@ -858,8 +935,6 @@ class WeMeasureParser extends Component
 
     /**
      * Загружает URL, возвращает HTML или null при ошибке.
-     *
-     * Если cookie-файл существует — передаёт его cURL.
      *
      * @param string $url
      * @return string|null
