@@ -62,7 +62,7 @@ $rightSections = $powerSections;
     ?>
     <?php if (!empty($wingFiles)): ?>
         <div class="box wing-files-used">
-            <h3>Files used</h3>
+            <h3>Файлы</h3>
 
             <table class="table table-sm wing-files-table">
                 <tbody>
