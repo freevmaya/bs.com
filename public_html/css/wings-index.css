@@ -216,10 +216,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
-    margin-left: 2px;
-    font-size: 10px;
+    /* width: 18px; */
+    /* height: 18px; */
+    /* margin-left: 2px; */
+    /* font-size: 10px; */
     line-height: 1;
     color: #6c757d;
     background: transparent;
@@ -376,4 +376,10 @@
     .wings-index .box21 .models {
         gap: 12px;
     }
+}
+
+.admin {
+    position: absolute;
+    /* margin-top: -8px; */
+    display: flex;
 }

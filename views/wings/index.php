@@ -79,13 +79,15 @@ $this->registerCssFile('@web/css/wings-index.css', ['depends' => [\yii\bootstrap
                                         <?= Html::encode($wing->size) ?>
                                     </a>
                                     <?php if ($isAdmin): ?>
-                                        <span class="tile-state-badge <?= Html::encode($wing->getStateColorClass()) ?>"
-                                              title="<?= Html::encode($wing->getStateLabel()) ?>"></span>
-                                        <button type="button"
-                                                class="tile-state-toggle"
-                                                data-id="<?= (int)$wing->id ?>"
-                                                data-state="<?= Html::encode($wing->state) ?>"
-                                                title="Изменить состояние">▾</button>
+                                        <div class="admin">
+                                            <span class="tile-state-badge <?= Html::encode($wing->getStateColorClass()) ?>"
+                                                  title="<?= Html::encode($wing->getStateLabel()) ?>"></span>
+                                            <button type="button"
+                                                    class="tile-state-toggle"
+                                                    data-id="<?= (int)$wing->id ?>"
+                                                    data-state="<?= Html::encode($wing->state) ?>"
+                                                    title="Изменить состояние">▾</button>
+                                        </div>
                                     <?php endif; ?>
                                 </span>
                             <?php endforeach; ?>

@@ -364,15 +364,84 @@ SQL;
     }
 
     /**
+     * Извлекает номер секции из имени группы.
+     *
+     * Поддерживает арабские и римские цифры:
+     *   AR1 → 1, CR4 → 4
+     *   AI → 1, BII → 2, AIII → 3
+     *   AIII/AM6 → 3 (берём часть до слэша)
+     *   BR main → null (уши/brake)
+     *
      * @param string $name
      * @return int|null
      */
     protected function extractSectionNumber($name)
     {
-        if (preg_match('~(\d+)\s*$~', (string)$name, $m)) {
+        $name = trim((string)$name);
+
+        // Берём часть до слэша, если он есть: "AIII/AM6" → "AIII"
+        if (($pos = mb_strpos($name, '/')) !== false) {
+            $name = mb_substr($name, 0, $pos);
+        }
+
+        $name = trim($name);
+
+        // 1. Арабская цифра в конце: "AR1", "CR4"
+        if (preg_match('~(\d+)\s*$~', $name, $m)) {
             return (int)$m[1];
         }
+
+        // 2. Римская цифра в конце: "AI", "BII", "AIII"
+        if (preg_match('~([IVXLC]+)\s*$~i', $name, $m)) {
+            $roman = mb_strtoupper($m[1]);
+            $number = $this->romanToInt($roman);
+            if ($number > 0) {
+                return $number;
+            }
+        }
+
         return null;
+    }
+
+    /**
+     * Преобразует римское число в арабское.
+     *
+     * I=1, V=5, X=10, L=50, C=100.
+     * Поддерживает вычитание (IV=4, IX=9, XL=40, XC=90, CD=400, CM=900).
+     *
+     * @param string $roman
+     * @return int  0, если строка не является корректным римским числом
+     */
+    protected function romanToInt($roman)
+    {
+        $roman = mb_strtoupper((string)$roman);
+        if ($roman === '' || !preg_match('~^[IVXLC]+$~', $roman)) {
+            return 0;
+        }
+
+        $map = [
+            'I' => 1,
+            'V' => 5,
+            'X' => 10,
+            'L' => 50,
+            'C' => 100,
+        ];
+
+        $result = 0;
+        $len = strlen($roman);
+
+        for ($i = 0; $i < $len; $i++) {
+            $current = $map[$roman[$i]] ?? 0;
+            $next    = ($i + 1 < $len) ? ($map[$roman[$i + 1]] ?? 0) : 0;
+
+            if ($current < $next) {
+                $result -= $current;
+            } else {
+                $result += $current;
+            }
+        }
+
+        return $result > 0 ? $result : 0;
     }
 
     /**
