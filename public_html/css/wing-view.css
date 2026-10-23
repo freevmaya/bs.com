@@ -1,0 +1,348 @@
+/* ============================================
+   Просмотр схемы строп крыла
+   ============================================ */
+
+.wing-view h1 {
+    margin-bottom: 0;
+}
+
+.wing-view h2 {
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+.wing-view .box {
+    margin-bottom: 20px;
+}
+
+/* --- Общий контейнер крыла --- */
+.wing-view .wing {
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    width: 100%;
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+[data-bs-theme="dark"] .wing-view .wing {
+    background: #1a1a1a;
+}
+
+/* --- Левая и правая половины --- */
+.wing-view .wing .left,
+.wing-view .wing .right {
+    position: relative;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.wing-view .wing .left {
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+    padding-right: 10px;
+}
+
+.wing-view .wing .right {
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    padding-left: 10px;
+}
+
+/* --- SVG-контур: абсолютный фон половины --- */
+.wing-view .wing .wing-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.wing-view .wing .wing-svg svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    opacity: 0.6;
+}
+
+.wing-view .wing .wing-svg-flipped svg {
+    transform: scaleX(-1);
+}
+
+.wing-view .wing svg #wing {
+    fill: none;
+    stroke: #adb5bd;
+    stroke-width: 0.5;
+}
+
+[data-bs-theme="dark"] .wing-view .wing svg #wing {
+    fill: none;
+    stroke: #555;
+}
+
+.wing-view .wing svg #border {
+    stroke: transparent;
+}
+
+/* --- Контейнер силовых секций: поверх SVG, горизонтально --- */
+.wing-view .wing .sections {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    min-height: 360px;
+    align-items: stretch;
+    gap: 8px;
+    box-sizing: border-box;
+}
+
+/* --- Секция --- */
+.wing-view .wing .section {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+}
+
+/* Группы внутри секции идут СВЕРХУ ВНИЗ */
+.wing-view .wing .section .groups {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* --- Группа --- */
+.wing-view .wing .group {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.wing-view .wing .group h3 {
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 3px 0;
+    padding: 2px 4px;
+    color: #495057;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+[data-bs-theme="dark"] .wing-view .wing .group h3 {
+    color: #adb5bd;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* --- Строки и точки --- */
+.wing-view .wing .points {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+}
+
+.wing-view .wing .row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 2px;
+    min-height: 22px;
+    width: 100%;
+    margin-left: 0px;
+}
+
+.wing-view .wing .point {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 1 auto;
+    min-width: 0;
+    height: 22px;
+    font-size: clamp(6px, 1.5vw, 9px);
+    font-weight: 600;
+    color: #212529;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: default;
+    transition: background 0.15s ease;
+    box-sizing: border-box;
+    padding: 0 2px;
+}
+
+.wing-view .wing .point:hover {
+    background: #e7f1ff;
+}
+
+[data-bs-theme="dark"] .wing-view .wing .point {
+    color: #e9ecef;
+    background: rgba(42, 42, 42, 0.9);
+}
+
+[data-bs-theme="dark"] .wing-view .wing .point:hover {
+    background: #1a3a5c;
+}
+
+/* --- Блок .brake (клеванты) — внизу, на всю ширину половины --- */
+.wing-view .wing .brake {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+[data-bs-theme="dark"] .wing-view .wing .brake {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Адаптивность --- */
+@media (max-width: 992px) {
+    .wing-view .wing {
+        flex-direction: column;
+    }
+
+    .wing-view .wing .left,
+    .wing-view .wing .right {
+        width: 100%;
+    }
+
+    .wing-view .wing .left {
+        border-right: none;
+        padding-right: 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+
+    .wing-view .wing .right {
+        border-left: none;
+        padding-left: 0;
+    }
+
+    .wing-view .wing .sections {
+        min-height: 260px;
+    }
+}
+
+@media (max-width: 576px) {
+    .wing-view .wing {
+        padding: 10px;
+    }
+
+    .wing-view .wing .point {
+        height: 18px;
+        font-size: 8px;
+    }
+
+    .wing-view .wing .row {
+        min-height: 18px;
+    }
+
+    .wing-view .wing .sections {
+        min-height: 200px;
+    }
+}
+
+/* --- Popup с информацией о точке --- */
+.wing-point-popup {
+    position: absolute;
+    z-index: 10000;
+    display: none;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.85);
+    border-radius: 4px;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    transform: translate(-50%, -100%);
+    transition: opacity 0.1s ease;
+}
+
+.wing-point-popup.is-visible {
+    display: block;
+}
+
+.wing-point-popup::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+[data-bs-theme="dark"] .wing-point-popup {
+    background: rgba(255, 255, 255, 0.92);
+    color: #212529;
+}
+
+[data-bs-theme="dark"] .wing-point-popup::after {
+    border-top-color: rgba(255, 255, 255, 0.92);
+}
+
+/* --- Блок CSV со всеми данными --- */
+.wing-view .wing-csv-block h3 {
+    margin-bottom: 12px;
+}
+
+.wing-view .wing-csv {
+    font-family: "Consolas", "Menlo", "Monaco", "Courier New", monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 12px 16px;
+    overflow-x: auto;
+    white-space: pre;
+    tab-size: 4;
+    margin: 0;
+    color: #212529;
+}
+
+[data-bs-theme="dark"] .wing-view .wing-csv {
+    background: #1a1a1a;
+    border-color: #444;
+    color: #e9ecef;
+}
+
+/* --- Кнопки под CSV-блоком --- */
+.wing-view .wing-csv-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.wing-view .wing-csv-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wing-view .wing-csv-actions .btn .glyphicon {
+    font-size: 12px;
+}
