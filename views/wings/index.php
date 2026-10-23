@@ -35,9 +35,10 @@ $this->registerCssFile('@web/css/wings-index.css', ['depends' => [\yii\bootstrap
     <?php endif; ?>
 
     <?php foreach ($byManufacturer as $manufacturerId => $m): ?>
-        <?php /** @var app\models\Manufacturer $manufacturer */ ?>
         <?php $manufacturer = $m['manufacturer']; ?>
-        <div class="box21" data-filter-item="manufacturer" data-filter-text="<?= Html::encode(mb_strtolower($manufacturer->name)) ?>">
+        <div class="box21"
+             data-filter-item="manufacturer"
+             data-filter-text="<?= Html::encode(mb_strtolower($manufacturer->name)) ?>">
             <h3><?= Html::encode($manufacturer->name) ?></h3>
 
             <?php if (!empty($manufacturer->website)): ?>
@@ -48,35 +49,42 @@ $this->registerCssFile('@web/css/wings-index.css', ['depends' => [\yii\bootstrap
                 </p>
             <?php endif; ?>
 
-            <?php foreach ($m['models'] as $modelKey => $model): ?>
-                <?php
-                $modelTitle = $model['model'];
-                if (!empty($model['year'])) {
-                    $modelTitle .= ' (' . $model['year'] . ')';
-                }
-                $filterText = mb_strtolower($manufacturer->name . ' ' . $modelTitle);
-                ?>
-                <div class="section" data-filter-item="model" data-filter-text="<?= Html::encode($filterText) ?>">
-                    <h5><?= Html::encode($modelTitle) ?></h5>
+            <div class="models">
+                <?php foreach ($m['models'] as $modelKey => $model): ?>
+                    <?php
+                    $modelTitle = $model['model'];
+                    if (!empty($model['year'])) {
+                        $modelTitle .= ' (' . $model['year'] . ')';
+                    }
+                    $filterText = mb_strtolower($manufacturer->name . ' ' . $modelTitle);
+                    ?>
+                    <div class="section"
+                         data-filter-item="model"
+                         data-filter-text="<?= Html::encode($filterText) ?>">
+                        <h5><?= Html::encode($modelTitle) ?></h5>
 
-                    <?php foreach ($model['wings'] as $wing): ?>
-                        <a class="tile"
-                           href="<?= Url::to(['wings/view', 'source_id' => $wing->source_id]) ?>"
-                           title="<?= Html::encode($wing->full_name) ?>">
-                            <?= Html::encode($wing->size) ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            <?php endforeach; ?>
+                        <div class="tiles">
+                            <?php foreach ($model['wings'] as $wing): ?>
+                                <a class="tile"
+                                   href="<?= Url::to(['wings/view', 'source_id' => $wing->source_id]) ?>"
+                                   title="<?= Html::encode($wing->full_name) ?>">
+                                    <?= Html::encode($wing->size) ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
     <?php endforeach; ?>
 
     <?php if (!empty($noManufacturer)): ?>
-        <div class="box21" data-filter-item="manufacturer" data-filter-text="без производителя">
+        <div class="box21"
+             data-filter-item="manufacturer"
+             data-filter-text="без производителя">
             <h3>Без производителя</h3>
 
             <?php
-            // Группируем по модели+году
             $models = [];
             foreach ($noManufacturer as $wing) {
                 $key = $wing->model . '|' . ($wing->model_year ?? '');
@@ -91,25 +99,31 @@ $this->registerCssFile('@web/css/wings-index.css', ['depends' => [\yii\bootstrap
             }
             ?>
 
-            <?php foreach ($models as $model): ?>
-                <?php
-                $modelTitle = $model['model'];
-                if (!empty($model['year'])) {
-                    $modelTitle .= ' (' . $model['year'] . ')';
-                }
-                ?>
-                <div class="section" data-filter-item="model" data-filter-text="<?= Html::encode(mb_strtolower('без производителя ' . $modelTitle)) ?>">
-                    <h5><?= Html::encode($modelTitle) ?></h5>
+            <div class="models">
+                <?php foreach ($models as $model): ?>
+                    <?php
+                    $modelTitle = $model['model'];
+                    if (!empty($model['year'])) {
+                        $modelTitle .= ' (' . $model['year'] . ')';
+                    }
+                    ?>
+                    <div class="section"
+                         data-filter-item="model"
+                         data-filter-text="<?= Html::encode($filterText) ?>">
+                        <h5><?= Html::encode($modelTitle) ?></h5>
 
-                    <?php foreach ($model['wings'] as $wing): ?>
-                        <a class="tile"
-                           href="<?= Url::to(['wings/view', 'source_id' => $wing->source_id]) ?>"
-                           title="<?= Html::encode($wing->full_name) ?>">
-                            <?= Html::encode($wing->size) ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            <?php endforeach; ?>
+                        <div class="tiles">
+                            <?php foreach ($model['wings'] as $wing): ?>
+                                <a class="tile"
+                                   href="<?= Url::to(['wings/view', 'source_id' => $wing->source_id]) ?>"
+                                   title="<?= Html::encode($wing->full_name) ?>">
+                                    <?= Html::encode($wing->size) ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
     <?php endif; ?>
 
@@ -135,12 +149,10 @@ $this->registerJs(<<<JS
             return;
         }
 
-        // Сначала скрываем все
         items.forEach(function (el) {
             el.style.display = 'none';
         });
 
-        // Проходим по моделям и производителям
         document.querySelectorAll('[data-filter-item="model"]').forEach(function (modelEl) {
             var text = modelEl.getAttribute('data-filter-text') || '';
             if (text.indexOf(query) !== -1) {
@@ -152,12 +164,10 @@ $this->registerJs(<<<JS
             }
         });
 
-        // Производители, у которых нет видимых моделей, но имя совпадает с фильтром
         document.querySelectorAll('[data-filter-item="manufacturer"]').forEach(function (manEl) {
             var text = manEl.getAttribute('data-filter-text') || '';
             if (text.indexOf(query) !== -1) {
                 manEl.style.display = '';
-                // Показываем все модели этого производителя
                 manEl.querySelectorAll('[data-filter-item="model"]').forEach(function (modelEl) {
                     modelEl.style.display = '';
                 });
