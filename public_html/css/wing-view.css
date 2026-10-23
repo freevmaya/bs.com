@@ -165,6 +165,10 @@
     margin-left: 0px;
 }
 
+.left .points .row {
+    flex-direction: row-reverse;
+}
+
 .wing-view .wing .point {
     display: flex;
     align-items: center;
