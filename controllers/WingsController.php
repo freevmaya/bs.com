@@ -98,9 +98,12 @@ class WingsController extends Controller
             return $a->source_id <=> $b->source_id;
         });
 
+        $diffStats = $this->getDiffStats();
+
         return $this->render('index', [
             'byManufacturer' => $byManufacturer,
             'noManufacturer' => $noManufacturer,
+            'diffStats'      => $diffStats,
         ]);
     }
 
@@ -384,5 +387,77 @@ class WingsController extends Controller
             'columns'  => $columns,
             'max_rows' => $maxRows,
         ];
+    }
+
+    /**
+     * Статистика разброса длин строп по группам.
+     *
+     * diff = MAX(length_mm) − MIN(length_mm) по wing_upper_lines для крыла.
+     *
+     * @return array<int, array{
+     *     label: string,
+     *     min: int|null,
+     *     max: int|null,
+     *     count: int,
+     * }>
+     */
+    public function getDiffStats()
+    {
+        $sql = <<<SQL
+            SELECT
+                CASE
+                    WHEN diff < 1000              THEN 'до 1 м'
+                    WHEN diff < 1500              THEN '1–1.5 м'
+                    WHEN diff < 2000              THEN '1.5–2 м'
+                    WHEN diff < 2500              THEN '2–2.5 м'
+                    WHEN diff < 3000              THEN '2.5–3 м'
+                    ELSE '3 м и более'
+                END AS diff_group,
+                COUNT(*)  AS wings_count,
+                MIN(diff) AS min_diff,
+                MAX(diff) AS max_diff
+            FROM (
+                SELECT
+                    w.id,
+                    (MAX(u.length_mm) - MIN(u.length_mm)) AS diff
+                FROM wings w
+                INNER JOIN wing_upper_lines u ON u.wing_id = w.id
+                GROUP BY w.id
+            ) AS d
+            GROUP BY diff_group
+            ORDER BY MIN(diff)
+        SQL;
+
+        $rows = Yii::$app->db->createCommand($sql)->queryAll();
+
+        // Фиксированный порядок групп, чтобы в таблице всегда были все строки
+        // (даже если в какой-то группе 0 крыльев)
+        $order = [
+            'до 1 м'       => null,
+            '1–1.5 м'      => null,
+            '1.5–2 м'      => null,
+            '2–2.5 м'      => null,
+            '2.5–3 м'      => null,
+            '3 м и более'  => null,
+        ];
+
+        $byLabel = [];
+        foreach ($rows as $row) {
+            $byLabel[$row['diff_group']] = $row;
+        }
+
+        $result = [];
+        foreach ($order as $label => $_) {
+            $row = $byLabel[$label] ?? null;
+
+            $result[] = [
+                'label' => $label,
+                'min'   => $row['min_diff'] ?? null,
+                'max'   => $row['max_diff'] ?? null,
+                'count' => $row ? (int)$row['wings_count'] : 0,
+            ];
+        }
+
+        return $result;
     }
 }

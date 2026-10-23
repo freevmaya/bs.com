@@ -346,3 +346,63 @@
 .wing-view .wing-csv-actions .btn .glyphicon {
     font-size: 12px;
 }
+
+/* --- Статистика разброса длин строп --- */
+.wings-index .wings-diff-stats {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="dark"] .wings-index .wings-diff-stats {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.wings-index .wings-diff-stats h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: #212529;
+}
+
+[data-bs-theme="dark"] .wings-index .wings-diff-stats h3 {
+    color: #e9ecef;
+}
+
+.wings-index .wings-diff-table {
+    max-width: 500px;
+    margin: 0;
+}
+
+.wings-index .wings-diff-table th,
+.wings-index .wings-diff-table td {
+    padding: 6px 12px;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.wings-index .wings-diff-table thead th {
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid #dee2e6;
+}
+
+[data-bs-theme="dark"] .wings-index .wings-diff-table thead th {
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom-color: #444;
+}
+
+.wings-index .wings-diff-table tfoot th {
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.03);
+    border-top: 2px solid #dee2e6;
+}
+
+[data-bs-theme="dark"] .wings-index .wings-diff-table tfoot th {
+    background: rgba(255, 255, 255, 0.05);
+    border-top-color: #444;
+}
+
+.wings-index .wings-diff-table .text-end {
+    text-align: right;
+}

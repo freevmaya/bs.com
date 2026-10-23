@@ -129,6 +129,37 @@ $this->registerCssFile('@web/css/wings-index.css', ['depends' => [\yii\bootstrap
 
 </div>
 
+<?php if (!empty($diffStats)): ?>
+    <div class="box wings-diff-stats">
+        <h3>Статистика разброса длин строп</h3>
+
+        <table class="table table-sm table-bordered wings-diff-table">
+            <thead>
+                <tr>
+                    <th>Разброс длин</th>
+                    <th class="text-end">Количество крыльев</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($diffStats as $row): ?>
+                    <tr>
+                        <td><?= Html::encode($row['label']) ?></td>
+                        <td class="text-end"><?= (int)$row['count'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Всего</th>
+                    <th class="text-end">
+                        <?= array_sum(array_column($diffStats, 'count')) ?>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+<?php endif; ?>
+
 <?php
 $this->registerJs(<<<JS
 (function () {
