@@ -11,6 +11,7 @@ use yii\db\ActiveRecord;
  * @property int    $id
  * @property string $name
  * @property string|null $website
+ * @property string|null $layout_method
  */
 class Manufacturer extends ActiveRecord
 {
@@ -26,15 +27,17 @@ class Manufacturer extends ActiveRecord
             [['name'], 'string', 'max' => 150],
             [['website'], 'string', 'max' => 500],
             [['website'], 'url', 'skipOnEmpty' => true],
+            [['layout_method'], 'string', 'max' => 100],
         ];
     }
 
     public function attributeLabels()
     {
         return [
-            'id'      => 'ID',
-            'name'    => 'Название',
-            'website' => 'Сайт',
+            'id'            => 'ID',
+            'name'          => 'Название',
+            'website'       => 'Сайт',
+            'layout_method' => 'Метод раскладки',
         ];
     }
 

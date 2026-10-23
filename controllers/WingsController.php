@@ -11,6 +11,7 @@ use yii\web\Response;
 use app\models\Wing;
 use app\models\WingLowerLine;
 use app\models\WingUpperLine;
+use app\components\WingLayoutBuilder;
 
 /**
  * Публичный просмотр сохранённых крыльев.
@@ -226,7 +227,17 @@ class WingsController extends Controller
             }
         }
 
-        $sections = $this->buildSections($lowerLines, $upperByLower);
+        // Раскладка стропной системы по типу написания схемы производителя
+        /** @var WingLayoutBuilder $layoutBuilder */
+        $layoutBuilder = new WingLayoutBuilder();
+
+        $layoutMethod = null;
+        if ($wing->manufacturer !== null) {
+            $layoutMethod = $wing->manufacturer->layout_method;
+        }
+
+        $sections = $layoutBuilder->build($layoutMethod, $lowerLines, $upperByLower);
+
         $csvTable = $this->buildCsvTable($lowerLines, $upperByLower);
 
         return $this->render('view', [
@@ -302,230 +313,19 @@ SQL;
     }
 
     /**
-     * Строит структуру секций для рендера.
+     * Строит структуру для CSV-блока внизу страницы.
+     *
+     * Колонки — по префиксу верхних строп (A, B, C, …),
+     * строки — стропы этого префикса в порядке появления,
+     * stabilo — последними в колонке.
      *
      * @param WingLowerLine[] $lowerLines
      * @param array<int, WingUpperLine[]> $upperByLower
-     * @return array
-     */
-    protected function buildSections(array $lowerLines, array $upperByLower)
-    {
-        $powerGroups = [];
-        $brakeGroups = [];
-
-        foreach ($lowerLines as $lower) {
-            $isBrake = ($lower->length_mm === null && $lower->riser_note === null);
-            $lines = $upperByLower[(int)$lower->id] ?? [];
-
-            if ($isBrake) {
-                $brakeGroups[] = [
-                    'lower'   => $lower,
-                    'section' => null,
-                    'lines'   => $lines,
-                ];
-            } else {
-                $powerGroups[] = [
-                    'lower'   => $lower,
-                    'section' => $this->extractSectionNumber($lower->name),
-                    'lines'   => $lines,
-                ];
-            }
-        }
-
-        $bySection = [];
-        $ears = [];
-        foreach ($powerGroups as $g) {
-            if ($g['section'] === null) {
-                $ears[] = $g;
-            } else {
-                $bySection[$g['section']][] = $g;
-            }
-        }
-
-        ksort($bySection);
-
-        $sections = [];
-        foreach ($bySection as $number => $groups) {
-            $sections[] = $this->makeSection($number, false, $groups);
-        }
-        if (!empty($ears)) {
-            $sections[] = $this->makeSection(null, false, $ears);
-        }
-        $hasBrake = false;
-        if (!empty($brakeGroups)) {
-            $hasBrake = true;
-            $sections[] = $this->makeSection(null, true, $brakeGroups);
-        }
-
-        return [
-            'sections'  => $sections,
-            'has_brake' => $hasBrake,
-        ];
-    }
-
-    /**
-     * Извлекает номер секции из имени группы.
-     *
-     * Поддерживает арабские и римские цифры:
-     *   AR1 → 1, CR4 → 4
-     *   AI → 1, BII → 2, AIII → 3
-     *   AIII/AM6 → 3 (берём часть до слэша)
-     *   BR main → null (уши/brake)
-     *
-     * @param string $name
-     * @return int|null
-     */
-    protected function extractSectionNumber($name)
-    {
-        $name = trim((string)$name);
-
-        // Берём часть до слэша, если он есть: "AIII/AM6" → "AIII"
-        if (($pos = mb_strpos($name, '/')) !== false) {
-            $name = mb_substr($name, 0, $pos);
-        }
-
-        $name = trim($name);
-
-        // 1. Арабская цифра в конце: "AR1", "CR4"
-        if (preg_match('~(\d+)\s*$~', $name, $m)) {
-            return (int)$m[1];
-        }
-
-        // 2. Римская цифра в конце: "AI", "BII", "AIII"
-        if (preg_match('~([IVXLC]+)\s*$~i', $name, $m)) {
-            $roman = mb_strtoupper($m[1]);
-            $number = $this->romanToInt($roman);
-            if ($number > 0) {
-                return $number;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Преобразует римское число в арабское.
-     *
-     * I=1, V=5, X=10, L=50, C=100.
-     * Поддерживает вычитание (IV=4, IX=9, XL=40, XC=90, CD=400, CM=900).
-     *
-     * @param string $roman
-     * @return int  0, если строка не является корректным римским числом
-     */
-    protected function romanToInt($roman)
-    {
-        $roman = mb_strtoupper((string)$roman);
-        if ($roman === '' || !preg_match('~^[IVXLC]+$~', $roman)) {
-            return 0;
-        }
-
-        $map = [
-            'I' => 1,
-            'V' => 5,
-            'X' => 10,
-            'L' => 50,
-            'C' => 100,
-        ];
-
-        $result = 0;
-        $len = strlen($roman);
-
-        for ($i = 0; $i < $len; $i++) {
-            $current = $map[$roman[$i]] ?? 0;
-            $next    = ($i + 1 < $len) ? ($map[$roman[$i + 1]] ?? 0) : 0;
-
-            if ($current < $next) {
-                $result -= $current;
-            } else {
-                $result += $current;
-            }
-        }
-
-        return $result > 0 ? $result : 0;
-    }
-
-    /**
-     * @param int|null $number
-     * @param bool     $isBrake
-     * @param array    $groups
-     * @return array
-     */
-    protected function makeSection($number, $isBrake, array $groups)
-    {
-        $gapPx = 2;
-
-        $outGroups = [];
-
-        foreach ($groups as $g) {
-            $lower = $g['lower'];
-            $lines = $g['lines'];
-
-            $rowsByPrefix = [];
-            $prefixOrder  = [];
-
-            foreach ($lines as $line) {
-                $prefix = $this->extractPrefix($line->name);
-
-                if (!isset($rowsByPrefix[$prefix])) {
-                    $rowsByPrefix[$prefix] = [];
-                    $prefixOrder[] = $prefix;
-                }
-
-                $rowsByPrefix[$prefix][] = [
-                    'name'   => $line->name,
-                    'length' => $line->length_mm,
-                ];
-            }
-
-            $rows = [];
-            foreach ($prefixOrder as $prefix) {
-                $points = $rowsByPrefix[$prefix];
-                $count  = count($points);
-
-                if ($count > 1) {
-                    $flexBasis = 'calc((100% - ' . (($count - 1) * $gapPx) . 'px) / ' . $count . ')';
-                } else {
-                    $flexBasis = '100%';
-                }
-
-                $rows[] = [
-                    'prefix'     => $prefix,
-                    'flex_basis' => $flexBasis,
-                    'points'     => $points,
-                ];
-            }
-
-            $outGroups[] = [
-                'name'         => $lower->name,
-                'riser_length' => $lower->length_mm,
-                'riser_note'   => $lower->riser_note,
-                'rows'         => $rows,
-            ];
-        }
-
-        return [
-            'number'   => $number,
-            'is_brake' => $isBrake,
-            'groups'   => $outGroups,
-        ];
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    protected function extractPrefix($name)
-    {
-        if (preg_match('~^([^\d]+)~u', (string)$name, $m)) {
-            return $m[1];
-        }
-        return (string)$name;
-    }
-
-    /**
-     * @param WingLowerLine[] $lowerLines
-     * @param array<int, WingUpperLine[]> $upperByLower
-     * @return array
+     * @return array{
+     *     prefixes: string[],
+     *     columns: array<string, array<int, string>>,
+     *     max_rows: int,
+     * }
      */
     protected function buildCsvTable(array $lowerLines, array $upperByLower)
     {
@@ -535,6 +335,7 @@ SQL;
             foreach ($lines as $line) {
                 $items[] = [
                     'prefix'     => mb_strtoupper($this->extractPrefix($line->name)),
+                    'name'       => $line->name,
                     'length'     => $line->length_mm,
                     'group_name' => (string)$lower->name,
                 ];
@@ -554,11 +355,24 @@ SQL;
             $groupNumbers = [];
             $nextNumber = 1;
 
+            $columnItems = [];
             foreach ($items as $item) {
                 if ($item['prefix'] !== $prefix) {
                     continue;
                 }
+                $columnItems[] = $item;
+            }
 
+            usort($columnItems, function ($a, $b) {
+                $aStab = $this->isStabilo($a['name'] ?? '');
+                $bStab = $this->isStabilo($b['name'] ?? '');
+                if ($aStab !== $bStab) {
+                    return $aStab ? 1 : -1;
+                }
+                return 0;
+            });
+
+            foreach ($columnItems as $item) {
                 $groupName = $item['group_name'];
                 if (!isset($groupNumbers[$groupName])) {
                     $groupNumbers[$groupName] = $nextNumber++;
@@ -584,5 +398,34 @@ SQL;
             'columns'  => $columns,
             'max_rows' => $maxRows,
         ];
+    }
+
+    /**
+     * Извлекает префикс из имени стропы (для CSV-блока).
+     *
+     * @param string $name
+     * @return string
+     */
+    protected function extractPrefix($name)
+    {
+        if (preg_match('~^([^\d]+)~u', (string)$name, $m)) {
+            return $m[1];
+        }
+        return (string)$name;
+    }
+
+    /**
+     * Является ли стропа stabilo (для CSV-блока).
+     *
+     * @param string $name
+     * @return bool
+     */
+    protected function isStabilo($name)
+    {
+        $name = trim((string)$name);
+        if ($name === '') {
+            return false;
+        }
+        return (bool)preg_match('~^(stabilo|stb|st\d*)$~iu', $name);
     }
 }

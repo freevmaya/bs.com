@@ -961,6 +961,8 @@ class WeMeasureParser extends Component
         if ($manufacturer === null) {
             $manufacturer = new Manufacturer();
             $manufacturer->name = $name;
+            // layout_method не задаём — остаётся NULL,
+            // заполняется вручную при необходимости
         }
 
         if ($website !== null && $website !== '' && $manufacturer->website !== $website) {
