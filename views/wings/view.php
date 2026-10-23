@@ -92,7 +92,7 @@ $rightSections = $powerSections;
     <?php else: ?>
 
         <div class="box">
-            <h3>Data</h3>
+            <h3>Стропная система/h3>
 
             <div id="wing" class="wing detail">
 
@@ -172,7 +172,7 @@ $rightSections = $powerSections;
     $fileName = $fileBase . '.csv';
     ?>
     <div class="box wing-csv-block">
-        <h3>Все данные (CSV)</h3>
+        <h3>Данные (CSV)</h3>
 
         <pre class="wing-csv" id="wing-csv-pre"><?= Html::encode($csvText) ?></pre>
 
