@@ -359,6 +359,6 @@ class WingLayoutBuilder extends Component
         if ($name === '') {
             return false;
         }
-        return (bool)preg_match('~^(stabilo|stb|st\d*)$~iu', $name);
+        return (bool)preg_match('~^(stabilo|stabi|stab|stb|st\d*)$~iu', $name);
     }
 }

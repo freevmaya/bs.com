@@ -426,6 +426,6 @@ SQL;
         if ($name === '') {
             return false;
         }
-        return (bool)preg_match('~^(Stabi|stabi|stb|st\d*)$~iu', $name);
+        return (bool)preg_match('~^(stabilo|stabi|stab|stb|st\d*)$~iu', $name);
     }
 }
