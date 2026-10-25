@@ -5,7 +5,6 @@ namespace app\components;
 
 use Yii;
 use yii\base\Component;
-use yii\httpclient\Client;
 use app\models\Manufacturer;
 use app\models\Wing;
 use app\models\WingFile;
@@ -18,6 +17,10 @@ use app\models\ParseMismatch;
  *
  * Собирает данные каталога (/database), страниц карт строп (/user/wing/map/{id})
  * и файлов, на которых основана карта (блок Files used), пишет в БД.
+ *
+ * Использует нативный cURL (не yii\httpclient), потому что
+ * CurlTransport в yii2-httpclient 2.0.17 иногда зависает на curl_exec
+ * при кастомных CURLOPT_HTTPHEADER.
  */
 class WeMeasureParser extends Component
 {
@@ -51,29 +54,18 @@ class WeMeasureParser extends Component
     public $stats = [
         'catalog_total' => 0,
         'parsed'        => 0,
+        'updated'       => 0,
+        'deleted'       => 0,
+        'hidden'        => 0,
         'skipped'       => 0,
         'mismatches'    => 0,
         'errors'        => 0,
     ];
 
     /**
-     * @var Client
-     */
-    private $httpClient;
-
-    /**
      * @var array<string,int> name => id, кэш производителей
      */
     private $manufacturersCache = [];
-
-    public function init()
-    {
-        parent::init();
-
-        $this->httpClient = new Client([
-            'transport' => 'yii\httpclient\CurlTransport',
-        ]);
-    }
 
     /**
      * Основной метод: обход каталога и парсинг всех карт.
@@ -88,8 +80,8 @@ class WeMeasureParser extends Component
      * --limit ограничивает количество УСПЕШНО СПАРСЕННЫХ страниц
      * (parsed + updated), а не пройденных по каталогу.
      *
-     * @param int  $limit
-     * @param bool $force
+     * @param int  $limit  0 = без ограничения
+     * @param bool $force  true = перепарсить уже существующие source_id
      * @return array
      */
     public function run($limit = 0, $force = false)
@@ -105,6 +97,7 @@ class WeMeasureParser extends Component
             'errors'        => 0,
         ];
 
+        // Проверяем наличие cookie-файла
         $cookiePath = $this->getCookiePath();
         if (!is_file($cookiePath) || filesize($cookiePath) === 0) {
             Yii::warning(
@@ -122,6 +115,7 @@ class WeMeasureParser extends Component
         Yii::info('we-measure: catalog collected, items=' . count($catalog), 'we_measure');
 
         foreach ($catalog as $sourceId => $item) {
+            // Лимит считаем по УСПЕШНО СПАРСЕННЫМ страницам
             if ($limit > 0 && ($this->stats['parsed'] + $this->stats['updated']) >= $limit) {
                 break;
             }
@@ -166,7 +160,6 @@ class WeMeasureParser extends Component
 
                 if ($ok) {
                     if ($isRequireUpdate) {
-                        // После успешного обновления возвращаем в active
                         $wing = Wing::find()->where(['source_id' => $sourceId])->one();
                         if ($wing !== null && $wing->state === Wing::STATE_REQUIRE_UPDATE) {
                             $wing->state = Wing::STATE_ACTIVE;
@@ -612,14 +605,12 @@ class WeMeasureParser extends Component
     {
         $files = [];
 
-        // Ищем блок, начинающийся с <h5>Files used</h5>
         if (!preg_match('~<h5>\s*Files used\s*</h5>(.*?)</div>\s*</div>~s', $html, $blockMatch)) {
             return $files;
         }
 
         $block = $blockMatch[1];
 
-        // Каждый файл: <div class="super"><sup>DATE</sup><a ... href="URL">...NAME</a></div>
         if (!preg_match_all(
             '~<div class="super">\s*<sup>(.*?)</sup>\s*<a[^>]*href="([^"]+)"[^>]*>(.*?)</a>\s*</div>~s',
             $block,
@@ -634,7 +625,6 @@ class WeMeasureParser extends Component
             $url  = trim($m[2]);
             $name = trim(html_entity_decode(strip_tags($m[3]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
 
-            // Убираем HTML-сущности вроде &nbsp;
             $name = str_replace(["\xC2\xA0", '&nbsp;'], ' ', $name);
             $name = trim($name);
 
@@ -642,12 +632,10 @@ class WeMeasureParser extends Component
                 continue;
             }
 
-            // Абсолютный URL
             if (strpos($url, '/') === 0) {
                 $url = self::BASE_URL . $url;
             }
 
-            // Дата: YYYY-MM-DD или null
             $dateValue = null;
             if ($date !== '' && preg_match('~^\d{4}-\d{2}-\d{2}$~', $date)) {
                 $dateValue = $date;
@@ -943,6 +931,8 @@ class WeMeasureParser extends Component
     /**
      * Возвращает id производителя по имени, создавая его при необходимости.
      *
+     * layout_method не задаём — остаётся NULL, заполняется вручную.
+     *
      * @param string|null $name
      * @param string|null $website
      * @return int|null
@@ -961,8 +951,6 @@ class WeMeasureParser extends Component
         if ($manufacturer === null) {
             $manufacturer = new Manufacturer();
             $manufacturer->name = $name;
-            // layout_method не задаём — остаётся NULL,
-            // заполняется вручную при необходимости
         }
 
         if ($website !== null && $website !== '' && $manufacturer->website !== $website) {
@@ -986,59 +974,68 @@ class WeMeasureParser extends Component
     /**
      * Загружает URL, возвращает HTML или null при ошибке.
      *
+     * Использует нативный cURL (не yii\httpclient), потому что
+     * CurlTransport в yii2-httpclient 2.0.17 иногда зависает
+     * на curl_exec при кастомных CURLOPT_HTTPHEADER.
+     *
      * @param string $url
      * @return string|null
      */
     protected function fetch($url)
     {
-        try {
-            $options = [
-                CURLOPT_TIMEOUT        => $this->timeout,
-                CURLOPT_CONNECTTIMEOUT => 10,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_MAXREDIRS      => 5,
-                CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                    . 'AppleWebKit/537.36 (KHTML, like Gecko) '
-                    . 'Chrome/124.0.0.0 Safari/537.36',
-                CURLOPT_HTTPHEADER     => [
-                    'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language: en-US,en;q=0.9',
-                    'Referer: https://we-measure.io/database',
-                ],
-            ];
+        $ch = curl_init();
 
-            if (!$this->sslVerify) {
-                $options[CURLOPT_SSL_VERIFYPEER] = false;
-                $options[CURLOPT_SSL_VERIFYHOST] = false;
-            }
+        $options = [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => $this->timeout,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS      => 5,
+            CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                . 'AppleWebKit/537.36 (KHTML, like Gecko) '
+                . 'Chrome/124.0.0.0 Safari/537.36',
+            CURLOPT_HTTPHEADER     => [
+                'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language: en-US,en;q=0.9',
+                'Referer: https://we-measure.io/database',
+                'Connection: close',
+            ],
+        ];
 
-            $cookiePath = $this->getCookiePath();
-            if (is_file($cookiePath) && filesize($cookiePath) > 0) {
-                $options[CURLOPT_COOKIEFILE] = $cookiePath;
-            }
+        if (!$this->sslVerify) {
+            $options[CURLOPT_SSL_VERIFYPEER] = false;
+            $options[CURLOPT_SSL_VERIFYHOST] = false;
+        }
 
-            $response = $this->httpClient->createRequest()
-                ->setMethod('GET')
-                ->setUrl($url)
-                ->setOptions($options)
-                ->send();
+        $cookiePath = $this->getCookiePath();
+        if (is_file($cookiePath) && filesize($cookiePath) > 0) {
+            $options[CURLOPT_COOKIEFILE] = $cookiePath;
+        }
 
-            if (!$response->isOk) {
-                Yii::warning(
-                    "we-measure: HTTP {$response->statusCode} for {$url}",
-                    'we_measure'
-                );
-                return null;
-            }
+        curl_setopt_array($ch, $options);
 
-            return $response->content;
+        $content  = curl_exec($ch);
+        $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error    = curl_error($ch);
+        // curl_close() в PHP 8.5 deprecated и не имеет эффекта — не вызываем
 
-        } catch (\Throwable $e) {
+        if ($content === false || $error !== '') {
             Yii::error(
-                "we-measure: fetch error for {$url}: " . $e->getMessage(),
+                "we-measure: fetch error for {$url}: {$error}",
                 'we_measure'
             );
             return null;
         }
+
+        if ($httpCode !== 200) {
+            Yii::warning(
+                "we-measure: HTTP {$httpCode} for {$url}",
+                'we_measure'
+            );
+            return null;
+        }
+
+        return $content;
     }
 }
