@@ -63,10 +63,21 @@
 
             count = parseInt(count, 10) || 0;
 
+            // Бейдж с количеством
             if (count > 0) {
                 $badge.text(count > 99 ? '99+' : count).show();
             } else {
                 $badge.text('').hide();
+            }
+
+            // Пункт меню «Избранное» — показывать только при наличии избранного
+            var $navItem = $('#favorites-nav-item');
+            if ($navItem.length) {
+                if (count > 0) {
+                    $navItem.show();
+                } else {
+                    $navItem.hide();
+                }
             }
         },
 

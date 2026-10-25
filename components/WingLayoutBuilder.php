@@ -125,8 +125,9 @@ class WingLayoutBuilder extends Component
      */
     protected function buildGeneric(array $lowerLines, array $upperByLower, $numbering)
     {
-        $powerGroups = [];
-        $brakeGroups = [];
+        $powerGroups   = [];
+        $brakeGroups   = [];
+        $stabiloGroups = [];
 
         foreach ($lowerLines as $lower) {
             $isBrake = ($lower->length_mm === null && $lower->riser_note === null);
@@ -138,13 +139,26 @@ class WingLayoutBuilder extends Component
                     'section' => null,
                     'lines'   => $lines,
                 ];
-            } else {
-                $powerGroups[] = [
+                continue;
+            }
+
+            // Stabilo — всегда отдельная секция, самая крайняя среди силовых.
+            // Приоритет выше извлечения номера секции: даже если имя содержит
+            // цифру (ST1, S2 и т.п.), stabilo не попадает в пронумерованные секции.
+            if ($this->isStabiloGroup($lower, $lines)) {
+                $stabiloGroups[] = [
                     'lower'   => $lower,
-                    'section' => $this->extractSectionNumber($lower->name, $numbering),
+                    'section' => null,
                     'lines'   => $lines,
                 ];
+                continue;
             }
+
+            $powerGroups[] = [
+                'lower'   => $lower,
+                'section' => $this->extractSectionNumber($lower->name, $numbering),
+                'lines'   => $lines,
+            ];
         }
 
         $bySection = [];
@@ -165,6 +179,11 @@ class WingLayoutBuilder extends Component
         }
         if (!empty($ears)) {
             $sections[] = $this->makeSection(null, false, $ears);
+        }
+
+        // Stabilo — отдельной секцией после ears, перед brake.
+        if (!empty($stabiloGroups)) {
+            $sections[] = $this->makeSection(null, false, $stabiloGroups);
         }
 
         $hasBrake = false;
@@ -360,5 +379,19 @@ class WingLayoutBuilder extends Component
             return false;
         }
         return (bool)preg_match('~^(stabilo|stabi|stab|stb|st\d*)$~iu', $name);
+    }
+
+    /**
+     * Является ли группа stabilo-группой.
+     *
+     * Критерий — имя нижней стропы проходит через isStabilo().
+     *
+     * @param WingLowerLine $lower
+     * @param WingUpperLine[] $lines
+     * @return bool
+     */
+    protected function isStabiloGroup(WingLowerLine $lower, array $lines = [])
+    {
+        return $this->isStabilo($lower->name);
     }
 }
