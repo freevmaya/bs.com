@@ -238,13 +238,15 @@ class WingsController extends Controller
 
         $sections = $layoutBuilder->build($layoutMethod, $lowerLines, $upperByLower);
 
-        $csvTable = $this->buildCsvTable($lowerLines, $upperByLower);
+        $csvTable         = $this->buildCsvTable($lowerLines, $upperByLower, true);   // с brake
+        $csvTableNoBrake  = $this->buildCsvTable($lowerLines, $upperByLower, false);  // без brake
 
         return $this->render('view', [
-            'wing'     => $wing,
-            'sections' => $sections,
-            'csvTable' => $csvTable,
-            'isAdmin'  => $isAdmin,
+            'wing'            => $wing,
+            'sections'        => $sections,
+            'csvTable'        => $csvTable,
+            'csvTableNoBrake' => $csvTableNoBrake,
+            'isAdmin'         => $isAdmin,
         ]);
     }
 
@@ -321,16 +323,24 @@ SQL;
      *
      * @param WingLowerLine[] $lowerLines
      * @param array<int, WingUpperLine[]> $upperByLower
+     * @param bool $withBrake Включать ли brake-группы (клеванты)
      * @return array{
      *     prefixes: string[],
      *     columns: array<string, array<int, string>>,
      *     max_rows: int,
      * }
      */
-    protected function buildCsvTable(array $lowerLines, array $upperByLower)
+    protected function buildCsvTable(array $lowerLines, array $upperByLower, $withBrake = true)
     {
         $items = [];
         foreach ($lowerLines as $lower) {
+            // Brake-группа: нижняя стропа без длины и без riser_note.
+            $isBrake = ($lower->length_mm === null && $lower->riser_note === null);
+
+            if ($isBrake && !$withBrake) {
+                continue;
+            }
+
             $lines = $upperByLower[(int)$lower->id] ?? [];
             foreach ($lines as $line) {
                 $items[] = [

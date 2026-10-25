@@ -7,6 +7,8 @@ use yii\helpers\Html;
  * @var yii\web\View $this
  * @var app\models\Wing $wing
  * @var array $sections
+ * @var array $csvTable
+ * @var array $csvTableNoBrake
  */
 
 $this->title = $wing->full_name;
@@ -158,16 +160,27 @@ $rightSections = $powerSections;
 
 <?php if (!empty($csvTable['prefixes']) && $csvTable['max_rows'] > 0): ?>
     <?php
-    // Готовим текст CSV: строки через \n, колонки через \t
-    $csvRows = [];
-    for ($i = 0; $i < $csvTable['max_rows']; $i++) {
-        $cells = [];
-        foreach ($csvTable['prefixes'] as $prefix) {
-            $cells[] = $csvTable['columns'][$prefix][$i] ?? '';
+    /**
+     * Преобразует структуру $csvTable в строку CSV:
+     * строки через \n, колонки через \t.
+     *
+     * @param array $table
+     * @return string
+     */
+    $buildCsvText = function (array $table) {
+        $rows = [];
+        for ($i = 0; $i < $table['max_rows']; $i++) {
+            $cells = [];
+            foreach ($table['prefixes'] as $prefix) {
+                $cells[] = $table['columns'][$prefix][$i] ?? '';
+            }
+            $rows[] = implode("\t", $cells);
         }
-        $csvRows[] = implode("\t", $cells);
-    }
-    $csvText = implode("\n", $csvRows);
+        return implode("\n", $rows);
+    };
+
+    $csvTextFull       = $buildCsvText($csvTable);
+    $csvTextWithoutBrake = $buildCsvText($csvTableNoBrake);
 
     // Имя файла: full_name, нормализованный
     $fileBase = preg_replace('~[^\p{L}\p{N}]+~u', '_', $wing->full_name);
@@ -180,7 +193,14 @@ $rightSections = $powerSections;
     <div class="box wing-csv-block">
         <h3>Данные (CSV)</h3>
 
-        <pre class="wing-csv" id="wing-csv-pre"><?= Html::encode($csvText) ?></pre>
+        <label class="wing-csv-toggle" style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer; user-select: none;">
+            <input type="checkbox" id="wing-csv-with-brake" checked>
+            <span>C breaks</span>
+        </label>
+
+        <pre class="wing-csv" id="wing-csv-pre"
+             data-csv-full="<?= Html::encode($csvTextFull) ?>"
+             data-csv-without-brake="<?= Html::encode($csvTextWithoutBrake) ?>"><?= Html::encode($csvTextFull) ?></pre>
 
         <div class="wing-csv-actions">
             <button type="button"
@@ -203,6 +223,7 @@ $rightSections = $powerSections;
     var pre = document.getElementById('wing-csv-pre');
     var copyBtn = document.getElementById('wing-csv-copy');
     var saveBtn = document.getElementById('wing-csv-save');
+    var brakeCheckbox = document.getElementById('wing-csv-with-brake');
 
     if (!pre || !copyBtn || !saveBtn) {
         return;
@@ -216,6 +237,16 @@ $rightSections = $powerSections;
         if (typeof window.showNotification === 'function') {
             window.showNotification(message, type || 'info', 2500);
         }
+    }
+
+    // --- Переключение содержимого по чекбоксу «C breaks» ---
+    if (brakeCheckbox) {
+        brakeCheckbox.addEventListener('change', function () {
+            var withBrake = brakeCheckbox.checked;
+            var attr = withBrake ? 'data-csv-full' : 'data-csv-without-brake';
+            var text = pre.getAttribute(attr) || '';
+            pre.textContent = text;
+        });
     }
 
     // --- Копировать ---
