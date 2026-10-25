@@ -219,6 +219,7 @@ class WeMeasureParser extends Component
                     }
                 } else {
                     $this->stats['skipped']++;
+                    Yii::info("we-measure: source_id={$sourceId} \skipped", 'we_measure');
                 }
             } catch (\Throwable $e) {
                 $this->stats['errors']++;
