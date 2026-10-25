@@ -133,10 +133,12 @@ class WeMeasureParser extends Component
             if ($limit > 0 && ($this->stats['parsed'] + $this->stats['updated']) >= $limit) {
                 break;
             }
+
+            /*
             if ($maxAttempts > 0 && $attempts >= $maxAttempts) {
                 break;
             }
-            $attempts++;
+            $attempts++;*/
 
             $existing = Wing::find()->where(['source_id' => $sourceId])->one();
 
