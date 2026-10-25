@@ -78,7 +78,7 @@ $this->registerCssFile('@web/css/wings-index.css', ['depends' => [\yii\bootstrap
                                        title="<?= Html::encode($wing->full_name) ?><?= $isAdmin && !$isActive ? ' — ' . $wing->getStateLabel() : '' ?>">
                                         <?= Html::encode($wing->size) ?>
                                     </a>
-                                    <?php if ($isAdmin): ?>
+                                    <?php /*if ($isAdmin): ?>
                                         <div class="admin">
                                             <span class="tile-state-badge <?= Html::encode($wing->getStateColorClass()) ?>"
                                                   title="<?= Html::encode($wing->getStateLabel()) ?>"></span>
@@ -88,7 +88,7 @@ $this->registerCssFile('@web/css/wings-index.css', ['depends' => [\yii\bootstrap
                                                     data-state="<?= Html::encode($wing->state) ?>"
                                                     title="Изменить состояние">▾</button>
                                         </div>
-                                    <?php endif; ?>
+                                    <?php endif; */?>
                                 </span>
                             <?php endforeach; ?>
                         </div>
