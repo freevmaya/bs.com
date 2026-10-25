@@ -1029,7 +1029,8 @@ class WeMeasureParser extends Component
                 ->setOptions($options)
                 ->send();
 
-            fwrite(STDERR, "[DEBUG] после createRequest() ".json_decode($response)."\n");
+            fwrite(STDERR, "[DEBUG] после send(): HTTP " . $response->statusCode . ", "
+    . strlen((string)$response->content) . " bytes\n");
 
             if (!$response->isOk) {
                 Yii::warning(
