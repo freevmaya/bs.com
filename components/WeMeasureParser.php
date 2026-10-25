@@ -51,6 +51,9 @@ class WeMeasureParser extends Component
     public $stats = [
         'catalog_total' => 0,
         'parsed'        => 0,
+        'updated'       => 0,
+        'deleted'       => 0,
+        'hidden'        => 0,
         'skipped'       => 0,
         'mismatches'    => 0,
         'errors'        => 0,
@@ -88,14 +91,17 @@ class WeMeasureParser extends Component
      * --limit ограничивает количество УСПЕШНО СПАРСЕННЫХ страниц
      * (parsed + updated), а не пройденных по каталогу.
      *
-     * @param int  $limit
-     * @param bool $force
+     * maxAttempts считается от количества НОВЫХ (отсутствующих в БД)
+     * source_id в каталоге: не больше limit*3, но не больше newCount.
+     * Это защищает от обхода всего каталога при системных ошибках,
+     * но не мешает пройти skip'ы уже спарсенных крыльев.
+     *
+     * @param int  $limit  0 = без ограничения
+     * @param bool $force  true = перепарсить уже существующие source_id
      * @return array
      */
     public function run($limit = 0, $force = false)
     {
-        fwrite(STDERR, "[DEBUG] run() started\n");
-
         $this->stats = [
             'catalog_total' => 0,
             'parsed'        => 0,
@@ -107,6 +113,7 @@ class WeMeasureParser extends Component
             'errors'        => 0,
         ];
 
+        // Проверяем наличие cookie-файла
         $cookiePath = $this->getCookiePath();
         if (!is_file($cookiePath) || filesize($cookiePath) === 0) {
             Yii::warning(
@@ -123,19 +130,33 @@ class WeMeasureParser extends Component
 
         Yii::info('we-measure: catalog collected, items=' . count($catalog), 'we_measure');
 
+        // Загружаем все существующие source_id одним запросом
+        $existingIds = Wing::find()->select('source_id')->column();
+        $existingIds = array_flip(array_map('intval', $existingIds));
+
+        // Считаем, сколько новых в каталоге
+        $newCount = 0;
+        foreach ($catalog as $sourceId => $item) {
+            if (!isset($existingIds[$sourceId])) {
+                $newCount++;
+            }
+        }
+
+        // maxAttempts: не больше limit*3, но не больше newCount (если новых мало)
+        $maxAttempts = 0;
+        if ($limit > 0) {
+            $maxAttempts = $newCount > 0 ? min($newCount, $limit * 3) : 0;
+        }
+
         $attempts = 0;
-        $maxAttempts = $limit > 0 ? $limit * 3 : 0; // например, 3 попытки на 1 успех
-
-
-
-        fwrite(STDERR, "[DEBUG] before parseCatalog(), maxAttempts: {$maxAttempts}\n");
 
         foreach ($catalog as $sourceId => $item) {
-
+            // Лимит по успешно спарсенным
             if ($limit > 0 && ($this->stats['parsed'] + $this->stats['updated']) >= $limit) {
                 break;
             }
 
+            // Защита от «бесконечного» обхода при системных ошибках
             if ($maxAttempts > 0 && $attempts >= $maxAttempts) {
                 break;
             }
@@ -181,7 +202,6 @@ class WeMeasureParser extends Component
 
                 if ($ok) {
                     if ($isRequireUpdate) {
-                        // После успешного обновления возвращаем в active
                         $wing = Wing::find()->where(['source_id' => $sourceId])->one();
                         if ($wing !== null && $wing->state === Wing::STATE_REQUIRE_UPDATE) {
                             $wing->state = Wing::STATE_ACTIVE;
@@ -246,8 +266,6 @@ class WeMeasureParser extends Component
      */
     public function parseCatalog()
     {
-
-        fwrite(STDERR, "[DEBUG] parseCatalog() started\n");
         $html = $this->fetch(self::BASE_URL . self::CATALOG_PATH);
         if ($html === null) {
             throw new \RuntimeException('Failed to fetch catalog page');
@@ -629,14 +647,12 @@ class WeMeasureParser extends Component
     {
         $files = [];
 
-        // Ищем блок, начинающийся с <h5>Files used</h5>
         if (!preg_match('~<h5>\s*Files used\s*</h5>(.*?)</div>\s*</div>~s', $html, $blockMatch)) {
             return $files;
         }
 
         $block = $blockMatch[1];
 
-        // Каждый файл: <div class="super"><sup>DATE</sup><a ... href="URL">...NAME</a></div>
         if (!preg_match_all(
             '~<div class="super">\s*<sup>(.*?)</sup>\s*<a[^>]*href="([^"]+)"[^>]*>(.*?)</a>\s*</div>~s',
             $block,
@@ -651,7 +667,6 @@ class WeMeasureParser extends Component
             $url  = trim($m[2]);
             $name = trim(html_entity_decode(strip_tags($m[3]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
 
-            // Убираем HTML-сущности вроде &nbsp;
             $name = str_replace(["\xC2\xA0", '&nbsp;'], ' ', $name);
             $name = trim($name);
 
@@ -659,12 +674,10 @@ class WeMeasureParser extends Component
                 continue;
             }
 
-            // Абсолютный URL
             if (strpos($url, '/') === 0) {
                 $url = self::BASE_URL . $url;
             }
 
-            // Дата: YYYY-MM-DD или null
             $dateValue = null;
             if ($date !== '' && preg_match('~^\d{4}-\d{2}-\d{2}$~', $date)) {
                 $dateValue = $date;
@@ -960,6 +973,8 @@ class WeMeasureParser extends Component
     /**
      * Возвращает id производителя по имени, создавая его при необходимости.
      *
+     * layout_method не задаём — остаётся NULL, заполняется вручную.
+     *
      * @param string|null $name
      * @param string|null $website
      * @return int|null
@@ -978,8 +993,6 @@ class WeMeasureParser extends Component
         if ($manufacturer === null) {
             $manufacturer = new Manufacturer();
             $manufacturer->name = $name;
-            // layout_method не задаём — остаётся NULL,
-            // заполняется вручную при необходимости
         }
 
         if ($website !== null && $website !== '' && $manufacturer->website !== $website) {
@@ -1039,9 +1052,6 @@ class WeMeasureParser extends Component
                 ->setUrl($url)
                 ->setOptions($options)
                 ->send();
-
-            fwrite(STDERR, "[DEBUG] после send(): HTTP " . $response->statusCode . ", "
-    . strlen((string)$response->content) . " bytes\n");
 
             if (!$response->isOk) {
                 Yii::warning(
