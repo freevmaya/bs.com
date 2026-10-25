@@ -125,10 +125,18 @@ class WeMeasureParser extends Component
 
         Yii::info('we-measure: catalog collected, items=' . count($catalog), 'we_measure');
 
+        $attempts = 0;
+        $maxAttempts = $limit > 0 ? $limit * 3 : 0; // например, 3 попытки на 1 успех
+
         foreach ($catalog as $sourceId => $item) {
+
             if ($limit > 0 && ($this->stats['parsed'] + $this->stats['updated']) >= $limit) {
                 break;
             }
+            if ($maxAttempts > 0 && $attempts >= $maxAttempts) {
+                break;
+            }
+            $attempts++;
 
             $existing = Wing::find()->where(['source_id' => $sourceId])->one();
 
