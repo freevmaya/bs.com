@@ -118,8 +118,6 @@ class WeMeasureParser extends Component
             Yii::info("we-measure: using cookie file {$cookiePath}", 'we_measure');
         }
 
-        fwrite(STDERR, "[DEBUG] before parseCatalog()\n");
-
         $catalog = $this->parseCatalog();
         $this->stats['catalog_total'] = count($catalog);
 
@@ -128,17 +126,20 @@ class WeMeasureParser extends Component
         $attempts = 0;
         $maxAttempts = $limit > 0 ? $limit * 3 : 0; // например, 3 попытки на 1 успех
 
+
+
+        fwrite(STDERR, "[DEBUG] before parseCatalog(), maxAttempts: {$maxAttempts}\n");
+
         foreach ($catalog as $sourceId => $item) {
 
             if ($limit > 0 && ($this->stats['parsed'] + $this->stats['updated']) >= $limit) {
                 break;
             }
 
-            /*
             if ($maxAttempts > 0 && $attempts >= $maxAttempts) {
                 break;
             }
-            $attempts++;*/
+            $attempts++;
 
             $existing = Wing::find()->where(['source_id' => $sourceId])->one();
 
