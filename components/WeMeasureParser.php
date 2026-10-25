@@ -91,10 +91,13 @@ class WeMeasureParser extends Component
      * --limit ограничивает количество УСПЕШНО СПАРСЕННЫХ страниц
      * (parsed + updated), а не пройденных по каталогу.
      *
-     * maxAttempts считается от количества НОВЫХ (отсутствующих в БД)
-     * source_id в каталоге: не больше limit*3, но не больше newCount.
-     * Это защищает от обхода всего каталога при системных ошибках,
-     * но не мешает пройти skip'ы уже спарсенных крыльев.
+     * $attempts увеличивается ТОЛЬКО когда реально идёт попытка
+     * загрузить/распарсить крыло (перед parseAndSaveWingPage()).
+     * delete / hide / skip уже спарсенных не тратят maxAttempts.
+     *
+     * maxAttempts = min(newCount, limit * 3) — защита от обхода
+     * всего каталога при системных ошибках, но не мешает пройти
+     * skip'ы уже спарсенных крыльев.
      *
      * @param int  $limit  0 = без ограничения
      * @param bool $force  true = перепарсить уже существующие source_id
@@ -160,7 +163,6 @@ class WeMeasureParser extends Component
             if ($maxAttempts > 0 && $attempts >= $maxAttempts) {
                 break;
             }
-            $attempts++;
 
             $existing = Wing::find()->where(['source_id' => $sourceId])->one();
 
@@ -197,11 +199,15 @@ class WeMeasureParser extends Component
                 continue;
             }
 
+            // Вот здесь реально пытаемся загрузить/распарсить — только теперь ++
+            $attempts++;
+
             try {
                 $ok = $this->parseAndSaveWingPage($sourceId, $item);
 
                 if ($ok) {
                     if ($isRequireUpdate) {
+                        // После успешного обновления возвращаем в active
                         $wing = Wing::find()->where(['source_id' => $sourceId])->one();
                         if ($wing !== null && $wing->state === Wing::STATE_REQUIRE_UPDATE) {
                             $wing->state = Wing::STATE_ACTIVE;
