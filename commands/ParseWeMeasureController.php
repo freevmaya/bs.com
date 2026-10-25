@@ -93,9 +93,24 @@ class ParseWeMeasureController extends Controller
         $this->out('Удалено:           ' . $stats['deleted']);
         $this->out('Скрыто:            ' . $stats['hidden']);
         $this->out('Пропущено:         ' . $stats['skipped']);
+        $this->out('Не авторизовано:   ' . ($stats['unauthorized'] ?? 0));
         $this->out('Расхождений:       ' . $stats['mismatches']);
         $this->out('Ошибок:            ' . $stats['errors']);
         $this->out('Время выполнения:  ' . $elapsed . ' сек.');
+
+        // Подсказка при проблемах с авторизацией
+        if (!empty($stats['unauthorized'])) {
+            $this->err('');
+            $this->err('⚠️  Обнаружены страницы без авторизации: ' . $stats['unauthorized']);
+            $this->err('   Обновите runtime/we-measure-cookies.txt и повторите запуск.');
+        }
+
+        if (!empty($stats['error']) && $stats['error'] === 'authorization_expired') {
+            $this->err('');
+            $this->err('🛑 Прогон прерван: сессия we-measure.io истекла.');
+            $this->err('   Обновите runtime/we-measure-cookies.txt.');
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
 
         return $stats['errors'] > 0 ? ExitCode::UNSPECIFIED_ERROR : ExitCode::OK;
     }

@@ -26,6 +26,11 @@ class WeMeasureParser extends Component
     const WING_PAGE_PATTERN = '/user/wing/map/%d';
 
     /**
+     * Сколько подряд идущих страниц без <h2> считать признаком истёкшей сессии
+     */
+    const MAX_CONSECUTIVE_UNAUTHORIZED = 3;
+
+    /**
      * @var int Таймаут HTTP-запроса в секундах
      */
     public $timeout = 30;
@@ -57,7 +62,17 @@ class WeMeasureParser extends Component
         'skipped'       => 0,
         'mismatches'    => 0,
         'errors'        => 0,
+        'unauthorized'  => 0,
     ];
+
+    /**
+     * @var string|null Причина последнего неуспешного парсинга страницы.
+     *                  null — успех; 'unauthorized' — нет <h2> на странице;
+     *                  'fetch_failed' — не удалось загрузить HTML;
+     *                  'no_data_table' — нет <h3>Data</h3>;
+     *                  'no_groups' — не удалось распарсить группы.
+     */
+    public $lastParseFailure = null;
 
     /**
      * @var Client
@@ -99,6 +114,10 @@ class WeMeasureParser extends Component
      * всего каталога при системных ошибках, но не мешает пройти
      * skip'ы уже спарсенных крыльев.
      *
+     * Если подряд идёт MAX_CONSECUTIVE_UNAUTHORIZED страниц без <h2>
+     * (признак истёкшей сессии we-measure.io), прогон прерывается
+     * с ошибкой 'authorization_expired' — не тратим 1938 GET-запросов.
+     *
      * @param int  $limit  0 = без ограничения
      * @param bool $force  true = перепарсить уже существующие source_id
      * @return array
@@ -114,7 +133,10 @@ class WeMeasureParser extends Component
             'skipped'       => 0,
             'mismatches'    => 0,
             'errors'        => 0,
+            'unauthorized'  => 0,
         ];
+
+        $this->lastParseFailure = null;
 
         // Проверяем наличие cookie-файла
         $cookiePath = $this->getCookiePath();
@@ -152,6 +174,7 @@ class WeMeasureParser extends Component
         }
 
         $attempts = 0;
+        $consecutiveUnauthorized = 0;
 
         foreach ($catalog as $sourceId => $item) {
             // Лимит по успешно спарсенным
@@ -201,11 +224,14 @@ class WeMeasureParser extends Component
 
             // Вот здесь реально пытаемся загрузить/распарсить — только теперь ++
             $attempts++;
+            $this->lastParseFailure = null;
 
             try {
                 $ok = $this->parseAndSaveWingPage($sourceId, $item);
 
                 if ($ok) {
+                    $consecutiveUnauthorized = 0;
+
                     if ($isRequireUpdate) {
                         // После успешного обновления возвращаем в active
                         $wing = Wing::find()->where(['source_id' => $sourceId])->one();
@@ -220,6 +246,23 @@ class WeMeasureParser extends Component
                 } else {
                     $this->stats['skipped']++;
                     Yii::info("we-measure: source_id={$sourceId} \skipped", 'we_measure');
+
+                    // Проверяем причину: если 'unauthorized' — увеличиваем счётчик
+                    if ($this->lastParseFailure === 'unauthorized') {
+                        $this->stats['unauthorized']++;
+                        $consecutiveUnauthorized++;
+
+                        if ($consecutiveUnauthorized >= self::MAX_CONSECUTIVE_UNAUTHORIZED) {
+                            Yii::error(
+                                "we-measure: {$consecutiveUnauthorized} consecutive pages without <h2> — "
+                                . "authorization likely expired. Aborting run. "
+                                . "Update runtime/we-measure-cookies.txt and retry.",
+                                'we_measure'
+                            );
+                            $this->stats['error'] = 'authorization_expired';
+                            break;
+                        }
+                    }
                 }
             } catch (\Throwable $e) {
                 $this->stats['errors']++;
@@ -490,30 +533,68 @@ class WeMeasureParser extends Component
     public function parseAndSaveWingPage($sourceId, array $catalogItem)
     {
         $url  = self::BASE_URL . sprintf(self::WING_PAGE_PATTERN, $sourceId);
-        $html = $this->fetch($url);
+        $meta = $this->fetchWithMeta($url);
 
-        if ($html === null) {
-            throw new \RuntimeException("Failed to fetch wing page: {$url}");
+        $this->lastParseFailure = null;
+
+        if ($meta['html'] === null) {
+            $this->lastParseFailure = 'fetch_failed';
+            throw new \RuntimeException(
+                "Failed to fetch wing page: {$url}. "
+                . 'HTTP=' . $meta['http_code'] . ', '
+                . 'error=' . ($meta['error'] ?? 'unknown')
+            );
         }
+
+        $html = $meta['html'];
 
         // 1. Название из <h2>
         $pageFullName = null;
         if (preg_match('~<h2>(.*?)</h2>~s', $html, $m)) {
             $pageFullName = trim(html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
         }
+
         if ($pageFullName === null || $pageFullName === '') {
-            if (mb_strpos($html, "url='/login'") !== false
-                || mb_strpos($html, 'url="/login"') !== false
-                || mb_strpos($html, 'Redirecting to') !== false
-            ) {
-                Yii::warning(
-                    "we-measure: page {$url} redirects to /login. "
-                    . "Cookie file is stale — update runtime/we-measure-cookies.txt",
-                    'we_measure'
-                );
-            } else {
-                Yii::warning("we-measure: no <h2> on page {$url}", 'we_measure');
+            // --- Расширенная диагностика ---
+            $title = null;
+            if (preg_match('~<title>(.*?)</title>~is', $html, $tm)) {
+                $title = trim(html_entity_decode(strip_tags($tm[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
             }
+
+            // Сниппет: strip_tags + схлопывание пробелов + обрезка
+            $plain   = preg_replace('~\s+~u', ' ', strip_tags($html));
+            $snippet = mb_substr((string)$plain, 0, 300);
+
+            // Признаки страницы логина
+            $isLoginPage =
+                mb_stripos($html, "url='/login'") !== false
+                || mb_stripos($html, 'url="/login"') !== false
+                || mb_stripos($html, 'Redirecting to') !== false
+                || mb_stripos($html, 'name="password"') !== false
+                || mb_stripos($html, '/login') !== false
+                || ($title !== null && preg_match('~login|sign\s*in|вход~iu', $title));
+
+            $logMsg =
+                'we-measure: no <h2> on page. '
+                . 'HTTP=' . $meta['http_code'] . ', '
+                . 'url=' . $url . ', '
+                . 'effective_url=' . $meta['effective_url'] . ', '
+                . 'title="' . ($title ?? '') . '", '
+                . 'is_login_page=' . ($isLoginPage ? 'YES' : 'no') . ', '
+                . 'html_length=' . mb_strlen($html) . ', '
+                . 'snippet: ' . $snippet;
+
+            if ($isLoginPage) {
+                $logMsg .=
+                    ' || AUTHORIZATION REQUIRED — update runtime/we-measure-cookies.txt';
+                Yii::error($logMsg, 'we_measure');
+                $this->lastParseFailure = 'unauthorized';
+            } else {
+                // Страница без <h2>, но не похожа на логин — возможно, битая/пустая
+                Yii::warning($logMsg, 'we_measure');
+                $this->lastParseFailure = 'unauthorized';
+            }
+
             return false;
         }
 
@@ -523,6 +604,7 @@ class WeMeasureParser extends Component
         // 2. Блок Data -> <table class="flex">
         $dataTableHtml = $this->extractDataTable($html);
         if ($dataTableHtml === null) {
+            $this->lastParseFailure = 'no_data_table';
             Yii::warning("we-measure: no <h3>Data</h3> table on page {$url}", 'we_measure');
             return false;
         }
@@ -530,6 +612,7 @@ class WeMeasureParser extends Component
         // 3. Разбор групп
         $groups = $this->parseGroups($dataTableHtml);
         if (empty($groups)) {
+            $this->lastParseFailure = 'no_groups';
             Yii::warning("we-measure: no groups parsed on page {$url}", 'we_measure');
             return false;
         }
@@ -1021,13 +1104,25 @@ class WeMeasureParser extends Component
     }
 
     /**
-     * Загружает URL, возвращает HTML или null при ошибке.
+     * Загружает URL и возвращает HTML вместе с мета-данными ответа.
      *
      * @param string $url
-     * @return string|null
+     * @return array{
+     *     html: string|null,
+     *     http_code: int,
+     *     effective_url: string,
+     *     error: string|null,
+     * }
      */
-    protected function fetch($url)
+    protected function fetchWithMeta($url)
     {
+        $result = [
+            'html'          => null,
+            'http_code'     => 0,
+            'effective_url' => $url,
+            'error'         => null,
+        ];
+
         try {
             $options = [
                 CURLOPT_TIMEOUT        => $this->timeout,
@@ -1060,22 +1155,40 @@ class WeMeasureParser extends Component
                 ->setOptions($options)
                 ->send();
 
+            $result['http_code']     = (int)$response->statusCode;
+            $result['effective_url'] = (string)($response->headers->get('Location') ?: $url);
+
             if (!$response->isOk) {
+                $result['error'] = "HTTP {$response->statusCode}";
                 Yii::warning(
                     "we-measure: HTTP {$response->statusCode} for {$url}",
                     'we_measure'
                 );
-                return null;
+                return $result;
             }
 
-            return $response->content;
+            $result['html'] = $response->content;
+            return $result;
 
         } catch (\Throwable $e) {
+            $result['error'] = $e->getMessage();
             Yii::error(
                 "we-measure: fetch error for {$url}: " . $e->getMessage(),
                 'we_measure'
             );
-            return null;
+            return $result;
         }
+    }
+
+    /**
+     * Загружает URL, возвращает HTML или null при ошибке.
+     *
+     * @param string $url
+     * @return string|null
+     */
+    protected function fetch($url)
+    {
+        $result = $this->fetchWithMeta($url);
+        return $result['html'];
     }
 }
