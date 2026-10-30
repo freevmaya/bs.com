@@ -1,0 +1,151 @@
+Список запросов API
+Базовый URL: https://<ваш-домен>
+
+Все запросы — GET, без авторизации, с CORS Access-Control-Allow-Origin: *.
+
+1. Список производителей
+text
+GET /api/manufacturers
+Возвращает производителей, у которых есть хотя бы одно active-крыло.
+
+Пример:
+
+bash
+curl https://bs.com/api/manufacturers
+Ответ:
+
+json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 15,
+      "name": "Ozone",
+      "website": "https://flyozone.com",
+      "layout_method": "roman",
+      "wings_count": 42
+    }
+  ]
+}
+2. Список крыльев производителя
+text
+GET /api/manufacturers/{id}/wings
+{id} — целое число, manufacturers.id.
+
+Пример:
+
+bash
+curl https://bs.com/api/manufacturers/15/wings
+Ответ:
+
+json
+{
+  "success": true,
+  "data": {
+    "manufacturer": {
+      "id": 15,
+      "name": "Ozone",
+      "website": "https://flyozone.com",
+      "layout_method": "roman"
+    },
+    "wings": [
+      {
+        "id": 101,
+        "source_id": 2026,
+        "model": "Eazy",
+        "model_year": 2013,
+        "size": "M",
+        "full_name": "Ozone Eazy (2013) M",
+        "source_url": "https://we-measure.io/user/wing/map/2026",
+        "catalog_match": true,
+        "parsed_at": "2026-01-02 12:00:00"
+      }
+    ]
+  }
+}
+Ошибка (404):
+
+json
+{ "success": false, "error": "Производитель не найден" }
+3. Длины строп крыла
+text
+GET /api/wings/{id}/lines
+{id} — целое число, wings.id.
+
+Пример:
+
+bash
+curl https://bs.com/api/wings/101/lines
+Ответ:
+
+json
+{
+  "success": true,
+  "data": {
+    "wing": {
+      "id": 101,
+      "source_id": 2026,
+      "model": "Eazy",
+      "model_year": 2013,
+      "size": "M",
+      "full_name": "Ozone Eazy (2013) M",
+      "source_url": "https://we-measure.io/user/wing/map/2026",
+      "catalog_match": true,
+      "parsed_at": "2026-01-02 12:00:00"
+    },
+    "manufacturer": {
+      "id": 15,
+      "name": "Ozone",
+      "website": "https://flyozone.com",
+      "layout_method": "roman"
+    },
+    "files_used": [
+      {
+        "id": 1,
+        "name": "Eazy_2013.pdf",
+        "url": "https://...",
+        "file_date": "2013-05-01",
+        "sort_order": 0
+      }
+    ],
+    "lower_lines": [
+      {
+        "id": 501,
+        "group_index": 0,
+        "name": "AR1",
+        "length_mm": 5905.0,
+        "riser_note": null,
+        "raw_value": "5905",
+        "is_brake": false,
+        "upper_lines": [
+          { "id": 7001, "name": "A1", "length_mm": 3200.0, "sort_order": 0 },
+          { "id": 7002, "name": "A2", "length_mm": 3250.0, "sort_order": 1 }
+        ]
+      }
+    ]
+  }
+}
+Ошибка (404):
+
+json
+{ "success": false, "error": "Крыло не найдено" }
+Служебные ответы
+Ситуация	HTTP-код	Тело
+Не-GET запрос (POST, PUT…)	405	{ "success": false, "error": "Method Not Allowed" }
+Preflight OPTIONS	204	(пусто)
+Необработанное исключение	500	{ "success": false, "error": "Internal Server Error" }
+CORS
+Для всех ответов (включая ошибки) выставляются заголовки:
+
+text
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Accept
+Типичный сценарий использования
+GET /api/manufacturers → выбрать производителя, запомнить id.
+
+GET /api/manufacturers/{id}/wings → выбрать крыло, запомнить id.
+
+GET /api/wings/{id}/lines → получить длины строп.
+
+Все три запроса можно делать напрямую из браузера (fetch) или из любого клиента — авторизация не требуется.

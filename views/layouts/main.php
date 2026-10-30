@@ -48,6 +48,11 @@ $this->registerJsFile('@web/js/favorites.js', [
     'position' => \yii\web\View::POS_END,
 ]);
 
+$this->registerJsFile('@web/js/messages-badge.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+    'position' => \yii\web\View::POS_END,
+]);
+
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>

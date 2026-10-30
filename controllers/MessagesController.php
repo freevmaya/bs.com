@@ -225,16 +225,18 @@ class MessagesController extends Controller
     public function actionGetUnreadCount()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         $userId = Yii::$app->user->id;
-        
+
         $count = Message::find()
+            ->innerJoin('conversations', 'conversations.id = messages.conversation_id')
             ->where([
-                'receiver_id' => $userId,
-                'is_read' => 0,
+                'messages.receiver_id' => $userId,
+                'messages.is_read' => 0,
+                'conversations.is_active' => true,
             ])
             ->count();
-        
+
         return ['count' => $count];
     }
     

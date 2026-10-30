@@ -26,11 +26,10 @@
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-    width: 80%;
+    width: 100%;
     margin: 0;
     padding: 0;
     list-style: none;
-    margin-left: 10%;
 }
 
 .bottom-nav .navbar-nav .nav-item {
@@ -153,4 +152,19 @@ body {
 * {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, 
                 box-shadow 0.3s ease, fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease;
+}
+
+
+/* Меньше 680px — скрыть кнопку переключения темы */
+
+@media (max-width: 680px) {
+    .bottom-nav .navbar-nav .nav-item-theme {
+        display: none;
+    }
+}
+
+@media (max-width: 350px) {
+    .bottom-nav .navbar-nav .nav-item-messages {
+        display: none;
+    }
 }
