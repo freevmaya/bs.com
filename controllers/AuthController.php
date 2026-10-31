@@ -23,6 +23,11 @@ class AuthController extends Controller
         ];
     }
 
+    public function actionVkontakte()
+    {
+        $client = Yii::$app->authClientCollection->getClient('vkontakte');
+    }
+
     /**
      * Обработка успешной авторизации через соцсеть
      * 
