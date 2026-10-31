@@ -539,7 +539,7 @@
 						"characters": "\n"
 					},
 					"AgAAAK8OAAAAAAAAsA4AAAAAAAAAAAAAsA4AAAAAAADADgAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAArw4AAAAAAACvDgAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAACvDgAAAAAAAK8OAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					6,
@@ -547,7 +547,7 @@
 					"paste",
 					null,
 					"AQAAAMAOAAAAAAAAWw8AAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAwA4AAAAAAADADgAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAADADgAAAAAAAMAOAAAAAAAAAAAAAAAA8L8"
 				],
 				[
 					9,
@@ -555,50 +555,233 @@
 					"indent",
 					null,
 					"CAAAAOwOAAAAAAAA8A4AAAAAAAAAAAAAMA8AAAAAAAA0DwAAAAAAAAAAAADsDgAAAAAAAPAOAAAAAAAAAAAAADQPAAAAAAAAOA8AAAAAAAAAAAAA7A4AAAAAAADwDgAAAAAAAAAAAAA4DwAAAAAAADwPAAAAAAAAAAAAAOwOAAAAAAAA8A4AAAAAAAAAAAAAPA8AAAAAAABADwAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAA7A4AAAAAAABbDwAAAAAAAAAAAAAAAPC/"
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAADsDgAAAAAAAFsPAAAAAAAAAAAAAAAA8L8"
 				]
 			]
 		},
 		{
-			"file": "/C/Users/fwadi/AppData/Local/Temp/fz3temp-3/web.php",
-			"file_size": 7602,
-			"file_write_time": 134374592557069478,
+			"file": "public_html/css/bottom-nav.css",
+			"file_size": 4727,
+			"file_write_time": 134378522517353394,
 			"settings":
 			{
-				"buffer_size": 7455,
+				"buffer_size": 4326,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+				[
+					7,
+					1,
+					"paste",
+					null,
+					"AQAAAAgCAAAAAAAAnQIAAAAAAACqAAAACiAgICBkaXNwbGF5OiBmbGV4OwogICAgZmxleC1kaXJlY3Rpb246IHJvdzsKICAgIGp1c3RpZnktY29udGVudDogc3BhY2UtYXJvdW5kOwogICAgd2lkdGg6IDgwJTsKICAgIG1hcmdpbjogMDsKICAgIHBhZGRpbmc6IDA7CiAgICBsaXN0LXN0eWxlOiBub25lOwogICAgbWFyZ2luLWxlZnQ6IDEwJTs",
+					"AQAAAAAAAAABAAAACAIAAAAAAACyAgAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					10,
+					1,
+					"insert",
+					{
+						"characters": "\n\n"
+					},
+					"AgAAANgPAAAAAAAA2Q8AAAAAAAAAAAAA2Q8AAAAAAADaDwAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAA2A8AAAAAAADYDwAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					11,
+					1,
+					"paste",
+					null,
+					"AQAAANoPAAAAAAAAshEAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAA2g8AAAAAAADaDwAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					12,
+					1,
+					"insert",
+					{
+						"characters": "\n\n"
+					},
+					"AgAAALIRAAAAAAAAsxEAAAAAAAAAAAAAsxEAAAAAAAC0EQAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAshEAAAAAAACyEQAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					13,
+					1,
+					"paste",
+					null,
+					"AQAAALQRAAAAAAAAiRIAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAtBEAAAAAAAC0EQAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					19,
+					1,
+					"left_delete",
+					null,
+					"AQAAAJYQAAAAAAAAlhAAAAAAAAA1AQAACkBtZWRpYSAobWF4LXdpZHRoOiA2ODBweCkgewogICAgLmJvdHRvbS1uYXYgLm5hdmJhci1uYXYgLm5hdi1pdGVtOmhhcygjdGhlbWUtdG9nZ2xlKSB7CiAgICAgICAgZGlzcGxheTogbm9uZTsKICAgIH0KfQoKLyog0JzQtdC90YzRiNC1IDM1MHB4IOKAlCDRgdC60YDRi9GC0YwgwqvQodC+0L7QsdGJ0LXQvdC40Y/CuyAqLwpAbWVkaWEgKG1heC13aWR0aDogMzUwcHgpIHsKICAgIC5ib3R0b20tbmF2IC5uYXZiYXItbmF2IC5uYXYtaXRlbTpoYXMoYVtocmVmKj0iL21lc3NhZ2VzIl0pIHsKICAgICAgICBkaXNwbGF5OiBub25lOwogICAgfQp9",
+					"AQAAAAAAAAABAAAAlhAAAAAAAACyEQAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					22,
+					1,
+					"insert",
+					{
+						"characters": "\n"
+					},
+					"AQAAANgPAAAAAAAA2Q8AAAAAAACkAAAACgovKiA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQogICDQodC60YDRi9GC0LjQtSDQv9GD0L3QutGC0L7QsiDQvdCwINGD0LfQutC40YUg0Y3QutGA0LDQvdCw0YUKICAgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gKi8",
+					"AQAAAAAAAAABAAAA2A8AAAAAAABgEAAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "views/layouts/_header.php",
+			"file_size": 5478,
+			"file_write_time": 134378530468859400,
+			"settings":
+			{
+				"buffer_size": 5367,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			},
 			"undo_stack":
 			[
 				[
-					5,
+					16,
 					1,
 					"paste",
 					null,
-					"AQAAALEQAAAAAAAAfhEAAAAAAAAAAAAA",
-					"AQAAAAAAAAABAAAAsRAAAAAAAACxEAAAAAAAAAAAAAAAAPC/"
+					"AQAAAEgGAAAAAAAAbAYAAAAAAAAVAAAAPGxpIGNsYXNzPSJuYXYtaXRlbSI+",
+					"AQAAAAAAAAABAAAASAYAAAAAAABdBgAAAAAAAAAAAAAAAPC/"
 				],
 				[
-					10,
+					19,
 					1,
+					"paste",
+					null,
+					"AQAAADkIAAAAAAAAYAgAAAAAAAAVAAAAPGxpIGNsYXNzPSJuYXYtaXRlbSI+",
+					"AQAAAAAAAAABAAAAOQgAAAAAAABOCAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					25,
+					1,
+					"paste",
+					null,
+					"AQAAAF8IAAAAAAAAdggAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAXwgAAAAAAABfCAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					28,
+					2,
 					"left_delete",
 					null,
-					"AQAAAH4RAAAAAAAAfhEAAAAAAAABAAAALA",
-					"AQAAAAAAAAABAAAAfxEAAAAAAAB/EQAAAAAAAAAAAAAAAPC/"
+					"AgAAAF4KAAAAAAAAXgoAAAAAAAAKAAAAdG9wOiAtNnB4O10KAAAAAAAAXQoAAAAAAAABAAAAIA",
+					"AQAAAAAAAAABAAAAXgoAAAAAAABoCgAAAAAAAAAAAAAAAPC/"
 				]
 			]
 		},
 		{
-			"file": "utils/Список запросов API.txt",
-			"file_size": 4065,
-			"file_write_time": 134374595483346992,
+			"file": "controllers/MessagesController.php",
+			"file_size": 9584,
+			"file_write_time": 134378534528580566,
 			"settings":
 			{
-				"buffer_size": 3339,
+				"buffer_size": 8624,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+				[
+					14,
+					1,
+					"paste",
+					null,
+					"AQAAAGocAAAAAAAAQB4AAAAAAACFAQAAcHVibGljIGZ1bmN0aW9uIGFjdGlvbkdldFVucmVhZENvdW50KCkKICAgIHsKICAgICAgICBZaWk6OiRhcHAtPnJlc3BvbnNlLT5mb3JtYXQgPSBceWlpXHdlYlxSZXNwb25zZTo6Rk9STUFUX0pTT047CiAgICAgICAgCiAgICAgICAgJHVzZXJJZCA9IFlpaTo6JGFwcC0+dXNlci0+aWQ7CiAgICAgICAgCiAgICAgICAgJGNvdW50ID0gTWVzc2FnZTo6ZmluZCgpCiAgICAgICAgICAgIC0+d2hlcmUoWwogICAgICAgICAgICAgICAgJ3JlY2VpdmVyX2lkJyA9PiAkdXNlcklkLAogICAgICAgICAgICAgICAgJ2lzX3JlYWQnID0+IDAsCiAgICAgICAgICAgIF0pCiAgICAgICAgICAgIC0+Y291bnQoKTsKICAgICAgICAKICAgICAgICByZXR1cm4gWydjb3VudCcgPT4gJGNvdW50XTsKICAgIH0",
+					"AQAAAAAAAAABAAAAahwAAAAAAADvHQAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					17,
+					1,
+					"indent",
+					null,
+					"DQAAAJEcAAAAAAAAlRwAAAAAAAAAAAAAlxwAAAAAAACbHAAAAAAAAAAAAADeHAAAAAAAAOIcAAAAAAAAAAAAAAYdAAAAAAAACh0AAAAAAAAAAAAAJx0AAAAAAAArHQAAAAAAAAAAAAB/HQAAAAAAAIMdAAAAAAAAAAAAAJUdAAAAAAAAmR0AAAAAAAAAAAAAyB0AAAAAAADMHQAAAAAAAAAAAADxHQAAAAAAAPUdAAAAAAAAAAAAACQeAAAAAAAAKB4AAAAAAAAAAAAAMx4AAAAAAAA3HgAAAAAAAAAAAABLHgAAAAAAAE8eAAAAAAAAAAAAAG8eAAAAAAAAcx4AAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAQB4AAAAAAACRHAAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "public_html/js/messages.js",
+			"file_size": 6054,
+			"file_write_time": 134378529484531832,
+			"redo_stack":
+			[
+				[
+					19,
+					1,
+					"indent",
+					null,
+					"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"
+				],
+				[
+					16,
+					1,
+					"paste",
+					null,
+					"AQAAAFATAAAAAAAAUBMAAAAAAAACBgAALyoqCiAqINCY0L3QuNGG0LjQsNC70LjQt9Cw0YbQuNGPINCx0LXQudC00LbQsCDQvdC10L/RgNC+0YfQuNGC0LDQvdC90YvRhSDRgdC+0L7QsdGJ0LXQvdC40Lkg0LIg0L3QuNC20L3QtdC8INC80LXQvdGOLgogKgogKiDQn9GD0L3QutGCIMKr0KHQvtC+0LHRidC10L3QuNGPwrsg0LLRgdC10LPQtNCwINCy0LjQtNC10L0gKNC00LvRjyDQsNCy0YLQvtGA0LjQt9C+0LLQsNC90L3Ri9GFKSwKICog0YHQutGA0YvQstCw0LXRgtGB0Y8v0L/QvtC60LDQt9GL0LLQsNC10YLRgdGPINGC0L7Qu9GM0LrQviDRgdCw0Lwg0LHQtdC50LTQtiDRgSDQutC+0LvQuNGH0LXRgdGC0LLQvtC8LgogKi8KaW5pdFVucmVhZEJhZGdlOiBmdW5jdGlvbigpIHsKICAgIHZhciBzZWxmID0gdGhpczsKCiAgICBzZWxmLnVwZGF0ZVVucmVhZEJhZGdlKCk7CgogICAgc2V0SW50ZXJ2YWwoZnVuY3Rpb24oKSB7CiAgICAgICAgc2VsZi51cGRhdGVVbnJlYWRCYWRnZSgpOwogICAgfSwgMzAwMDApOwp9LAoKLyoqCiAqINCX0LDQv9GA0L7RgdC40YLRjCDQutC+0LvQuNGH0LXRgdGC0LLQviDQvdC10L/RgNC+0YfQuNGC0LDQvdC90YvRhSDQuCDQvtCx0L3QvtCy0LjRgtGMINCx0LXQudC00LYuCiAqLwp1cGRhdGVVbnJlYWRCYWRnZTogZnVuY3Rpb24oKSB7CiAgICB2YXIgJGJhZGdlID0gJCgnI21lc3NhZ2VzLXVucmVhZC1iYWRnZScpOwogICAgaWYgKCEkYmFkZ2UubGVuZ3RoKSB7CiAgICAgICAgcmV0dXJuOwogICAgfQoKICAgICQuYWpheCh7CiAgICAgICAgdXJsOiAnL21lc3NhZ2VzL2dldC11bnJlYWQtY291bnQnLAogICAgICAgIHR5cGU6ICdQT1NUJywKICAgICAgICBkYXRhVHlwZTogJ2pzb24nLAogICAgICAgIGRhdGE6IHsKICAgICAgICAgICAgX2NzcmY6ICQoJ21ldGFbbmFtZT0iY3NyZi10b2tlbiJdJykuYXR0cignY29udGVudCcpCiAgICAgICAgfSwKICAgICAgICBzdWNjZXNzOiBmdW5jdGlvbihyZXNwb25zZSkgewogICAgICAgICAgICBpZiAoIXJlc3BvbnNlIHx8IHR5cGVvZiByZXNwb25zZS5jb3VudCA9PT0gJ3VuZGVmaW5lZCcpIHsKICAgICAgICAgICAgICAgIHJldHVybjsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgTWVzc2FnZXMuYXBwbHlCYWRnZUNvdW50KHJlc3BvbnNlLmNvdW50KTsKICAgICAgICB9CiAgICB9KTsKfSwKCi8qKgogKiDQn9GA0LjQvNC10L3QuNGC0Ywg0YfQuNGB0LvQviDQuiDQsdC10LnQtNC20YMuCiAqCiAqIEBwYXJhbSB7bnVtYmVyfSBjb3VudAogKi8KYXBwbHlCYWRnZUNvdW50OiBmdW5jdGlvbihjb3VudCkgewogICAgY291bnQgPSBwYXJzZUludChjb3VudCwgMTApIHx8IDA7CgogICAgdmFyICRiYWRnZSA9ICQoJyNtZXNzYWdlcy11bnJlYWQtYmFkZ2UnKTsKICAgIGlmICghJGJhZGdlLmxlbmd0aCkgewogICAgICAgIHJldHVybjsKICAgIH0KCiAgICBpZiAoY291bnQgPiAwKSB7CiAgICAgICAgJGJhZGdlLnRleHQoY291bnQgPiA5OSA/ICc5OSsnIDogY291bnQpLnNob3coKTsKICAgIH0gZWxzZSB7CiAgICAgICAgJGJhZGdlLnRleHQoJycpLmhpZGUoKTsKICAgIH0KfSw",
+					"AQAAAAAAAAABAAAAfxgAAAAAAAB/GAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					15,
+					1,
+					"insert",
+					{
+						"characters": "\n\n"
+					},
+					"BQAAAEcTAAAAAAAATxMAAAAAAAAAAAAAUBMAAAAAAABQEwAAAAAAAAgAAAAgICAgICAgIE8TAAAAAAAATxMAAAAAAAABAAAACkcTAAAAAAAARxMAAAAAAAAIAAAAICAgICAgICBGEwAAAAAAAEYTAAAAAAAAAQAAAAo",
+					"AQAAAAAAAAABAAAAUBMAAAAAAABQEwAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					9,
+					1,
+					"insert",
+					{
+						"characters": "\t\t"
+					},
+					"AgAAAFMBAAAAAAAAUwEAAAAAAAAEAAAAICAgIE8BAAAAAAAATwEAAAAAAAAEAAAAICAgIA",
+					"AQAAAAAAAAABAAAAVwEAAAAAAABXAQAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					6,
+					1,
+					"paste",
+					null,
+					"AQAAAEoBAAAAAAAASgEAAAAAAAAcAAAACiAgICB0aGlzLmluaXRVbnJlYWRCYWRnZSgpOw",
+					"AQAAAAAAAAABAAAAZgEAAAAAAABmAQAAAAAAAAAAAAAAAPC/"
+				]
+			],
+			"settings":
+			{
+				"buffer_size": 5752,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+			]
+		},
+		{
+			"file": "public_html/js/messages-badge.js",
+			"file_size": 2125,
+			"file_write_time": 134378528972234493,
+			"settings":
+			{
+				"buffer_size": 1879,
 				"encoding": "UTF-8",
 				"line_ending": "Windows",
-				"name": "Список запросов API"
+				"name": "// FILE: .\\public_html\\js\\messages-badge.js"
 			},
 			"undo_stack":
 			[
@@ -607,8 +790,48 @@
 					1,
 					"paste",
 					null,
-					"AQAAAAAAAAAAAAAACw0AAAAAAAAAAAAA",
+					"AQAAAAAAAAAAAAAAVwcAAAAAAAAAAAAA",
 					"AQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "views/layouts/main.php",
+			"file_size": 2909,
+			"file_write_time": 134378529341688937,
+			"settings":
+			{
+				"buffer_size": 2683,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+				[
+					4,
+					1,
+					"insert",
+					{
+						"characters": "\n\n"
+					},
+					"AgAAAKIGAAAAAAAAowYAAAAAAAAAAAAAowYAAAAAAACkBgAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAogYAAAAAAACiBgAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					5,
+					1,
+					"paste",
+					null,
+					"AQAAAKQGAAAAAAAAMQcAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAApAYAAAAAAACkBgAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					8,
+					1,
+					"paste",
+					null,
+					"AQAAAKQGAAAAAAAANgcAAAAAAACNAAAAJHRoaXMtPnJlZ2lzdGVySnNGaWxlKCdAd2ViL2pzL2Zhdm9yaXRlcy5qcycsIFsKICAgICdkZXBlbmRzJyA9PiBbXHlpaVx3ZWJcSnF1ZXJ5QXNzZXQ6OmNsYXNzXSwKICAgICdwb3NpdGlvbicgPT4gXHlpaVx3ZWJcVmlldzo6UE9TX0VORCwKXSk7",
+					"AQAAAAAAAAABAAAAMQcAAAAAAACkBgAAAAAAAAAAAAAAAPC/"
 				]
 			]
 		}
@@ -694,10 +917,17 @@
 	"expanded_folders":
 	[
 		"/C/OpenServer/domains/bs.com",
-		"/C/OpenServer/domains/bs.com/public_htmlassetscss"
+		"/C/OpenServer/domains/bs.com/controllers",
+		"/C/OpenServer/domains/bs.com/public_html",
+		"/C/OpenServer/domains/bs.com/public_html/js",
+		"/C/OpenServer/domains/bs.com/public_htmlassetscss",
+		"/C/OpenServer/domains/bs.com/views",
+		"/C/OpenServer/domains/bs.com/views/layouts"
 	],
 	"file_history":
 	[
+		"/C/OpenServer/domains/bs.com/utils/Список запросов API.txt",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-3/web.php",
 		"/C/OpenServer/domains/bs.com/controllers/ApiController.php",
 		"/C/OpenServer/domains/bs.com/views/wings/view.php",
 		"/C/OpenServer/domains/bs.com/utils/Manufacturers.json",
@@ -823,9 +1053,7 @@
 		"/C/OpenServer/domains/bs.com/widgets/SearchBar.php",
 		"/C/OpenServer/domains/bs.com/helpers/CurrencyRate.php",
 		"/C/OpenServer/domains/bs.com/runtime/logs/currency.log",
-		"/C/OpenServer/domains/bs.com/public_html/css/image-grid-preview.css",
-		"/C/OpenServer/domains/bs.com/views/layouts/_head.php",
-		"/C/OpenServer/domains/bs.com/models/AdvertisementRating.php"
+		"/C/OpenServer/domains/bs.com/public_html/css/image-grid-preview.css"
 	],
 	"find":
 	{
@@ -971,6 +1199,10 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"actionGetUnreadCount",
+			"Сообщения",
+			"<li class=\"nav-item\">",
+			".bottom-nav .navbar-nav {",
 			"is_brake",
 			"catalog_match",
 			"<?php if (!empty($csvTable['prefixes']) && $csvTable['max_rows'] > 0): ?>",
@@ -1094,11 +1326,7 @@
 			"harness",
 			"<?php if (!empty($model->source_url)): ?>",
 			"deleteDirectoryRecursive",
-			"cleanupTempDirectory",
-			"Error",
-			"\n",
-			"color",
-			"_duplicates_modal"
+			"cleanupTempDirectory"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -1275,25 +1503,56 @@
 						"translation.y": 1121.6,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 6,
 					"stack_multiselect": false,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "/C/Users/fwadi/AppData/Local/Temp/fz3temp-3/web.php",
+					"file": "public_html/css/bottom-nav.css",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7455,
+						"buffer_size": 4326,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4478,
-								4478
+								4057,
+								4057
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CSS/CSS.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2388.8,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "views/layouts/_header.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5367,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2653,
+								2653
 							]
 						],
 						"settings":
@@ -1303,7 +1562,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1566.4,
+						"translation.y": 704.8,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -1311,35 +1570,128 @@
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "utils/Список запросов API.txt",
+					"buffer": 3,
+					"file": "controllers/MessagesController.php",
 					"selected": true,
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3339,
+						"buffer_size": 8624,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1388,
-								1422
+								7428,
+								7428
 							]
 						],
 						"settings":
 						{
-							"auto_name": "Список запросов API",
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 2,
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1176.0,
+						"translation.y": 3678.4,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "public_html/js/messages.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5752,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								330,
+								330
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "public_html/js/messages-badge.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1879,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1879,
+								1879
+							]
+						],
+						"settings":
+						{
+							"auto_name": "// FILE: .\\public_html\\js\\messages-badge.js",
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 607.2,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "views/layouts/main.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2683,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1846,
+								1846
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 648.8,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
 					"stack_multiselect": false,
 					"type": "text"
 				}

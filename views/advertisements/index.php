@@ -65,14 +65,10 @@ $section = Advertisement::SECTION_SELL;
                 <div style="flex-shrink: 0;">
                     <?= Html::a(
                         '<span class="glyphicon glyphicon-plus"></span> Разместить объявление',
-                        $isGuest ? ['/site/login'] : ['create', 'section' => $section],
+                        $isGuest ? ['/site/login', 'returnUrl' => Url::to(['create', 'section' => $section], true)] : ['create', 'section' => $section],
                         [
                             'class' => 'btn btn-success',
                             'style' => 'white-space: nowrap;',
-                            'data' => $isGuest ? [
-                                'method' => 'get',
-                                'confirm' => 'Для размещения объявления необходимо авторизоваться. Перейти на страницу входа?',
-                            ] : [],
                         ]
                     ) ?>
                 </div>

@@ -13,7 +13,7 @@ class SocialLogin extends Widget
     /**
      * @var array Список провайдеров для отображения
      */
-    public $providers = ['vkontakte', 'google', 'facebook', 'yandex', 'github'];
+    public $providers = ['vkontakte', 'google', 'yandex'];
     
     /**
      * @var bool Показывать ли разделитель

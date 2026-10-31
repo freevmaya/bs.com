@@ -49,9 +49,18 @@ class AuthHandler
                 Yii::$app->user->login($user, 3600 * 24 * 30);
                 return $user;
             }
-            
-            Yii::error("Email not found for provider: {$provider}", 'auth');
-            throw new \Exception('Не удалось получить email от сервиса авторизации. Пожалуйста, используйте другой способ входа.');
+
+            // Email не получен и пользователь не найден — генерируем заглушку
+            if ($providerId) {
+                $email = $provider . '_' . $providerId . '@social.local';
+                Yii::warning(
+                    "Email not provided by {$provider} (id={$providerId}), using placeholder: {$email}",
+                    'auth'
+                );
+            } else {
+                Yii::error("Email and provider_id not found for provider: {$provider}", 'auth');
+                throw new \Exception('Не удалось получить email от сервиса авторизации. Пожалуйста, используйте другой способ входа.');
+            }
         }
         
         // Ищем пользователя по email

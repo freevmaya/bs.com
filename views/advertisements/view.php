@@ -511,52 +511,46 @@ $action = ($section === Advertisement::SECTION_SELL) ? 'sell' : 'buy';
                         <hr>
                         
                         <!-- Кнопки действий -->
-                        <?php if (!Yii::$app->user->isGuest): ?>
-                            <?php if (Yii::$app->user->id != $model->user_id): ?>
-                                <?php
-                                $telegramDialogUrl = $model->telegram ? 'https://t.me/' . ltrim($model->telegram, '@') : null;
-                                $vkDialogUrl = $model->vk_profile_url ? $model->vk_profile_url : null;
-                                ?>
+                        <?php if (Yii::$app->user->id != $model->user_id): ?>
+                            <?php
+                            $telegramDialogUrl = $model->telegram ? 'https://t.me/' . ltrim($model->telegram, '@') : null;
+                            $vkDialogUrl = $model->vk_profile_url ? $model->vk_profile_url : null;
+                            $isGuest = Yii::$app->user->isGuest;
+                            ?>
+                            
+                            <div class="btn-group-vertical" style="width: 100%;">
+                                <?= Html::a(
+                                    SvgHelper::render('envelope', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать автору',
+                                    $isGuest
+                                        ? ['/site/login', 'returnUrl' => Url::to(['/messages/start', 'advertisementId' => $model->id], true)]
+                                        : ['/messages/start', 'advertisementId' => $model->id],
+                                    ['class' => 'btn btn-primary btn-block']
+                                ) ?>
                                 
-                                <div class="btn-group-vertical" style="width: 100%;">
+                                <?php if ($telegramDialogUrl): ?>
                                     <?= Html::a(
-                                        SvgHelper::render('envelope', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать автору',
-                                        ['/messages/start', 'advertisementId' => $model->id],
-                                        ['class' => 'btn btn-primary btn-block']
+                                        SvgHelper::render('telegram-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в Telegram',
+                                        $telegramDialogUrl,
+                                        [
+                                            'class' => 'btn btn-info btn-block',
+                                            'target' => '_blank',
+                                            'rel' => 'noopener noreferrer',
+                                        ]
                                     ) ?>
-                                    
-                                    <?php if ($telegramDialogUrl): ?>
-                                        <?= Html::a(
-                                            SvgHelper::render('telegram-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в Telegram',
-                                            $telegramDialogUrl,
-                                            [
-                                                'class' => 'btn btn-info btn-block',
-                                                'target' => '_blank',
-                                                'rel' => 'noopener noreferrer',
-                                            ]
-                                        ) ?>
-                                    <?php endif; ?>
-                                    
-                                    <?php if ($vkDialogUrl): ?>
-                                        <?= Html::a(
-                                            SvgHelper::render('vk-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в VK',
-                                            $vkDialogUrl,
-                                            [
-                                                'class' => 'btn btn-primary btn-block',
-                                                'target' => '_blank',
-                                                'rel' => 'noopener noreferrer',
-                                                'style' => 'background: #4a76a8; border-color: #4a76a8;'
-                                            ]
-                                        ) ?>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <div class="alert alert-warning" style="margin-bottom: 0;">
-                                <?= SvgHelper::render('alert', ['width' => 16, 'height' => 16, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) ?>
-                                <?= Html::a('Войдите', ['/site/login']) ?> или 
-                                <?= Html::a('зарегистрируйтесь', ['/site/register']) ?>, 
-                                чтобы связаться с автором
+                                <?php endif; ?>
+                                
+                                <?php if ($vkDialogUrl): ?>
+                                    <?= Html::a(
+                                        SvgHelper::render('vk-lg', ['width' => 18, 'height' => 18, 'class' => 'svg-icon', 'style' => 'margin-right: 6px;']) . ' Написать в VK',
+                                        $vkDialogUrl,
+                                        [
+                                            'class' => 'btn btn-primary btn-block',
+                                            'target' => '_blank',
+                                            'rel' => 'noopener noreferrer',
+                                            'style' => 'background: #4a76a8; border-color: #4a76a8;'
+                                        ]
+                                    ) ?>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </div>
