@@ -1765,26 +1765,31 @@
         },
         {
             "name": "yiisoft/yii2-authclient",
-            "version": "2.2.17",
+            "version": "2.2.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-authclient.git",
-                "reference": "3e095a95c19a78f802e307bd20eb6926dbf0fd5d"
+                "reference": "afb7b222ad5433852c0378469f26ca5ecfbb8481"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-authclient/zipball/3e095a95c19a78f802e307bd20eb6926dbf0fd5d",
-                "reference": "3e095a95c19a78f802e307bd20eb6926dbf0fd5d",
+                "url": "https://api.github.com/repos/yiisoft/yii2-authclient/zipball/afb7b222ad5433852c0378469f26ca5ecfbb8481",
+                "reference": "afb7b222ad5433852c0378469f26ca5ecfbb8481",
                 "shasum": ""
             },
             "require": {
                 "paragonie/random_compat": ">=1",
-                "yiisoft/yii2": "~2.0.13",
+                "php": ">=7.4",
+                "yiisoft/yii2": "~2.0.55",
                 "yiisoft/yii2-httpclient": "~2.0.5"
             },
             "require-dev": {
-                "cweagans/composer-patches": "^1.7",
-                "phpunit/phpunit": "4.8.34"
+                "friendsofphp/php-cs-fixer": "^3.95",
+                "mspirkov/yii2-rector": "^0.2",
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpunit/phpunit": "^9.6",
+                "rector/rector": "^2.6"
             },
             "suggest": {
                 "web-token/jwt-checker": "required for JWS, JWT or JWK related flows like OpenIDConnect",
@@ -1796,15 +1801,6 @@
             },
             "type": "yii2-extension",
             "extra": {
-                "patches": {
-                    "phpunit/phpunit": {
-                        "Fix PHP 7 compatibility": "https://yiisoft.github.io/phpunit-patches/phpunit_php7.patch",
-                        "Fix PHP 8 compatibility": "https://yiisoft.github.io/phpunit-patches/phpunit_php8.patch"
-                    },
-                    "phpunit/phpunit-mock-objects": {
-                        "Fix PHP 7 and 8 compatibility": "https://yiisoft.github.io/phpunit-patches/phpunit_mock_objects.patch"
-                    }
-                },
                 "branch-alias": {
                     "dev-master": "2.0.x-dev"
                 }
@@ -1854,7 +1850,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-02-13T21:32:58+00:00"
+            "time": "2026-10-14T22:32:57+00:00"
         },
         {
             "name": "yiisoft/yii2-bootstrap5",

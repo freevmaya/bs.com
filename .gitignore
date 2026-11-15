@@ -41,4 +41,5 @@ tests/_support/_generated
 combined.txt
 /config
 /runtime
+/data
 uploads
