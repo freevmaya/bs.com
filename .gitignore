@@ -39,6 +39,7 @@ tests/_support/_generated
 /web/uploads
 
 combined.txt
+/combine
 /config
 /runtime
 /data

@@ -174,6 +174,42 @@
         return setFieldValue(fieldId, value);
     }
 
+    /**
+     * Устанавливает или удаляет скрытое поле created_at для передачи
+     * исторического времени создания объявления из JSON.
+     *
+     * Поле добавляется в форму только в режиме создания объявления
+     * (при редактировании время создания не изменяется).
+     *
+     * @param {*} value Значение created_at из JSON
+     */
+    function setCreatedAtField(value) {
+        var form = document.getElementById('advertisement-form');
+        if (!form) return;
+
+        // Режим редактирования — время создания не трогаем
+        if (getAdvertisementId()) return;
+
+        var existing = document.getElementById('advertisement-created_at');
+
+        if (value === undefined || value === null || value === '') {
+            if (existing) {
+                existing.remove();
+            }
+            return;
+        }
+
+        if (!existing) {
+            existing = document.createElement('input');
+            existing.type = 'hidden';
+            existing.id = 'advertisement-created_at';
+            existing.name = 'Advertisement[created_at]';
+            form.appendChild(existing);
+        }
+        existing.value = value;
+    }
+
+
     // ============================================================
     // МАППИНГ ПОЛЕЙ
     // ============================================================
@@ -779,6 +815,8 @@
 
         hideError();
 
+        setCreatedAtField(data.created_at);
+
         optionsCache = {
             glider: { producer: null, cert: null },
             harness: { producer: null },
@@ -874,14 +912,18 @@
                 });
             } else {
                 // Нет images в JSON — просто показываем статус
+                var createdAtNote = '';
+                if (data.created_at !== undefined && data.created_at !== null && data.created_at !== '') {
+                    createdAtNote = ' Дата создания: ' + data.created_at + '.';
+                }
                 if (ignoredFields.length > 0) {
                     showStatus(
                         '⚠️ Форма заполнена. Проигнорированы поля (нет в форме): ' +
-                        ignoredFields.join(', ') + '.',
+                        ignoredFields.join(', ') + '.' + createdAtNote,
                         'warning'
                     );
                 } else {
-                    showStatus('✅ Форма успешно заполнена!', 'success');
+                    showStatus('✅ Форма успешно заполнена!' + createdAtNote, 'success');
                 }
             }
         }, 100);
@@ -922,6 +964,7 @@
 
         clearBtn.addEventListener('click', function() {
             textarea.value = '';
+            setCreatedAtField(null);
             hideError();
             showStatus('', '');
         });

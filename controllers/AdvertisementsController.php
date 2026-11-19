@@ -165,6 +165,8 @@ class AdvertisementsController extends Controller
             
             // Сохраняем основную модель
             if ($model->save()) {
+
+                $this->applyCreatedAtFromJson($model);
                 if ($this->saveExtraFields($model, Yii::$app->request->post())) {
                     // ПЕРЕГЕНЕРИРУЕМ ЗАГОЛОВОК ПОСЛЕ СОХРАНЕНИЯ ДОПОЛНИТЕЛЬНЫХ ПОЛЕЙ
                     if ($model->type !== Advertisement::TYPE_NORMAL) {
@@ -730,6 +732,57 @@ class AdvertisementsController extends Controller
         
         return true;
     }
+
+    /**
+     * Применяет историческое время создания объявления из JSON-импорта.
+     *
+     * Поле Advertisement[created_at] попадает в POST только через
+     * JSON-импорт (скрытое поле добавляется в форме только админам,
+     * и только в режиме создания). TimestampBehavior при вставке
+     * перезаписывает created_at/updated_at, поэтому значение
+     * применяется отдельным запросом после сохранения —
+     * updateAttributes() не вызывает behaviors и события модели.
+     *
+     * @param Advertisement $model Сохранённое объявление
+     */
+    private function applyCreatedAtFromJson(Advertisement $model): void
+    {
+        $user = Yii::$app->user->identity;
+        if (!$user || !$user->isAdmin()) {
+            return;
+        }
+
+        $postData = Yii::$app->request->post('Advertisement');
+        $raw = $postData['created_at'] ?? null;
+
+        if ($raw === null || trim((string)$raw) === '') {
+            return;
+        }
+
+        $raw = trim((string)$raw);
+
+        if (ctype_digit($raw)) {
+            $ts = (int)$raw;
+            // Миллисекунды -> секунды
+            if ($ts > 9999999999) {
+                $ts = intdiv($ts, 1000);
+            }
+        } else {
+            $ts = strtotime($raw);
+        }
+
+        if (!$ts || $ts <= 0 || $ts > time()) {
+            Yii::warning("JSON import: cannot apply created_at '{$raw}' to advertisement {$model->id}", 'json_import');
+            return;
+        }
+
+        $model->created_at = $ts;
+        $model->updated_at = $ts;
+        $model->updateAttributes(['created_at', 'updated_at']);
+
+        Yii::info("JSON import: applied created_at {$ts} to advertisement {$model->id}", 'json_import');
+    }
+
     
     public function actionDelete($id)
     {

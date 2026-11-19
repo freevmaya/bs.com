@@ -519,6 +519,40 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/config.php",
+			"file_size": 1205,
+			"file_write_time": 134394634457595013,
+			"settings":
+			{
+				"buffer_size": 1179,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+				[
+					8,
+					1,
+					"insert",
+					{
+						"characters": "Vthk"
+					},
+					"BAAAAOkCAAAAAAAA6gIAAAAAAAAJAAAAQnlsYnoyMDI16gIAAAAAAADrAgAAAAAAAAAAAADrAgAAAAAAAOwCAAAAAAAAAAAAAOwCAAAAAAAA7QIAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAA6QIAAAAAAADyAgAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					9,
+					1,
+					"insert",
+					{
+						"characters": "by2010"
+					},
+					"BgAAAO0CAAAAAAAA7gIAAAAAAAAAAAAA7gIAAAAAAADvAgAAAAAAAAAAAADvAgAAAAAAAPACAAAAAAAAAAAAAPACAAAAAAAA8QIAAAAAAAAAAAAA8QIAAAAAAADyAgAAAAAAAAAAAADyAgAAAAAAAPMCAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAA7QIAAAAAAADtAgAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -600,18 +634,21 @@
 	},
 	"expanded_folders":
 	[
-		"/C/OpenServer/domains/bs.com",
-		"/C/OpenServer/domains/bs.com/public_htmlassetscss"
 	],
 	"file_history":
 	[
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/errors.log",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/config.php",
+		"/C/OpenServer/domains/bs.com/.gitignore",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/db 2.php",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/web.php",
+		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/db.php",
 		"/D/Images/3D Принтер/Новогодняя елка/Rich-контент.txt",
 		"/C/OpenServer/domains/bs.com/widgets/SocialLogin.php",
 		"/C/OpenServer/domains/bs.com/widgets/views/social-login.php",
 		"/C/OpenServer/domains/bs.com/config/web.php",
 		"/C/OpenServer/domains/bs.com/controllers/AuthController.php",
 		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/params.php",
-		"/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/web.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/index.php",
 		"/C/OpenServer/domains/bs.com/views/advertisements/section.php",
 		"/C/OpenServer/domains/bs.com/config/params.php",
@@ -727,16 +764,11 @@
 		"/C/OpenServer/domains/bs.com/migrations/m240000_000021_create_short_urls_table.php",
 		"/C/OpenServer/domains/bs.com/models/ShortUrl.php",
 		"/D/tmp/Объявления/Wings/Скaй кантри диcкaвepи 4/1.uSWtLba4FcybmpfB0w_mQtSMF8oTjJfam4EXzh2EHcYb.iWZz8cLPQ0nguqmWlxEhxL-UFfEG1_Vd3hThPcDuD9U.bit",
-		"/C/OpenServer/domains/bs.com/public_html/js/search-subscription.js",
-		"/C/OpenServer/domains/bs.com/components/notifications/NotificationManager.php",
-		"/C/OpenServer/domains/bs.com/commands/SubscribeAdminsController.php",
-		"/C/OpenServer/domains/bs.com/components/SimilarAdvertisementService.php",
-		"/C/OpenServer/domains/bs.com/widgets/SimilarAdvertisements.php",
-		"/C/OpenServer/domains/bs.com/widgets/views/similar-advertisements.php"
+		"/C/OpenServer/domains/bs.com/public_html/js/search-subscription.js"
 	],
 	"find":
 	{
-		"height": 27.2
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -878,6 +910,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"db",
 			"vkontakte",
 			"redirectUrl",
 			"actionVkontakte",
@@ -1004,8 +1037,7 @@
 			"getTypeObject",
 			"getTypeList",
 			"getDevice",
-			"rules",
-			"const TYPE_"
+			"rules"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -1155,6 +1187,38 @@
 		{
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "/C/Users/fwadi/AppData/Local/Temp/fz3temp-2/config.php",
+					"selected": true,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1179,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								755,
+								755
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -1252,7 +1316,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 427.0,
+	"side_bar_width": 243.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
